@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      MH_SECRET: ${MH_SECRET:?set MH_SECRET in .env}
+      MH_ADMIN_USER: ${MH_ADMIN_USER:-admin}
+      MH_ADMIN_PASSWORD: ${MH_ADMIN_PASSWORD:?set MH_ADMIN_PASSWORD in .env (first run only)}
+    volumes: ["mhdata:/data"]
+    restart: unless-stopped
+volumes: { mhdata: {} }

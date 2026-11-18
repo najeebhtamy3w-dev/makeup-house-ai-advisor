@@ -1,0 +1,25 @@
+{
+  "name": "makeup-house-beauty-advisor",
+  "version": "3.0.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "tsx server/src/server.ts",
+    "test": "node --no-warnings --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "test:ui": "scripts/ui-run.sh",
+    "seed:dev": "node --no-warnings --import tsx scripts/dev-seed.ts",
+    "backup": "node --no-warnings --import tsx scripts/backup.ts"
+  },
+  "dependencies": {
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "tsx": "*",
+    "typescript": "*",
+    "@types/node": "*"
+  }
+}
