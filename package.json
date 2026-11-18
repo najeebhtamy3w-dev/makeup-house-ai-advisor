@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit",
     "test:ui": "scripts/ui-run.sh",
     "seed:dev": "node --no-warnings --import tsx scripts/dev-seed.ts",
-    "backup": "node --no-warnings --import tsx scripts/backup.ts"
+    "backup": "node --no-warnings --import tsx scripts/backup.ts",
+    "live:obf": "node --no-warnings --import tsx scripts/obf-live-check.ts",
+    "pilot": "node --no-warnings --import tsx scripts/pilot-run.ts"
   },
   "dependencies": {
     "zod": "^3.25.0"

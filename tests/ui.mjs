@@ -38,7 +38,7 @@ await step('advisor: recommendation card has no price and no personal data', asy
 });
 await step('scan: manual unknown barcode -> new product form prefilled -> save', async () => {
   await page.click('.nav button:nth-child(3)'); await page.fill('input[aria-label="رقم الباركود"]', '5901234123457'); await page.keyboard.press('Enter');
-  await page.waitForSelector('text=نتيجة البحث العالمي'); assert.match(await page.textContent('main'), /مسودات غير معتمدة/); assert.match(await page.textContent('main'), /بيانات وهمية|MOCK/); await page.screenshot({ path: out + '05-scan-new.png' });
+  await page.waitForSelector('text=نتيجة البحث العالمي'); assert.match(await page.textContent('main'), /مسودات غير معتمدة/); assert.match(await page.textContent('main'), /تم العثور على منتج محتمل · تم حفظ المسودة · بانتظار اعتماد المدير/); assert.match(await page.textContent('main'), /بيانات وهمية|MOCK/); await page.screenshot({ path: out + '05-scan-new.png' });
   await page.click('text=إنشاء بطاقة ومراجعتها'); await page.waitForSelector('text=بطاقة منتج جديدة');
   assert.equal(await page.inputValue('input[dir=ltr]'), '5901234123457');
   assert.equal(await page.locator('.field:has(label:text("اسم المنتج")) input').inputValue(), 'Demo Gentle Moisturizer', 'name prefilled from DRAFT'); assert.equal(await page.locator('.field:has(label:text("المكونات الموثقة")) textarea').inputValue(), '', 'unreviewed ingredients are NOT copied');
@@ -133,7 +133,16 @@ await step('review: edit-then-approve stores manager edit; reject leaves field u
 });
 await step('advisor now sees approved ingredients as partial suitability (not "documented")', async () => {
   await page.evaluate(() => (location.hash = '#/advisor')); await page.waitForSelector('.composer input'); await page.fill('.composer input', 'كريم'); await page.keyboard.press('Enter');
-  await page.waitForFunction(() => document.querySelectorAll('.bub.res').length && !document.querySelector('.bub.res .skel')); assert.match(await page.textContent('.msgs'), /الملاءمة:\s*جزئية/);
+  await page.waitForFunction(() => document.querySelectorAll('.bub.res').length && !document.querySelector('.bub.res .skel')); const t = await page.textContent('.msgs'); assert.match(t, /الملاءمة:\s*قد يكون مناسبًا مع احتياطات/); assert.match(t, /FORMULATION NOT VERIFIED/); assert.ok(!/مناسب وفق المعلومات المتاحة/.test(t), 'a partial formulation is never rated suitable');
+});
+await step('advisor: "does it contain fragrance?" on an unverified list answers UNKNOWN, never "fragrance-free"; details explain used/missing info', async () => {
+  await page.fill('.composer input', 'هل كريم يدين (معدّل) فيه عطر؟'); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => /حالة العطر غير معروفة/.test([...document.querySelectorAll('.bub.res')].pop().textContent));
+  const last = await page.locator('.bub.res').last().textContent(); assert.ok(!/لا يظهر عطر/.test(last), last);
+  await page.fill('.composer input', 'مرطب كريم للبشرة الجافة'); await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelectorAll('.bub.res h3').length >= 2);
+  const d = page.locator('details.why').last(); await d.locator('summary').click(); assert.match(await d.textContent(), /المعلومات المستخدمة/); assert.match(await d.textContent(), /حدود المعلومة/);
+  await d.scrollIntoViewIfNeeded(); await page.screenshot({ path: out + '16-advisor-explained.png' });
 });
 await step('layout: no horizontal overflow or null text on every page at 360 / 390 / 768 / 1280 widths', async () => {
   const pages = ['home', 'advisor', 'scan', 'products', 'review', 'import', 'reports', 'users', 'compare', 'routine', 'request', 'academy'];

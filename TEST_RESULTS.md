@@ -1,37 +1,32 @@
-# نتائج الاختبارات — CP02 (نُفذت فعليًا)
-
+# نتائج الاختبارات — CP03 (نُفذت فعليًا)
 ## ملخص
 | الفحص | النتيجة |
 |---|---|
-| `npm run typecheck` | نظيف |
-| `npm test` (وحدة + تكامل + إثراء + مستشار + أداء) | **65/65** |
-| `npm run test:ui` (Playwright، Chromium 390×800) | **26/26**، كُررت 4 مرات متتالية بلا فشل |
-| أداء عند 10,000 منتج | قائمة ≈13ms، فلترة ≈9ms، مستشار ≈113ms (أقصى ≈170ms في جولات أخرى) |
+| `npm run typecheck` (يشمل scripts) | نظيف |
+| `npm test` | **85/85** (CP02: 65 + هوية المنتج 3 + علم المكونات/المستشار 17؛ واختبارا الموصل الموجودان عُدّلا لـv3) |
+| `npm run test:ui` (Chromium 390×800) | **27/27** (CP02: 26)؛ جولات متتالية: 3 + 2 + 1 كلها 27/27 بلا فشل |
+| `tests/device-page.mjs` | PASS (كاميرا وهمية + HID محاكى) — **ليس اختبار جهاز** |
+| أداء 10,000 منتج | قائمة ≈9ms، فلترة ≈6ms، مستشار ≈139ms (بيانات الأداء بلا مكونات؛ تكلفة تحليل INCI لم تُقس على كتالوج كبير بقوائم مكونات) |
+| خط الأساس (قبل التعديل) | 65/65 · tsc نظيف · واجهة 26/26 — أعيد إثباته على شجرة نظيفة = وسم `cp02` |
 
-## ما لم يُختبر (صراحة)
-* **اتصال حي بـ Open Beauty Facts — BLOCKED** (الوكيل يرفض 403). الموصل مختبر بردود مسجّلة الشكل وبموصل mock فقط؛ مسار نقطة النهاية يحتاج تحققًا عند أول اتصال حي.
-* PostgreSQL (المخطط `db/postgres` غير مُشغَّل) · Docker/compose · كاميرا/قارئ HID حقيقيان · هواتف فعلية · Netlify/GitHub (لم يُنشر شيء) · `npm audit` · الوضع الداكن · قارئ الشاشة.
-
-## جدول معايير القبول
-| المعيار | الحالة |
+## حي مقابل محاكاة (تمييز إلزامي)
+| النوع | الحالة |
 |---|---|
-| لا أسعار/كميات/تكاليف (مخطط + 400 على الحقول) | TESTED |
-| صلاحيات مدير/موظف على الخادم | TESTED |
-| مصادقة، حد محاولات | TESTED |
-| باركود GTIN، منع التكرار، أرقام عربية | TESTED |
-| استيراد CSV/XLSX + قنبلة ضغط | TESTED |
-| التوفر ثلاثي + انتهاء الصلاحية | TESTED |
-| المستشار الاسترجاعي وقواعد السلامة | TESTED |
-| محرك الإثراء (موصلات، مسودات، تعارض، مراجعة، طابور، معدل) | TESTED (موصلات وهمية/مسجلة) |
-| الإثراء من الإنترنت الفعلي | BLOCKED |
-| واجهة الهاتف، المراجعة، حالات الخطأ/الانقطاع، الحركة المخفضة | TESTED (Chromium) |
-| مسح الكاميرا | PARTIALLY TESTED (مسار الخطأ فقط) |
-| الوضع الداكن | NOT IMPLEMENTED (رموز مجهزة) |
-| AI Provider | IMPLEMENTED (حارس + لا مزود)، TESTED للحارس؛ لا LLM مفعّل |
-| ملاءمة قائمة على المكونات | NOT IMPLEMENTED |
-| Docker / PostgreSQL / نشر | UNTESTED / NOT DEPLOYED |
+| اتصال حي بـOBF | **لم يُجرَ — BLOCKED** (CONNECT 403 من بوابة الخروج) |
+| اختبارات الموصل | ردود **بالشكل الموثق** (محاكاة) |
+| مطابقة المنتجات | اختبارات وحدة على نصوص تركيبية |
+| منتجات المحل الحقيقية | **لم تُجرَ** (PENDING) |
+| Samsung / HID حقيقي | **لم يُجرَ** (DEVICE-PENDING) |
 
-## قائمة اختبارات الوحدة والتكامل
+## تغطية قوائم التفويض 12.x
+* 12.1 Live: HTTP error/Timeout/تغير الشكل/Rate limit/غير موجود **بمحاكاة**؛ اتصال ناجح وباركود معروف: **غير مُنجَز**.
+* 12.2 Matching: تطابق كامل، اختلاف حجم، اختلاف إصدار/اسم (partial)، تعارض مكونات، بيانات ناقصة، عدم تكرار منتج ✔.
+* 12.3 Scientific: مكونات موثقة/ناقصة، عطر موثق، عطر غير معروف، تحذير، عدم اختلاق (مكوّن غير معروف لا يُخمَّن)، عدم استنتاج تركيز ✔.
+* 12.4 Advisor: توصية مفسرة، فصل الملاءمة/التوفر (+بدائل)، استبعاد بسبب موثق، نقص المعلومات، سقف النتائج، عربية متنوعة ✔.
+* 12.5 UI: بحث/تحميل/أخطاء/مراجعة/بطاقات/محادثة/تنقل/هاتف/Reduced Motion/لا null ✔ (Chromium).
+* 12.6 Regression: كل اختبارات CP02 أُعيد تشغيلها (عُدّل اختبار واجهة واحد عمدًا لأن دلالة «الملاءمة: جزئية» حلّت محلها الأحكام الأربعة).
+
+## قائمة الوحدة والتكامل
 ```
 PASS 1 - dialect/spelling: جافه / حساسه / ما يهيج / دهنيه match like the standard spellings
 PASS 2 - follow-up: skin type asked only when missing; contextual, short, with choices
@@ -96,8 +91,28 @@ PASS 60 - status endpoint reports mode/connectors/queue honestly
 PASS 61 - no price/cost/quantity columns in enrichment tables
 PASS 62 - OBF connector: parses fields, sends identifying User-Agent, restricts requested fields
 PASS 63 - OBF connector: status 0 / 404 => not found; 5xx / network / bad JSON / timeout => Unreachable
-PASS 64 - perf @10,000 products: list/search < 400ms, advisor < 1500ms (measured, budget is generous for mid-range hosting)
-PASS 65 - perf: advisor response size is bounded (does not dump thousands of products to the client)
+PASS 64 - identity: sizes compare by unit-normalised value (200ml == 200 ml == ٢٠٠ مل; 200 ml != 250 ml; oz/ml converted)
+PASS 65 - identity: name similarity is never proof — variant words give partial/conflict, brand mismatch is a conflict
+PASS 66 - identity: INCI comparison — same list exact; reordered = partial (order encodes concentration); different list = conflict
+PASS 67 - perf @10,000 products: list/search < 400ms, advisor < 1500ms (measured, budget is generous for mid-range hosting)
+PASS 68 - perf: advisor response size is bounded (does not dump thousands of products to the client)
+PASS 69 - knowledge model: every record has provenance + review state; seed is NOT expert-reviewed; no invented review dates
+PASS 70 - documented verified ingredients: explained support, but seed KB is unreviewed => at most "conditional", never "suitable"
+PASS 71 - with EXPERT-REVIEWED records a clean verified product can be "suitable" (and only then)
+PASS 72 - missing / unreviewed ingredients => insufficient + FORMULATION NOT VERIFIED; no benefit inferred
+PASS 73 - fragrance: documented presence => contains (excluded when avoided), even from an unreviewed list
+PASS 74 - fragrance: ABSENCE only from a VERIFIED list; partial/unreviewed/missing => unknown (never "fragrance-free")
+PASS 75 - fragrance: a name claim ("Fragrance Free") is a CLAIM, not evidence; "unscented" may hide masking agents
+PASS 76 - fragrance: benzyl alcohol alone (dual function) does not prove a fragrance; essential oils do; carrier oils do not
+PASS 77 - precautions are relevant and documented: exfoliating acid, sulfate, sensitive-skin notice; no medical/therapeutic wording
+PASS 78 - no concentration inference: nothing numeric/percent is invented; the ordering caveat is always stated
+PASS 79 - sunscreen: UV filters in a verified list are explained as presence only; no filter => insufficient (no SPF is ever inferred)
+PASS 80 - paraben / sulfate avoidance: excluded only on documented presence; unknown when list is not verified
+PASS 81 - advisor: explained recommendation carries used info, missing info, precautions, availability and alternatives
+PASS 82 - advisor: available-but-unsuitable is EXCLUDED with a reason (never silently dropped, never recommended)
+PASS 83 - advisor: Arabic / Yemeni phrasing — dry, sensitive, oily+sunscreen, hair, "ناشفة"
+PASS 84 - advisor: "does this product contain fragrance?" answers about the named product from its list; without a product it does not guess
+PASS 85 - advisor: results never exceed the cap even with many matches + excluded list capped
 ```
 
 ## الواجهة (آخر جولة)
@@ -126,6 +141,7 @@ PASS review screen: diff local vs proposed, source, conflict flag, draft badge
 PASS review: approve ingredients -> product gets ingredients, stays "partial" (not verified), no source URL for mock
 PASS review: edit-then-approve stores manager edit; reject leaves field untouched
 PASS advisor now sees approved ingredients as partial suitability (not "documented")
+PASS advisor: "does it contain fragrance?" on an unverified list answers UNKNOWN, never "fragrance-free"; details explain used/missing info
 PASS layout: no horizontal overflow or null text on every page at 360 / 390 / 768 / 1280 widths
 PASS layout: fixed nav never covers the last content (bottom padding >= nav height)
 console errors seen: []

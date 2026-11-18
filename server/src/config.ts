@@ -8,6 +8,7 @@ export interface Config {
   availabilityStaleHours: number;
   webDir: string;
   enrich: 'off' | 'mock' | 'obf';
+  enrichBaseUrl: string;
   enrichContact: string;
   enrichRatePerMin: number;
 }
@@ -24,6 +25,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     availabilityStaleHours: Number(env.MH_AVAILABILITY_STALE_HOURS ?? 24),
     webDir: env.MH_WEB_DIR ?? './web',
     enrich: (['mock', 'obf'].includes(env.MH_ENRICH ?? '') ? env.MH_ENRICH : 'off') as 'off' | 'mock' | 'obf',
+    enrichBaseUrl: env.MH_OBF_BASE ?? 'https://world.openbeautyfacts.org',
     enrichContact: env.MH_ENRICH_CONTACT ?? 'contact-not-set',
     enrichRatePerMin: Math.min(Number(env.MH_ENRICH_RATE_PER_MIN ?? 12) || 12, 14), // OBF documents 15 product reads/min/IP
   };

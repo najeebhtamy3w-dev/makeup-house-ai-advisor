@@ -135,18 +135,46 @@ test('no price/cost/quantity columns in enrichment tables', () => {
 const resp = (status: number, body: unknown): ReturnType<FetchLike> => Promise.resolve({ ok: status >= 200 && status < 300, status, json: async () => body });
 test('OBF connector: parses fields, sends identifying User-Agent, restricts requested fields', async () => {
   let seen: { url: string; ua?: string } = { url: '' };
-  const c = openBeautyFacts({ contact: 'ops@example.com', fetchImpl: (u, i) => { seen = { url: u, ua: i?.headers?.['user-agent'] }; return resp(200, { status: 1, product: { product_name: ' Gentle Lotion ', brands: 'Acme, Other', quantity: '200 ml', ingredients_text: 'Aqua, Parfum', price: 12 } }); } });
+  const c = openBeautyFacts({ contact: 'ops@example.com', fetchImpl: (u, i) => { seen = { url: u, ua: i?.headers?.['user-agent'] }; return resp(200, { status: 'success', product: { code: B1, product_name: ' Gentle Lotion ', brands: 'Acme, Other', quantity: '200 ml', ingredients_text: 'Aqua, Parfum', price: 12 } }); } });
   const r = await c.lookupBarcode(B1);
   assert.ok(r.found); assert.deepEqual((r as any).fields, { name: 'Gentle Lotion', brand: 'Acme', size: '200 ml', ingredients: 'Aqua, Parfum' });
-  assert.match(seen.ua!, /^MakeupHouseAdvisor\/3\.0 \(ops@example\.com\)$/); assert.match(seen.url, /fields=code,product_name,brands,quantity,ingredients_text/);
+  assert.match(seen.ua!, /^MakeupHouseAdvisor\/3\.0 \(ops@example\.com\)$/); assert.match(seen.url, /\/api\/v3\/product\/[0-9]+\?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text/);
   assert.ok(!('price' in (r as any).fields), 'unexpected fields (price) are never read');
 });
 test('OBF connector: status 0 / 404 => not found; 5xx / network / bad JSON / timeout => Unreachable', async () => {
   const mk = (f: FetchLike, timeoutMs?: number) => openBeautyFacts({ contact: 'x@y.z', fetchImpl: f, timeoutMs });
-  assert.equal((await mk(() => resp(200, { status: 0 })).lookupBarcode(B1)).found, false);
+  assert.equal((await mk(() => resp(200, { status: 'failure' })).lookupBarcode(B1)).found, false);
+  assert.equal((await mk(() => resp(200, { status: 0 })).lookupBarcode(B1)).found, false); // legacy v2 shape tolerated
+  await assert.rejects(mk(() => resp(200, { unexpected: true })).lookupBarcode(B1), Unreachable); // API shape changed
+  await assert.rejects(mk(() => resp(200, 'text')).lookupBarcode(B1), Unreachable);
+  assert.equal((await mk(() => resp(200, { status: 'success', product: { code: '9999999999994', product_name: 'Other' } })).lookupBarcode(B1)).found, false); // different product code => not our product
   assert.equal((await mk(() => resp(404, {})).lookupBarcode(B1)).found, false);
   await assert.rejects(mk(() => resp(503, {}) ).lookupBarcode(B1), Unreachable);
   await assert.rejects(mk(() => Promise.reject(new Error('ECONNRESET'))).lookupBarcode(B1), Unreachable);
   await assert.rejects(mk(() => Promise.resolve({ ok: true, status: 200, json: async () => { throw new Error('x'); } })).lookupBarcode(B1), Unreachable);
   await assert.rejects(mk((_u, i) => new Promise((_r, rej) => i!.signal!.addEventListener('abort', () => rej(new Error('abort')))), 30).lookupBarcode(B1), Unreachable);
+});
+
+// ---- CP03: product identity / formulation comparison ----
+import { compareSize, compareName, compareBrand, compareIngredients, parseSize, inciList } from '../server/src/enrichment/identity.ts';
+test('identity: sizes compare by unit-normalised value (200ml == 200 ml == ٢٠٠ مل; 200 ml != 250 ml; oz/ml converted)', () => {
+  assert.deepEqual(parseSize('٢٠٠ مل'), { unit: 'ml', v: 200 });
+  assert.equal(compareSize('200 ml', '200ml').match, 'exact');
+  assert.equal(compareSize('200 ml', '250 ml').match, 'conflict');
+  assert.equal(compareSize('1 l', '1000 ml').match, 'exact');
+  assert.equal(compareSize('200 ml', '50 g').match, 'conflict');
+  assert.equal(compareSize('large', 'big').match, 'partial'); // uninterpretable => needs a human, never silently equal
+});
+test('identity: name similarity is never proof — variant words give partial/conflict, brand mismatch is a conflict', () => {
+  assert.equal(compareName('Gentle Cleanser', 'gentle  cleanser').match, 'exact');
+  assert.equal(compareName('Daily Moisturizer SPF 30', 'Daily Moisturizer SPF 50').match, 'partial');
+  assert.equal(compareName('Gentle Cleanser', 'Rose Lip Tint').match, 'conflict');
+  assert.equal(compareBrand('Acme', 'ACME').match, 'exact'); assert.equal(compareBrand('Acme', 'Other').match, 'conflict');
+});
+test('identity: INCI comparison — same list exact; reordered = partial (order encodes concentration); different list = conflict', () => {
+  assert.deepEqual(inciList('Water, Glycerin (vegetable), Parfum.'), ['aqua', 'glycerin', 'parfum']);
+  assert.equal(compareIngredients('Aqua, Glycerin, Parfum', 'Water, Glycerin, Parfum').match, 'exact');
+  assert.equal(compareIngredients('Aqua, Glycerin, Parfum', 'Aqua, Parfum, Glycerin').match, 'partial');
+  assert.equal(compareIngredients('Aqua, Glycerin, Parfum', 'Aqua, Zinc Oxide, Tocopherol').match, 'conflict');
+  assert.equal(compareIngredients('Aqua, Glycerin', '').match, 'partial');
 });

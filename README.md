@@ -1,4 +1,4 @@
-# MAKEUP HOUSE — مستشار الجمال (V3.0 — CP02)
+# MAKEUP HOUSE — مستشار الجمال (V3.0 — CP03 PARTIAL CHECKPOINT)
 منصة داخلية للمدير والموظفين. **لا أسعار ولا كميات ولا مبيعات.**
 
 ## التشغيل على Windows
@@ -14,9 +14,13 @@ npm start
 المدير ينشئ حسابات الموظفين من «المزيد ← الموظفون».
 
 ## الإثراء من المصادر العالمية (اختياري، مسودات فقط)
-`MH_ENRICH=off|mock|obf` (الافتراضي off) · `MH_ENRICH_CONTACT` بريد للتعريف في User-Agent (مطلوب مع obf) · `MH_ENRICH_RATE_PER_MIN` (الافتراضي 12، السقف 14). **الاتصال الحي لم يُختبر** (محجوب في بيئة البناء). التفاصيل: docs/ENRICHMENT.md.
+`MH_ENRICH=off|mock|obf` (الافتراضي off) · `MH_OBF_BASE` (افتراضي https://world.openbeautyfacts.org) · `MH_ENRICH_CONTACT` بريد للتعريف في User-Agent (مطلوب مع obf) · `MH_ENRICH_RATE_PER_MIN` (الافتراضي 12، السقف 14). **الاتصال الحي لم يُختبر** (محجوب في بيئة البناء). التفاصيل: docs/ENRICHMENT.md.
+
+## CP03: التحقق الواقعي
+حالة البوابات: **CP03_ACCEPTANCE.md**. اتصال OBF حي: `npm run live:obf -- --contact you@example.com <باركودات>` · المنتجات الخمسة: `npm run pilot -- products.csv` (docs/FIVE_PRODUCT_PILOT.md) · اختبار Samsung: افتح `/device-test.html` (docs/ANDROID_DEVICE_VALIDATION.md).
 
 ## الوثائق
+CP03: EXPERT_DECISIONS.md · docs/LIVE_API_VALIDATION.md · FIVE_PRODUCT_PILOT.md · SCIENTIFIC_KNOWLEDGE_AUDIT.md · ANDROID_DEVICE_VALIDATION.md · 
 docs/AUDIT_CP02.md · SCIENTIFIC_REVIEW.md · UIUX_REPORT.md · DESIGN_SYSTEM.md · ENRICHMENT.md · RESTORE.md · preview/index.html · TEST_RESULTS.md · CHANGELOG.md
 
 ## Docker

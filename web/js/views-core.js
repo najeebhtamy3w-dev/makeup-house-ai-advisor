@@ -138,7 +138,7 @@ export async function scan(root, me) {
   const lookup = async () => {
     halt(); fill(result); const b = code.value.trim(); if (!b) return;
     try { sessionStorage.setItem(PENDING_KEY, b); } catch { /* ignore */ }
-    fill(result, skeleton(1));
+    fill(result, h('div', { class: 'tiny muted', role: 'status' }, 'جارٍ البحث في كتالوج المحل…'), skeleton(1));
     try {
       const r = await api('GET', '/api/products/by-barcode/' + encodeURIComponent(b)); setStep(2); code.value = r.barcode ?? b;
       try { sessionStorage.removeItem(PENDING_KEY); } catch { /* ignore */ }
@@ -157,7 +157,7 @@ export async function scan(root, me) {
       const st = await getEnrich();
       if (st.mode === 'off') { fill(panel, h('h3', {}, 'البحث العالمي'), h('div', { class: 'notice' }, 'غير مفعّل على هذا الخادم. أدخل البيانات يدويًا وستُحفظ بحالة «تحتاج مراجعة».'), local ? null : newCardBtn(barcode, {})); return; }
       const run = async (force) => {
-        fill(panel, h('h3', {}, 'البحث في المصادر العالمية…'), skeleton(2));
+        fill(panel, h('h3', {}, 'جارٍ الاتصال بالمصدر العالمي…'), h('div', { class: 'tiny muted', role: 'status' }, 'المنتج غير مكتمل التوثيق محليًا، أبحث عن معلومات للمراجعة'), skeleton(2));
         try { render(await api('POST', '/api/enrichment/lookup', { barcode, ...(force ? { force: true } : {}) })); }
         catch (e) { fill(panel, h('h3', {}, 'البحث العالمي'), errorBox(e.status ? e.message : 'تعذر الاتصال بالخادم.', () => run(false)), local ? null : newCardBtn(barcode, {})); }
       };
@@ -166,6 +166,7 @@ export async function scan(root, me) {
         const byField = new Map(); for (const c of r.candidates) byField.set(c.field, [...(byField.get(c.field) ?? []), c]);
         const nm = r.candidates.find((c) => c.field === 'name'), br = r.candidates.find((c) => c.field === 'brand'), sz = r.candidates.find((c) => c.field === 'size');
         fill(panel, h('div', { class: 'row sb' }, h('h3', {}, 'نتيجة البحث العالمي'), h('span', { class: 'badge ' + ({ found: 'warn', conflict: 'warn', not_found: 'info', unreachable: 'no', rate_limited: 'warn', error: 'no' }[out] ?? '') }, ENRICH_LABEL[out])),
+          out === 'found' || out === 'conflict' ? h('div', { class: 'tiny', role: 'status' }, (out === 'conflict' ? 'توجد معلومات تحتاج مراجعة' : 'تم العثور على منتج محتمل') + ' · تم حفظ المسودة · بانتظار اعتماد المدير') : null,
           st.mode === 'mock' ? h('div', { class: 'notice' }, '⚠ وضع تجريبي: بيانات وهمية للاختبار.') : null,
           out === 'unreachable' ? errorBox('تعذر الاتصال بالمصدر. الباركود محفوظ ويمكنك إنشاء البطاقة يدويًا أو إعادة المحاولة.', () => run(false)) : null,
           out === 'rate_limited' ? h('div', { class: 'notice' }, 'بلغنا حد الطلبات للمصدر. أعد المحاولة بعد دقيقة.') : null,

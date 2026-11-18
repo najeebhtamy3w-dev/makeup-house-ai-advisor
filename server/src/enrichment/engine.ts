@@ -2,6 +2,7 @@ import type { Config } from '../config.ts';
 import { audit, now, type DB } from '../db.ts';
 import { gtinValid, normalizeBarcode } from '../gtin.ts';
 import { Unreachable, type Connector, type EnrichField } from './types.ts';
+import { compareField } from './identity.ts';
 import { openBeautyFacts } from './openbeautyfacts.ts';
 import { mockConnector } from './mock.ts';
 
@@ -10,7 +11,7 @@ export const setConnectors = (c: Connector[]) => { connectors = c; };
 export const getConnectors = () => connectors;
 export function configureConnectors(cfg: Config) {
   if (cfg.enrich === 'mock') connectors = [mockConnector()];
-  else if (cfg.enrich === 'obf') connectors = [openBeautyFacts({ contact: cfg.enrichContact })];
+  else if (cfg.enrich === 'obf') connectors = [openBeautyFacts({ contact: cfg.enrichContact, baseUrl: cfg.enrichBaseUrl })];
   else connectors = [];
 }
 
@@ -68,7 +69,8 @@ export function markConflicts(db: DB, barcode: string) {
   const upd = db.prepare('UPDATE enrichment_candidates SET conflict_note=? WHERE id=?');
   for (const c of pend) {
     const notes: string[] = [];
-    const lv = local?.[c.field]; if (lv && norm(lv) !== norm(c.value)) notes.push('يختلف عن بيانات المحل');
+    const lv = local?.[c.field]; const cmp = lv ? compareField(c.field, lv, c.value) : null;
+    if (cmp && cmp.match !== 'exact') notes.push(`${cmp.match === 'conflict' ? 'يختلف عن بيانات المحل' : 'تشابه جزئي مع بيانات المحل'}${cmp.note ? ': ' + cmp.note : ''}`);
     const other = pend.find((o) => o.id !== c.id && o.field === c.field && o.source_name !== c.source_name && norm(o.value) !== norm(c.value));
     if (other) notes.push(`يتعارض مع مصدر آخر (${other.source_name})`);
     upd.run(notes.join(' · '), c.id);

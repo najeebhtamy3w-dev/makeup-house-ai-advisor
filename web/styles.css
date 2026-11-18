@@ -87,3 +87,5 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:start;
 @media(max-width:380px){.quick{grid-template-columns:repeat(2,1fr)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.frame::after{display:none}}
 @media print{.nav,.top,.composer{display:none}}
+
+.why{margin-top:6px}.why summary{cursor:pointer;font-size:13px;color:var(--wine-700,#78475d);min-height:32px;display:flex;align-items:center}.why>div{margin-top:4px}
