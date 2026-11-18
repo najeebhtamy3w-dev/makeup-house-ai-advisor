@@ -28,3 +28,13 @@ export const debounce = (fn, ms = 250) => { let t; return (...a) => { clearTimeo
 
 // replaceChildren stringifies null/false -> use this instead when a child may be conditional.
 export const fill = (el, ...kids) => el.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
+
+/* ---- feedback states ---- */
+export const skeleton = (n = 3) => h('div', { 'aria-busy': 'true', 'aria-label': 'جارٍ التحميل' }, Array.from({ length: n }, () => h('div', { class: 'skel lg' })));
+export const errorBox = (msg, retry) => h('div', { class: 'notice err', role: 'alert' }, msg, retry ? h('button', { class: 'btn sm light', style: 'margin-inline-start:8px', onclick: retry }, 'إعادة المحاولة') : null);
+export const emptyState = (ico, title, sub, ...actions) => h('div', { class: 'empty' }, h('b', {}, ico), h('div', {}, h('strong', {}, title)), sub ? h('div', { class: 'tiny' }, sub) : null, actions.length ? h('div', { class: 'row', style: 'justify-content:center;margin-top:10px' }, actions) : null);
+export async function busy(btn, fn) { btn.classList.add('busy'); try { return await fn(); } finally { btn.classList.remove('busy'); } }
+// Enrichment lookup outcome -> label the staff understands (spec 9.4). "found" is only ever a DRAFT.
+export const ENRICH_LABEL = { found: 'يحتاج مراجعة', conflict: 'تعارض مصادر', not_found: 'غير معروف', unreachable: 'تعذر الاتصال', rate_limited: 'تجاوز حد الطلبات', disabled: 'غير مفعّل', error: 'خطأ في المصدر' };
+export const FIELD_LABEL = { name: 'الاسم', brand: 'العلامة', size: 'الحجم', ingredients: 'المكونات', image_url: 'الصورة' };
+export const haptic = (ms = 40) => { try { navigator.vibrate?.(ms); } catch { /* unsupported */ } };

@@ -6,6 +6,8 @@
  */
 import { inflateRawSync } from 'node:zlib';
 
+// Zip-bomb guards: caps on entry count, per-entry and total decompressed size.
+const MAX_ENTRIES = 300, MAX_ENTRY = 40 * 1024 * 1024, MAX_TOTAL = 80 * 1024 * 1024;
 function unzip(buf: Buffer): Map<string, Buffer> {
   const files = new Map<string, Buffer>();
   let eocd = -1;
@@ -14,6 +16,8 @@ function unzip(buf: Buffer): Map<string, Buffer> {
   }
   if (eocd < 0) throw new Error('ملف XLSX غير صالح');
   const count = buf.readUInt16LE(eocd + 10);
+  if (count > MAX_ENTRIES) throw new Error('ملف XLSX يحتوي ملفات كثيرة جدًا');
+  let total = 0;
   let p = buf.readUInt32LE(eocd + 16);
   for (let n = 0; n < count; n++) {
     if (buf.readUInt32LE(p) !== 0x02014b50) throw new Error('ملف XLSX تالف');
@@ -25,8 +29,13 @@ function unzip(buf: Buffer): Map<string, Buffer> {
     const lnlen = buf.readUInt16LE(lho + 26), lelen = buf.readUInt16LE(lho + 28);
     const start = lho + 30 + lnlen + lelen;
     const raw = buf.subarray(start, start + csize);
-    if (method === 0) files.set(name, Buffer.from(raw));
-    else if (method === 8) files.set(name, inflateRawSync(raw));
+    if (total > MAX_TOTAL) throw new Error('ملف XLSX كبير جدًا بعد فك الضغط');
+    if (method === 0) { files.set(name, Buffer.from(raw)); total += raw.length; }
+    else if (method === 8) {
+      let out: Buffer;
+      try { out = inflateRawSync(raw, { maxOutputLength: MAX_ENTRY }); } catch { throw new Error('ملف XLSX تالف أو يتجاوز الحد المسموح بعد فك الضغط'); }
+      files.set(name, out); total += out.length;
+    }
     p += 46 + nlen + elen + clen;
   }
   return files;

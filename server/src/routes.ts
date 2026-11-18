@@ -115,11 +115,13 @@ route('GET', '/api/products', 'any', (c) => {
   const q = (c.query.get('q') ?? '').trim();
   const av = c.query.get('availability');
   const cat = c.query.get('category');
+  const ver = c.query.get('verification');
   const limit = Math.min(Number(c.query.get('limit') ?? 100) || 100, 500);
   const where: string[] = []; const args: (string | number)[] = [];
   if (q) { where.push('(name LIKE ? OR brand LIKE ? OR barcode LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l); }
   if (av && ['yes', 'no', 'unknown'].includes(av)) { where.push('availability = ?'); args.push(av); }
   if (cat) { where.push('category = ?'); args.push(cat); }
+  if (ver && ['review', 'partial', 'verified'].includes(ver)) { where.push('verification = ?'); args.push(ver); }
   const rows = c.db.prepare(`SELECT * FROM products ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY updated_at DESC, id DESC LIMIT ?`).all(...args, limit) as unknown as ProductRow[];
   return { products: rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)) };
 });
@@ -128,7 +130,7 @@ route('GET', '/api/products/by-barcode/:code', 'any', (c) => {
   const b = cleanBarcode(c.params.code);
   const p = b ? (c.db.prepare('SELECT * FROM products WHERE barcode = ?').get(b) as ProductRow | undefined) : undefined;
   // Global enrichment connectors are not implemented yet: say so instead of pretending to search the web.
-  return { barcode: b, found: !!p, product: p ? presentProduct(p, c.cfg.availabilityStaleHours) : null, enrichment: p ? null : { status: 'not_configured', message: 'البحث العالمي غير مفعّل بعد. أدخل البيانات يدويًا وستُحفظ بحالة «تحتاج مراجعة».' } };
+  return { barcode: b, found: !!p, product: p ? presentProduct(p, c.cfg.availabilityStaleHours) : null, enrichment: p ? null : c.cfg.enrich === 'off' ? { status: 'not_configured', message: 'البحث العالمي غير مفعّل على هذا الخادم. أدخل البيانات يدويًا وستُحفظ بحالة «تحتاج مراجعة».' } : { status: 'available', message: 'يمكن البحث في المصادر العالمية. النتائج مسودات تحتاج مراجعة المدير.' } };
 });
 
 route('GET', '/api/products/:id', 'any', (c) => {
@@ -241,7 +243,9 @@ async function runImport(c: Ctx, commit: boolean) {
     c.db.exec('COMMIT');
   } catch (e) { c.db.exec('ROLLBACK'); throw e; }
   audit(c.db, uid, 'import', 'products', filename.replace(/[^\w.\-]/g, '_'), `added=${fresh.length}`);
-  return { committed: true, ...summary };
+  let queued = 0;
+  if (c.query.get('enrich') === '1' && c.cfg.enrich !== 'off') queued = enqueueBarcodes(c.db, fresh.map((r) => r.barcode).filter(Boolean));
+  return { committed: true, enrich_queued: queued, ...summary };
 }
 route('POST', '/api/imports/preview', 'manager', (c) => runImport(c, false));
 route('POST', '/api/imports/commit', 'manager', (c) => runImport(c, true));
@@ -250,7 +254,8 @@ route('POST', '/api/imports/commit', 'manager', (c) => runImport(c, true));
 route('POST', '/api/advisor/search', 'any', async (c) => {
   const { query } = z.object({ query: z.string().trim().min(1).max(500) }).strict().parse(await c.body());
   const rows = c.db.prepare('SELECT * FROM products').all() as unknown as ProductRow[];
-  return advise(query, rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)));
+  const conflictIds = new Set((c.db.prepare("SELECT DISTINCT p.id FROM products p JOIN enrichment_candidates e ON e.barcode = p.barcode WHERE e.review_status='pending' AND e.conflict_note <> ''").all() as { id: number }[]).map((r) => r.id));
+  return advise(query, rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)), { conflictIds });
 });
 
 // ---------- reports (manager) ----------
@@ -265,3 +270,50 @@ route('GET', '/api/reports/summary', 'manager', (c) => {
     unmet_requests: one('SELECT COUNT(*) n FROM unmet_requests'),
   };
 });
+
+// ---------- enrichment (global product knowledge). Drafts only: nothing here becomes "verified" automatically ----------
+import { enrichBarcode, reviewCandidate, enqueueBarcodes, processQueueOnce, getConnectors } from './enrichment/engine.ts';
+
+route('POST', '/api/enrichment/lookup', 'any', async (c) => {
+  const { barcode, force } = z.object({ barcode: z.string().max(40), force: z.boolean().optional() }).strict().parse(await c.body());
+  const b = cleanBarcode(barcode); if (!b) throw new HttpError(400, 'أدخل الباركود');
+  const r = await enrichBarcode(c.db, c.cfg, b, c.user!.id, { force: !!force && c.user!.role === 'manager' });
+  const local = c.db.prepare('SELECT id,name,brand,size,ingredients FROM products WHERE barcode=?').get(b) ?? null;
+  return { ...r, local_product: local, mode: c.cfg.enrich };
+});
+
+route('GET', '/api/enrichment/status', 'any', (c) => {
+  const n = (sql: string) => (c.db.prepare(sql).get() as { n: number }).n;
+  return {
+    mode: c.cfg.enrich, connectors: getConnectors().map((x) => ({ id: x.id, name: x.name, license: x.license, mock: x.isMock })),
+    pending_candidates: n("SELECT COUNT(DISTINCT barcode) n FROM enrichment_candidates WHERE review_status='pending'"),
+    queue: { queued: n("SELECT COUNT(*) n FROM enrichment_jobs WHERE status='queued'"), done: n("SELECT COUNT(*) n FROM enrichment_jobs WHERE status='done'"), failed: n("SELECT COUNT(*) n FROM enrichment_jobs WHERE status='failed'") },
+  };
+});
+
+route('GET', '/api/enrichment/pending', 'manager', (c) => {
+  const rows = c.db.prepare("SELECT id,barcode,field,value,source_name,source_url,license,is_mock,conflict_note,extracted_at FROM enrichment_candidates WHERE review_status='pending' ORDER BY barcode,field,id LIMIT 500").all() as { barcode: string; [k: string]: unknown }[];
+  const byCode = new Map<string, typeof rows>();
+  for (const r of rows) byCode.set(r.barcode, [...(byCode.get(r.barcode) ?? []), r]);
+  return { items: [...byCode].map(([barcode, candidates]) => ({ barcode, local_product: c.db.prepare('SELECT id,name,brand,size,ingredients,verification FROM products WHERE barcode=?').get(barcode) ?? null, candidates })) };
+});
+
+route('POST', '/api/enrichment/candidates/:id/review', 'manager', async (c) => {
+  const id = parseId(c.params.id!);
+  const d = z.object({ action: z.enum(['approve', 'reject']), value: z.string().max(5000).optional() }).strict().parse(await c.body());
+  const r = reviewCandidate(c.db, id, c.user!.id, d.action, d.value);
+  const err = (r as { error?: 'not_found' | 'already_reviewed' | 'no_product' | 'images_not_supported' | 'empty' }).error;
+  if (err) {
+    const map = { not_found: [404, 'غير موجود'], already_reviewed: [409, 'تمت مراجعته مسبقًا'], no_product: [409, 'أنشئ بطاقة المنتج أولًا ثم اعتمد المعلومات'], images_not_supported: [400, 'اعتماد الصور غير مدعوم في هذه النسخة (ترخيص CC BY-SA)'], empty: [400, 'القيمة فارغة'] } as const;
+    throw new HttpError(map[err][0], map[err][1]);
+  }
+  return { ok: true };
+});
+
+route('POST', '/api/enrichment/queue/start', 'manager', (c) => {
+  if (c.cfg.enrich === 'off') throw new HttpError(409, 'الإثراء الإلكتروني غير مفعّل (MH_ENRICH).');
+  const codes = (c.db.prepare("SELECT barcode FROM products WHERE barcode IS NOT NULL AND (ingredients='' OR brand='' OR size='') AND barcode NOT IN (SELECT barcode FROM enrichment_runs WHERE outcome IN ('found','not_found'))").all() as { barcode: string }[]).map((r) => r.barcode);
+  audit(c.db, c.user!.id, 'enrich_queue', 'products', codes.length);
+  return { queued: enqueueBarcodes(c.db, codes), candidates_total: codes.length };
+});
+route('POST', '/api/enrichment/queue/run', 'manager', async (c) => ({ ...(await processQueueOnce(c.db, c.cfg, 5)) }));

@@ -6,6 +6,7 @@ import { audit, now, openDb, type DB } from './db.ts';
 import { makeHandler } from './http.ts';
 import { hashPassword } from './security.ts';
 import './routes.ts';
+import { configureConnectors, processQueueOnce } from './enrichment/engine.ts';
 
 const MIME: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 
@@ -39,5 +40,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const cfg = loadConfig();
   const db = openDb(cfg.dbPath);
   seedAdmin(db, process.env.MH_ADMIN_USER, process.env.MH_ADMIN_PASSWORD);
+  configureConnectors(cfg);
+  if (cfg.enrich !== 'off') setInterval(() => { processQueueOnce(db, cfg, 1).catch((e) => console.error('[queue]', (e as Error).message)); }, 6000).unref();
   buildServer(db, cfg).listen(cfg.port, () => console.log(`MAKEUP HOUSE listening on :${cfg.port}`));
 }

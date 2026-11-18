@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { h, fill, toast, AV, VER, avBadge, verBadge, fmtDate, field, select } from './util.js';
+import { h, fill, toast, AV, VER, avBadge, verBadge, fmtDate, field, select, skeleton, errorBox } from './util.js';
 import { go } from './views-core.js';
 
 /* ---------- WhatsApp recommendation card: no prices, no personal data ---------- */
@@ -24,42 +24,46 @@ function showCard(text) {
   document.body.append(sheet);
 }
 
-/* ---------- advisor: chat box is the primary element; suggestions only as small contextual chips ---------- */
+/* ---------- advisor: chat box is the primary element; chips appear ONLY as contextual follow-ups from the engine ---------- */
+const LEVEL = { documented: ['موثقة', 'ok'], partial: ['جزئية', 'warn'], unknown: ['غير معروفة', 'no'] };
 export function advisor(root) {
-  const msgs = h('div', { class: 'msgs', 'aria-live': 'polite' }, h('div', { class: 'bub' }, 'اكتب احتياج العميل بكلماتك. سأبحث في منتجات المحل المسجلة فقط، ولن أختلق مكونات أو توفرًا.'));
-  const input = h('input', { placeholder: 'مثال: عندي زبونة بشرتها جافة وحساسة وتريد مرطب ما يهيج', enterkeyhint: 'send', 'aria-label': 'نص الاستشارة' });
-  const chips = h('div', { class: 'sugg' });
-  const setChips = (list) => chips.replaceChildren(...list.map((t) => h('button', { onclick: () => { input.value = t; send(); } }, t)));
-  setChips(['مرطب للبشرة الجافة', 'واقي شمس', 'روتين للشعر']);
-  const productLine = (e) => h('div', { style: 'border-top:1px solid var(--line);padding:8px 0' },
-    h('div', { class: 'row sb' }, h('b', {}, e.name), avBadge({ availability_effective: e.availability })),
+  const msgs = h('div', { class: 'msgs', 'aria-live': 'polite' }, h('div', { class: 'bub' }, 'اكتب احتياج العميل بكلماتك (فصحى أو لهجة). أبحث في منتجات المحل المسجلة فقط، ولا أختلق مكونات أو توفرًا.'));
+  const input = h('input', { placeholder: 'مثال: زبونة بشرتها جافة وحساسة وتريد مرطب ما يهيج', enterkeyhint: 'send', 'aria-label': 'نص الاستشارة' });
+  const chips = h('div', { class: 'sugg' }); let last = '';
+  const setChips = (list, append) => fill(chips, list.map((t) => h('button', { onclick: () => { input.value = append ? last + ' ' + t : t; send(); } }, t)));
+  const productLine = (e) => h('div', { class: 'pl' },
+    h('div', { class: 'row sb' }, h('b', {}, e.name), verBadge(e.verification)),
     h('div', { class: 'tiny muted' }, [e.brand, e.size].filter(Boolean).join(' · ')),
-    h('div', { class: 'tiny' }, e.availability_note), e.warnings ? h('div', { class: 'tiny' }, '⚠ ', e.warnings) : null, e.reason ? h('div', { class: 'tiny' }, 'ℹ ', e.reason) : null,
-    h('div', { class: 'row', style: 'margin-top:6px' }, verBadge(e.verification), h('button', { class: 'btn sm light', onclick: () => go('#/product/' + e.id) }, 'التفاصيل'),
-      h('button', { class: 'btn sm light', onclick: async () => { try { showCard(await recommendationCard(e.id)); } catch (er) { toast(er.message); } } }, 'بطاقة توصية')));
+    e.suitability ? h('div', { class: 'blk' }, h('b', {}, 'الملاءمة: '), h('span', { class: 'badge ' + LEVEL[e.suitability.level][1] }, LEVEL[e.suitability.level][0]), e.suitability.reasons.length ? h('ul', { style: 'margin:4px 0 0;padding-inline-start:18px' }, e.suitability.reasons.map((r) => h('li', {}, r))) : null, e.reason ? h('div', {}, 'ℹ ', e.reason) : null) : null,
+    h('div', { class: 'blk' }, h('b', {}, 'التوفر: '), avBadge({ availability_effective: e.availability }), ' ', h('span', { class: 'tiny' }, e.availability_note)),
+    e.conflict ? h('div', { class: 'notice' }, 'معلومات متعارضة بين المصادر قيد مراجعة المدير.') : null,
+    e.warnings ? h('div', { class: 'tiny' }, '⚠ ', e.warnings) : null,
+    e.source_url ? h('div', { class: 'tiny' }, 'المصدر: ', h('a', { href: e.source_url, target: '_blank', rel: 'noopener noreferrer' }, 'فتح الرابط')) : h('div', { class: 'tiny muted' }, 'لا يوجد رابط مصدر مسجل.'),
+    h('div', { class: 'row', style: 'margin-top:6px' }, h('button', { class: 'btn sm light', onclick: () => go('#/product/' + e.id) }, 'التفاصيل'),
+      h('button', { class: 'btn sm light', onclick: async () => { try { showCard(await recommendationCard(e.id)); } catch (er) { toast(er.message); } } }, 'بطاقة توصية'),
+      h('button', { class: 'btn sm out', onclick: () => go('#/compare') }, 'قارن')));
   const render = (r) => {
     const box = h('div', { class: 'bub res' });
     if (r.safety_note) box.append(h('div', { class: 'notice err' }, r.safety_note));
-    if (!r.safety_note) {
+    else {
       box.append(h('h3', { class: 't' }, 'أولًا: منتجات ميك أب هاوس'));
       box.append(...(r.store_matches.length ? r.store_matches.map(productLine) : [h('p', { class: 'muted' }, 'لا يوجد منتج مسجّل مطابق بمعلومات كافية.')]));
       if (r.cannot_assess.length) box.append(h('h3', { class: 't', style: 'margin-top:12px' }, 'لا يمكن تقييمها (بيانات ناقصة)'), ...r.cannot_assess.map(productLine));
-      box.append(h('h3', { class: 't', style: 'margin-top:12px' }, 'ثانيًا: بدائل عالمية غير مسجلة'), h('p', { class: 'muted tiny' }, r.global_alternatives.status === 'not_configured' ? 'البحث العالمي غير مفعّل بعد، لذلك لا تُعرض بدائل.' : ''));
+      box.append(h('h3', { class: 't', style: 'margin-top:12px' }, 'ثانيًا: بدائل عالمية غير مسجلة'), h('p', { class: 'muted tiny' }, 'لا تُعرض بدائل عالمية في هذه النسخة: لا يوجد فهرس منتجات عالمي معتمد للمستشار بعد.'));
     }
     r.notes.forEach((n) => box.append(h('div', { class: 'notice' }, n)));
     if (!r.safety_note && r.store_matches.length === 0) box.append(h('button', { class: 'btn sm light', onclick: () => go('#/request?text=' + encodeURIComponent(last)) }, 'سجّل كطلب غير ملبّى'));
     return box;
   };
-  let last = '';
   async function send() {
-    const q = input.value.trim(); if (!q) return; last = q; input.value = ''; chips.replaceChildren();
-    msgs.append(h('div', { class: 'bub me' }, q)); msgs.scrollTop = msgs.scrollHeight;
-    try { const r = await api('POST', '/api/advisor/search', { query: q }); msgs.append(render(r)); if (r.notes.length) setChips(['مرطب خالٍ من العطر', 'واقي شمس', 'شامبو']); }
-    catch (e) { msgs.append(h('div', { class: 'notice err' }, e.message)); }
+    const q = input.value.trim(); if (!q) return; last = q; input.value = ''; fill(chips);
+    msgs.append(h('div', { class: 'bub me' }, q)); const wait = h('div', { class: 'bub res' }, skeleton(1)); msgs.append(wait); msgs.scrollTop = msgs.scrollHeight;
+    try { const r = await api('POST', '/api/advisor/search', { query: q }); wait.replaceWith(render(r)); if (r.follow_up) { msgs.append(h('div', { class: 'bub' }, r.follow_up.question)); setChips(r.follow_up.choices, true); } }
+    catch (e) { wait.replaceWith(errorBox(e.status ? e.message : 'تعذر الاتصال. أعد المحاولة.', () => { input.value = q; send(); })); }
     msgs.scrollTop = msgs.scrollHeight;
   }
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
-  root.append(h('div', { class: 'adv' }, msgs, chips, h('div', { class: 'tiny muted' }, 'استرجاع من بيانات المحل (بدون نموذج لغوي بعد). لا تشخيص طبي.'), h('div', { class: 'composer' }, input, h('button', { class: 'btn', onclick: send }, 'إرسال'))));
+  root.append(h('div', { class: 'adv' }, msgs, chips, h('div', { class: 'tiny muted' }, 'محرك استرجاع من بيانات المحل — بدون نموذج لغوي. لا تشخيص طبي.'), h('div', { class: 'composer' }, input, h('button', { class: 'btn', onclick: send }, 'إرسال'))));
 }
 
 /* ---------- compare 2–3 products ---------- */

@@ -3,13 +3,15 @@ import { h, $, toast, field } from './util.js';
 import { home, products, productEdit, scan, go } from './views-core.js';
 import { advisor, compare, routine, requestForm } from './views-advisor.js';
 import { importView, reports, users, academy } from './views-admin.js';
+import { review } from './views-review.js';
+import { getEnrich } from './views-core.js';
 
 const app = $('#app');
 let me = null;
 const MAIN = [['home', '⌂', 'الرئيسية'], ['advisor', '✦', 'المستشار'], ['scan', '▥', 'مسح'], ['products', '◈', 'المنتجات']];
 const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '☼', 'روتين العناية'], ['request', '⌕', 'طلب غير ملبّى'], ['academy', '♧', 'الأكاديمية'],
-  ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
-const TITLES = { home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+  ['review', '✔', 'مراجعة المعلومات', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
+const TITLES = { home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', review: 'مراجعة المعلومات', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
@@ -39,14 +41,15 @@ async function render() {
   const main = h('main', { id: 'main' });
   const nav = h('nav', { class: 'nav', 'aria-label': 'التنقل' }, MAIN.map(([id, ico, label]) => h('button', { class: route === id ? 'on' : '', onclick: () => go('#/' + id) }, h('b', {}, ico), label)),
     h('button', { class: MORE.some((m) => m[0] === route) ? 'on' : '', onclick: openMore }, h('b', {}, '☰'), 'المزيد'));
+  if (me.role === 'manager') getEnrich().then((st) => { if (st.pending_candidates && nav.isConnected) nav.lastChild.append(h('i', { class: 'dot', title: 'مراجعة معلقة' })); });
   app.replaceChildren(h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف'))), main, nav);
-  const managerOnly = ['import', 'reports', 'users'];
+  const managerOnly = ['import', 'reports', 'users', 'review'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
-    case 'home': return home(main);
+    case 'home': return home(main, me);
     case 'advisor': return advisor(main);
     case 'scan': return scan(main, me);
-    case 'products': return products(main);
+    case 'products': return products(main, params);
     case 'product': return productEdit(main, Number(arg), me);
     case 'product-new': return productEdit(main, null, me, { barcode: params.get('barcode') ?? '' });
     case 'compare': return compare(main);
@@ -56,6 +59,7 @@ async function render() {
     case 'import': return importView(main);
     case 'reports': return reports(main);
     case 'users': return users(main);
+    case 'review': return review(main);
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }
 }

@@ -1,4 +1,4 @@
-# MAKEUP HOUSE — مستشار الجمال (V3.0-alpha)
+# MAKEUP HOUSE — مستشار الجمال (V3.0 — CP02)
 منصة داخلية للمدير والموظفين. **لا أسعار ولا كميات ولا مبيعات.**
 
 ## التشغيل على Windows
@@ -12,6 +12,12 @@ npm start
 ```
 4. افتح `http://localhost:8080`. (للكاميرا على الهاتف يلزم HTTPS.)
 المدير ينشئ حسابات الموظفين من «المزيد ← الموظفون».
+
+## الإثراء من المصادر العالمية (اختياري، مسودات فقط)
+`MH_ENRICH=off|mock|obf` (الافتراضي off) · `MH_ENRICH_CONTACT` بريد للتعريف في User-Agent (مطلوب مع obf) · `MH_ENRICH_RATE_PER_MIN` (الافتراضي 12، السقف 14). **الاتصال الحي لم يُختبر** (محجوب في بيئة البناء). التفاصيل: docs/ENRICHMENT.md.
+
+## الوثائق
+docs/AUDIT_CP02.md · SCIENTIFIC_REVIEW.md · UIUX_REPORT.md · DESIGN_SYSTEM.md · ENRICHMENT.md · RESTORE.md · preview/index.html · TEST_RESULTS.md · CHANGELOG.md
 
 ## Docker
 انسخ `.env.example` إلى `.env` وعدّله ثم `docker compose up -d` (**لم يُختبر Docker في بيئة البناء**).

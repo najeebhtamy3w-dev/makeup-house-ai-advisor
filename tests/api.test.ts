@@ -237,3 +237,10 @@ test('backup: VACUUM INTO produces a verifiable, restorable copy', async () => {
   assert.match(out, /ok=ok products=1/);
   const b = openDb(join(d, 'b.db')); assert.equal((b.prepare('SELECT COUNT(*) n FROM products').get() as any).n, 1); b.close();
 });
+
+test('security: XLSX zip-bomb (≈100KB file expanding to >100MB) is rejected with 400, server stays up', async () => {
+  const bomb = readFileSync(new URL('./fixtures/zipbomb.xlsx', import.meta.url));
+  assert.ok(bomb.length < 1_000_000);
+  const r = await t.call('POST', '/api/imports/preview?filename=bomb.xlsx', { token: t.manager, raw: bomb });
+  assert.equal(r.status, 400); assert.equal((await t.call('GET', '/api/auth/me', { token: t.manager })).status, 200);
+});
