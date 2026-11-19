@@ -1,6 +1,6 @@
 // App-shell cache only. API responses are NEVER cached (availability must be live).
-const V = 'mh-shell-v2';
-const SHELL = ['/', '/styles.css', '/js/app.js', '/js/api.js', '/js/util.js', '/js/scanner.js', '/js/views-core.js', '/js/views-advisor.js', '/js/views-admin.js', '/js/views-review.js', '/icon.svg'];
+const V = 'mh-shell-v3';
+const SHELL = ['/', '/styles.css', '/js/app.js', '/js/api.js', '/js/util.js', '/js/scanner.js', '/js/views-core.js', '/js/views-advisor.js', '/js/views-admin.js', '/js/views-review.js', '/js/views-feedback.js', '/icon.svg'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== V).map((k) => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', (e) => {

@@ -1,0 +1,210 @@
+{
+  "tool": "obf-live-check",
+  "started": "2026-11-19T05:02:34.226Z",
+  "node": "v22.23.5",
+  "base": "https://world.openbeautyfacts.org",
+  "results": [
+    {
+      "barcode": "4005900369581",
+      "gtin_valid": true,
+      "endpoint": "https://world.openbeautyfacts.org/api/v3/product/4005900369581?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text",
+      "http_status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "ms": 699,
+      "bytes": 1511,
+      "top_level_keys": [
+        "code",
+        "errors",
+        "product",
+        "result",
+        "status",
+        "warnings"
+      ],
+      "api_status": "success",
+      "product_keys": [
+        "brands",
+        "code",
+        "ecoscore_tags",
+        "ingredients_text",
+        "product_name",
+        "quantity"
+      ],
+      "returned_code": "4005900369581",
+      "barcode_match": true,
+      "ingredients_present": true,
+      "connector": {
+        "found": true,
+        "fields": [
+          "name",
+          "brand",
+          "size",
+          "ingredients"
+        ]
+      }
+    },
+    {
+      "barcode": "3337875598996",
+      "gtin_valid": true,
+      "endpoint": "https://world.openbeautyfacts.org/api/v3/product/3337875598996?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text",
+      "http_status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "ms": 933,
+      "bytes": 720,
+      "top_level_keys": [
+        "code",
+        "errors",
+        "product",
+        "result",
+        "status",
+        "warnings"
+      ],
+      "api_status": "success",
+      "product_keys": [
+        "brands",
+        "code",
+        "ingredients_text",
+        "product_name",
+        "quantity"
+      ],
+      "returned_code": "3337875598996",
+      "barcode_match": true,
+      "ingredients_present": true,
+      "connector": {
+        "found": true,
+        "fields": [
+          "name",
+          "brand",
+          "size",
+          "ingredients"
+        ]
+      }
+    },
+    {
+      "barcode": "3337875546430",
+      "gtin_valid": true,
+      "endpoint": "https://world.openbeautyfacts.org/api/v3/product/3337875546430?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text",
+      "http_status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "ms": 898,
+      "bytes": 261,
+      "top_level_keys": [
+        "code",
+        "errors",
+        "product",
+        "result",
+        "status",
+        "warnings"
+      ],
+      "api_status": "success",
+      "product_keys": [
+        "brands",
+        "code",
+        "product_name",
+        "quantity"
+      ],
+      "returned_code": "3337875546430",
+      "barcode_match": true,
+      "ingredients_present": false,
+      "connector": {
+        "found": true,
+        "fields": [
+          "name",
+          "brand",
+          "size"
+        ]
+      }
+    },
+    {
+      "barcode": "42164104",
+      "gtin_valid": true,
+      "endpoint": "https://world.openbeautyfacts.org/api/v3/product/42164104?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text",
+      "http_status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "ms": 884,
+      "bytes": 566,
+      "top_level_keys": [
+        "code",
+        "errors",
+        "product",
+        "result",
+        "status",
+        "warnings"
+      ],
+      "api_status": "success",
+      "product_keys": [
+        "brands",
+        "code",
+        "ingredients_text",
+        "product_name",
+        "quantity"
+      ],
+      "returned_code": "42164104",
+      "barcode_match": true,
+      "ingredients_present": true,
+      "connector": {
+        "found": true,
+        "fields": [
+          "name",
+          "brand",
+          "ingredients"
+        ]
+      }
+    },
+    {
+      "barcode": "3600523614028",
+      "gtin_valid": true,
+      "endpoint": "https://world.openbeautyfacts.org/api/v3/product/3600523614028?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text",
+      "http_status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "ms": 801,
+      "bytes": 332,
+      "top_level_keys": [
+        "code",
+        "errors",
+        "result",
+        "status",
+        "warnings"
+      ],
+      "api_status": "failure",
+      "product_keys": null,
+      "returned_code": null,
+      "barcode_match": null,
+      "ingredients_present": false,
+      "connector": {
+        "found": false
+      }
+    },
+    {
+      "barcode": "4005900369582",
+      "gtin_valid": false,
+      "endpoint": "https://world.openbeautyfacts.org/api/v3/product/4005900369582?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text",
+      "http_status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "ms": 793,
+      "bytes": 332,
+      "top_level_keys": [
+        "code",
+        "errors",
+        "result",
+        "status",
+        "warnings"
+      ],
+      "api_status": "failure",
+      "product_keys": null,
+      "returned_code": null,
+      "barcode_match": null,
+      "ingredients_present": false,
+      "connector": {
+        "found": false
+      }
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "reachable": 6,
+    "found": 4,
+    "errors": 0,
+    "verdict": "LIVE_REACHED — review shape fields above before marking VERIFIED"
+  },
+  "finished": "2026-11-19T05:03:04.948Z"
+}

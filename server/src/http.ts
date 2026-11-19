@@ -42,7 +42,7 @@ export function makeHandler(db: DB, cfg: Config) {
     if (!url.pathname.startsWith('/api/')) return false;
     const send = (status: number, payload: unknown) => {
       const body = JSON.stringify(payload);
-      res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+      res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'x-robots-tag': 'noindex, nofollow' });
       res.end(body);
     };
     try {

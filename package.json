@@ -7,7 +7,7 @@
     "node": ">=22.13"
   },
   "scripts": {
-    "start": "tsx server/src/server.ts",
+    "start": "node --no-warnings --import tsx server/src/server.ts",
     "test": "node --no-warnings --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "test:ui": "scripts/ui-run.sh",
@@ -17,11 +17,11 @@
     "pilot": "node --no-warnings --import tsx scripts/pilot-run.ts"
   },
   "dependencies": {
-    "zod": "^3.25.0"
+    "tsx": "4.23.15",
+    "zod": "3.25.76"
   },
   "devDependencies": {
-    "tsx": "*",
-    "typescript": "*",
-    "@types/node": "*"
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3"
   }
 }

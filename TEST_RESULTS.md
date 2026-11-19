@@ -1,4 +1,16 @@
 # نتائج الاختبارات — CP03 (نُفذت فعليًا)
+
+## تحديث Staging — 2026-11-19 (على الفرع cp03-cloud-staging)
+| الفحص | النتيجة |
+|---|---|
+| `npm run typecheck` (TypeScript 5.9.3 مثبت) | نظيف |
+| `npm test` | **89/89** (85 + 4 اختبارات Staging) |
+| `npm run test:ui` | **27/27** بلا انحدار |
+| `tests/staging-smoke.mjs` محليًا (production + staging، Galaxy S9+ محاكى) | **12/12** |
+| صورة Docker (`npm ci` من package-lock) تشغيل كمستخدم `node` + فحص الدخان | **12/12** |
+| OBF حي (`npm run live:obf`) + مسار `/api/enrichment/lookup` الحي | انظر docs/validation/OBF_LIVE_2026-11-19.md |
+| النشر على Render / Samsung حقيقي | **لم يُجرَ بعد** (ربط الحساب / DEVICE-PENDING) |
+
 ## ملخص
 | الفحص | النتيجة |
 |---|---|

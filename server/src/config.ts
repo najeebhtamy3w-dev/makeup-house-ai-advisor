@@ -11,6 +11,8 @@ export interface Config {
   enrichBaseUrl: string;
   enrichContact: string;
   enrichRatePerMin: number;
+  /** Protected cloud staging: fake demo data, data may be wiped on restart, never production. */
+  staging: boolean;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -27,6 +29,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     enrich: (['mock', 'obf'].includes(env.MH_ENRICH ?? '') ? env.MH_ENRICH : 'off') as 'off' | 'mock' | 'obf',
     enrichBaseUrl: env.MH_OBF_BASE ?? 'https://world.openbeautyfacts.org',
     enrichContact: env.MH_ENRICH_CONTACT ?? 'contact-not-set',
+    staging: env.MH_STAGING === '1',
     enrichRatePerMin: Math.min(Number(env.MH_ENRICH_RATE_PER_MIN ?? 12) || 12, 14), // OBF documents 15 product reads/min/IP
   };
 }
