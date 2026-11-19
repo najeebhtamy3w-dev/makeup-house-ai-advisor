@@ -226,3 +226,6 @@ ul.help{padding-inline-start:18px;line-height:1.8;font-size:14px}
 /* CP06.2 Phase 5: evidence review */
 .evrow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.evcmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .evval{font-size:14px;word-break:break-word;max-height:120px;overflow:auto}.seg{display:flex;gap:6px;flex-wrap:wrap}
+/* CP06.2 Phase 5A: consultation answer */
+.advunder p{margin:0 0 6px;font-weight:600}.advlist{margin:4px 0 8px;padding-inline-start:18px}.advlist li{margin:3px 0;line-height:1.6}
+.advsec{margin:8px 0}.advsec>summary{cursor:pointer;font-weight:600;color:var(--plum);padding:6px 0}

@@ -38,7 +38,7 @@ const why = (sv) => h('details', { class: 'why' }, h('summary', {}, 'لماذا 
   sv.precautions?.length ? h('div', { class: 'tiny' }, h('b', {}, 'احتياطات'), ul(sv.precautions)) : null,
   sv.limitations?.length ? h('div', { class: 'tiny muted' }, h('b', {}, 'حدود المعلومة'), ul(sv.limitations)) : null);
 export function advisor(root) {
-  const msgs = h('div', { class: 'msgs', 'aria-live': 'polite' }, h('div', { class: 'bub' }, 'اكتب احتياج العميل بكلماتك (فصحى أو لهجة). أبحث في منتجات المحل المسجلة فقط، ولا أختلق مكونات أو توفرًا.'));
+  const msgs = h('div', { class: 'msgs', 'aria-live': 'polite' }, h('div', { class: 'bub' }, 'صِفي البشرة أو الشعر والمشكلة أو المنتج المطلوب بكلماتك (فصحى أو لهجة). أشرح وأرشد من معرفة منظمة بمصادرها، ثم أبحث في منتجات المحل المسجلة. لا تشخيص طبي.'));
   const input = h('input', { placeholder: 'مثال: زبونة بشرتها جافة وحساسة وتريد مرطب ما يهيج', enterkeyhint: 'send', 'aria-label': 'نص الاستشارة' });
   const chips = h('div', { class: 'sugg' }); let last = '';
   const setChips = (list, append) => fill(chips, list.map((t) => h('button', { onclick: () => { input.value = append ? last + ' ' + t : t; send(); } }, t)));
@@ -58,30 +58,65 @@ export function advisor(root) {
     h('div', { class: 'row', style: 'margin-top:6px' }, h('button', { class: 'btn sm light', onclick: () => go('#/product/' + e.id) }, 'التفاصيل'),
       h('button', { class: 'btn sm light', onclick: async () => { try { showCard(await recommendationCard(e.id)); } catch (er) { toast(er.message); } } }, 'بطاقة توصية'),
       h('button', { class: 'btn sm out', onclick: () => go('#/compare') }, 'قارن')));
+  // CP06.2 Phase 5A: multi-turn consultation (POST /api/advisor/chat). Knowledge and guidance never depend on products.
+  let sessionId = null;
+  const modeLine = h('div', { class: 'tiny muted', id: 'advisor-mode' }, 'جارٍ التحقق من وضع التشغيل…');
+  api('GET', '/api/advisor/status').then((st) => fill(modeLine, st.ai ? `وضع حواري: نموذج ${st.ai.model} مفعّل ضمن حد إنفاق ${st.ai.monthly_budget_usd}$ شهريًا. المعرفة والمنتجات من مصادرها لا من النموذج.` : 'وضع معرفي محدود: لا يوجد نموذج لغوي مفعّل — الإجابات من معرفة منظمة بمصادر ومن بيانات المحل. لا تشخيص طبي.')).catch(() => fill(modeLine, 'وضع معرفي محدود. لا تشخيص طبي.'));
+  const KIND_ORDER = ['safety_warnings', 'understanding', 'clarifying_questions', 'condition_education', 'practical_advice', 'ingredient_guidance', 'suggested_routine', 'local_recommendations', 'global_alternatives', 'confidence_limitations', 'sources', 'evidence_status'];
+  const COLLAPSED = new Set(['condition_education', 'ingredient_guidance', 'suggested_routine']);
+  const items = (sec) => sec.items.length ? h('ul', { class: 'advlist' }, sec.items.map((i) => h('li', {}, i.text))) : null;
   const render = (r) => {
     const box = h('div', { class: 'bub res' });
-    if (r.safety_note) box.append(h('div', { class: 'notice err' }, r.safety_note));
-    else {
-      if (r.answer?.type === 'fragrance_status') { const a = r.answer; box.append(h('h3', { class: 't' }, a.product.name), h('div', { class: 'blk' }, h('b', {}, 'العطر: '), h('span', { class: 'badge ' + FRAG[a.fragrance.status] }, a.fragrance.label), ul(a.fragrance.why)), h('div', { class: 'blk' }, h('span', { class: 'badge ' + (a.formulation.status === 'verified' ? 'ok' : 'warn') }, a.formulation.label)), h('button', { class: 'btn sm light', onclick: () => go('#/product/' + a.product.id) }, 'فتح المنتج')); r.notes.forEach((n) => box.append(h('div', { class: 'notice' }, n))); return box; }
-      box.append(h('h3', { class: 't' }, 'أولًا: منتجات ميك أب هاوس'));
-      box.append(...(r.store_matches.length ? r.store_matches.map(productLine) : [h('p', { class: 'muted' }, 'لا يوجد منتج مسجّل مطابق بمعلومات كافية.')]));
-      if (r.cannot_assess.length) box.append(h('h3', { class: 't', style: 'margin-top:12px' }, 'لا يمكن تقييمها (بيانات ناقصة)'), ...r.cannot_assess.map(productLine));
-      if (r.excluded?.length) box.append(h('h3', { class: 't', style: 'margin-top:12px' }, 'مستبعد لأسباب موثقة'), ...r.excluded.map((x) => h('div', { class: 'pl' }, h('b', {}, x.name), ' ', h('span', { class: 'badge no' }, 'توجد أسباب موثقة لعدم الترشيح'), ul(x.reasons))));
-      box.append(h('h3', { class: 't', style: 'margin-top:12px' }, 'ثانيًا: بدائل عالمية غير مسجلة'), h('p', { class: 'muted tiny' }, 'لا تُعرض بدائل عالمية في هذه النسخة: لا يوجد فهرس منتجات عالمي معتمد للمستشار بعد.'));
+    const res = r.response; const secs = [...res.sections].sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind));
+    // the safety stop always comes first and is never folded
+    for (const sec of secs) {
+      if (sec.kind === 'safety_warnings') { box.append(h('div', { class: res.safety_stop && sec.title === 'تنبيه مهم' ? 'notice err' : 'notice', role: res.safety_stop ? 'alert' : null }, h('b', {}, sec.title), items(sec))); continue; }
+      if (sec.kind === 'understanding') { box.append(h('div', { class: 'advunder' }, sec.items.map((i) => h('p', {}, i.text)))); continue; }
+      if (sec.kind === 'clarifying_questions') { box.append(h('div', { class: 'notice info' }, h('b', {}, sec.title), items(sec))); continue; }
+      if (sec.kind === 'local_recommendations') {
+        const d = sec.data ?? {};
+        if (d.answer?.type === 'fragrance_status') { const a = d.answer; box.append(h('h3', { class: 't' }, a.product.name), h('div', { class: 'blk' }, h('b', {}, 'العطر: '), h('span', { class: 'badge ' + FRAG[a.fragrance.status] }, a.fragrance.label), ul(a.fragrance.why)), h('div', { class: 'blk' }, h('span', { class: 'badge ' + (a.formulation.status === 'verified' ? 'ok' : 'warn') }, a.formulation.label)), h('button', { class: 'btn sm light', onclick: () => go('#/product/' + a.product.id) }, 'فتح المنتج'), ...sec.items.map((i) => h('div', { class: 'notice' }, i.text))); continue; }
+        box.append(h('h3', { class: 't' }, sec.title));
+        const store = d.store_matches ?? [], un = d.cannot_assess ?? [];
+        if (!store.length && !un.length) box.append(...sec.items.map((i) => h('p', { class: 'muted' }, i.text)));
+        box.append(...store.map(productLine));
+        if (un.length) box.append(h('h4', {}, 'لا يمكن تقييمها (بيانات ناقصة)'), ...un.map(productLine));
+        if (d.excluded?.length) box.append(h('h4', {}, 'مستبعد لأسباب موثقة'), ...d.excluded.map((x) => h('div', { class: 'pl' }, h('b', {}, x.name), ' ', h('span', { class: 'badge no' }, 'توجد أسباب موثقة'))));
+        if (d.note) box.append(h('p', { class: 'tiny muted' }, d.note));
+        continue;
+      }
+      if (sec.kind === 'global_alternatives') {
+        const hits = sec.data?.items ?? [];
+        box.append(h('h3', { class: 't', style: 'margin-top:12px' }, sec.title), hits.length ? h('div', {}, hits.map((x) => h('div', { class: 'pl' }, h('b', {}, x.name || '—'), x.brand ? h('span', { class: 'tiny muted' }, ' — ' + x.brand) : null,
+          h('div', { class: 'tiny' }, h('span', { class: 'badge warn' }, 'التوفر في المحل غير مؤكد'), ' ', h('span', { class: 'badge info' }, 'لم تُقيَّم ملاءمته'), ' ', x.provider, x.source_url ? [' · ', h('a', { href: x.source_url, target: '_blank', rel: 'noopener noreferrer' }, 'المصدر')] : null)))) : h('p', { class: 'muted tiny' }, sec.items.map((i) => i.text).join(' ')));
+        continue;
+      }
+      if (sec.kind === 'sources') {
+        box.append(h('details', { class: 'why srcs' }, h('summary', {}, `المصادر (${res.sources.length})`), h('ul', { class: 'advlist tiny' }, res.sources.map((x) => h('li', {}, h('a', { href: x.url, target: '_blank', rel: 'noopener noreferrer' }, x.title), ' — ', x.publisher)))));
+        continue;
+      }
+      if (sec.kind === 'evidence_status' || sec.kind === 'confidence_limitations') { box.append(h('p', { class: 'tiny muted' }, h('b', {}, sec.title + ': '), sec.items.map((i) => i.text).join(' '))); continue; }
+      const body = h('div', {}, items(sec));
+      box.append(COLLAPSED.has(sec.kind) ? h('details', { class: 'advsec' }, h('summary', {}, sec.title), body) : h('div', { class: 'advsec' }, h('h3', { class: 't' }, sec.title), body));
     }
-    r.notes.forEach((n) => box.append(h('div', { class: 'notice' }, n)));
-    if (!r.safety_note && r.store_matches.length === 0) box.append(h('button', { class: 'btn sm light', onclick: () => go('#/request?text=' + encodeURIComponent(last)) }, 'سجّل كطلب غير ملبّى'));
+    if (!res.safety_stop && res.sections.some((x) => x.kind === 'local_recommendations' && !(x.data?.store_matches?.length))) box.append(h('button', { class: 'btn sm light', onclick: () => go('#/request?text=' + encodeURIComponent(last)) }, 'سجّل كطلب غير ملبّى'));
     return box;
   };
   async function send() {
     const q = input.value.trim(); if (!q) return; last = q; input.value = ''; fill(chips);
     msgs.append(h('div', { class: 'bub me' }, q)); const wait = h('div', { class: 'bub res' }, skeleton(1)); msgs.append(wait); msgs.scrollTop = msgs.scrollHeight;
-    try { const r = await api('POST', '/api/advisor/search', { query: q }); wait.replaceWith(render(r)); if (r.follow_up) { msgs.append(h('div', { class: 'bub' }, r.follow_up.question)); setChips(r.follow_up.choices, true); } }
-    catch (e) { wait.replaceWith(errorBox(e.status ? e.message : 'تعذر الاتصال. أعد المحاولة.', () => { input.value = q; send(); })); }
+    try {
+      const r = await api('POST', '/api/advisor/chat', { message: q, ...(sessionId ? { session_id: sessionId } : {}) });
+      sessionId = r.session_id; wait.replaceWith(render(r));
+      if (r.response.follow_up) setChips(r.response.follow_up.choices, true);
+    } catch (e) { wait.replaceWith(errorBox(e.status ? e.message : 'تعذر الاتصال. أعد المحاولة.', () => { input.value = q; send(); })); }
     msgs.scrollTop = msgs.scrollHeight;
   }
+  const resetBtn = h('button', { class: 'btn sm out', type: 'button', id: 'advisor-reset', onclick: async () => {
+    if (sessionId) { try { await api('DELETE', '/api/advisor/session/' + sessionId); } catch { /* already gone */ } }
+    sessionId = null; last = ''; fill(chips); fill(msgs, h('div', { class: 'bub' }, 'محادثة جديدة: لا تُستخدم أي معلومة من المحادثة السابقة.')); } }, 'محادثة جديدة');
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
-  root.append(h('div', { class: 'adv' }, msgs, chips, h('div', { class: 'tiny muted' }, 'محرك استرجاع من بيانات المحل — بدون نموذج لغوي. لا تشخيص طبي.'), h('div', { class: 'composer' }, input, h('button', { class: 'btn', onclick: send }, 'إرسال'))));
+  root.append(h('div', { class: 'adv' }, h('div', { class: 'row sb' }, modeLine, resetBtn), msgs, chips, h('div', { class: 'composer' }, input, h('button', { class: 'btn', onclick: send }, 'إرسال'))));
 }
 
 /* ---------- compare 2–3 products ---------- */

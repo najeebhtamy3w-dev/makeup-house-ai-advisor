@@ -456,3 +456,4 @@ route('POST', '/api/enrichment/queue/start', 'manager', (c) => {
 });
 route('POST', '/api/enrichment/queue/run', 'manager', async (c) => ({ ...(await processQueueOnce(c.db, c.cfg, 5)) }));
 import './evidence-routes.ts';
+import './advisor2/routes.ts';
