@@ -1,8 +1,16 @@
 // Dev-only demo data (clearly fake brands). Usage: MH_DB_PATH=... tsx scripts/dev-seed.ts
+import { tmpdir } from 'node:os';
+import { resolve } from 'node:path';
 import { loadConfig } from '../server/src/config.ts';
 import { openDb, now } from '../server/src/db.ts';
 import { hashPassword } from '../server/src/security.ts';
-const cfg = loadConfig(); const db = openDb(cfg.dbPath); const t = now();
+const cfg = loadConfig();
+// Test data must stay in a throw-away database: refuse production / staging / any database outside the temp directory.
+const tmp = resolve(process.env.TMPDIR || tmpdir()); const target = resolve(cfg.dbPath);
+if (process.env.NODE_ENV === 'production' || cfg.staging || !(target.startsWith(tmp + '/') || cfg.dbPath === ':memory:')) {
+  console.error(`dev-seed refused: only for a temporary test database under ${tmp} (got ${cfg.dbPath}).`); process.exit(2);
+}
+const db = openDb(cfg.dbPath); const t = now();
 if ((db.prepare('SELECT COUNT(*) n FROM users').get() as { n: number }).n === 0) {
   db.prepare("INSERT INTO users(username,display_name,role,password_hash,created_at) VALUES ('admin','المدير','manager',?,?)").run(hashPassword('admin-password-1'), t);
   db.prepare("INSERT INTO users(username,display_name,role,password_hash,created_at) VALUES ('sara','سارة','staff',?,?)").run(hashPassword('staff-password-1'), t);

@@ -46,3 +46,26 @@ export function compareField(field: string, local: string, candidate: string): F
   if (!local.trim()) return null; // nothing local to compare with
   switch (field) { case 'size': return compareSize(local, candidate); case 'name': return compareName(local, candidate); case 'brand': return compareBrand(local, candidate); case 'ingredients': return compareIngredients(local, candidate); default: return null; }
 }
+
+/**
+ * CP05: is a source's "ingredients" text actually an ingredient LIST? Marketing sentences ("La formule maintient l'hydratation…")
+ * must never be treated as INCI. Translated lists ("Eau, glycérine…") are lists but not standard INCI names -> flagged for review.
+ */
+export type IngredientsKind = 'inci' | 'translated' | 'not_a_list';
+const TRANSLATED_WATER = /^(eau|wasser|agua|acqua|água|ماء|مياه|su)$/i;
+export function classifyIngredients(text: string): { kind: IngredientsKind; note: string } {
+  const t = text.normalize('NFKC').trim();
+  const items = t.replace(/\([^)]*\)/g, ' ').split(/[,،;]/).map((x) => x.trim()).filter(Boolean);
+  const words = (x: string) => x.split(/\s+/).filter(Boolean).length;
+  const shortItems = items.filter((x) => words(x) <= 6 && x.length <= 60).length;
+  const sentence = /[.!?…]\s+\p{Lu}|\b(votre|vous|your|you|helps?|aide|pour une|for a|leaves?|laisse)\b/iu.test(t);
+  if (!items.length || shortItems / items.length < 0.75 || (sentence && items.length < 8) || (items.length === 1 && words(items[0]!) > 4))
+    return { kind: 'not_a_list', note: 'النص لا يبدو قائمة مكونات (قد يكون وصفًا تسويقيًا) — لا يُعامل كقائمة INCI' };
+  // mixed blobs: a marketing paragraph before the list, or OCR noise (e.g. the barcode digits inside the list) -> not proposed
+  if (words(items[0]!) > 8 || items.some((x) => /\d{3,}\s+\d{4,}/.test(x)))
+    return { kind: 'not_a_list', note: 'نص مختلط (وصف تسويقي أو أخطاء قراءة آلية مع المكونات) — لا يُقترح؛ انقل المكونات من العبوة' };
+  const first = (items[0] ?? '').toLowerCase().replace(/^[^\p{L}]+/u, '').split(/\s+/)[0] ?? '';
+  if (TRANSLATED_WATER.test(first) || /[éèêàçñäöüß]/i.test(items.slice(0, 6).join(' ')) || /[؀-ۿ]/.test(t))
+    return { kind: 'translated', note: 'قائمة مترجمة وليست بأسماء INCI القياسية — قارنها بالعبوة قبل الاعتماد' };
+  return { kind: 'inci', note: '' };
+}

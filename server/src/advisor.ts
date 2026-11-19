@@ -4,7 +4,8 @@
  *  3 Suitability evaluation (documented fields only)  4 Availability verification (kept SEPARATE from suitability)  5 Response.
  * A language model, if ever enabled, may only re-phrase this output (see ai/provider.ts guard).
  */
-export type P = { id: number; name: string; brand: string; category: string; size: string; ingredients: string; warnings: string; benefits?: string; source_url?: string; verification: string; availability_effective: string; availability_stale: boolean; barcode?: string | null };
+export type P = { id: number; name: string; brand: string; category: string; size: string; ingredients: string; warnings: string; benefits?: string; source_url?: string; verification: string; availability_effective: string; availability_stale: boolean; barcode?: string | null; primary_image_id?: number | null; product_type?: string };
+import { suggestTypeFromName, typeLabel } from './taxonomy.ts';
 import { evaluate, type Need, type Avoid, type Evaluation } from './science/suitability.ts';
 export interface AdviseOpts { conflictIds?: Set<number> }
 
@@ -14,12 +15,12 @@ export const norm = (s: string) => s.normalize('NFKC').toLowerCase().replace(/[�
 const SEVERE = new RegExp('(' + ['تورم', 'طفح شديد', 'حكه شديده', 'حروق', 'حرق', 'التهاب شديد', 'صعوبه في التنفس', 'حساسيه شديده', 'نزيف', 'عدوي', 'جروح', 'صديد', 'انتفاخ'].map(norm).join('|') + ')');
 const NO_FRAGRANCE = /(خالي من العطر|خالي من العطور|بدون عطر|ما فيه عطر|ماله ريحه|بلا عطر|بدون ريحه|fragrance[- ]?free|unscented)/i;
 
-interface Topic { id: string; re: RegExp; category?: string; nameTerms: string[] }
+interface Topic { id: string; re: RegExp; category?: string; nameTerms: string[]; types?: string[] }
 const TOPICS: Topic[] = [
-  { id: 'sun', re: /(شمس|spf|sunscreen|سن بلوك)/i, category: 'واقيات الشمس', nameTerms: ['شمس', 'spf', 'sun'] },
-  { id: 'hair', re: /(شعر|بلسم|شامبو|فروه|قشره|تساقط)/, category: 'العناية بالشعر', nameTerms: ['شعر', 'بلسم', 'شامبو', 'hair'] },
+  { id: 'sun', re: /(شمس|spf|sunscreen|سن بلوك)/i, category: 'واقيات الشمس', nameTerms: ['شمس', 'spf', 'sun'], types: ['sunscreen'] },
+  { id: 'hair', re: /(شعر|بلسم|شامبو|فروه|قشره|تساقط)/, category: 'العناية بالشعر', nameTerms: ['شعر', 'بلسم', 'شامبو', 'hair'], types: ['shampoo', 'conditioner'] },
   { id: 'moist', re: /(مرطب|ترطيب|جاف|ناشف|جفاف|كريم)/, nameTerms: ['مرطب', 'كريم', 'moistur'] },
-  { id: 'clean', re: /(غسول|منظف|تنظيف)/, nameTerms: ['غسول', 'منظف', 'cleanser'] },
+  { id: 'clean', re: /(غسول|منظف|تنظيف)/, nameTerms: ['غسول', 'منظف', 'cleanser'], types: ['cleanser'] },
   { id: 'skin', re: /(بشر|وجه|حبوب|حب الشباب|دهني|زيتي)/, category: 'العناية بالبشرة', nameTerms: [] },
 ];
 const MAX_STORE = 8, MAX_UNASSESSED = 6;
@@ -59,12 +60,16 @@ export function advise(query: string, products: P[], opts: AdviseOpts = {}) {
   if (topics.some((t) => ['moist', 'skin', 'clean'].includes(t.id)) && !SKIN_TYPE.test(q)) base.follow_up = { question: 'ما نوع بشرة العميل؟', choices: ['جافة', 'دهنية', 'مختلطة', 'حساسة'] };
   else if (topics.some((t) => t.id === 'hair') && !/(جاف|دهني|مصبوغ|مجعد|ناعم|قشره|تساقط)/.test(q)) base.follow_up = { question: 'ما حاجة الشعر؟', choices: ['جاف', 'دهني', 'مصبوغ', 'قشرة'] };
 
+  const askedType = suggestTypeFromName(query);
   const matched = products.map((p) => {
     const reasons: string[] = []; let score = 0; const nm = norm(p.name);
     for (const t of topics) {
       if (t.category && p.category === t.category) { score += 3; reasons.push(`التصنيف مطابق: ${p.category}`); }
       if (t.nameTerms.some((w) => nm.includes(norm(w)))) { score += 2; reasons.push('اسم المنتج يطابق الطلب'); }
+      if (t.types && p.product_type && t.types.includes(p.product_type)) { score += 3; reasons.push(`نوع المنتج مطابق: ${typeLabel(p.product_type)}`); }
     }
+    // CP05: a product FORM named in the request ("سيروم", "زيت"…) narrows RETRIEVAL only. It is never evidence of suitability.
+    if (askedType && p.product_type === askedType) { score += 3; reasons.push(`نوع المنتج المطلوب: ${typeLabel(askedType)}`); }
     return { p, score, reasons };
   }).filter((x) => x.score > 0);
 
@@ -96,7 +101,7 @@ export function advise(query: string, products: P[], opts: AdviseOpts = {}) {
 function entry(p: P, level: 'documented' | 'partial' | 'unknown', reasons: string[], opts: AdviseOpts, reason: string | undefined, ev: Evaluation) {
   const av = p.availability_effective;
   return {
-    id: p.id, name: p.name, brand: p.brand, size: p.size, category: p.category, verification: p.verification,
+    id: p.id, name: p.name, brand: p.brand, size: p.size, category: p.category, verification: p.verification, primary_image_id: p.primary_image_id ?? null, product_type: p.product_type ?? '', product_type_label: p.product_type ? typeLabel(p.product_type) : '',
     // suitability and availability are separate blocks on purpose
     suitability: { level, reasons, verdict: ev.verdict, verdict_label: ev.verdict_label, used_info: ev.used_info, missing: ev.missing, precautions: ev.precautions, supports: ev.supports, limitations: ev.limitations },
     fragrance: ev.fragrance, formulation: ev.formulation,

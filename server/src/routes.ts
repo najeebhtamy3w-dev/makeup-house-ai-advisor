@@ -1,13 +1,16 @@
+import { approveImageCandidate } from './images.ts';
 import { z } from 'zod';
 import { audit, now, type DB } from './db.ts';
 import { HttpError, route, type Ctx } from './http.ts';
 import { hashPassword, signToken, verifyPassword } from './security.ts';
 import { gtinValid, normalizeBarcode } from './gtin.ts';
-import { parseImport } from './importer.ts';
+import { parseImport, MAX_IMPORT_ROWS } from './importer.ts';
+import { compareName, parseSize } from './enrichment/identity.ts';
+import { norm } from './advisor.ts';
 import { advise } from './advisor.ts';
 
 // ---------- helpers ----------
-const CATEGORIES = ['العناية بالبشرة', 'العناية بالشعر', 'واقيات الشمس', 'المكياج والجمال', 'العطور والعناية', 'أخرى'] as const;
+import { CATEGORIES, TYPE_IDS, AREA_IDS, FUNCTION_IDS, taxonomyPayload, suggestTypeFromName, typeLabel } from './taxonomy.ts';
 const dummyHash = hashPassword('dummy-password-for-timing');
 
 export interface ProductRow {
@@ -15,7 +18,12 @@ export interface ProductRow {
   availability: 'yes' | 'no' | 'unknown'; availability_updated_at: string | null; availability_updated_by: number | null;
   verification: 'review' | 'partial' | 'verified'; ingredients: string; benefits: string; warnings: string; source_url: string;
   created_by: number | null; created_at: string; updated_at: string;
+  primary_image_id?: number | null;
+  pending_suggestions?: number;
+  product_type?: string; application_area?: string; functions?: string; classification_status?: string; classification_raw?: string;
 }
+/** Product columns + id of its primary image (CP04). */
+export const PRODUCT_SELECT = "SELECT products.*, (SELECT i.id FROM product_images i WHERE i.product_id = products.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id, (SELECT COUNT(*) FROM enrichment_candidates e WHERE e.barcode = products.barcode AND e.review_status = 'pending') AS pending_suggestions FROM products";
 
 export function presentProduct(p: ProductRow, staleHours: number, nowMs = Date.now()) {
   const age = p.availability_updated_at ? (nowMs - Date.parse(p.availability_updated_at)) / 3.6e6 : Infinity;
@@ -25,7 +33,7 @@ export function presentProduct(p: ProductRow, staleHours: number, nowMs = Date.n
   return { ...p, availability_stale: stale, availability_effective: effective };
 }
 
-const loadProduct = (db: DB, id: number) => db.prepare('SELECT * FROM products WHERE id = ?').get(id) as ProductRow | undefined;
+const loadProduct = (db: DB, id: number) => db.prepare(`${PRODUCT_SELECT} WHERE id = ?`).get(id) as ProductRow | undefined;
 const parseId = (s: string) => { const n = Number(s); if (!Number.isInteger(n) || n < 1) throw new HttpError(400, 'معرّف غير صالح'); return n; };
 
 function cleanBarcode(raw: unknown): string | null {
@@ -96,13 +104,20 @@ const productInput = z.object({
   brand: z.string().trim().max(120).default(''),
   category: z.enum(CATEGORIES).default('أخرى'),
   size: z.string().trim().max(60).default(''),
-  ingredients: z.string().max(5000).default(''),
-  benefits: z.string().max(3000).default(''),
-  warnings: z.string().max(3000).default(''),
+  ingredients: z.string().trim().max(5000).default(''),   // blank text is stored as empty: never mistaken for a documented list
+  benefits: z.string().trim().max(3000).default(''),
+  warnings: z.string().trim().max(3000).default(''),
   source_url: z.union([z.literal(''), z.string().url().max(500)]).default(''),
   verification: z.enum(['review', 'partial', 'verified']).default('review'),
   availability: z.enum(['yes', 'no', 'unknown']).default('unknown'),
+  // CP05 taxonomy (form / area / functions are independent of category; '' = unclassified)
+  product_type: z.string().refine((v) => v === '' || TYPE_IDS.has(v), 'نوع غير معروف').default(''),
+  application_area: z.string().refine((v) => v === '' || AREA_IDS.has(v), 'منطقة غير معروفة').default(''),
+  functions: z.array(z.string().refine((v) => FUNCTION_IDS.has(v))).max(10).default([]),
+  client_ref: z.string().regex(/^[A-Za-z0-9-]{8,64}$/).optional(),
 }).strict();
+/** A person choosing a type in the form confirms it; no type = unknown. */
+const classification = (d: { product_type?: string }) => (d.product_type ? 'confirmed' : 'unknown');
 
 function checkVerification(user: NonNullable<Ctx['user']>, verification: string, source: string) {
   if (verification === 'verified') {
@@ -111,24 +126,71 @@ function checkVerification(user: NonNullable<Ctx['user']>, verification: string,
   }
 }
 
-route('GET', '/api/products', 'any', (c) => {
-  const q = (c.query.get('q') ?? '').trim();
-  const av = c.query.get('availability');
-  const cat = c.query.get('category');
-  const ver = c.query.get('verification');
-  const limit = Math.min(Number(c.query.get('limit') ?? 100) || 100, 500);
+/** One filter builder for the list AND its facet counts, so the numbers always match the results. `skip` drops one dimension (for its own counts). */
+function productFilter(qs: URLSearchParams, skip: '' | 'type' | 'category' = '') {
   const where: string[] = []; const args: (string | number)[] = [];
-  if (q) { where.push('(name LIKE ? OR brand LIKE ? OR barcode LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l); }
-  if (av && ['yes', 'no', 'unknown'].includes(av)) { where.push('availability = ?'); args.push(av); }
-  if (cat) { where.push('category = ?'); args.push(cat); }
-  if (ver && ['review', 'partial', 'verified'].includes(ver)) { where.push('verification = ?'); args.push(ver); }
-  const rows = c.db.prepare(`SELECT * FROM products ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY updated_at DESC, id DESC LIMIT ?`).all(...args, limit) as unknown as ProductRow[];
-  return { products: rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)) };
+  const q = (qs.get('q') ?? '').trim();
+  if (q) { where.push('(products.name LIKE ? OR products.brand LIKE ? OR products.barcode LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l); }
+  const av = qs.get('availability'); if (av && ['yes', 'no', 'unknown'].includes(av)) { where.push('products.availability = ?'); args.push(av); }
+  const cat = qs.get('category'); if (cat && skip !== 'category') { where.push('products.category = ?'); args.push(cat); }
+  const ver = qs.get('verification'); if (ver && ['review', 'partial', 'verified'].includes(ver)) { where.push('products.verification = ?'); args.push(ver); }
+  // CP05 product form: an id, or 'none' for unclassified products (they never disappear: they have their own filter)
+  const type = qs.get('type');
+  if (type && skip !== 'type') { if (type === 'none') where.push("products.product_type = ''"); else if (TYPE_IDS.has(type)) { where.push('products.product_type = ?'); args.push(type); } }
+  const area = qs.get('area'); if (area && AREA_IDS.has(area)) { where.push('products.application_area = ?'); args.push(area); }
+  const cls = qs.get('classification');
+  if (cls === 'review') where.push("products.classification_status IN ('suggested','needs_review')");
+  // completeness filters (descriptive only: complete is not the same as correct)
+  const missing = qs.get('missing');
+  if (missing === 'image') where.push('NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = products.id)');
+  if (missing === 'info') where.push("(products.barcode IS NULL OR products.brand = '' OR products.size = '' OR products.ingredients = '')");
+  if (missing === 'pending') where.push("products.barcode IN (SELECT barcode FROM enrichment_candidates WHERE review_status = 'pending')");
+  return { sql: where.length ? 'WHERE ' + where.join(' AND ') : '', args };
+}
+/** Compact row for the catalog list: no ingredients / benefits / warnings text (just whether they exist). */
+const compact = (p: ReturnType<typeof presentProduct>) => ({ id: p.id, name: p.name, brand: p.brand, size: p.size, barcode: p.barcode, category: p.category, product_type: p.product_type ?? '', classification_status: p.classification_status ?? 'unknown',
+  verification: p.verification, availability: p.availability, availability_effective: p.availability_effective, availability_stale: p.availability_stale, primary_image_id: p.primary_image_id ?? null, pending_suggestions: p.pending_suggestions ?? 0,
+  has: { ingredients: !!p.ingredients, warnings: !!p.warnings, source: !!p.source_url, barcode: !!p.barcode, brand: !!p.brand, size: !!p.size } });
+
+route('GET', '/api/products', 'any', (c) => {
+  const limit = Math.min(Number(c.query.get('limit') ?? 100) || 100, 500);
+  const offset = Math.max(0, Math.min(Number(c.query.get('offset') ?? 0) || 0, 1_000_000));
+  const f = productFilter(c.query);
+  const rows = c.db.prepare(`${PRODUCT_SELECT} ${f.sql} ORDER BY products.updated_at DESC, products.id DESC LIMIT ? OFFSET ?`).all(...f.args, limit, offset) as unknown as ProductRow[];
+  const total = (c.db.prepare(`SELECT COUNT(*) n FROM products ${f.sql}`).get(...f.args) as { n: number }).n;
+  const list = rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours));
+  return { products: c.query.get('view') === 'compact' ? list.map(compact) : list, total, offset, limit };
+});
+
+/** Counts per product type (with every OTHER active filter applied) and per category — computed by the same filter as the list. */
+route('GET', '/api/products/facets', 'any', (c) => {
+  const ft = productFilter(c.query, 'type'); const fc = productFilter(c.query, 'category');
+  const types = c.db.prepare(`SELECT products.product_type AS id, COUNT(*) AS n FROM products ${ft.sql} GROUP BY products.product_type`).all(...ft.args) as { id: string; n: number }[];
+  const categories = c.db.prepare(`SELECT products.category AS id, COUNT(*) AS n FROM products ${fc.sql} GROUP BY products.category`).all(...fc.args) as { id: string; n: number }[];
+  return { types: Object.fromEntries(types.map((x) => [x.id || 'none', x.n])), categories: Object.fromEntries(categories.map((x) => [x.id, x.n])) };
+});
+
+route('GET', '/api/taxonomy', 'any', () => taxonomyPayload());
+/** Name -> form SUGGESTION (only when unambiguous). The person decides; nothing is stored. */
+route('GET', '/api/taxonomy/suggest', 'any', (c) => { const t = suggestTypeFromName((c.query.get('name') ?? '').slice(0, 200)); return { type: t, label: t ? typeLabel(t) : null, status: t ? 'suggested' : 'unknown' }; });
+
+/** Manager: conservative, reported conversion of EXISTING unclassified products — name-based SUGGESTIONS only (never confirmed). */
+route('POST', '/api/taxonomy/suggest-existing', 'manager', (c) => {
+  const dry = c.query.get('dry') === '1';
+  const rows = c.db.prepare("SELECT id, name FROM products WHERE product_type = '' AND classification_status IN ('unknown','needs_review')").all() as { id: number; name: string }[];
+  const plan = rows.map((r) => ({ id: r.id, name: r.name, type: suggestTypeFromName(r.name) }));
+  const sug = plan.filter((p) => p.type); const none = plan.filter((p) => !p.type);
+  if (!dry) {
+    const upd = c.db.prepare("UPDATE products SET product_type = ?, classification_status = 'suggested' WHERE id = ? AND product_type = ''");
+    c.db.exec('BEGIN'); try { for (const p of sug) upd.run(p.type, p.id); c.db.exec('COMMIT'); } catch (e) { c.db.exec('ROLLBACK'); throw e; }
+    audit(c.db, c.user!.id, 'taxonomy_suggest', 'products', sug.length, `unclassifiable=${none.length}`);
+  }
+  return { applied: !dry, suggested: sug.length, unclassifiable: none.length, sample: sug.slice(0, 20).map((p) => ({ id: p.id, name: p.name, type: p.type, label: typeLabel(p.type!) })), unclassifiable_sample: none.slice(0, 20).map((p) => ({ id: p.id, name: p.name })) };
 });
 
 route('GET', '/api/products/by-barcode/:code', 'any', (c) => {
   const b = cleanBarcode(c.params.code);
-  const p = b ? (c.db.prepare('SELECT * FROM products WHERE barcode = ?').get(b) as ProductRow | undefined) : undefined;
+  const p = b ? (c.db.prepare(`${PRODUCT_SELECT} WHERE barcode = ?`).get(b) as ProductRow | undefined) : undefined;
   // Global enrichment connectors are not implemented yet: say so instead of pretending to search the web.
   return { barcode: b, found: !!p, product: p ? presentProduct(p, c.cfg.availabilityStaleHours) : null, enrichment: p ? null : c.cfg.enrich === 'off' ? { status: 'not_configured', message: 'البحث العالمي غير مفعّل على هذا الخادم. أدخل البيانات يدويًا وستُحفظ بحالة «تحتاج مراجعة».' } : { status: 'available', message: 'يمكن البحث في المصادر العالمية. النتائج مسودات تحتاج مراجعة المدير.' } };
 });
@@ -142,6 +204,8 @@ route('GET', '/api/products/:id', 'any', (c) => {
 route('POST', '/api/products', 'any', async (c) => {
   const d = productInput.parse(await c.body());
   const user = c.user!;
+  // idempotency: a repeated submission of the SAME form (double tap, network retry) returns the record already created
+  if (d.client_ref) { const prev = c.db.prepare('SELECT id FROM products WHERE client_ref = ?').get(d.client_ref) as { id: number } | undefined; if (prev) return { id: prev.id, duplicate_request: true }; }
   checkVerification(user, d.verification, d.source_url);
   const barcode = cleanBarcode(d.barcode);
   if (barcode) {
@@ -150,8 +214,17 @@ route('POST', '/api/products', 'any', async (c) => {
   }
   const t = now();
   const avSet = d.availability !== 'unknown';
-  const r = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,ingredients,benefits,warnings,source_url,created_by,created_at,updated_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(barcode, d.name, d.brand, d.category, d.size, d.availability, avSet ? t : null, avSet ? user.id : null, d.verification, d.ingredients, d.benefits, d.warnings, d.source_url, user.id, t, t);
+  let r;
+  try {
+    r = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,ingredients,benefits,warnings,source_url,created_by,created_at,updated_at,product_type,application_area,functions,classification_status,client_ref)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(barcode, d.name, d.brand, d.category, d.size, d.availability, avSet ? t : null, avSet ? user.id : null, d.verification, d.ingredients, d.benefits, d.warnings, d.source_url, user.id, t, t,
+      d.product_type, d.application_area, [...new Set(d.functions)].join(','), classification(d), d.client_ref ?? null);
+  } catch (e) {
+    // two identical submissions racing: the unique index on client_ref is the server-side guarantee
+    const prev = d.client_ref ? c.db.prepare('SELECT id FROM products WHERE client_ref = ?').get(d.client_ref) as { id: number } | undefined : undefined;
+    if (prev) return { id: prev.id, duplicate_request: true };
+    throw e;
+  }
   audit(c.db, user.id, 'create', 'product', Number(r.lastInsertRowid));
   return { id: Number(r.lastInsertRowid) };
 });
@@ -161,7 +234,7 @@ route('PATCH', '/api/products/:id', 'any', async (c) => {
   const cur = loadProduct(c.db, id);
   if (!cur) throw new HttpError(404, 'المنتج غير موجود');
   const user = c.user!;
-  const d = productInput.omit({ availability: true }).partial().parse(await c.body());
+  const d = productInput.omit({ availability: true, client_ref: true }).partial().parse(await c.body());
   if (d.barcode !== undefined) {
     const b = cleanBarcode(d.barcode);
     if (b) { const ex = c.db.prepare('SELECT id FROM products WHERE barcode = ? AND id <> ?').get(b, id); if (ex) throw new HttpError(409, 'الباركود مسجل لمنتج آخر'); }
@@ -177,8 +250,11 @@ route('PATCH', '/api/products/:id', 'any', async (c) => {
     if (contentChanged) next.verification = 'review';
   }
   if (next.verification === 'verified' && !next.source_url) throw new HttpError(400, 'لا يمكن اعتماد منتج دون رابط مصدر');
-  c.db.prepare(`UPDATE products SET barcode=?,name=?,brand=?,category=?,size=?,ingredients=?,benefits=?,warnings=?,source_url=?,verification=?,updated_at=? WHERE id=?`)
-    .run(next.barcode, next.name, next.brand, next.category, next.size, next.ingredients, next.benefits, next.warnings, next.source_url, next.verification, now(), id);
+  // classification is not scientific content: changing it does not reset verification; a person choosing a type confirms it
+  const cls = d.product_type !== undefined ? { product_type: d.product_type, classification_status: classification(d), classification_raw: d.product_type ? '' : cur.classification_raw ?? '' } : { product_type: cur.product_type ?? '', classification_status: cur.classification_status ?? 'unknown', classification_raw: cur.classification_raw ?? '' };
+  c.db.prepare(`UPDATE products SET barcode=?,name=?,brand=?,category=?,size=?,ingredients=?,benefits=?,warnings=?,source_url=?,verification=?,updated_at=?,product_type=?,application_area=?,functions=?,classification_status=?,classification_raw=? WHERE id=?`)
+    .run(next.barcode, next.name, next.brand, next.category, next.size, next.ingredients, next.benefits, next.warnings, next.source_url, next.verification, now(),
+      cls.product_type, d.application_area ?? cur.application_area ?? '', d.functions ? [...new Set(d.functions)].join(',') : cur.functions ?? '', cls.classification_status, cls.classification_raw, id);
   audit(c.db, user.id, 'update', 'product', id, Object.keys(d).join(','));
   return { verification: next.verification };
 });
@@ -220,29 +296,60 @@ async function runImport(c: Ctx, commit: boolean) {
   if (!buf.length) throw new HttpError(400, 'لا يوجد ملف');
   let parsed;
   try { parsed = parseImport(filename, buf); } catch (e) { throw new HttpError(400, (e as Error).message); }
-  const existing = new Set((c.db.prepare('SELECT barcode FROM products WHERE barcode IS NOT NULL').all() as { barcode: string }[]).map((r) => r.barcode));
+  // CP05 import decisions. Existing records are NEVER overwritten: only EMPTY brand/size of a non-verified product may be completed.
+  type Ex = { id: number; barcode: string | null; name: string; brand: string; size: string; verification: string; product_type: string };
+  const all = c.db.prepare('SELECT id, barcode, name, brand, size, verification, product_type FROM products').all() as Ex[];
+  const byBarcode = new Map(all.filter((p) => p.barcode).map((p) => [p.barcode!, p]));
+  const sizeKey = (v: string) => { const p = parseSize(v); return p ? `${p.v}${p.unit}` : norm(v); };
+  const idKey = (r: { name: string; brand: string; size: string }) => `${norm(r.name)}|${norm(r.brand)}|${sizeKey(r.size)}`;
+  const byIdentity = new Map(all.filter((p) => !p.barcode).map((p) => [idKey(p), p]));
+  // without a barcode and with a size missing on either side, "same name + brand" is ambiguous: never import it silently
+  const byNameBrand = new Map<string, Ex>(); for (const p of all) if (!p.barcode) byNameBrand.set(`${norm(p.name)}|${norm(p.brand)}`, p);
+  const possible: { line: number; reason: string; existing_id: number }[] = [];
   const seen = new Set<string>();
-  const fresh = []; let dupDb = 0, dupFile = 0;
+  const fresh: typeof parsed.rows = []; const completions: { id: number; line: number; brand?: string; size?: string; product_type?: string }[] = [];
+  const conflicts: { line: number; reason: string; existing_id: number }[] = [];
+  let dupDb = 0, dupFile = 0;
   for (const r of parsed.rows) {
-    if (r.barcode) {
-      if (existing.has(r.barcode)) { dupDb++; continue; }
-      if (seen.has(r.barcode)) { dupFile++; continue; }
-      seen.add(r.barcode);
+    const key = r.barcode ? 'b:' + r.barcode : 'n:' + idKey(r);
+    if (seen.has(key)) { dupFile++; continue; }
+    seen.add(key);
+    const ex = r.barcode ? byBarcode.get(r.barcode) : byIdentity.get(idKey(r));
+    if (!ex && !r.barcode) {
+      const nb = byNameBrand.get(`${norm(r.name)}|${norm(r.brand)}`);
+      if (nb && (!r.size || !nb.size)) { possible.push({ line: r.line, reason: 'منتج بنفس الاسم والعلامة موجود والحجم غير محدد في أحدهما — لم يُستورد لتجنب التكرار؛ أضف الباركود أو الحجم', existing_id: nb.id }); continue; }
     }
-    fresh.push(r);
+    if (!ex) { fresh.push(r); continue; }
+    dupDb++;
+    if (r.barcode && compareName(ex.name, r.name).match === 'conflict') { conflicts.push({ line: r.line, reason: 'نفس الباركود مسجل في المحل باسم مختلف — لم يُغيَّر شيء، راجع السجل يدويًا', existing_id: ex.id }); continue; }
+    if (ex.verification === 'verified') continue;
+    const fill: { brand?: string; size?: string; product_type?: string } = {};
+    if (!ex.brand && r.brand) fill.brand = r.brand;
+    if (!ex.size && r.size) fill.size = r.size;
+    if (!ex.product_type && r.product_type && r.classification_status === 'confirmed') fill.product_type = r.product_type;
+    if (Object.keys(fill).length) completions.push({ id: ex.id, line: r.line, ...fill });
   }
-  const summary = { total: parsed.rows.length + parsed.invalid.length, new: fresh.length, duplicates_existing: dupDb, duplicates_in_file: dupFile, invalid: parsed.invalid.length, invalid_rows: parsed.invalid.slice(0, 50), ignored_columns: parsed.ignoredColumns, warnings: parsed.warnings, sample: fresh.slice(0, 10) };
+  const missing = { barcode: fresh.filter((r) => !r.barcode).length, brand: fresh.filter((r) => !r.brand).length, size: fresh.filter((r) => !r.size).length };
+  const summary = { total: parsed.rows.length + parsed.invalid.length, new: fresh.length, duplicates_existing: dupDb, duplicates_in_file: dupFile, invalid: parsed.invalid.length, invalid_rows: parsed.invalid.slice(0, 50),
+    completions: completions.length, completion_rows: completions.slice(0, 20).map((x) => ({ line: x.line, fields: Object.keys(x).filter((k) => k === 'brand' || k === 'size' || k === 'product_type') })),
+    classification: { confirmed: fresh.filter((r) => r.classification_status === 'confirmed').length, suggested: fresh.filter((r) => r.classification_status === 'suggested').length, needs_review: fresh.filter((r) => r.classification_status === 'needs_review').length, unknown: fresh.filter((r) => r.classification_status === 'unknown').length },
+    conflicts: conflicts.length, conflict_rows: conflicts.slice(0, 50), possible_duplicates: possible.length, possible_rows: possible.slice(0, 50), missing, max_rows: MAX_IMPORT_ROWS,
+    ignored_columns: parsed.ignoredColumns, warnings: parsed.warnings, sample: fresh.slice(0, 10) };
   if (!commit) return { committed: false, ...summary };
   const t = now(); const uid = c.user!.id;
   c.db.exec('BEGIN');
   try {
-    const ins = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?, 'review',?,?,?)`);
-    for (const r of fresh) ins.run(r.barcode || null, r.name, r.brand, r.category, r.size, r.availability ?? 'unknown', r.availability ? t : null, r.availability ? uid : null, uid, t, t);
+    const ins = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,created_by,created_at,updated_at,product_type,classification_status,classification_raw) VALUES (?,?,?,?,?,?,?,?, 'review',?,?,?,?,?,?)`);
+    for (const r of fresh) ins.run(r.barcode || null, r.name, r.brand, r.category, r.size, r.availability ?? 'unknown', r.availability ? t : null, r.availability ? uid : null, uid, t, t, r.product_type, r.classification_status, r.classification_raw);
+    // completing EMPTY fields only (guarded again in SQL), and the record goes (back) to review
+    const upd = c.db.prepare("UPDATE products SET brand = CASE WHEN brand = '' THEN ? ELSE brand END, size = CASE WHEN size = '' THEN ? ELSE size END, verification = CASE WHEN ? THEN 'review' ELSE verification END, updated_at = ? WHERE id = ? AND verification <> 'verified'");
+    const updType = c.db.prepare("UPDATE products SET product_type = ?, classification_status = 'confirmed' WHERE id = ? AND product_type = ''");
+    for (const x of completions) { upd.run(x.brand ?? '', x.size ?? '', x.brand || x.size ? 1 : 0, t, x.id); if (x.product_type) updType.run(x.product_type, x.id); }
     c.db.prepare('INSERT INTO import_jobs(filename,status,total,added,duplicates,invalid,ignored_columns,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?)')
       .run(filename, 'committed', summary.total, fresh.length, dupDb + dupFile, parsed.invalid.length, parsed.ignoredColumns.join(' | '), uid, t);
     c.db.exec('COMMIT');
   } catch (e) { c.db.exec('ROLLBACK'); throw e; }
-  audit(c.db, uid, 'import', 'products', filename.replace(/[^\w.\-]/g, '_'), `added=${fresh.length}`);
+  audit(c.db, uid, 'import', 'products', filename.replace(/[^\w.\-]/g, '_'), `added=${fresh.length} completed=${completions.length}`);
   let queued = 0;
   if (c.query.get('enrich') === '1' && c.cfg.enrich !== 'off') queued = enqueueBarcodes(c.db, fresh.map((r) => r.barcode).filter(Boolean));
   return { committed: true, enrich_queued: queued, ...summary };
@@ -253,7 +360,7 @@ route('POST', '/api/imports/commit', 'manager', (c) => runImport(c, true));
 // ---------- advisor (retrieval-only baseline: NO language model yet) ----------
 route('POST', '/api/advisor/search', 'any', async (c) => {
   const { query } = z.object({ query: z.string().trim().min(1).max(500) }).strict().parse(await c.body());
-  const rows = c.db.prepare('SELECT * FROM products').all() as unknown as ProductRow[];
+  const rows = c.db.prepare(PRODUCT_SELECT).all() as unknown as ProductRow[];
   const conflictIds = new Set((c.db.prepare("SELECT DISTINCT p.id FROM products p JOIN enrichment_candidates e ON e.barcode = p.barcode WHERE e.review_status='pending' AND e.conflict_note <> ''").all() as { id: number }[]).map((r) => r.id));
   return advise(query, rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)), { conflictIds });
 });
@@ -292,15 +399,16 @@ route('GET', '/api/enrichment/status', 'any', (c) => {
 });
 
 route('GET', '/api/enrichment/pending', 'manager', (c) => {
-  const rows = c.db.prepare("SELECT id,barcode,field,value,source_name,source_url,license,is_mock,conflict_note,extracted_at FROM enrichment_candidates WHERE review_status='pending' ORDER BY barcode,field,id LIMIT 500").all() as { barcode: string; [k: string]: unknown }[];
+  const rows = c.db.prepare("SELECT id,barcode,field,value,source_name,source_url,license,is_mock,conflict_note,quality_note,extracted_at FROM enrichment_candidates WHERE review_status='pending' ORDER BY barcode,field,id LIMIT 500").all() as { barcode: string; [k: string]: unknown }[];
   const byCode = new Map<string, typeof rows>();
   for (const r of rows) byCode.set(r.barcode, [...(byCode.get(r.barcode) ?? []), r]);
-  return { items: [...byCode].map(([barcode, candidates]) => ({ barcode, local_product: c.db.prepare('SELECT id,name,brand,size,ingredients,verification FROM products WHERE barcode=?').get(barcode) ?? null, candidates })) };
+  return { items: [...byCode].map(([barcode, candidates]) => ({ barcode, local_product: c.db.prepare(`SELECT p.id,p.name,p.brand,p.size,p.ingredients,p.verification,(SELECT i.id FROM product_images i WHERE i.product_id=p.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id FROM products p WHERE p.barcode=?`).get(barcode) ?? null, candidates })) };
 });
 
 route('POST', '/api/enrichment/candidates/:id/review', 'manager', async (c) => {
   const id = parseId(c.params.id!);
   const d = z.object({ action: z.enum(['approve', 'reject']), value: z.string().max(5000).optional() }).strict().parse(await c.body());
+  if (d.action === 'approve' && (c.db.prepare('SELECT field FROM enrichment_candidates WHERE id = ?').get(id) as { field: string } | undefined)?.field === 'image_url') return approveImageCandidate(c.db, id, c.user!.id, c.cfg.enrichContact);
   const r = reviewCandidate(c.db, id, c.user!.id, d.action, d.value);
   const err = (r as { error?: 'not_found' | 'already_reviewed' | 'no_product' | 'images_not_supported' | 'empty' }).error;
   if (err) {
@@ -312,7 +420,7 @@ route('POST', '/api/enrichment/candidates/:id/review', 'manager', async (c) => {
 
 route('POST', '/api/enrichment/queue/start', 'manager', (c) => {
   if (c.cfg.enrich === 'off') throw new HttpError(409, 'الإثراء الإلكتروني غير مفعّل (MH_ENRICH).');
-  const codes = (c.db.prepare("SELECT barcode FROM products WHERE barcode IS NOT NULL AND (ingredients='' OR brand='' OR size='') AND barcode NOT IN (SELECT barcode FROM enrichment_runs WHERE outcome IN ('found','not_found'))").all() as { barcode: string }[]).map((r) => r.barcode);
+  const codes = (c.db.prepare("SELECT barcode FROM products WHERE barcode IS NOT NULL AND (ingredients='' OR brand='' OR size='' OR NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = products.id)) AND barcode NOT IN (SELECT barcode FROM enrichment_runs WHERE outcome IN ('found','not_found'))").all() as { barcode: string }[]).map((r) => r.barcode);
   audit(c.db, c.user!.id, 'enrich_queue', 'products', codes.length);
   return { queued: enqueueBarcodes(c.db, codes), candidates_total: codes.length };
 });

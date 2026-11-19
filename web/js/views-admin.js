@@ -1,28 +1,45 @@
 import { api } from './api.js';
-import { h, toast, AV, field, select, fmtDate } from './util.js';
+import { busy, fill, h, toast, AV, field, select, fmtDate } from './util.js';
 
 /* ---------- import (manager): preview -> commit; price/qty columns reported by NAME only ---------- */
 export function importView(root) {
   const file = h('input', { type: 'file', accept: '.csv,.xlsx' }); const out = h('div', {});
+  const enrich = h('input', { type: 'checkbox', id: 'imp-enrich' });
   let buf = null, name = '';
-  const send = async (commit) => {
+  const table = (head, rows) => h('div', { class: 'tw' }, h('table', {}, h('tr', {}, head.map((x) => h('th', {}, x))), rows));
+  const send = async (commit, btn) => {
     if (!buf) { toast('اختر ملفًا أولًا'); return; }
-    try {
-      const r = await api('POST', `/api/imports/${commit ? 'commit' : 'preview'}?filename=${encodeURIComponent(name)}`, buf, { raw: true });
-      out.replaceChildren(h('div', { class: 'card' }, h('h3', {}, commit ? 'تم الاستيراد' : 'معاينة (لم يُحفظ شيء بعد)'),
-        h('p', {}, `إجمالي الصفوف: ${r.total} · جديد: ${r.new} · مكرر في المكتبة: ${r.duplicates_existing} · مكرر داخل الملف: ${r.duplicates_in_file} · غير صالح: ${r.invalid}`),
-        r.ignored_columns.length ? h('div', { class: 'notice' }, 'أعمدة تم تجاهلها كليًا (لم تُقرأ قيمها): ', r.ignored_columns.join('، ')) : null,
-        r.warnings.map((w) => h('div', { class: 'notice' }, w)),
-        r.invalid_rows.length ? h('div', { class: 'tw' }, h('table', {}, h('tr', {}, h('th', {}, 'السطر'), h('th', {}, 'السبب')), r.invalid_rows.map((x) => h('tr', {}, h('td', {}, x.line), h('td', {}, x.reason))))) : null,
-        r.sample.length ? h('div', { class: 'tw' }, h('table', {}, h('tr', {}, h('th', {}, 'باركود'), h('th', {}, 'الاسم'), h('th', {}, 'العلامة')), r.sample.map((x) => h('tr', {}, h('td', {}, x.barcode || '—'), h('td', {}, x.name), h('td', {}, x.brand))))) : null,
-        !commit && r.new > 0 ? h('button', { class: 'btn', onclick: () => send(true) }, `اعتماد استيراد ${r.new} منتج`) : null,
-        commit ? h('div', { class: 'notice ok' }, 'كل الأصناف الجديدة بحالة «تحتاج مراجعة» وتوفر «غير مؤكد».') : null));
-    } catch (e) { out.replaceChildren(h('div', { class: 'notice err' }, e.message)); }
+    const run = async () => {
+      try {
+        const r = await api('POST', `/api/imports/${commit ? 'commit' : 'preview'}?filename=${encodeURIComponent(name)}${commit && enrich.checked ? '&enrich=1' : ''}`, buf, { raw: true });
+        fill(out, h('div', { class: 'card' }, h('h3', {}, commit ? 'تم الاستيراد' : 'معاينة — لم يُحفظ شيء بعد'),
+          h('div', { class: 'stats' }, [['جديد', r.new], ['موجود مسبقًا', r.duplicates_existing], ['يُستكمل (حقول فارغة)', r.completions], ['تعارض', r.conflicts], ['مشابه محتمل', r.possible_duplicates], ['مكرر في الملف', r.duplicates_in_file], ['غير صالح', r.invalid]].map(([l, n]) => h('div', { class: 'stat' }, h('b', {}, n ?? 0), h('small', {}, l)))),
+          r.classification ? h('p', { class: 'tiny' }, `نوع المنتج في الجديد: مطابق ${r.classification.confirmed} · مقترح من الاسم ${r.classification.suggested} · قيمة غير معروفة (للمراجعة) ${r.classification.needs_review} · غير مصنف ${r.classification.unknown}`) : null,
+          r.new ? h('p', { class: 'tiny' }, `بيانات ناقصة في الجديد (مسموح): بلا باركود ${r.missing.barcode} · بلا علامة ${r.missing.brand} · بلا حجم ${r.missing.size}. الصور والمكونات تُستكمل لاحقًا من بطاقة المنتج.`) : null,
+          r.ignored_columns.length ? h('div', { class: 'notice' }, 'أعمدة أُهملت كليًا ولم تُقرأ قيمها: ', r.ignored_columns.join('، ')) : null,
+          r.warnings.map((w) => h('div', { class: 'notice' }, w)),
+          r.completions ? h('div', { class: 'notice info' }, `${r.completions} منتج موجود ستُملأ حقوله الفارغة فقط (العلامة/الحجم) ويعود إلى «تحتاج مراجعة». المنتجات المعتمدة والقيم الموجودة لا تُستبدل.`) : null,
+          r.conflict_rows?.length ? [h('h4', {}, 'تعارضات (لن يُغيَّر شيء)'), table(['السطر', 'السبب', ''], r.conflict_rows.map((x) => h('tr', {}, h('td', {}, x.line), h('td', {}, x.reason), h('td', {}, h('a', { href: '#/product/' + x.existing_id }, 'فتح')))))] : null,
+          r.possible_rows?.length ? [h('h4', {}, 'منتجات مشابهة محتملة (لم تُستورد)'), table(['السطر', 'السبب', ''], r.possible_rows.map((x) => h('tr', {}, h('td', {}, x.line), h('td', {}, x.reason), h('td', {}, h('a', { href: '#/product/' + x.existing_id }, 'فتح')))))] : null,
+          r.invalid_rows.length ? [h('h4', {}, 'صفوف غير صالحة'), table(['السطر', 'السبب'], r.invalid_rows.map((x) => h('tr', {}, h('td', {}, x.line), h('td', {}, x.reason))))] : null,
+          r.sample.length ? [h('h4', {}, 'عينة من الجديد'), table(['باركود', 'الاسم', 'العلامة', 'التصنيف'], r.sample.map((x) => h('tr', {}, h('td', { dir: 'ltr' }, x.barcode || '—'), h('td', {}, x.name), h('td', {}, x.brand || '—'), h('td', {}, x.category))))] : null,
+          !commit && (r.new > 0 || r.completions > 0) ? [h('label', { class: 'row', for: 'imp-enrich', style: 'margin:8px 0' }, enrich, ' بعد الاستيراد: أضف المنتجات ذات الباركود إلى طابور البحث في المصادر (مسودات للمراجعة، على دفعات بحد المصدر)'),
+            h('button', { class: 'btn', onclick: (e) => send(true, e.currentTarget) }, `اعتماد: إضافة ${r.new} واستكمال ${r.completions}`)] : null,
+          commit ? h('div', { class: 'notice ok' }, `الجديد بحالة «تحتاج مراجعة» وتوفر «غير مؤكد» ما لم يذكر الملف غير ذلك.${r.enrich_queued ? ` أُضيف ${r.enrich_queued} باركود إلى طابور البحث.` : ''}`) : null));
+      } catch (e) { fill(out, h('div', { class: 'notice err' }, e.status ? e.message : 'تعذر الاتصال بالخادم. لم يُحفظ شيء — أعد المحاولة.')); }
+    };
+    return btn ? busy(btn, run) : run();
   };
-  file.addEventListener('change', async () => { const f = file.files[0]; if (!f) return; name = f.name; buf = await f.arrayBuffer(); send(false); });
-  root.append(h('h2', { class: 't' }, 'استيراد الأصناف (XLSX / CSV)'), h('div', { class: 'card' },
-    h('p', {}, 'الأعمدة المقبولة: barcode, name, brand, category, size, availability. أي عمود آخر (أسعار، كميات…) يُهمل ولا تُقرأ قيمه.'),
-    h('div', { class: 'notice' }, 'نسّق عمود الباركود كنص في Excel لتبقى الأصفار البادئة. إعادة رفع الملف لا تكرّر المنتجات.'), field('الملف', file)), out);
+  file.addEventListener('change', async () => { const f = file.files[0]; if (!f) return; if (f.size > 8 * 1024 * 1024) { fill(out, h('div', { class: 'notice err' }, 'الملف أكبر من 8 ميغابايت. قسّمه إلى ملفات أصغر.')); return; } name = f.name; buf = await f.arrayBuffer(); send(false); });
+  root.append(h('h2', { class: 't' }, 'استيراد المنتجات (XLSX / CSV)'), h('div', { class: 'card' },
+    h('p', {}, 'الأعمدة المقبولة: barcode, name, brand, category, product_type (نوع المنتج: كريم، غسول، Serum…), size, availability — أو أسماؤها العربية. المطلوب: الاسم فقط؛ الملفات القديمة بلا product_type تعمل كما هي.'),
+    h('div', { class: 'notice' }, 'لا تُقرأ أي أعمدة أخرى (أسعار، كميات…). إعادة رفع الملف لا تكرر المنتجات، ولا تستبدل أي قيمة موجودة.'),
+    h('details', {}, h('summary', {}, 'تجهيز عمود الباركود في Excel (مهم)'), h('ol', { class: 'tiny' },
+      h('li', {}, 'حدّد عمود الباركود ← تنسيق الخلايا ← «نص»، ثم الصق/اكتب الباركودات.'),
+      h('li', {}, 'إذا ظهر الباركود بصيغة مثل 6.29E+12 أو اختفت أصفاره البادئة فقد فقد Excel أرقامه — لا يمكن استعادتها من الملف؛ أعد إدخالها من العبوات أو من النظام الأصلي.'),
+      h('li', {}, 'حد الملف: 10,000 صف و8 ميغابايت. للملفات الأكبر قسّمها.')),
+      h('a', { class: 'btn sm light', href: '/import-template.csv', download: 'makeup-house-import-template.csv' }, 'تنزيل قالب CSV')),
+    field('الملف', file)), out);
 }
 
 /* ---------- reports (manager) ---------- */
