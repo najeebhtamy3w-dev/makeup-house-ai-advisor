@@ -8,9 +8,10 @@ import { hashPassword } from './security.ts';
 import './routes.ts';
 import { seedStaging } from './staging.ts';
 import './images.ts';
+import './discovery.ts';
 import { configureConnectors, processQueueOnce } from './enrichment/engine.ts';
 
-const MIME: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.txt': 'text/plain; charset=utf-8', '.png': 'image/png' };
+const MIME: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.txt': 'text/plain; charset=utf-8', '.csv': 'text/csv; charset=utf-8', '.png': 'image/png' };
 
 export function seedAdmin(db: DB, user?: string, pass?: string) {
   const n = (db.prepare('SELECT COUNT(*) n FROM users').get() as { n: number }).n;

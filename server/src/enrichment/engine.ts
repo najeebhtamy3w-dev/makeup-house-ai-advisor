@@ -28,7 +28,7 @@ const CACHE_HOURS = 24;
 
 export type Outcome = 'found' | 'not_found' | 'unreachable' | 'rate_limited' | 'error' | 'disabled';
 export interface LookupResult { outcome: Outcome; barcode: string; conflict: boolean; candidates: Candidate[]; connectors: { id: string; name: string; outcome: Outcome; cached: boolean }[] }
-export interface Candidate { id: number; field: EnrichField; value: string; source_name: string; source_url: string; license: string; is_mock: number; conflict_note: string; review_status: string; extracted_at: string }
+export interface Candidate { id: number; field: EnrichField; value: string; source_name: string; source_url: string; license: string; is_mock: number; conflict_note: string; quality_note: string; review_status: string; extracted_at: string }
 
 export async function enrichBarcode(db: DB, cfg: Config, rawBarcode: string, userId: number | null, opts: { force?: boolean } = {}): Promise<LookupResult> {
   const barcode = normalizeBarcode(rawBarcode);
@@ -44,8 +44,8 @@ export async function enrichBarcode(db: DB, cfg: Config, rawBarcode: string, use
       const r = await c.lookupBarcode(barcode);
       const run = db.prepare('INSERT INTO enrichment_runs(barcode,connector,outcome,requested_by,fetched_at) VALUES (?,?,?,?,?)').run(barcode, c.id, r.found ? 'found' : 'not_found', userId, t);
       if (r.found) {
-        const ins = db.prepare('INSERT INTO enrichment_candidates(run_id,barcode,field,value,source_name,source_url,license,is_mock,extracted_at) VALUES (?,?,?,?,?,?,?,?,?)');
-        for (const [k, v] of Object.entries(r.fields)) if (v) ins.run(Number(run.lastInsertRowid), barcode, k, v, c.name, r.sourceUrl, c.license, c.isMock ? 1 : 0, t);
+        const ins = db.prepare('INSERT INTO enrichment_candidates(run_id,barcode,field,value,source_name,source_url,license,is_mock,extracted_at,quality_note) VALUES (?,?,?,?,?,?,?,?,?,?)');
+        for (const [k, v] of Object.entries(r.fields)) if (v) ins.run(Number(run.lastInsertRowid), barcode, k, v, c.name, r.sourceUrl, c.license, c.isMock ? 1 : 0, t, r.notes?.[k as EnrichField] ?? '');
       }
       per.push({ id: c.id, name: c.name, outcome: r.found ? 'found' : 'not_found', cached: false });
     } catch (e) {
@@ -55,7 +55,7 @@ export async function enrichBarcode(db: DB, cfg: Config, rawBarcode: string, use
     }
   }
   markConflicts(db, barcode);
-  const candidates = db.prepare("SELECT id,field,value,source_name,source_url,license,is_mock,conflict_note,review_status,extracted_at FROM enrichment_candidates WHERE barcode=? AND review_status='pending' ORDER BY id").all(barcode) as unknown as Candidate[];
+  const candidates = db.prepare("SELECT id,field,value,source_name,source_url,license,is_mock,conflict_note,quality_note,review_status,extracted_at FROM enrichment_candidates WHERE barcode=? AND review_status='pending' ORDER BY id").all(barcode) as unknown as Candidate[];
   const any = (o: Outcome) => per.some((p) => p.outcome === o);
   const outcome: Outcome = any('found') ? 'found' : any('unreachable') ? 'unreachable' : any('rate_limited') ? 'rate_limited' : any('error') ? 'error' : 'not_found';
   if (userId) audit(db, userId, 'enrich_lookup', 'barcode', barcode, outcome);

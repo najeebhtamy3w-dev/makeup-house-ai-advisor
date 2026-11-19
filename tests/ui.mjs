@@ -39,7 +39,7 @@ await step('advisor: recommendation card has no price and no personal data', asy
 await step('scan: manual unknown barcode -> new product form prefilled -> save', async () => {
   await page.click('.nav button:nth-child(3)'); await page.fill('input[aria-label="رقم الباركود"]', '5901234123457'); await page.keyboard.press('Enter');
   await page.waitForSelector('text=نتيجة البحث العالمي'); assert.match(await page.textContent('main'), /مسودات غير معتمدة/); assert.match(await page.textContent('main'), /تم العثور على منتج محتمل · تم حفظ المسودة · بانتظار اعتماد المدير/); assert.match(await page.textContent('main'), /بيانات وهمية|MOCK/); await page.screenshot({ path: out + '05-scan-new.png' });
-  await page.click('text=إنشاء بطاقة ومراجعتها'); await page.waitForSelector('text=بطاقة منتج جديدة');
+  await page.click('text=إنشاء بطاقة ومراجعتها'); await page.waitForSelector('h2:has-text("منتج جديد")');
   assert.equal(await page.inputValue('#f-barcode'), '5901234123457');
   assert.equal(await page.locator('#f-name').inputValue(), 'Demo Gentle Moisturizer', 'name prefilled from DRAFT'); assert.equal(await page.locator('#f-ingredients').inputValue(), '', 'unreviewed ingredients are NOT copied');
   await page.locator('#f-name').fill('كريم يدين تجريبي'); await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('h2:has-text("كريم يدين تجريبي")');
@@ -150,7 +150,7 @@ const pickFile = async (button, file) => { const [fc] = await Promise.all([page.
 await step('product form: never shows "null"; sanitises ?barcode=null; sections + required/optional marks', async () => {
   await page.evaluate(() => (location.hash = '#/product-new?barcode=null')); await page.waitForSelector('#f-name');
   assert.equal(await page.inputValue('#f-barcode'), ''); assert.doesNotMatch(await page.textContent('main'), /\bnull\b|undefined|\[object/);
-  for (const sec of ['هوية المنتج', 'الصور', 'محتوى العبوة', 'المصدر والتوثيق']) assert.match(await page.textContent('main'), new RegExp(sec));
+  for (const sec of ['التعرف على المنتج', 'الهوية والتصنيف', 'المكونات ومحتوى العبوة', 'الاستخدام والفوائد والتحذيرات', 'المصادر والتوثيق']) assert.match(await page.textContent('main'), new RegExp(sec));
   assert.match(await page.textContent('.field[data-field=name] label'), /مطلوب/); assert.match(await page.textContent('.field[data-field=brand] label'), /اختياري/);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
   await page.screenshot({ path: out + '17-product-new.png', fullPage: true });
@@ -185,6 +185,56 @@ await step('images: camera button asks for the rear camera; non-image files are 
   const fc = await pickFile('button:has-text("تصوير العبوة")', { name: 'x.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
   assert.equal(await fc.element().getAttribute('capture'), 'environment');
   await page.waitForSelector('#toast >> text=نوع الملف غير مدعوم'); assert.equal(await page.$('.imgprev'), null);
+});
+// ---- CP05: smart entry, completion of imported products, filters, import preview (manager, MH_ENRICH=mock) ----
+await step('CP05 new product: identify by barcode -> store first, then source drafts; identity copied into the form only on request', async () => {
+  await page.evaluate(() => { sessionStorage.removeItem('mh_new_product_draft'); location.hash = '#/product-new'; }); await page.waitForSelector('#f-name');
+  const order = await page.evaluate(() => [...document.querySelectorAll('.fsec-t')].map((e) => e.textContent.trim()));
+  assert.match(order[0], /التعرف على المنتج/); assert.ok(await page.$('.fsec:first-of-type .imgmgr'), 'photo area is in the first section');
+  await page.fill('#f-barcode', '4006381333931'); await page.click('button:has-text("التعرف وجلب المعلومات")');
+  await page.waitForSelector('.disc .cand'); const t = await page.textContent('.disc');
+  assert.match(t, /مسودات غير معتمدة/); assert.match(t, /Demo Scented Cream/); assert.match(t, /لا يوفر المصدر/);
+  assert.equal(await page.inputValue('#f-name'), '', 'nothing copied automatically');
+  await page.locator('.disc .cand', { has: page.locator('b:text-is("الاسم")') }).locator('button:has-text("استخدام في النموذج")').click();
+  assert.equal(await page.inputValue('#f-name'), 'Demo Scented Cream'); assert.equal(await page.inputValue('#f-ingredients'), '', 'ingredients are never copied into the form');
+  await page.screenshot({ path: out + '22-identify-barcode.png', fullPage: true });
+  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('h2:has-text("Demo Scented Cream")');
+});
+await step('CP05 product card: pending drafts for THIS record; manager approves ingredients there; no new product created', async () => {
+  const before = (await apiGet('/api/products?limit=500')).products.length;
+  await page.waitForSelector('.disc h4:has-text("اقتراحات بانتظار المراجعة")');
+  const ing = page.locator('.disc .cand', { has: page.locator('b:text-is("المكونات")') }); await ing.locator('button:has-text("اعتماد")').click();
+  const p = await until(async () => { const x = (await apiGet('/api/products?q=4006381333931')).products[0]; return /Parfum/.test(x.ingredients) ? x : null; });
+  assert.equal(p.verification, 'partial'); assert.equal((await apiGet('/api/products?limit=500')).products.length, before);
+  await page.waitForSelector('h2:has-text("Demo Scented Cream")'); assert.match(await page.textContent('.phead'), /اكتمال البيانات/);
+});
+await step('CP05 import preview UI: stats, missing data allowed, commit; imported product can be completed in place', async () => {
+  await page.evaluate(() => (location.hash = '#/import')); await page.waitForSelector('input[type=file]');
+  const csv = 'barcode,name,brand,category,size,price\n,منتج مستورد بلا صورة,,skincare,,10\n,منتج مستورد بلا صورة,,skincare,,10\n';
+  await page.setInputFiles('input[type=file]', { name: 'p.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await page.waitForSelector('text=معاينة — لم يُحفظ شيء بعد'); assert.match(await page.textContent('main'), /مكرر في الملف/); assert.match(await page.textContent('main'), /price/);
+  await page.screenshot({ path: out + '23-import-preview.png', fullPage: true });
+  await page.click('button:has-text("اعتماد:")'); await page.waitForSelector('text=تم الاستيراد');
+  const p = (await apiGet('/api/products?q=' + encodeURIComponent('منتج مستورد بلا صورة'))).products; assert.equal(p.length, 1); assert.equal(p[0].category, 'العناية بالبشرة');
+  await page.evaluate((id) => (location.hash = '#/product/' + id), p[0].id); await page.waitForSelector('button:has-text("استكمال معلومات المنتج من الإنترنت")');
+  assert.ok(await page.$('.imgmgr button:has-text("تصوير العبوة")'), 'camera available on an imported product');
+  await page.click('button:has-text("استكمال معلومات المنتج من الإنترنت")'); await page.waitForSelector('.disc .notice');
+  assert.match(await page.textContent('.disc'), /لا يدعم البحث بالاسم|مرشح|غير مفعّل/);
+  assert.equal((await apiGet('/api/products?q=' + encodeURIComponent('منتج مستورد بلا صورة'))).products.length, 1, 'completion never creates a product');
+  await page.screenshot({ path: out + '24-imported-complete.png', fullPage: true });
+});
+await step('CP05 filters: without image / missing info / pending suggestions', async () => {
+  await page.evaluate(() => (location.hash = '#/products')); await page.waitForSelector('.chip');
+  await page.click('.chip:has-text("بدون صورة")'); await page.waitForFunction(() => document.querySelectorAll('.grid .card').length > 0);
+  assert.ok((await page.textContent('.grid')).includes('منتج مستورد بلا صورة'));
+  await page.click('.chip:has-text("معلومات ناقصة")'); await page.waitForFunction(() => document.querySelector('.grid .card .compl'));
+  await page.screenshot({ path: out + '25-filters.png', fullPage: true });
+});
+await step('CP05 no lost work: unsaved new-product fields survive navigation', async () => {
+  await page.evaluate(() => { sessionStorage.removeItem('mh_new_product_draft'); location.hash = '#/product-new'; }); await page.waitForSelector('#f-name');
+  await page.fill('#f-name', 'مسودة لم تُحفظ'); await page.evaluate(() => (location.hash = '#/home')); await page.waitForSelector('.hero');
+  await page.evaluate(() => (location.hash = '#/product-new')); await page.waitForSelector('#f-name');
+  assert.equal(await page.inputValue('#f-name'), 'مسودة لم تُحفظ'); await page.evaluate(() => sessionStorage.removeItem('mh_new_product_draft'));
 });
 await step('Samsung checklist: items listed, an answer is stored and also becomes a feedback note', async () => {
   await page.evaluate(() => { localStorage.removeItem('mh_feedback_v1'); localStorage.removeItem('mh_checklist_v1'); location.hash = '#/checklist'; }); await page.waitForSelector('.ck');

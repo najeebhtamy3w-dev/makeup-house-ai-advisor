@@ -120,3 +120,12 @@ body:has(.savebar) #toast{bottom:150px}
 .imgopen{all:unset;display:block;cursor:zoom-in;width:100%}
 .sheet.viewer>div img{width:100%;max-height:78vh;object-fit:contain;background:#000;border-radius:12px}
 .ck.answered{opacity:.85}.ck input{margin-top:4px}
+/* ---------- CP05: discovery & completeness ---------- */
+.card.inset{background:var(--rose-50);box-shadow:none;border:1px solid var(--line);margin:10px 0}.card.inset h4{margin:0 0 6px;font-size:14px;color:var(--plum)}
+.hit{border-top:1px solid var(--line);padding:8px 0;display:grid;gap:4px}.hit:first-of-type{border-top:0}
+.reasons{display:flex;flex-wrap:wrap;gap:4px}.reasons .badge{font-size:11.5px;font-weight:500}
+.cval{white-space:pre-wrap;word-break:break-word;font-size:13.5px}
+.field.withbtn{position:relative}.field.withbtn input{padding-inline-end:84px}.field.withbtn>button{position:absolute;inset-inline-end:6px;top:30px}
+.field.fromsrc input{background:var(--warn-bg)}
+.compl{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;font-size:11.5px}.compl .y{color:var(--ok)}.compl .n{color:var(--muted)}
+input[type=checkbox],input[type=radio]{width:auto;min-height:0;height:20px;width:20px;flex:0 0 20px;padding:0;margin:0;accent-color:var(--wine-600)}

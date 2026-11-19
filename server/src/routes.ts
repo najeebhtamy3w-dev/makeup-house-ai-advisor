@@ -4,11 +4,13 @@ import { audit, now, type DB } from './db.ts';
 import { HttpError, route, type Ctx } from './http.ts';
 import { hashPassword, signToken, verifyPassword } from './security.ts';
 import { gtinValid, normalizeBarcode } from './gtin.ts';
-import { parseImport } from './importer.ts';
+import { parseImport, MAX_IMPORT_ROWS } from './importer.ts';
+import { compareName, parseSize } from './enrichment/identity.ts';
+import { norm } from './advisor.ts';
 import { advise } from './advisor.ts';
 
 // ---------- helpers ----------
-const CATEGORIES = ['العناية بالبشرة', 'العناية بالشعر', 'واقيات الشمس', 'المكياج والجمال', 'العطور والعناية', 'أخرى'] as const;
+import { CATEGORIES } from './importer.ts';
 const dummyHash = hashPassword('dummy-password-for-timing');
 
 export interface ProductRow {
@@ -17,9 +19,10 @@ export interface ProductRow {
   verification: 'review' | 'partial' | 'verified'; ingredients: string; benefits: string; warnings: string; source_url: string;
   created_by: number | null; created_at: string; updated_at: string;
   primary_image_id?: number | null;
+  pending_suggestions?: number;
 }
 /** Product columns + id of its primary image (CP04). */
-export const PRODUCT_SELECT = 'SELECT products.*, (SELECT i.id FROM product_images i WHERE i.product_id = products.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id FROM products';
+export const PRODUCT_SELECT = "SELECT products.*, (SELECT i.id FROM product_images i WHERE i.product_id = products.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id, (SELECT COUNT(*) FROM enrichment_candidates e WHERE e.barcode = products.barcode AND e.review_status = 'pending') AS pending_suggestions FROM products";
 
 export function presentProduct(p: ProductRow, staleHours: number, nowMs = Date.now()) {
   const age = p.availability_updated_at ? (nowMs - Date.parse(p.availability_updated_at)) / 3.6e6 : Infinity;
@@ -122,11 +125,16 @@ route('GET', '/api/products', 'any', (c) => {
   const ver = c.query.get('verification');
   const limit = Math.min(Number(c.query.get('limit') ?? 100) || 100, 500);
   const where: string[] = []; const args: (string | number)[] = [];
-  if (q) { where.push('(name LIKE ? OR brand LIKE ? OR barcode LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l); }
-  if (av && ['yes', 'no', 'unknown'].includes(av)) { where.push('availability = ?'); args.push(av); }
-  if (cat) { where.push('category = ?'); args.push(cat); }
-  if (ver && ['review', 'partial', 'verified'].includes(ver)) { where.push('verification = ?'); args.push(ver); }
-  const rows = c.db.prepare(`${PRODUCT_SELECT} ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY updated_at DESC, id DESC LIMIT ?`).all(...args, limit) as unknown as ProductRow[];
+  if (q) { where.push('(products.name LIKE ? OR products.brand LIKE ? OR products.barcode LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l); }
+  if (av && ['yes', 'no', 'unknown'].includes(av)) { where.push('products.availability = ?'); args.push(av); }
+  if (cat) { where.push('products.category = ?'); args.push(cat); }
+  if (ver && ['review', 'partial', 'verified'].includes(ver)) { where.push('products.verification = ?'); args.push(ver); }
+  // CP05 completeness filters (descriptive only: complete is not the same as correct)
+  const missing = c.query.get('missing');
+  if (missing === 'image') where.push('NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = products.id)');
+  if (missing === 'info') where.push("(products.barcode IS NULL OR products.brand = '' OR products.size = '' OR products.ingredients = '')");
+  if (missing === 'pending') where.push("products.barcode IN (SELECT barcode FROM enrichment_candidates WHERE review_status = 'pending')");
+  const rows = c.db.prepare(`${PRODUCT_SELECT} ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY products.updated_at DESC, products.id DESC LIMIT ?`).all(...args, limit) as unknown as ProductRow[];
   return { products: rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)) };
 });
 
@@ -224,29 +232,57 @@ async function runImport(c: Ctx, commit: boolean) {
   if (!buf.length) throw new HttpError(400, 'لا يوجد ملف');
   let parsed;
   try { parsed = parseImport(filename, buf); } catch (e) { throw new HttpError(400, (e as Error).message); }
-  const existing = new Set((c.db.prepare('SELECT barcode FROM products WHERE barcode IS NOT NULL').all() as { barcode: string }[]).map((r) => r.barcode));
+  // CP05 import decisions. Existing records are NEVER overwritten: only EMPTY brand/size of a non-verified product may be completed.
+  type Ex = { id: number; barcode: string | null; name: string; brand: string; size: string; verification: string };
+  const all = c.db.prepare('SELECT id, barcode, name, brand, size, verification FROM products').all() as Ex[];
+  const byBarcode = new Map(all.filter((p) => p.barcode).map((p) => [p.barcode!, p]));
+  const sizeKey = (v: string) => { const p = parseSize(v); return p ? `${p.v}${p.unit}` : norm(v); };
+  const idKey = (r: { name: string; brand: string; size: string }) => `${norm(r.name)}|${norm(r.brand)}|${sizeKey(r.size)}`;
+  const byIdentity = new Map(all.filter((p) => !p.barcode).map((p) => [idKey(p), p]));
+  // without a barcode and with a size missing on either side, "same name + brand" is ambiguous: never import it silently
+  const byNameBrand = new Map<string, Ex>(); for (const p of all) if (!p.barcode) byNameBrand.set(`${norm(p.name)}|${norm(p.brand)}`, p);
+  const possible: { line: number; reason: string; existing_id: number }[] = [];
   const seen = new Set<string>();
-  const fresh = []; let dupDb = 0, dupFile = 0;
+  const fresh: typeof parsed.rows = []; const completions: { id: number; line: number; brand?: string; size?: string }[] = [];
+  const conflicts: { line: number; reason: string; existing_id: number }[] = [];
+  let dupDb = 0, dupFile = 0;
   for (const r of parsed.rows) {
-    if (r.barcode) {
-      if (existing.has(r.barcode)) { dupDb++; continue; }
-      if (seen.has(r.barcode)) { dupFile++; continue; }
-      seen.add(r.barcode);
+    const key = r.barcode ? 'b:' + r.barcode : 'n:' + idKey(r);
+    if (seen.has(key)) { dupFile++; continue; }
+    seen.add(key);
+    const ex = r.barcode ? byBarcode.get(r.barcode) : byIdentity.get(idKey(r));
+    if (!ex && !r.barcode) {
+      const nb = byNameBrand.get(`${norm(r.name)}|${norm(r.brand)}`);
+      if (nb && (!r.size || !nb.size)) { possible.push({ line: r.line, reason: 'منتج بنفس الاسم والعلامة موجود والحجم غير محدد في أحدهما — لم يُستورد لتجنب التكرار؛ أضف الباركود أو الحجم', existing_id: nb.id }); continue; }
     }
-    fresh.push(r);
+    if (!ex) { fresh.push(r); continue; }
+    dupDb++;
+    if (r.barcode && compareName(ex.name, r.name).match === 'conflict') { conflicts.push({ line: r.line, reason: 'نفس الباركود مسجل في المحل باسم مختلف — لم يُغيَّر شيء، راجع السجل يدويًا', existing_id: ex.id }); continue; }
+    if (ex.verification === 'verified') continue;
+    const fill: { brand?: string; size?: string } = {};
+    if (!ex.brand && r.brand) fill.brand = r.brand;
+    if (!ex.size && r.size) fill.size = r.size;
+    if (Object.keys(fill).length) completions.push({ id: ex.id, line: r.line, ...fill });
   }
-  const summary = { total: parsed.rows.length + parsed.invalid.length, new: fresh.length, duplicates_existing: dupDb, duplicates_in_file: dupFile, invalid: parsed.invalid.length, invalid_rows: parsed.invalid.slice(0, 50), ignored_columns: parsed.ignoredColumns, warnings: parsed.warnings, sample: fresh.slice(0, 10) };
+  const missing = { barcode: fresh.filter((r) => !r.barcode).length, brand: fresh.filter((r) => !r.brand).length, size: fresh.filter((r) => !r.size).length };
+  const summary = { total: parsed.rows.length + parsed.invalid.length, new: fresh.length, duplicates_existing: dupDb, duplicates_in_file: dupFile, invalid: parsed.invalid.length, invalid_rows: parsed.invalid.slice(0, 50),
+    completions: completions.length, completion_rows: completions.slice(0, 20).map((x) => ({ line: x.line, fields: Object.keys(x).filter((k) => k === 'brand' || k === 'size') })),
+    conflicts: conflicts.length, conflict_rows: conflicts.slice(0, 50), possible_duplicates: possible.length, possible_rows: possible.slice(0, 50), missing, max_rows: MAX_IMPORT_ROWS,
+    ignored_columns: parsed.ignoredColumns, warnings: parsed.warnings, sample: fresh.slice(0, 10) };
   if (!commit) return { committed: false, ...summary };
   const t = now(); const uid = c.user!.id;
   c.db.exec('BEGIN');
   try {
     const ins = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?, 'review',?,?,?)`);
     for (const r of fresh) ins.run(r.barcode || null, r.name, r.brand, r.category, r.size, r.availability ?? 'unknown', r.availability ? t : null, r.availability ? uid : null, uid, t, t);
+    // completing EMPTY fields only (guarded again in SQL), and the record goes (back) to review
+    const upd = c.db.prepare("UPDATE products SET brand = CASE WHEN brand = '' THEN ? ELSE brand END, size = CASE WHEN size = '' THEN ? ELSE size END, verification = 'review', updated_at = ? WHERE id = ? AND verification <> 'verified'");
+    for (const x of completions) upd.run(x.brand ?? '', x.size ?? '', t, x.id);
     c.db.prepare('INSERT INTO import_jobs(filename,status,total,added,duplicates,invalid,ignored_columns,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?)')
       .run(filename, 'committed', summary.total, fresh.length, dupDb + dupFile, parsed.invalid.length, parsed.ignoredColumns.join(' | '), uid, t);
     c.db.exec('COMMIT');
   } catch (e) { c.db.exec('ROLLBACK'); throw e; }
-  audit(c.db, uid, 'import', 'products', filename.replace(/[^\w.\-]/g, '_'), `added=${fresh.length}`);
+  audit(c.db, uid, 'import', 'products', filename.replace(/[^\w.\-]/g, '_'), `added=${fresh.length} completed=${completions.length}`);
   let queued = 0;
   if (c.query.get('enrich') === '1' && c.cfg.enrich !== 'off') queued = enqueueBarcodes(c.db, fresh.map((r) => r.barcode).filter(Boolean));
   return { committed: true, enrich_queued: queued, ...summary };
@@ -296,7 +332,7 @@ route('GET', '/api/enrichment/status', 'any', (c) => {
 });
 
 route('GET', '/api/enrichment/pending', 'manager', (c) => {
-  const rows = c.db.prepare("SELECT id,barcode,field,value,source_name,source_url,license,is_mock,conflict_note,extracted_at FROM enrichment_candidates WHERE review_status='pending' ORDER BY barcode,field,id LIMIT 500").all() as { barcode: string; [k: string]: unknown }[];
+  const rows = c.db.prepare("SELECT id,barcode,field,value,source_name,source_url,license,is_mock,conflict_note,quality_note,extracted_at FROM enrichment_candidates WHERE review_status='pending' ORDER BY barcode,field,id LIMIT 500").all() as { barcode: string; [k: string]: unknown }[];
   const byCode = new Map<string, typeof rows>();
   for (const r of rows) byCode.set(r.barcode, [...(byCode.get(r.barcode) ?? []), r]);
   return { items: [...byCode].map(([barcode, candidates]) => ({ barcode, local_product: c.db.prepare(`SELECT p.id,p.name,p.brand,p.size,p.ingredients,p.verification,(SELECT i.id FROM product_images i WHERE i.product_id=p.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id FROM products p WHERE p.barcode=?`).get(barcode) ?? null, candidates })) };
@@ -317,7 +353,7 @@ route('POST', '/api/enrichment/candidates/:id/review', 'manager', async (c) => {
 
 route('POST', '/api/enrichment/queue/start', 'manager', (c) => {
   if (c.cfg.enrich === 'off') throw new HttpError(409, 'الإثراء الإلكتروني غير مفعّل (MH_ENRICH).');
-  const codes = (c.db.prepare("SELECT barcode FROM products WHERE barcode IS NOT NULL AND (ingredients='' OR brand='' OR size='') AND barcode NOT IN (SELECT barcode FROM enrichment_runs WHERE outcome IN ('found','not_found'))").all() as { barcode: string }[]).map((r) => r.barcode);
+  const codes = (c.db.prepare("SELECT barcode FROM products WHERE barcode IS NOT NULL AND (ingredients='' OR brand='' OR size='' OR NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = products.id)) AND barcode NOT IN (SELECT barcode FROM enrichment_runs WHERE outcome IN ('found','not_found'))").all() as { barcode: string }[]).map((r) => r.barcode);
   audit(c.db, c.user!.id, 'enrich_queue', 'products', codes.length);
   return { queued: enqueueBarcodes(c.db, codes), candidates_total: codes.length };
 });
