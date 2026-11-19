@@ -80,7 +80,7 @@ export function productRow(p) {
     avBadge(p));
 }
 
-export async function products(root, params = new URLSearchParams()) {
+export async function products(root, params = new URLSearchParams(), me = null) {
   await loadTaxonomy().catch(() => {});
   const KEYS = ['category', 'type', 'availability', 'verification', 'missing', 'classification'];
   let saved = {}; try { saved = JSON.parse(sessionStorage.getItem(CKEY) || '{}'); } catch { /* ignore */ }
@@ -125,6 +125,19 @@ export async function products(root, params = new URLSearchParams()) {
       total = r.total; offset += r.products.length;
       if (!append) fill(list);
       list.append(...r.products.map(productRow));
+      const filtersOn = !!q.value.trim() || KEYS.some((k) => f[k]);
+      // CP05: a genuinely empty catalog (no search, no filter) gets its own start screen — no bars, no counts, no demo cards
+      const emptyCatalog = !total && !filtersOn;
+      [catBar, typeBar, active, moreWrap].forEach((el) => el.classList.toggle('hide', emptyCatalog)); if (emptyCatalog) more.classList.add('hide');
+      if (emptyCatalog) {
+        fill(list, h('div', { class: 'emptycat', role: 'status' }, icon('image', 44), h('h3', {}, 'لا توجد منتجات بعد'),
+          h('p', {}, 'ابدأ بإضافة أول منتج إلى قاعدة بيانات ميك أب هاوس، أو استورد قائمة منتجاتك من Excel.'),
+          h('div', { class: 'emptycat-actions' },
+            h('button', { class: 'btn primary', type: 'button', onclick: () => go('#/product-new') }, icon('plus', 20), ' إضافة أول منتج'),
+            me?.role === 'manager' ? h('button', { class: 'btn out', type: 'button', onclick: () => go('#/import') }, icon('doc', 20), ' استيراد منتجات')
+              : h('div', { class: 'tiny muted' }, 'استيراد ملف Excel متاح للمدير.'))));
+        fill(foot); return;
+      }
       if (!total) {
         const why = [q.value.trim() && `البحث «${q.value.trim()}»`, ...KEYS.filter((k) => f[k]).map((k) => k === 'type' ? `النوع: ${f.type === 'none' ? 'غير مصنف' : typeLabel(f.type)}` : k === 'category' ? `الفئة: ${f.category}` : LABELS[k]?.[f[k]])].filter(Boolean);
         fill(list, emptyState('⌕', 'لا توجد منتجات مطابقة', why.length ? 'المرشحات النشطة: ' + why.join(' · ') : 'المكتبة فارغة.',
@@ -138,8 +151,9 @@ export async function products(root, params = new URLSearchParams()) {
   const refresh = () => load();
   q.addEventListener('input', debounce(() => { persist(); refresh(); }));
   const moreBtn = h('button', { class: 'btn sm out', type: 'button', 'aria-expanded': 'false', onclick: (e) => { const open = more.classList.toggle('hide') === false; e.currentTarget.setAttribute('aria-expanded', String(open)); } }, '⚙ مرشحات أخرى');
+  const moreWrap = h('div', { class: 'searchrow' }, q, moreBtn);
   root.append(h('div', { class: 'row sb' }, h('h2', { class: 't' }, 'المنتجات'), h('button', { class: 'btn sm', type: 'button', onclick: () => go('#/product-new') }, '＋ جديد')),
-    h('div', { class: 'searchrow' }, q, moreBtn), catBar, typeBar, more, active, list, foot);
+    moreWrap, catBar, typeBar, more, active, list, foot);
   load();
 }
 

@@ -6,7 +6,7 @@ import { audit, now, openDb, type DB } from './db.ts';
 import { makeHandler } from './http.ts';
 import { hashPassword } from './security.ts';
 import './routes.ts';
-import { seedStaging } from './staging.ts';
+import { seedStagingAccounts } from './staging.ts';
 import './images.ts';
 import './discovery.ts';
 import { configureConnectors, processQueueOnce } from './enrichment/engine.ts';
@@ -21,6 +21,12 @@ export function seedAdmin(db: DB, user?: string, pass?: string) {
   const r = db.prepare("INSERT INTO users(username, display_name, role, password_hash, created_at) VALUES (?,?, 'manager', ?, ?)").run(user, 'المدير', hashPassword(pass), now());
   audit(db, Number(r.lastInsertRowid), 'seed', 'user', Number(r.lastInsertRowid));
   return true;
+}
+
+/** Everything the server does to a database at startup: accounts only. It never creates products (CP05 correction). */
+export function bootstrap(db: DB, cfg: Config, env: NodeJS.ProcessEnv = process.env) {
+  seedAdmin(db, env.MH_ADMIN_USER, env.MH_ADMIN_PASSWORD);
+  if (cfg.staging) { const s = seedStagingAccounts(db, env); console.log(`[staging] staff test account created: ${s.staff}; products are never seeded`); }
 }
 
 export function buildServer(db: DB, cfg: Config) {
@@ -42,8 +48,7 @@ export function buildServer(db: DB, cfg: Config) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const cfg = loadConfig();
   const db = openDb(cfg.dbPath);
-  seedAdmin(db, process.env.MH_ADMIN_USER, process.env.MH_ADMIN_PASSWORD);
-  if (cfg.staging) { const s = seedStaging(db); console.log(`[staging] demo products seeded: ${s.products}, staff test account created: ${s.staff}`); }
+  bootstrap(db, cfg);
   configureConnectors(cfg);
   if (cfg.enrich !== 'off') setInterval(() => { processQueueOnce(db, cfg, 1).catch((e) => console.error('[queue]', (e as Error).message)); }, 6000).unref();
   buildServer(db, cfg).listen(cfg.port, () => console.log(`MAKEUP HOUSE listening on :${cfg.port}`));

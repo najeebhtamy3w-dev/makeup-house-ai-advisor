@@ -211,3 +211,7 @@ body.focusmode #toast{bottom:96px}
 .pk-item:focus-visible{outline:2px solid var(--wine-600);outline-offset:-2px}.pk-empty{padding:16px;text-align:center;color:var(--muted)}
 ul.help{padding-inline-start:18px;line-height:1.8;font-size:14px}
 .stepper li:last-child{flex:0 0 auto}.stepper li:last-child button{padding-inline-end:12px}@media(min-width:380px){.stepper li+li::before{width:10px;flex-basis:10px;margin-inline-end:4px}.stepper button{font-size:12px;gap:5px}}
+/* ---------- CP05: empty catalog ---------- */
+.emptycat{text-align:center;padding:36px 18px;border:1.5px dashed var(--line-strong);border-radius:20px;background:var(--surface);color:var(--muted);margin-top:8px}
+.emptycat .ico{color:var(--wine-600)}.emptycat h3{margin:10px 0 6px;color:var(--plum);font-size:19px}.emptycat p{margin:0 auto 18px;max-width:340px;line-height:1.8;font-size:14px}
+.emptycat-actions{display:grid;gap:10px;max-width:320px;margin:0 auto}.emptycat-actions .btn{min-height:50px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px}

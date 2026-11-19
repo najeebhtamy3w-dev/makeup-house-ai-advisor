@@ -62,14 +62,14 @@ async function render() {
         h('button', { class: 'iconbtn backbtn', type: 'button', 'aria-label': 'رجوع إلى المنتجات', onclick: () => go('#/products') }, h('span', {}, 'منتجات'), icon('back', 24)))
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
-  if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات وهمية وقد تُحذف') : stagingBanner());
+  if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
   const managerOnly = ['import', 'reports', 'users', 'review'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
     case 'home': return home(main, me);
     case 'advisor': return advisor(main);
     case 'scan': return scan(main, me);
-    case 'products': return products(main, params);
+    case 'products': return products(main, params, me);
     case 'product': return productEdit(main, Number(arg), me);
     case 'product-new': { const b = (params.get('barcode') ?? '').replace(/\D/g, ''); return productEdit(main, null, me, { barcode: b }); }
     case 'compare': return compare(main);

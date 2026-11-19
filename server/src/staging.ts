@@ -1,49 +1,29 @@
 // Cloud STAGING support (CP03). Additive only: no change to the advisor, science engine or schema.
 // - /api/health and /api/meta (public, no data) for the host's health check and the UI's "test copy" banner.
-// - seedStaging(): FAKE demo products + an optional limited STAFF test account whose password comes from the
-//   environment (never from the repository). Runs only when MH_STAGING=1 and is idempotent.
+// - seedStagingAccounts(): an optional limited STAFF test account (credentials from the environment). NO products.
 import type { DB } from './db.ts';
 import { audit, now } from './db.ts';
 import { route } from './http.ts';
 import { hashPassword } from './security.ts';
 
-export const APP_VERSION = '3.0.0-cp05.3-staging';
-export const STAGING_NOTICE = 'نسخة تجريبية: كل البيانات وهمية وقد تُحذف عند أي إعادة تشغيل للخادم. لا تُدخل بيانات حقيقية لعملاء أو موظفين، ولا تعتمد عليها كقاعدة بيانات للمحل.';
+export const APP_VERSION = '3.0.0-cp05.4-staging';
+export const STAGING_NOTICE = 'نسخة تجريبية: قد تُحذف كل البيانات عند أي إعادة تشغيل للخادم أو سكونه. استخدمها للتجربة فقط، ولا تعتمد عليها كقاعدة بيانات للمحل.';
 
 route('GET', '/api/health', 'none', () => ({ ok: true }));
 // commit: Render injects RENDER_GIT_COMMIT at runtime; shown on staging only so a deploy can be verified from outside.
 route('GET', '/api/meta', 'none', (c) => ({ version: APP_VERSION, staging: c.cfg.staging, notice: c.cfg.staging ? STAGING_NOTICE : null, ...(c.cfg.staging ? { commit: (process.env.RENDER_GIT_COMMIT ?? '').slice(0, 7) || null } : {}) }));
 
-/** Clearly fake demo catalogue. Barcodes use the GS1 "restricted/internal" prefix 200-299 so they can never be a real product. */
-const DEMO: Array<[string | null, string, string, string, string, 'yes' | 'no' | 'unknown', 'verified' | 'partial' | 'review', string, string, string]> = [
-  ['2000000000015', 'مرطب وجه خالٍ من العطر (تجريبي)', 'DemoBrand', 'العناية بالبشرة', '50 مل', 'yes', 'verified', 'Aqua, Glycerin, Ceramide NP', 'ترطيب يومي للبشرة الجافة', 'للاستخدام الخارجي فقط'],
-  ['2000000000022', 'واقي شمس خفيف (تجريبي)', 'DemoSun', 'واقيات الشمس', '50 مل', 'unknown', 'review', '', '', ''],
-  ['2000000000039', 'غسول وجه لطيف (تجريبي)', 'DemoBrand', 'العناية بالبشرة', '150 مل', 'no', 'partial', 'Aqua, Sodium Laureth Sulfate, Glycerin, Parfum', 'تنظيف يومي', 'يتجنب ملامسة العينين'],
-  ['2000000000046', 'كريم يدين معطر (تجريبي)', 'DemoCare', 'العطور والعناية', '75 مل', 'yes', 'partial', 'Aqua, Glycerin, Parfum, Linalool', 'ترطيب اليدين', ''],
-  [null, 'شامبو لطيف (تجريبي)', 'DemoHair', 'العناية بالشعر', '250 مل', 'yes', 'partial', '', '', ''],
-];
-
-export function seedStaging(db: DB, env: NodeJS.ProcessEnv = process.env): { products: number; staff: boolean } {
-  const t = now();
-  const mgr = db.prepare("SELECT id FROM users WHERE role = 'manager' ORDER BY id LIMIT 1").get() as { id: number } | undefined;
-  const by = mgr?.id ?? null;
-  let staff = false;
+/**
+ * Staging accounts only. CP05 correction: the application NEVER creates products — not on first run, restart, migration
+ * or redeploy, and not on staging. (Up to CP05.3 this function inserted 5 demo products on every staging boot.)
+ * The only thing set up here is an OPTIONAL limited STAFF test account whose credentials come from the environment.
+ */
+export function seedStagingAccounts(db: DB, env: NodeJS.ProcessEnv = process.env): { staff: boolean } {
   const su = (env.MH_STAFF_USER ?? '').trim(), sp = env.MH_STAFF_PASSWORD ?? '';
-  if (su && sp) {
-    if (sp.length < 10) throw new Error('MH_STAFF_PASSWORD قصيرة (10 أحرف على الأقل)');
-    const exists = db.prepare('SELECT id FROM users WHERE username = ?').get(su);
-    if (!exists) {
-      const r = db.prepare("INSERT INTO users(username, display_name, role, password_hash, created_at) VALUES (?, 'موظف تجريبي', 'staff', ?, ?)").run(su, hashPassword(sp), t);
-      audit(db, Number(r.lastInsertRowid), 'seed', 'user', Number(r.lastInsertRowid)); staff = true;
-    }
-  }
-  const n = (db.prepare('SELECT COUNT(*) n FROM products').get() as { n: number }).n;
-  if (n > 0) return { products: 0, staff };
-  const ins = db.prepare('INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,ingredients,benefits,warnings,source_url,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-  const TYPES: Record<string, string> = { '2000000000015': 'cream', '2000000000022': 'sunscreen', '2000000000039': 'cleanser', '2000000000046': 'cream' };
-  const setType = db.prepare("UPDATE products SET product_type = ?, classification_status = 'confirmed' WHERE barcode = ?");
-  for (const [bc, name, brand, cat, size, av, ver, ingr, ben, warn] of DEMO) ins.run(bc, name, brand, cat, size, av, av === 'unknown' ? null : t, av === 'unknown' ? null : by, ver, ingr, ben, warn, ver === 'verified' ? 'https://example.invalid/demo-source' : '', by, t, t);
-  for (const [bc, t] of Object.entries(TYPES)) setType.run(t, bc);
-  db.prepare("UPDATE products SET product_type = 'shampoo', classification_status = 'confirmed' WHERE barcode IS NULL AND name LIKE 'شامبو%'").run();
-  return { products: DEMO.length, staff };
+  if (!su || !sp) return { staff: false };
+  if (sp.length < 10) throw new Error('MH_STAFF_PASSWORD قصيرة (10 أحرف على الأقل)');
+  if (db.prepare('SELECT id FROM users WHERE username = ?').get(su)) return { staff: false };
+  const r = db.prepare("INSERT INTO users(username, display_name, role, password_hash, created_at) VALUES (?, 'موظف تجريبي', 'staff', ?, ?)").run(su, hashPassword(sp), now());
+  audit(db, Number(r.lastInsertRowid), 'seed', 'user', Number(r.lastInsertRowid));
+  return { staff: true };
 }

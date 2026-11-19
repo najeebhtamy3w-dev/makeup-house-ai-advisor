@@ -57,14 +57,14 @@ if (user && pass) {
     await page.fill('input[autocomplete=username]', user); await page.fill('input[type=password]', pass); await page.click('button[type=submit]');
     await page.waitForSelector('nav.nav'); assert.match(await page.textContent('#main .staging-banner'), /تجريبية/);
   });
-  await step('front-end <-> back-end: products list loads with fake demo items', async () => {
-    await page.evaluate(() => { location.hash = '#/products'; }); await page.waitForFunction(() => document.querySelectorAll('#main .prow, #main .card h4').length > 0, null, { timeout: 15000 });
-    assert.match(await page.textContent('#main'), /تجريبي/);
+  await step('front-end <-> back-end: catalog loads (real rows or the empty-catalog screen) — nothing is created by this test', async () => {
+    await page.evaluate(() => { location.hash = '#/products'; }); await page.waitForFunction(() => document.querySelector('#main .prow, #main .emptycat'), null, { timeout: 15000 });
+    assert.doesNotMatch(await page.textContent('#main'), /\(تجريبي\)|DemoBrand|DemoSun|DemoHair|DemoCare/, 'no demo products in the catalog');
   });
   await step('advisor answers with an explained recommendation', async () => {
     await page.evaluate(() => { location.hash = '#/advisor'; }); await page.waitForSelector('#main textarea, #main input');
     const box = (await page.$('#main textarea')) ?? (await page.$('#main input')); await box.fill('مرطب للبشرة الجافة بدون عطر'); await box.press('Enter');
-    await page.waitForFunction(() => /الملاءمة|مناسب|لا يمكن/.test(document.querySelector('#main').textContent), null, { timeout: 15000 });
+    await page.waitForFunction(() => /الملاءمة|مناسب|لا يمكن|لا يوجد منتج/.test(document.querySelector('#main').textContent), null, { timeout: 15000 });
   });
   await step('trial feedback: a note is saved on the phone and contains no token/username', async () => {
     await page.evaluate(() => { location.hash = '#/feedback'; }); await page.waitForSelector('#feedback-form');
