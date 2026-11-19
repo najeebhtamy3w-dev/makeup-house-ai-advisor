@@ -87,7 +87,8 @@ export function advise(query: string, products: P[], opts: AdviseOpts = {}) {
   }
   store_matches.sort((a, b) => (b._rank as number) - (a._rank as number)).forEach((e) => delete e._rank);
   // alternatives for a product that is not confirmed available: other matches that ARE confirmed available and not worse than "conditional"
-  for (const e of store_matches) if (e.availability !== 'yes') e.alternatives = store_matches.filter((o) => o.id !== e.id && o.availability === 'yes' && ['suitable', 'conditional'].includes((o.suitability as { verdict: string }).verdict)).slice(0, 2).map((o) => ({ id: o.id, name: o.name }));
+  // CP05 audit fix: only the DISPLAYED matches need alternatives (was O(n²) over every match: ~9 s at 10k products with INCI)
+  for (const e of store_matches.slice(0, MAX_STORE)) if (e.availability !== 'yes') e.alternatives = store_matches.filter((o) => o.id !== e.id && o.availability === 'yes' && ['suitable', 'conditional'].includes((o.suitability as { verdict: string }).verdict)).slice(0, 2).map((o) => ({ id: o.id, name: o.name }));
   const totals = { store: store_matches.length, cannot_assess: cannot_assess.length, excluded: excluded.length };
   if (store_matches.length > MAX_STORE) { store_matches.length = MAX_STORE; notes.push(`عُرض أفضل ${MAX_STORE} من ${totals.store} منتجًا مطابقًا. أضف تفصيلًا (نوع البشرة، العلامة…) لتضييق النتائج.`); }
   if (cannot_assess.length > MAX_UNASSESSED) cannot_assess.length = MAX_UNASSESSED;

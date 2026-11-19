@@ -25,3 +25,16 @@ test('perf: advisor response size is bounded (does not dump thousands of product
   const r = await t.call('POST', '/api/advisor/search', { token: t.staff, body: { query: 'مرطب' } });
   assert.ok(r.json.store_matches.length <= 8 && r.json.cannot_assess.length <= 6 && r.json.totals.store > 8 && r.json.notes.some((n: string) => n.includes("أفضل 8")), `matches=${r.json.store_matches.length}`);
 });
+
+// CP05 audit: the earlier budget used products WITHOUT ingredients. With realistic INCI lists on every product and many
+// matches, the advisor spent ~9 s computing "alternatives" for every match (O(n²)). Regression guard on the real shape.
+test('perf @10,000 products WITH realistic INCI: advisor stays fast even when thousands of products match', async () => {
+  const inci = 'Aqua, Glycerin, Cetearyl Alcohol, Caprylic/Capric Triglyceride, Dimethicone, Ceramide NP, Niacinamide, Sodium Hyaluronate, Phenoxyethanol, Ethylhexylglycerin, Carbomer, Tocopherol, Panthenol, Allantoin, Citric Acid, Xanthan Gum, Disodium EDTA, Squalane, Cholesterol, Glyceryl Stearate';
+  t.db.prepare("UPDATE products SET ingredients = ?, verification = 'partial', category = 'العناية بالبشرة'").run(inci);
+  for (const q of ['غسول للبشرة الدهنية', 'مرطب للبشرة الجافة', 'كريم للبشرة الحساسة']) {
+    let r: { status: number; json: { store_matches: unknown[] } } | undefined;
+    const d = await ms(async () => { r = await t.call('POST', '/api/advisor/search', { token: t.staff, body: { query: q } }); });
+    assert.equal(r!.status, 200); assert.ok(r!.json.store_matches.length <= 8);
+    assert.ok(d < 1500, `${q}: ${Math.round(d)}ms`);
+  }
+});
