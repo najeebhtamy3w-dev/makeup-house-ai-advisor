@@ -1,6 +1,7 @@
 import { api } from './api.js';
 import { h, fill, toast, AV, VER, avBadge, verBadge, fmtDate, field, select, skeleton, errorBox } from './util.js';
 import { go } from './views-core.js';
+import { thumb } from './images.js';
 
 /* ---------- WhatsApp recommendation card: no prices, no personal data ---------- */
 export async function recommendationCard(productId) {
@@ -41,8 +42,9 @@ export function advisor(root) {
   const chips = h('div', { class: 'sugg' }); let last = '';
   const setChips = (list, append) => fill(chips, list.map((t) => h('button', { onclick: () => { input.value = append ? last + ' ' + t : t; send(); } }, t)));
   const productLine = (e) => h('div', { class: 'pl' },
-    h('div', { class: 'row sb' }, h('b', {}, e.name), verBadge(e.verification)),
-    h('div', { class: 'tiny muted' }, [e.brand, e.size].filter(Boolean).join(' · ')),
+    h('div', { class: 'prod' }, thumb(e, 'sm'), h('div', { class: 'bd' },
+      h('div', { class: 'row sb' }, h('b', {}, e.name), verBadge(e.verification)),
+      h('div', { class: 'tiny muted' }, [e.brand, e.size].filter(Boolean).join(' · ')))),
     e.suitability ? h('div', { class: 'blk' }, h('b', {}, 'الملاءمة: '), h('span', { class: 'badge ' + (VERDICT[e.suitability.verdict] || 'info') }, e.suitability.verdict_label || LEVEL[e.suitability.level][0]),
       e.formulation && e.formulation.status !== 'verified' ? h('span', { class: 'badge warn', style: 'margin-inline-start:6px', title: e.formulation.label }, 'FORMULATION NOT VERIFIED') : null,
       ul(e.suitability.reasons), e.reason ? h('div', {}, 'ℹ ', e.reason) : null, e.suitability.used_info ? why(e.suitability) : null) : null,

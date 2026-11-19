@@ -1,6 +1,7 @@
 import { api, getToken } from './api.js';
 import { h, fill, toast, CATEGORIES, AV, VER, avBadge, verBadge, fmtDate, field, select, debounce, skeleton, errorBox, emptyState, busy, haptic, ENRICH_LABEL, FIELD_LABEL } from './util.js';
 import { startCamera } from './scanner.js';
+import { thumb, imageManager, authImg } from './images.js';
 
 export const go = (hash) => { location.hash = hash; };
 
@@ -14,7 +15,7 @@ export function availButtons(p, after) {
 
 export function productCard(p, reload) {
   const sum = p.benefits ? p.benefits.slice(0, 90) + (p.benefits.length > 90 ? '…' : '') : '';
-  return h('div', { class: 'card' }, h('div', { class: 'prod' }, h('div', { class: 'th', 'aria-hidden': 'true' }, (p.name || '؟').trim()[0]),
+  return h('div', { class: 'card' }, h('div', { class: 'prod' }, thumb(p),
     h('div', { class: 'bd' },
       h('div', { class: 'row sb' }, h('h4', {}, p.name), avBadge(p)),
       h('p', {}, [p.brand || 'علامة غير محددة', p.size, p.category].filter(Boolean).join(' · ')),
@@ -80,45 +81,119 @@ export async function products(root, params = new URLSearchParams()) {
   drawBars(); load();
 }
 
-/* ---------- product detail / edit ---------- */
+/* ---------- product detail / edit (CP04: sections, inline validation, images; never renders "null") ---------- */
+const digits = (v) => String(v ?? '').replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/\D/g, '');
+export function gtinOk(code) {
+  if (![8, 12, 13, 14].includes(code.length)) return false;
+  const d = code.split('').map(Number); const ck = d.pop(); let sum = 0;
+  d.reverse().forEach((x, i) => { sum += x * (i % 2 === 0 ? 3 : 1); });
+  return (10 - (sum % 10)) % 10 === ck;
+}
+const FIELD_AR = { name: 'اسم المنتج', brand: 'العلامة التجارية', barcode: 'الباركود', category: 'التصنيف', size: 'الحجم / الإصدار', ingredients: 'المكونات', benefits: 'الاستخدام والفوائد', warnings: 'التحذيرات', source_url: 'رابط المصدر', verification: 'حالة التوثيق' };
+function fieldX(key, label, input, { req = false, hint = '' } = {}) {
+  const id = 'f-' + key; input.id = id;
+  const err = h('div', { class: 'ferr', id: id + '-err', role: 'alert' });
+  if (hint) input.setAttribute('aria-describedby', id + '-hint');
+  const wrap = h('div', { class: 'field', 'data-field': key },
+    h('label', { for: id }, label, ' ', h('span', { class: 'req ' + (req ? 'must' : 'opt') }, req ? 'مطلوب' : 'اختياري')),
+    input, hint ? h('div', { class: 'fhint', id: id + '-hint' }, hint) : null, err);
+  wrap.setError = (m) => { err.textContent = m || ''; wrap.classList.toggle('bad', !!m); if (m) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid'); };
+  return wrap;
+}
+const section = (title, sub, ...kids) => h('section', { class: 'card fsec' }, h('h3', { class: 'fsec-t' }, title), sub ? h('p', { class: 'tiny muted' }, sub) : null, ...kids);
+
 export async function productEdit(root, id, me, prefill = {}) {
+  const host = h('div', { class: 'pedit' }); root.append(host);
   let draft = {}; try { draft = JSON.parse(sessionStorage.getItem('mh_prefill') || '{}'); sessionStorage.removeItem('mh_prefill'); } catch { /* ignore */ }
-  if (draft.barcode && draft.barcode !== prefill.barcode) draft = {};
-  let p = { name: draft.name ?? '', brand: draft.brand ?? '', category: 'العناية بالبشرة', size: draft.size ?? '', barcode: prefill.barcode ?? '', ingredients: '', benefits: '', warnings: '', source_url: '', verification: 'review', availability: 'unknown' };
-  if (id) { try { p = (await api('GET', '/api/products/' + id)).product; } catch (e) { root.append(h('div', { class: 'notice err' }, e.message)); return; } }
+  const preBarcode = digits(prefill.barcode);
+  if (draft.barcode && draft.barcode !== preBarcode) draft = {};
+  const str = (v) => (v == null ? '' : String(v));   // API nulls never reach the inputs as the text "null"
+  let p = { name: str(draft.name), brand: str(draft.brand), category: 'العناية بالبشرة', size: str(draft.size), barcode: preBarcode, ingredients: '', benefits: '', warnings: '', source_url: '', verification: 'review', availability: 'unknown' };
+  if (id) { try { p = (await api('GET', '/api/products/' + id)).product; } catch (e) { fill(host, errorBox(e.status === 404 ? 'المنتج غير موجود (ربما حُذف أو أُعيد تشغيل نسخة التجربة).' : e.message, e.status ? null : () => { host.remove(); productEdit(root, id, me, prefill); })); return; } }
+  const inp = (k, props = {}) => h('input', { value: str(p[k]), ...props });
+  const area = (k, props = {}) => { const t = h('textarea', props); t.value = str(p[k]); return t; };
   const f = {
-    name: h('input', { value: p.name, maxlength: 200 }), brand: h('input', { value: p.brand }), barcode: h('input', { value: p.barcode ?? '', inputmode: 'numeric', dir: 'ltr' }),
-    category: select(CATEGORIES.map((c) => [c, c]), p.category), size: h('input', { value: p.size, placeholder: 'مثال: 50 مل' }),
-    ingredients: h('textarea', { placeholder: 'من العبوة أو مصدر رسمي فقط. لا تخمّن.' }), benefits: h('textarea', {}), warnings: h('textarea', {}),
-    source_url: h('input', { type: 'url', value: p.source_url, dir: 'ltr', placeholder: 'https://…' }),
+    name: inp('name', { maxlength: 200, autocomplete: 'off', required: true }),
+    brand: inp('brand', { maxlength: 120, autocomplete: 'off' }),
+    barcode: inp('barcode', { inputmode: 'numeric', dir: 'ltr', autocomplete: 'off', maxlength: 14, placeholder: '8 أو 12 أو 13 أو 14 رقمًا' }),
+    category: select(CATEGORIES.map((c) => [c, c]), p.category),
+    size: inp('size', { maxlength: 60, placeholder: 'مثال: 50 مل، أو 200 غ – إصدار 2024' }),
+    ingredients: area('ingredients', { rows: 4, maxlength: 5000, dir: 'auto', placeholder: 'انسخها كما هي من العبوة (INCI)، أو اتركها فارغة.' }),
+    benefits: area('benefits', { rows: 3, maxlength: 3000, placeholder: 'مثال: مرطب يومي للوجه — كما يذكره المصنع' }),
+    warnings: area('warnings', { rows: 3, maxlength: 3000, placeholder: 'مثال: للاستخدام الخارجي فقط، تجنب ملامسة العينين' }),
+    source_url: inp('source_url', { type: 'url', dir: 'ltr', maxlength: 500, placeholder: 'https://…' }),
     verification: select(me.role === 'manager' ? [['review', VER.review], ['partial', VER.partial], ['verified', VER.verified]] : [['review', VER.review], ['partial', VER.partial]], p.verification === 'verified' && me.role !== 'manager' ? 'review' : p.verification),
   };
-  f.ingredients.value = p.ingredients; f.benefits.value = p.benefits; f.warnings.value = p.warnings;
-  const msg = h('div', {});
-  const save = async () => {
-    msg.replaceChildren();
+  const W = {
+    name: fieldX('name', FIELD_AR.name, f.name, { req: true, hint: 'الاسم كما يظهر على العبوة.' }),
+    brand: fieldX('brand', FIELD_AR.brand, f.brand, { hint: 'مهم لمطابقة المنتج مع المصادر العالمية.' }),
+    barcode: fieldX('barcode', FIELD_AR.barcode, f.barcode, { hint: 'يُتحقق من رقم التحقق تلقائيًا. اتركه فارغًا للمنتجات بلا باركود.' }),
+    category: fieldX('category', FIELD_AR.category, f.category, { req: true }),
+    size: fieldX('size', FIELD_AR.size, f.size, { hint: 'اختلاف الحجم أو الإصدار يعني منتجًا مختلفًا عند المطابقة.' }),
+    ingredients: fieldX('ingredients', 'المكونات (من العبوة فقط)', f.ingredients, { hint: 'لا تخمّن ولا تكمل قائمة ناقصة — المستشار يعتمد عليها في أحكام العطر والملاءمة.' }),
+    benefits: fieldX('benefits', 'الاستخدام والفوائد كما يذكرها المصنع', f.benefits, { hint: 'تظهر كسبب للتوصية. لا تكتب وعودًا علاجية أو نتائج مضمونة.' }),
+    warnings: fieldX('warnings', 'التحذيرات والاحتياطات المكتوبة على العبوة', f.warnings, { hint: 'تظهر للموظف بعلامة ⚠ مع كل توصية بهذا المنتج.' }),
+    source_url: fieldX('source_url', FIELD_AR.source_url, f.source_url, { hint: 'موقع المصنع أو صفحة المنتج الرسمية. مطلوب لاعتماد «معتمد من المدير».' }),
+    verification: fieldX('verification', FIELD_AR.verification, f.verification, { req: true }),
+  };
+  const msg = h('div', { 'aria-live': 'polite' });
+  const images = imageManager(id, me, api);
+  let dirty = false; host.addEventListener('input', () => { dirty = true; });
+
+  const validate = () => {
+    Object.values(W).forEach((w) => w.setError(''));
+    const errs = [];
+    const bad = (k, m) => { W[k].setError(m); errs.push(k); };
+    if (!f.name.value.trim()) bad('name', 'اكتب اسم المنتج كما على العبوة.');
+    const bc = digits(f.barcode.value); f.barcode.value = bc;
+    if (bc && !gtinOk(bc)) bad('barcode', 'الباركود غير صالح (الطول أو رقم التحقق). أعد مسحه أو اتركه فارغًا.');
+    const url = f.source_url.value.trim();
+    if (url) { try { const u = new URL(url); if (!/^https?:$/.test(u.protocol)) throw 0; } catch { bad('source_url', 'الرابط غير صالح. يجب أن يبدأ بـ https://'); } }
+    if (f.verification.value === 'verified' && !url) bad('source_url', 'لا يمكن اختيار «معتمد من المدير» دون رابط مصدر.');
+    if (errs.length) { const first = W[errs[0]]; first.closest('details')?.setAttribute('open', ''); first.scrollIntoView({ block: 'center', behavior: 'smooth' }); first.querySelector('input,textarea,select')?.focus({ preventScroll: true }); }
+    return !errs.length;
+  };
+  const saveBtn = h('button', { class: 'btn', type: 'submit' }, id ? 'حفظ التعديلات' : 'حفظ البطاقة');
+  const save = async (e) => {
+    e?.preventDefault(); fill(msg);
+    if (!validate()) { fill(msg, h('div', { class: 'notice err' }, 'راجع الحقول المظللة قبل الحفظ.')); return; }
     const body = Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value.trim()]));
     body.barcode = body.barcode || null;
     if (id && me.role !== 'manager' && p.verification === 'verified') delete body.verification;
     if (!id) body.availability = 'unknown';
-    try {
-      const r = id ? await api('PATCH', '/api/products/' + id, body) : await api('POST', '/api/products', body);
-      toast(id && r.verification === 'review' && p.verification === 'verified' ? 'تم الحفظ. أُعيدت حالة التوثيق إلى «تحتاج مراجعة» بسبب التعديل.' : 'تم الحفظ'); go('#/products');
-    } catch (e) {
-      msg.replaceChildren(h('div', { class: 'notice err' }, e.message, e.data?.existingId ? h('button', { class: 'btn sm light', style: 'margin-inline-start:8px', onclick: () => go('#/product/' + e.data.existingId) }, 'فتح السجل الموجود') : null));
-      if (e.data?.fields) msg.append(h('div', { class: 'notice err' }, 'حقول غير مقبولة: ' + e.data.fields.join('، ')));
-    }
+    await busy(saveBtn, async () => {
+      try {
+        const r = id ? await api('PATCH', '/api/products/' + id, body) : await api('POST', '/api/products', body);
+        dirty = false;
+        if (!id && images.count()) { const failed = await images.flush(r.id); if (failed.length) toast('حُفظت البطاقة، لكن تعذر رفع ' + failed.length + ' صورة: ' + failed[0], 5000); }
+        toast(id && r.verification === 'review' && p.verification === 'verified' ? 'تم الحفظ. أُعيدت حالة التوثيق إلى «تحتاج مراجعة» بسبب التعديل.' : 'تم الحفظ');
+        go('#/product/' + (id ?? r.id));
+      } catch (x) {
+        const fields = x.data?.fields ?? [];
+        fields.forEach((k) => W[k]?.setError('القيمة غير مقبولة.'));
+        if (x.status === 409) W.barcode.setError(x.message);
+        fill(msg, h('div', { class: 'notice err', role: 'alert' }, x.status ? x.message : 'تعذر الاتصال بالخادم. لم يُحفظ شيء — بياناتك ما زالت في النموذج، أعد المحاولة.',
+          fields.length ? h('div', { class: 'tiny' }, 'الحقول: ' + fields.map((k) => FIELD_AR[k] ?? k).join('، ')) : null,
+          x.data?.existingId ? h('button', { class: 'btn sm light', type: 'button', style: 'margin-inline-start:8px', onclick: () => go('#/product/' + x.data.existingId) }, 'فتح السجل الموجود') : null));
+      }
+    });
   };
-  root.append(
-    h('h2', { class: 't' }, id ? 'تفاصيل المنتج' : 'بطاقة منتج جديدة'),
-    id ? h('div', { class: 'card' }, h('div', { class: 'row sb' }, avBadge(p), verBadge(p.verification)), h('p', { class: 'tiny' }, 'آخر تحديث للتوفر: ', fmtDate(p.availability_updated_at)), availButtons(p, () => go('#/product/' + id))) : null,
-    h('div', { class: 'card' },
-      field('اسم المنتج *', f.name), field('العلامة التجارية', f.brand), field('الباركود', f.barcode), field('التصنيف', f.category), field('الحجم / الإصدار', f.size),
-      field('المكونات الموثقة', f.ingredients), field('الفوائد والاستخدام الموثق', f.benefits), field('التحذيرات والاحتياطات', f.warnings), field('رابط المصدر', f.source_url),
-      field('حالة التوثيق', f.verification),
-      draft.name || draft.brand || draft.size ? h('div', { class: 'notice info' }, 'الاسم/العلامة/الحجم هنا مسودة من مصدر عالمي لم يعتمدها المدير. راجعها على العبوة قبل الحفظ. المكونات لا تُنسخ قبل اعتماد المدير.') : null, h('div', { class: 'notice' }, 'لا أسعار ولا كميات في هذا النظام. اعتماد «معتمد» للمدير فقط ويتطلب رابط مصدر. أي تعديل لاحق على بيانات معتمدة يعيدها إلى «تحتاج مراجعة».'), msg,
-      h('div', { class: 'row' }, h('button', { class: 'btn', onclick: save }, 'حفظ'), h('button', { class: 'btn out', onclick: () => history.back() }, 'إلغاء'),
-        id && me.role === 'manager' ? h('button', { class: 'btn danger', onclick: async () => { if (!confirm('حذف هذا المنتج نهائيًا؟')) return; try { await api('DELETE', '/api/products/' + id); toast('تم الحذف'); go('#/products'); } catch (e) { toast(e.message); } } }, 'حذف') : null)));
+  const hasContent = !!(p.ingredients || p.benefits || p.warnings);
+  const head = h('div', { class: 'phead' }, h('div', { class: 'prod' }, thumb(p, 'lg'), h('div', { class: 'bd' }, h('h2', { class: 't' }, id ? (p.name || 'منتج') : 'بطاقة منتج جديدة'),
+    id ? h('div', { class: 'row' }, avBadge(p), verBadge(p.verification), p.barcode ? h('span', { class: 'tiny muted', dir: 'ltr' }, p.barcode) : null) : h('p', { class: 'tiny muted' }, 'الحقول المطلوبة: الاسم والتصنيف فقط. يمكن إكمال الباقي لاحقًا.'))));
+  const form = h('form', { class: 'pform', novalidate: true, onsubmit: save },
+    draft.name || draft.brand || draft.size ? h('div', { class: 'notice info' }, 'الاسم/العلامة/الحجم مسودة من مصدر عالمي لم يعتمدها المدير. قارنها بالعبوة قبل الحفظ. المكونات لا تُنسخ قبل اعتماد المدير.') : null,
+    section('١ · هوية المنتج', 'ما يميز هذا المنتج عن غيره.', W.name, W.brand, W.barcode, h('div', { class: 'grid2' }, W.category, W.size)),
+    section('٢ · الصور', 'الصورة الرئيسية تظهر في البطاقات والبحث والمستشار.', images.el),
+    h('details', { class: 'card fsec', open: hasContent || !id ? true : null }, h('summary', { class: 'fsec-t' }, '٣ · محتوى العبوة'), h('p', { class: 'tiny muted' }, 'انقل ما هو مكتوب على العبوة فقط.'), W.ingredients, W.benefits, W.warnings),
+    h('details', { class: 'card fsec', open: true }, h('summary', { class: 'fsec-t' }, '٤ · المصدر والتوثيق'), W.source_url, W.verification,
+      h('div', { class: 'notice' }, 'لا أسعار ولا كميات في هذا النظام. «معتمد من المدير» للمدير فقط ويتطلب رابط مصدر، وأي تعديل لاحق يعيده إلى «تحتاج مراجعة».')),
+    msg,
+    h('div', { class: 'savebar' }, saveBtn, h('button', { class: 'btn out', type: 'button', onclick: () => { if (!dirty || confirm('توجد تعديلات غير محفوظة. الخروج دون حفظ؟')) history.back(); } }, 'إلغاء'),
+      id && me.role === 'manager' ? h('button', { class: 'btn danger', type: 'button', onclick: async () => { if (!confirm('حذف هذا المنتج وصوره نهائيًا؟')) return; try { await api('DELETE', '/api/products/' + id); toast('تم الحذف'); go('#/products'); } catch (e) { toast(e.message); } } }, 'حذف') : null));
+  fill(host, head,
+    id ? h('div', { class: 'card' }, h('h3', { class: 'fsec-t' }, 'التوفر الآن'), h('p', { class: 'tiny' }, 'آخر تحديث للتوفر: ', fmtDate(p.availability_updated_at)), availButtons(p, () => { host.remove(); productEdit(root, id, me); })) : null,
+    form);
 }
 
 /* ---------- scan: SCAN → LOCAL → GLOBAL → MATCH → ENRICH(draft) → REVIEW ---------- */
@@ -172,7 +247,7 @@ export async function scan(root, me) {
           out === 'rate_limited' ? h('div', { class: 'notice' }, 'بلغنا حد الطلبات للمصدر. أعد المحاولة بعد دقيقة.') : null,
           out === 'not_found' ? h('div', { class: 'notice info' }, 'المنتج غير معروف في المصادر المفعّلة. أدخل بياناته يدويًا من العبوة.') : null,
           r.candidates.length ? h('div', { class: 'notice info' }, 'هذه مسودات غير معتمدة. لا تُعرض كمعلومات علمية مؤكدة قبل مراجعة المدير.') : null,
-          [...byField].map(([f, cs]) => cs.map((c) => h('div', { class: 'cand' + (c.conflict_note ? ' conf' : '') }, h('div', { class: 'row sb' }, h('b', {}, FIELD_LABEL[f]), h('span', { class: 'tiny muted' }, c.source_name)), h('div', {}, c.value), c.conflict_note ? h('div', { class: 'tiny', style: 'color:var(--warn)' }, '⚠ ' + c.conflict_note) : null))),
+          [...byField].map(([f, cs]) => cs.map((c) => h('div', { class: 'cand' + (c.conflict_note ? ' conf' : '') }, h('div', { class: 'row sb' }, h('b', {}, FIELD_LABEL[f]), h('span', { class: 'tiny muted' }, c.source_name)), f === 'image_url' ? authImg(`/api/enrichment/candidates/${c.id}/image`, 'صورة مقترحة من المصدر — تحتاج مراجعة', 'candimg') : h('div', {}, c.value), c.conflict_note ? h('div', { class: 'tiny', style: 'color:var(--warn)' }, '⚠ ' + c.conflict_note) : null))),
           r.candidates.some((c) => c.field === 'ingredients') ? h('div', { class: 'tiny muted' }, 'المكونات تظهر للمراجعة فقط، ولا تُنسخ إلى البطاقة قبل اعتماد المدير.') : null,
           local ? null : newCardBtn(barcode, { name: nm?.value ?? '', brand: br?.value ?? '', size: sz?.value ?? '' }),
           me.role === 'manager' && r.candidates.length ? h('button', { class: 'btn sm light', style: 'margin-inline-start:8px', onclick: () => go('#/review') }, 'فتح شاشة المراجعة') : null,

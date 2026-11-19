@@ -17,6 +17,8 @@ await step('health endpoint answers (first call may wake a sleeping free instanc
 await step('meta: staging=true with a data-loss notice', async () => { const m = JSON.parse((await get('/api/meta')).text); assert.equal(m.staging, true); assert.ok(m.notice?.length > 20); });
 await step('data endpoints require login (401) and errors reveal no server details', async () => {
   const { r, text } = await get('/api/products'); assert.equal(r.status, 401); assert.ok(!/stack|at \w+ \(|node:|sqlite|\/app\//i.test(text), text);
+  assert.equal((await get('/api/images/1')).r.status, 401, 'product images need login');
+  assert.equal((await get('/api/products/1/images')).r.status, 401);
   const nf = await get('/api/does-not-exist'); assert.equal(nf.r.status, 404); assert.ok(!/stack|node:|sqlite/i.test(nf.text));
   assert.equal(r.headers.get('x-powered-by'), null);
 });

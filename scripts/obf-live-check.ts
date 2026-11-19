@@ -22,7 +22,7 @@ const report: any = { tool: 'obf-live-check', started: new Date().toISOString(),
 for (const [i, code] of codes.entries()) {
   if (i) await sleep(5000);
   const r: any = { barcode: code, gtin_valid: isValidGtin(code) };
-  const url = `${base}/api/v3/product/${encodeURIComponent(code)}?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text`;
+  const url = `${base}/api/v3/product/${encodeURIComponent(code)}?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text,image_front_url`;
   r.endpoint = url; const t0 = Date.now();
   try {
     const res = await fetch(url, { headers: { 'user-agent': ua, accept: 'application/json' }, signal: AbortSignal.timeout(15000) });

@@ -1,3 +1,4 @@
+import { approveImageCandidate } from './images.ts';
 import { z } from 'zod';
 import { audit, now, type DB } from './db.ts';
 import { HttpError, route, type Ctx } from './http.ts';
@@ -15,7 +16,10 @@ export interface ProductRow {
   availability: 'yes' | 'no' | 'unknown'; availability_updated_at: string | null; availability_updated_by: number | null;
   verification: 'review' | 'partial' | 'verified'; ingredients: string; benefits: string; warnings: string; source_url: string;
   created_by: number | null; created_at: string; updated_at: string;
+  primary_image_id?: number | null;
 }
+/** Product columns + id of its primary image (CP04). */
+export const PRODUCT_SELECT = 'SELECT products.*, (SELECT i.id FROM product_images i WHERE i.product_id = products.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id FROM products';
 
 export function presentProduct(p: ProductRow, staleHours: number, nowMs = Date.now()) {
   const age = p.availability_updated_at ? (nowMs - Date.parse(p.availability_updated_at)) / 3.6e6 : Infinity;
@@ -25,7 +29,7 @@ export function presentProduct(p: ProductRow, staleHours: number, nowMs = Date.n
   return { ...p, availability_stale: stale, availability_effective: effective };
 }
 
-const loadProduct = (db: DB, id: number) => db.prepare('SELECT * FROM products WHERE id = ?').get(id) as ProductRow | undefined;
+const loadProduct = (db: DB, id: number) => db.prepare(`${PRODUCT_SELECT} WHERE id = ?`).get(id) as ProductRow | undefined;
 const parseId = (s: string) => { const n = Number(s); if (!Number.isInteger(n) || n < 1) throw new HttpError(400, 'معرّف غير صالح'); return n; };
 
 function cleanBarcode(raw: unknown): string | null {
@@ -122,13 +126,13 @@ route('GET', '/api/products', 'any', (c) => {
   if (av && ['yes', 'no', 'unknown'].includes(av)) { where.push('availability = ?'); args.push(av); }
   if (cat) { where.push('category = ?'); args.push(cat); }
   if (ver && ['review', 'partial', 'verified'].includes(ver)) { where.push('verification = ?'); args.push(ver); }
-  const rows = c.db.prepare(`SELECT * FROM products ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY updated_at DESC, id DESC LIMIT ?`).all(...args, limit) as unknown as ProductRow[];
+  const rows = c.db.prepare(`${PRODUCT_SELECT} ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY updated_at DESC, id DESC LIMIT ?`).all(...args, limit) as unknown as ProductRow[];
   return { products: rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)) };
 });
 
 route('GET', '/api/products/by-barcode/:code', 'any', (c) => {
   const b = cleanBarcode(c.params.code);
-  const p = b ? (c.db.prepare('SELECT * FROM products WHERE barcode = ?').get(b) as ProductRow | undefined) : undefined;
+  const p = b ? (c.db.prepare(`${PRODUCT_SELECT} WHERE barcode = ?`).get(b) as ProductRow | undefined) : undefined;
   // Global enrichment connectors are not implemented yet: say so instead of pretending to search the web.
   return { barcode: b, found: !!p, product: p ? presentProduct(p, c.cfg.availabilityStaleHours) : null, enrichment: p ? null : c.cfg.enrich === 'off' ? { status: 'not_configured', message: 'البحث العالمي غير مفعّل على هذا الخادم. أدخل البيانات يدويًا وستُحفظ بحالة «تحتاج مراجعة».' } : { status: 'available', message: 'يمكن البحث في المصادر العالمية. النتائج مسودات تحتاج مراجعة المدير.' } };
 });
@@ -253,7 +257,7 @@ route('POST', '/api/imports/commit', 'manager', (c) => runImport(c, true));
 // ---------- advisor (retrieval-only baseline: NO language model yet) ----------
 route('POST', '/api/advisor/search', 'any', async (c) => {
   const { query } = z.object({ query: z.string().trim().min(1).max(500) }).strict().parse(await c.body());
-  const rows = c.db.prepare('SELECT * FROM products').all() as unknown as ProductRow[];
+  const rows = c.db.prepare(PRODUCT_SELECT).all() as unknown as ProductRow[];
   const conflictIds = new Set((c.db.prepare("SELECT DISTINCT p.id FROM products p JOIN enrichment_candidates e ON e.barcode = p.barcode WHERE e.review_status='pending' AND e.conflict_note <> ''").all() as { id: number }[]).map((r) => r.id));
   return advise(query, rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)), { conflictIds });
 });
@@ -295,12 +299,13 @@ route('GET', '/api/enrichment/pending', 'manager', (c) => {
   const rows = c.db.prepare("SELECT id,barcode,field,value,source_name,source_url,license,is_mock,conflict_note,extracted_at FROM enrichment_candidates WHERE review_status='pending' ORDER BY barcode,field,id LIMIT 500").all() as { barcode: string; [k: string]: unknown }[];
   const byCode = new Map<string, typeof rows>();
   for (const r of rows) byCode.set(r.barcode, [...(byCode.get(r.barcode) ?? []), r]);
-  return { items: [...byCode].map(([barcode, candidates]) => ({ barcode, local_product: c.db.prepare('SELECT id,name,brand,size,ingredients,verification FROM products WHERE barcode=?').get(barcode) ?? null, candidates })) };
+  return { items: [...byCode].map(([barcode, candidates]) => ({ barcode, local_product: c.db.prepare(`SELECT p.id,p.name,p.brand,p.size,p.ingredients,p.verification,(SELECT i.id FROM product_images i WHERE i.product_id=p.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id FROM products p WHERE p.barcode=?`).get(barcode) ?? null, candidates })) };
 });
 
 route('POST', '/api/enrichment/candidates/:id/review', 'manager', async (c) => {
   const id = parseId(c.params.id!);
   const d = z.object({ action: z.enum(['approve', 'reject']), value: z.string().max(5000).optional() }).strict().parse(await c.body());
+  if (d.action === 'approve' && (c.db.prepare('SELECT field FROM enrichment_candidates WHERE id = ?').get(id) as { field: string } | undefined)?.field === 'image_url') return approveImageCandidate(c.db, id, c.user!.id, c.cfg.enrichContact);
   const r = reviewCandidate(c.db, id, c.user!.id, d.action, d.value);
   const err = (r as { error?: 'not_found' | 'already_reviewed' | 'no_product' | 'images_not_supported' | 'empty' }).error;
   if (err) {

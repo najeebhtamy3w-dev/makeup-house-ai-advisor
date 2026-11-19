@@ -7,6 +7,7 @@ import { makeHandler } from './http.ts';
 import { hashPassword } from './security.ts';
 import './routes.ts';
 import { seedStaging } from './staging.ts';
+import './images.ts';
 import { configureConnectors, processQueueOnce } from './enrichment/engine.ts';
 
 const MIME: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.txt': 'text/plain; charset=utf-8', '.png': 'image/png' };
@@ -32,7 +33,7 @@ export function buildServer(db: DB, cfg: Config) {
     if (file !== root && !file.startsWith(root + sep)) { res.writeHead(403).end(); return; }
     try {
       const data = await readFile(file);
-      res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream', 'x-content-type-options': 'nosniff', 'x-robots-tag': 'noindex, nofollow', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'content-security-policy': "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; media-src 'self'; frame-ancestors 'none'", 'cache-control': extname(file) === '.html' ? 'no-cache' : 'public, max-age=300' }).end(data);
+      res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream', 'x-content-type-options': 'nosniff', 'x-robots-tag': 'noindex, nofollow', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'content-security-policy': "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; media-src 'self'; frame-ancestors 'none'", 'cache-control': extname(file) === '.html' ? 'no-cache' : 'public, max-age=300' }).end(data);
     } catch { res.writeHead(404, { 'x-robots-tag': 'noindex, nofollow' }).end('Not found'); }
   });
 }

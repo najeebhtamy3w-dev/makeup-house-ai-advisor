@@ -8,6 +8,8 @@ export interface User { id: number; username: string; display_name: string; role
 export interface Ctx { db: DB; cfg: Config; req: IncomingMessage; res: ServerResponse; params: Record<string, string>; query: URLSearchParams; user: User | null; body: () => Promise<unknown>; raw: () => Promise<Buffer> }
 
 export class HttpError extends Error { constructor(public status: number, message: string) { super(message); } }
+/** Non-JSON response (e.g. image bytes). Return it from a handler. */
+export class RawResponse { constructor(public status: number, public headers: Record<string, string>, public body: Uint8Array) {} }
 
 export type Handler = (c: Ctx) => unknown | Promise<unknown>;
 interface Route { method: string; re: RegExp; keys: string[]; handler: Handler; auth: 'none' | 'any' | 'manager' }
@@ -66,6 +68,7 @@ export function makeHandler(db: DB, cfg: Config) {
       const raw = () => (rawCache ??= readRaw(req));
       const body = async () => { const b = await raw(); if (!b.length) return {}; try { return JSON.parse(b.toString('utf8')); } catch { throw new HttpError(400, 'JSON غير صالح'); } };
       const out = await r.handler({ db, cfg, req, res, params, query: url.searchParams, user, body, raw });
+      if (out instanceof RawResponse) { res.writeHead(out.status, { ...out.headers, 'x-robots-tag': 'noindex, nofollow', 'content-length': String(out.body.length) }).end(Buffer.from(out.body.buffer, out.body.byteOffset, out.body.byteLength)); return true; }
       send(200, out ?? { ok: true });
     } catch (e) {
       if (e instanceof HttpError) send(e.status, { error: e.message, ...((e as HttpError & { existingId?: number }).existingId ? { existingId: (e as HttpError & { existingId?: number }).existingId } : {}) });

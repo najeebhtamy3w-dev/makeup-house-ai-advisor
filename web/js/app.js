@@ -60,7 +60,7 @@ async function render() {
     case 'scan': return scan(main, me);
     case 'products': return products(main, params);
     case 'product': return productEdit(main, Number(arg), me);
-    case 'product-new': return productEdit(main, null, me, { barcode: params.get('barcode') ?? '' });
+    case 'product-new': { const b = (params.get('barcode') ?? '').replace(/\D/g, ''); return productEdit(main, null, me, { barcode: b }); }
     case 'compare': return compare(main);
     case 'routine': return routine(main);
     case 'request': return requestForm(main, params);

@@ -1,3 +1,4 @@
+import { allowedRemoteImage } from '../images.ts';
 import { Unreachable, type Connector, type ConnectorResult, type FetchLike, type EnrichField } from './types.ts';
 
 /**
@@ -17,7 +18,7 @@ export function openBeautyFacts(opts: { contact: string; fetchImpl?: FetchLike; 
       const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), opts.timeoutMs ?? 6000);
       let res;
       try {
-        res = await f(`${base}/api/v3/product/${encodeURIComponent(code)}?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text`, { headers: { 'user-agent': `MakeupHouseAdvisor/3.0 (${opts.contact})`, accept: 'application/json' }, signal: ctl.signal });
+        res = await f(`${base}/api/v3/product/${encodeURIComponent(code)}?product_type=beauty&fields=code,product_name,brands,quantity,ingredients_text,image_front_url`, { headers: { 'user-agent': `MakeupHouseAdvisor/3.0 (${opts.contact})`, accept: 'application/json' }, signal: ctl.signal });
       } catch { throw new Unreachable('network'); } finally { clearTimeout(timer); }
       if (res.status === 404) return { found: false };
       if (!res.ok) throw new Unreachable('http_' + res.status);
@@ -36,8 +37,11 @@ export function openBeautyFacts(opts: { contact: string; fetchImpl?: FetchLike; 
       const fields: Partial<Record<EnrichField, string>> = {};
       if (s(p.product_name)) fields.name = s(p.product_name).slice(0, 200);
       if (s(p.brands)) fields.brand = s(p.brands).split(',')[0]!.trim().slice(0, 120);
-      if (s(p.quantity)) fields.size = s(p.quantity).slice(0, 60);
+      // CP04: a bare number (e.g. "177") has no unit -> ambiguous (ml? g? oz?) -> never proposed as the pack size.
+      if (s(p.quantity) && /[0-9\u0660-\u0669\u06f0-\u06f9]/.test(s(p.quantity)) && /[a-z\u0621-\u064a]/i.test(s(p.quantity))) fields.size = s(p.quantity).slice(0, 60);
       if (s(p.ingredients_text)) fields.ingredients = s(p.ingredients_text).slice(0, 5000);
+      // CP04: front photo of the SAME record (identity already checked above). Only an allow-listed https image host is accepted.
+      if (s(p.image_front_url) && allowedRemoteImage(s(p.image_front_url))) fields.image_url = s(p.image_front_url).slice(0, 500);
       return Object.keys(fields).length ? { found: true, fields, sourceUrl: `${base}/product/${encodeURIComponent(code)}` } : { found: false };
     },
   };

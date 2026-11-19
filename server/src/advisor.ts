@@ -4,7 +4,7 @@
  *  3 Suitability evaluation (documented fields only)  4 Availability verification (kept SEPARATE from suitability)  5 Response.
  * A language model, if ever enabled, may only re-phrase this output (see ai/provider.ts guard).
  */
-export type P = { id: number; name: string; brand: string; category: string; size: string; ingredients: string; warnings: string; benefits?: string; source_url?: string; verification: string; availability_effective: string; availability_stale: boolean; barcode?: string | null };
+export type P = { id: number; name: string; brand: string; category: string; size: string; ingredients: string; warnings: string; benefits?: string; source_url?: string; verification: string; availability_effective: string; availability_stale: boolean; barcode?: string | null; primary_image_id?: number | null };
 import { evaluate, type Need, type Avoid, type Evaluation } from './science/suitability.ts';
 export interface AdviseOpts { conflictIds?: Set<number> }
 
@@ -96,7 +96,7 @@ export function advise(query: string, products: P[], opts: AdviseOpts = {}) {
 function entry(p: P, level: 'documented' | 'partial' | 'unknown', reasons: string[], opts: AdviseOpts, reason: string | undefined, ev: Evaluation) {
   const av = p.availability_effective;
   return {
-    id: p.id, name: p.name, brand: p.brand, size: p.size, category: p.category, verification: p.verification,
+    id: p.id, name: p.name, brand: p.brand, size: p.size, category: p.category, verification: p.verification, primary_image_id: p.primary_image_id ?? null,
     // suitability and availability are separate blocks on purpose
     suitability: { level, reasons, verdict: ev.verdict, verdict_label: ev.verdict_label, used_info: ev.used_info, missing: ev.missing, precautions: ev.precautions, supports: ev.supports, limitations: ev.limitations },
     fragrance: ev.fragrance, formulation: ev.formulation,
