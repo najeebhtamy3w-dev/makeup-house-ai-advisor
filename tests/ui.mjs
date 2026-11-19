@@ -345,6 +345,31 @@ await step('back button returns to products; unsaved entry is kept on the phone 
   await page.evaluate(() => (location.hash = '#/product-new')); await page.waitForSelector('.pform.entry'); assert.equal(await page.inputValue('#f-name'), 'مسودة الرجوع');
   await page.evaluate(() => sessionStorage.removeItem('mh_new_product_draft'));
 });
+// ---- CP05 correction: package contents and usage/warnings are optional ----
+await step('optional details: save with both sections empty, with ingredients only, with usage only — "save and add another" never blocks', async () => {
+  const add = async (name, fill) => {
+    await fresh(); await page.fill('#f-name', name); if (fill) await fill();
+    await page.click('button:has-text("حفظ وإضافة منتج آخر")'); await page.waitForSelector(`.savedbar:has-text("${name}")`);
+    assert.equal(await page.$$eval('.field.bad', (l) => l.length), 0, 'no validation error'); assert.equal(await page.inputValue('#f-name'), '');
+  };
+  await add('OPT فارغ');
+  assert.equal(await page.$$eval('details.fold .fbadge.bad', (l) => l.length), 0);
+  await add('OPT مكونات فقط', async () => { await openFold('محتوى العبوة'); await page.fill('#f-ingredients', 'Aqua, Glycerin'); });
+  await add('OPT استخدام فقط', async () => { await openFold('الاستخدام والفوائد'); await page.fill('#f-benefits', 'ترطيب يومي كما يذكر المصنع'); });
+  const get = async (n) => (await apiGet('/api/products?q=' + encodeURIComponent(n))).products[0];
+  const e = await get('OPT فارغ'), i = await get('OPT مكونات فقط'), u = await get('OPT استخدام فقط');
+  assert.deepEqual([e.size, e.ingredients, e.benefits, e.warnings, e.verification], ['', '', '', '', 'review']);
+  assert.deepEqual([i.ingredients, i.benefits, i.warnings], ['Aqua, Glycerin', '', '']);
+  assert.deepEqual([u.ingredients, u.benefits, u.warnings], ['', 'ترطيب يومي كما يذكر المصنع', '']);
+});
+await step('optional details: completed later from the product screen on the SAME record, still not verified', async () => {
+  const before = (await apiGet('/api/products?limit=1')).total; const id = (await apiGet('/api/products?q=' + encodeURIComponent('OPT فارغ'))).products[0].id;
+  await page.evaluate((i) => (location.hash = '#/product/' + i), id); await page.waitForSelector('details.fold');
+  await openFold('الاستخدام والفوائد'); await page.fill('#f-warnings', 'للاستخدام الخارجي فقط'); await page.click('button:has-text("حفظ التعديلات")');
+  await until(async () => (await apiGet('/api/products/' + id)).product.warnings === 'للاستخدام الخارجي فقط');
+  const p = (await apiGet('/api/products/' + id)).product; assert.equal(p.verification, 'review'); assert.equal(p.ingredients, '');
+  assert.equal((await apiGet('/api/products?limit=1')).total, before, 'no duplicate');
+});
 await step('Samsung checklist: items listed, an answer is stored and also becomes a feedback note', async () => {
   await page.evaluate(() => { localStorage.removeItem('mh_feedback_v1'); localStorage.removeItem('mh_checklist_v1'); location.hash = '#/checklist'; }); await page.waitForSelector('.ck');
   assert.ok((await page.$$('.ck')).length >= 12); assert.match(await page.textContent('main'), /تصوير العبوة/);

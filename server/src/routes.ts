@@ -104,9 +104,9 @@ const productInput = z.object({
   brand: z.string().trim().max(120).default(''),
   category: z.enum(CATEGORIES).default('أخرى'),
   size: z.string().trim().max(60).default(''),
-  ingredients: z.string().max(5000).default(''),
-  benefits: z.string().max(3000).default(''),
-  warnings: z.string().max(3000).default(''),
+  ingredients: z.string().trim().max(5000).default(''),   // blank text is stored as empty: never mistaken for a documented list
+  benefits: z.string().trim().max(3000).default(''),
+  warnings: z.string().trim().max(3000).default(''),
   source_url: z.union([z.literal(''), z.string().url().max(500)]).default(''),
   verification: z.enum(['review', 'partial', 'verified']).default('review'),
   availability: z.enum(['yes', 'no', 'unknown']).default('unknown'),
