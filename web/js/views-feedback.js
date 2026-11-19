@@ -52,7 +52,53 @@ export function feedback(main, meta) {
   main.append(h('div', { class: 'notice info' }, 'تُحفظ الملاحظات على هذا الهاتف فقط ولا تُرسل تلقائيًا. عند الانتهاء استخدم «مشاركة» أو «نسخ كنص» لإرسالها. تُرفق معلومات تقنية غير حساسة (نوع المتصفح والشاشة ودعم الكاميرا) دون اسم المستخدم أو بيانات المنتجات.'),
     h('form', { class: 'card', onsubmit: submit, id: 'feedback-form' }, field('الوظيفة المختبرة', feat), field('النتيجة', res), field('النتيجة المتوقعة', exp), field('النتيجة الفعلية', act), field('وصف الخطأ', det),
       h('button', { class: 'btn', type: 'submit', style: 'width:100%' }, 'حفظ الملاحظة')),
+    h('div', { class: 'card' }, h('strong', {}, 'قائمة اختبار Samsung'), h('p', { class: 'tiny muted' }, 'بنود قصيرة للكاميرا والمعرض ورفع الصور.'), h('a', { class: 'btn sm', href: '#/checklist' }, 'فتح القائمة')),
     h('div', { class: 'card' }, h('strong', {}, 'اختبار الكاميرا والقارئ'), h('p', { class: 'tiny muted' }, 'صفحة تشخيص مستقلة للكاميرا الخلفية وBarcodeDetector وقارئ HID.'), h('a', { class: 'btn sm out', href: '/device-test.html' }, 'فتح صفحة اختبار الجهاز')),
     listBox);
   render();
+}
+
+/* ---------- Samsung acceptance checklist (CP04). Each answer is also saved as a feedback note, so one "share" sends everything. ---------- */
+const CK_KEY = 'mh_checklist_v1';
+export const CHECKLIST = [
+  ['login', 'تسجيل الدخول', 'افتح الرابط في Chrome أو Samsung Internet وسجّل الدخول. يظهر شريط «نسخة تجريبية».'],
+  ['device', 'صفحة اختبار الجهاز', 'من شاشة الدخول: «اختبار الكاميرا وقارئ الباركود» ← تشغيل الكاميرا ← وجّهها إلى باركود عبوة.'],
+  ['scan', 'مسح باركود داخل التطبيق', '«مسح» ← فتح الكاميرا ← باركود عبوة حقيقية ← تظهر النتيجة المحلية أو العالمية.'],
+  ['create', 'إضافة منتج تجريبي وحفظه', '«المنتجات» ← «＋ جديد» ← اسم تجريبي ← «حفظ البطاقة». جرّب الحفظ بلا اسم: تظهر رسالة تحت الحقل.'],
+  ['camera', 'تصوير العبوة بالكاميرا الخلفية', 'في المنتج: «📷 تصوير العبوة» ← تفتح الكاميرا الخلفية ← التقط.'],
+  ['preview', 'المعاينة: الاتجاه والوضوح', 'في المعاينة: الصورة غير مقلوبة وواضحة، ويظهر حجمها بعد الضغط.'],
+  ['retake', 'إعادة الالتقاط', 'في المعاينة: «إعادة الالتقاط» تفتح الكاميرا مجددًا.'],
+  ['gallery', 'الاختيار من المعرض', '«🖼 من المعرض» ← صورة قديمة كبيرة ← معاينة ← حفظ.'],
+  ['readable', 'وضوح المكونات بعد الحفظ', 'صوّر جهة المكونات (نوع: المكونات) ← احفظ ← اضغط الصورة لفتحها كاملة ← هل النص مقروء؟'],
+  ['primary', 'الصورة الرئيسية في القوائم', 'تظهر الصورة في «المنتجات» ونتائج البحث والمستشار.'],
+  ['manage', 'تغيير الرئيسية والحذف', '«اجعلها رئيسية» ثم «حذف» لصورة أخرى. تتحدث الصورة في القائمة.'],
+  ['denied', 'رفض إذن الكاميرا', 'ارفض الإذن مرة (أو من إعدادات الموقع): تظهر رسالة واضحة ويبقى الإدخال اليدوي متاحًا.'],
+  ['speed', 'سرعة الرفع على بيانات الجوال', 'أوقف Wi-Fi وارفع صورة. اكتب كم ثانية استغرقت تقريبًا.'],
+  ['hid', 'قارئ باركود خارجي (إن توفر)', 'في صفحة اختبار الجهاز: اضغط الحقل وامسح 3 باركودات.'],
+];
+const loadCk = () => { try { return JSON.parse(localStorage.getItem(CK_KEY) || '{}'); } catch { return {}; } };
+const saveCk = (v) => { try { localStorage.setItem(CK_KEY, JSON.stringify(v)); return true; } catch { return false; } };
+
+export function checklist(main, meta) {
+  const box = h('div', {}); const head = h('div', {});
+  const draw = () => {
+    const st = loadCk(); const done = CHECKLIST.filter(([k]) => st[k]).length;
+    fill(head, h('div', { class: 'card' }, h('div', { class: 'row sb' }, h('strong', {}, 'قائمة اختبار Samsung'), h('span', { class: 'badge ' + (done === CHECKLIST.length ? 'ok' : 'info') }, `${done} / ${CHECKLIST.length}`)),
+      h('p', { class: 'tiny muted' }, 'جرّب كل بند على هاتفك ثم اختر النتيجة. كل إجابة تُحفظ أيضًا في «ملاحظات التجربة» على هذا الهاتف. عند الانتهاء اضغط «إرسال النتائج».'),
+      h('div', { class: 'row' }, h('button', { class: 'btn sm', onclick: () => { location.hash = '#/feedback'; } }, 'إرسال النتائج (ملاحظات التجربة)'),
+        done ? h('button', { class: 'btn sm light', onclick: () => { if (confirm('مسح إجابات القائمة؟ (الملاحظات المحفوظة تبقى)')) { saveCk({}); draw(); } } }, 'بدء من جديد') : null)));
+    fill(box, CHECKLIST.map(([k, title, how], i) => {
+      const cur = st[k]; const note = h('input', { placeholder: 'ملاحظة قصيرة (اختياري)', maxlength: 300, value: cur?.note ?? '' });
+      const answer = (res) => {
+        const list = loadNotes();
+        list.push({ at: new Date().toISOString(), feature: `قائمة Samsung · ${title}`, result: res, expected: how, actual: note.value.trim() || RL[res], details: '', tech: techInfo(meta?.version) });
+        saveNotes(list); const s2 = loadCk(); s2[k] = { result: res, note: note.value.trim(), at: new Date().toISOString() }; saveCk(s2); toast('حُفظت النتيجة'); draw();
+      };
+      return h('div', { class: 'card ck' + (cur ? ' answered' : ''), 'data-item': k },
+        h('div', { class: 'row sb' }, h('strong', {}, `${i + 1}. ${title}`), cur ? h('span', { class: 'badge ' + (cur.result === 'ok' ? 'ok' : cur.result === 'fail' ? 'no' : 'warn') }, RL[cur.result]) : h('span', { class: 'badge' }, 'لم يُختبر')),
+        h('p', { class: 'tiny' }, how), note,
+        h('div', { class: 'row', style: 'margin-top:6px' }, h('button', { class: 'btn sm', onclick: () => answer('ok') }, '✓ نجح'), h('button', { class: 'btn sm out', onclick: () => answer('partial') }, '◐ جزئيًا'), h('button', { class: 'btn sm danger', onclick: () => answer('fail') }, '✗ فشل')));
+    }));
+  };
+  main.append(head, box); draw();
 }

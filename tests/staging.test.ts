@@ -9,7 +9,7 @@ test('staging: /api/health and /api/meta are public, data-free, and flag the tes
   try {
     const hz = await t.call('GET', '/api/health'); assert.equal(hz.status, 200); assert.deepEqual(hz.json, { ok: true });
     const m = await t.call('GET', '/api/meta'); assert.equal(m.status, 200); assert.equal(m.json.staging, true); assert.match(m.json.notice, /وهمية/);
-    assert.deepEqual(Object.keys(m.json).sort(), ['notice', 'staging', 'version']);
+    assert.deepEqual(Object.keys(m.json).sort(), ['commit', 'notice', 'staging', 'version']);
     assert.equal((await t.call('GET', '/api/products')).status, 401, 'data stays behind login');
   } finally { await t.close(); }
 });

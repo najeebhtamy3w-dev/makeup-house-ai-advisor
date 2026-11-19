@@ -94,6 +94,13 @@ export async function uploadImage(productId, { blob, kind, origin }, primary = f
   return data;
 }
 
+function viewImage(img) {
+  const sheet = h('div', { class: 'sheet viewer', role: 'dialog', 'aria-label': 'عرض الصورة', onclick: (e) => { if (e.target === sheet) sheet.remove(); } },
+    h('div', {}, authImg('/api/images/' + img.id, 'الصورة بالحجم الكامل'), h('div', { class: 'tiny muted' }, `${KIND_LABEL[img.kind]} · ${img.width ?? '?'}×${img.height ?? '?'} · ${Math.round(img.size / 1024)} ك.ب`),
+      h('button', { class: 'btn out', onclick: () => sheet.remove() }, 'إغلاق')));
+  document.body.append(sheet);
+}
+
 /* ---------- product image manager ---------- */
 /**
  * productId null => "staged" mode for a new product: picked images are kept in memory and uploaded by `flush(id)` after the
@@ -112,7 +119,7 @@ export function imageManager(productId, me, api) {
   };
   const draw = () => {
     fill(grid, images.length ? images.map((img) => h('figure', { class: 'imgitem' + (img.is_primary ? ' primary' : '') },
-      authImg('/api/images/' + img.id, KIND_LABEL[img.kind] + ' — ' + ORIGIN_LABEL[img.origin]),
+      h('button', { class: 'imgopen', type: 'button', 'aria-label': 'فتح الصورة بالحجم الكامل', onclick: () => viewImage(img) }, authImg('/api/images/' + img.id, KIND_LABEL[img.kind] + ' — ' + ORIGIN_LABEL[img.origin])),
       h('figcaption', {},
         h('div', { class: 'row' }, img.is_primary ? h('span', { class: 'badge ok' }, 'رئيسية') : null, h('span', { class: 'badge' }, KIND_LABEL[img.kind]), h('span', { class: 'badge ' + (img.origin === 'source' ? 'warn' : 'info') }, ORIGIN_LABEL[img.origin])),
         img.origin === 'source' ? h('div', { class: 'tiny' }, '© ', img.attribution, ' · ', img.license, ' · ', h('a', { href: img.source_url, target: '_blank', rel: 'noopener noreferrer' }, img.source_name || 'المصدر')) : null,

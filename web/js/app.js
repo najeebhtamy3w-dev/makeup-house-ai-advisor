@@ -5,18 +5,18 @@ import { advisor, compare, routine, requestForm } from './views-advisor.js';
 import { importView, reports, users, academy } from './views-admin.js';
 import { review } from './views-review.js';
 import { getEnrich } from './views-core.js';
-import { feedback } from './views-feedback.js';
+import { feedback, checklist } from './views-feedback.js';
 
 const app = $('#app');
 let me = null;
 // Public, data-free metadata: version + whether this is the protected cloud STAGING copy (shows a permanent warning banner).
 let meta = null;
 const metaReady = fetch('/api/meta').then((r) => r.json()).then((m) => (meta = m)).catch(() => null);
-const stagingBanner = () => (meta?.staging ? h('div', { class: 'notice warn staging-banner', role: 'note' }, meta.notice) : null);
+const stagingBanner = () => (meta?.staging ? h('div', { class: 'notice warn staging-banner', role: 'note' }, meta.notice, getToken() ? h('div', { style: 'margin-top:6px' }, h('a', { href: '#/checklist' }, '☑ قائمة اختبار Samsung')) : null) : null);
 const MAIN = [['home', '⌂', 'الرئيسية'], ['advisor', '✦', 'المستشار'], ['scan', '▥', 'مسح'], ['products', '◈', 'المنتجات']];
-const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '☼', 'روتين العناية'], ['request', '⌕', 'طلب غير ملبّى'], ['academy', '♧', 'الأكاديمية'], ['feedback', '✎', 'ملاحظات التجربة'],
+const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '☼', 'روتين العناية'], ['request', '⌕', 'طلب غير ملبّى'], ['academy', '♧', 'الأكاديمية'], ['checklist', '☑', 'قائمة اختبار Samsung'], ['feedback', '✎', 'ملاحظات التجربة'],
   ['review', '✔', 'مراجعة المعلومات', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
-const TITLES = { home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', review: 'مراجعة المعلومات', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+const TITLES = { home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
@@ -66,6 +66,7 @@ async function render() {
     case 'request': return requestForm(main, params);
     case 'academy': return academy(main);
     case 'feedback': return feedback(main, meta);
+    case 'checklist': return checklist(main, meta);
     case 'import': return importView(main);
     case 'reports': return reports(main);
     case 'users': return users(main);

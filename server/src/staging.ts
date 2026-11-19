@@ -7,11 +7,12 @@ import { audit, now } from './db.ts';
 import { route } from './http.ts';
 import { hashPassword } from './security.ts';
 
-export const APP_VERSION = '3.0.0-cp03-staging';
+export const APP_VERSION = '3.0.0-cp04-staging';
 export const STAGING_NOTICE = 'نسخة تجريبية: كل البيانات وهمية وقد تُحذف عند أي إعادة تشغيل للخادم. لا تُدخل بيانات حقيقية لعملاء أو موظفين، ولا تعتمد عليها كقاعدة بيانات للمحل.';
 
 route('GET', '/api/health', 'none', () => ({ ok: true }));
-route('GET', '/api/meta', 'none', (c) => ({ version: APP_VERSION, staging: c.cfg.staging, notice: c.cfg.staging ? STAGING_NOTICE : null }));
+// commit: Render injects RENDER_GIT_COMMIT at runtime; shown on staging only so a deploy can be verified from outside.
+route('GET', '/api/meta', 'none', (c) => ({ version: APP_VERSION, staging: c.cfg.staging, notice: c.cfg.staging ? STAGING_NOTICE : null, ...(c.cfg.staging ? { commit: (process.env.RENDER_GIT_COMMIT ?? '').slice(0, 7) || null } : {}) }));
 
 /** Clearly fake demo catalogue. Barcodes use the GS1 "restricted/internal" prefix 200-299 so they can never be a real product. */
 const DEMO: Array<[string | null, string, string, string, string, 'yes' | 'no' | 'unknown', 'verified' | 'partial' | 'review', string, string, string]> = [

@@ -117,3 +117,6 @@ details.fsec>summary::-webkit-details-marker{display:none}
 .savebar{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;gap:8px;flex-wrap:wrap;background:var(--bg);padding:10px 0;border-top:1px solid var(--line);margin-top:6px}
 .savebar .btn:first-child{flex:1}
 body:has(.savebar) #toast{bottom:150px}
+.imgopen{all:unset;display:block;cursor:zoom-in;width:100%}
+.sheet.viewer>div img{width:100%;max-height:78vh;object-fit:contain;background:#000;border-radius:12px}
+.ck.answered{opacity:.85}.ck input{margin-top:4px}

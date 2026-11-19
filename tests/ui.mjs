@@ -174,6 +174,7 @@ await step('images: gallery pick -> preview (size info) -> staged on new product
   const id = Number((await page.evaluate(() => location.hash)).split('/')[2]); const imgs = (await apiGet(`/api/products/${id}/images`)).images;
   assert.equal(imgs.length, 1); assert.equal(imgs[0].origin, 'upload'); assert.equal(imgs[0].is_primary, 1); assert.ok(['image/webp', 'image/jpeg'].includes(imgs[0].mime), 're-encoded (metadata stripped)');
   await page.screenshot({ path: out + '20-product-with-image.png', fullPage: true });
+  await page.click('.imgopen'); await page.waitForFunction(() => { const i = document.querySelector('.sheet.viewer img'); return i && i.naturalWidth > 0; }); await page.click('.sheet.viewer >> text=إغلاق');
   await page.evaluate(() => (location.hash = '#/products')); await page.fill('input[type=search]', 'مرطب بصورة');
   await page.waitForFunction(() => { const i = document.querySelector('.grid .card .th img'); return i && i.naturalWidth > 0; });
   await page.evaluate(() => (location.hash = '#/advisor')); await page.waitForSelector('.composer input'); await page.fill('.composer input', 'مرطب'); await page.keyboard.press('Enter');
@@ -184,6 +185,15 @@ await step('images: camera button asks for the rear camera; non-image files are 
   const fc = await pickFile('button:has-text("تصوير العبوة")', { name: 'x.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
   assert.equal(await fc.element().getAttribute('capture'), 'environment');
   await page.waitForSelector('#toast >> text=نوع الملف غير مدعوم'); assert.equal(await page.$('.imgprev'), null);
+});
+await step('Samsung checklist: items listed, an answer is stored and also becomes a feedback note', async () => {
+  await page.evaluate(() => { localStorage.removeItem('mh_feedback_v1'); localStorage.removeItem('mh_checklist_v1'); location.hash = '#/checklist'; }); await page.waitForSelector('.ck');
+  assert.ok((await page.$$('.ck')).length >= 12); assert.match(await page.textContent('main'), /تصوير العبوة/);
+  const item = page.locator('.ck[data-item=camera]'); await item.locator('input').fill('فتحت الخلفية'); await item.locator('button:has-text("نجح")').click();
+  await page.waitForSelector('.ck[data-item=camera] .badge.ok'); const notes = await page.evaluate(() => JSON.parse(localStorage.getItem('mh_feedback_v1') || '[]'));
+  assert.equal(notes.length, 1); assert.match(notes[0].feature, /تصوير العبوة/); assert.equal(notes[0].actual, 'فتحت الخلفية');
+  await page.screenshot({ path: out + '21-checklist.png', fullPage: true });
+  await page.evaluate(() => { localStorage.removeItem('mh_feedback_v1'); localStorage.removeItem('mh_checklist_v1'); });
 });
 await step('layout: no horizontal overflow or null text on every page at 360 / 390 / 768 / 1280 widths', async () => {
   const pages = ['home', 'advisor', 'scan', 'products', 'review', 'import', 'reports', 'users', 'compare', 'routine', 'request', 'academy'];
