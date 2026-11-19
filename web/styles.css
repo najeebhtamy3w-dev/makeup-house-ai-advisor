@@ -215,3 +215,5 @@ ul.help{padding-inline-start:18px;line-height:1.8;font-size:14px}
 .emptycat{text-align:center;padding:36px 18px;border:1.5px dashed var(--line-strong);border-radius:20px;background:var(--surface);color:var(--muted);margin-top:8px}
 .emptycat .ico{color:var(--wine-600)}.emptycat h3{margin:10px 0 6px;color:var(--plum);font-size:19px}.emptycat p{margin:0 auto 18px;max-width:340px;line-height:1.8;font-size:14px}
 .emptycat-actions{display:grid;gap:10px;max-width:320px;margin:0 auto}.emptycat-actions .btn{min-height:50px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.cmp-hits{display:grid;gap:4px;margin:4px 0 8px}.cmp-hit{all:unset;box-sizing:border-box;cursor:pointer;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);display:flex;flex-direction:column}
+.cmp-hit small{color:var(--muted);font-size:12px}.cmp-hit[disabled]{opacity:.45;cursor:default}

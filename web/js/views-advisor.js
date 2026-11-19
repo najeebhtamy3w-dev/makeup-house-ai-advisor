@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { h, fill, toast, AV, VER, avBadge, verBadge, fmtDate, field, select, skeleton, errorBox } from './util.js';
+import { h, fill, toast, AV, VER, avBadge, verBadge, fmtDate, field, select, skeleton, errorBox, debounce } from './util.js';
 import { go } from './views-core.js';
 import { thumb } from './images.js';
 import { loadTaxonomy, typeLabel } from './taxonomy.js';
@@ -87,15 +87,23 @@ export function advisor(root) {
 /* ---------- compare 2–3 products ---------- */
 export async function compare(root) {
   await loadTaxonomy().catch(() => {});
-  let list = [];
-  try { list = (await api('GET', '/api/products?limit=500')).products; } catch (e) { root.append(h('div', { class: 'notice err' }, e.message)); return; }
-  const opts = [['', 'اختر منتجًا'], ...list.map((p) => [String(p.id), p.name])];
-  const sels = [select(opts, ''), select(opts, ''), select([['', 'منتج ثالث (اختياري)'], ...opts.slice(1)], '')];
+  // CP06: products are picked by searching the WHOLE catalog (the old dropdown listed at most 500)
+  const chosen = [];
+  const q = h('input', { type: 'search', placeholder: 'ابحث بالاسم أو العلامة أو الباركود لإضافة منتج', 'aria-label': 'بحث منتج للمقارنة', id: 'cmp-q' });
+  const hits = h('div', { class: 'cmp-hits' }); const picked = h('div', { class: 'row', id: 'cmp-picked' });
+  const drawPicked = () => fill(picked, chosen.length ? chosen.map((p, i) => h('button', { class: 'chip on sm', type: 'button', 'aria-label': 'إزالة ' + p.name, onclick: () => { chosen.splice(i, 1); drawPicked(); } }, p.name, ' ✕')) : h('span', { class: 'tiny muted' }, 'اختر منتجين أو ثلاثة.'));
+  q.addEventListener('input', debounce(async () => {
+    const t = q.value.trim(); if (!t) { fill(hits); return; }
+    try { const r = await api('GET', '/api/products?view=compact&limit=8&q=' + encodeURIComponent(t));
+      fill(hits, r.products.length ? r.products.map((p) => h('button', { class: 'cmp-hit', type: 'button', disabled: chosen.length >= 3 || chosen.some((c) => c.id === p.id) ? true : null, onclick: () => { chosen.push(p); drawPicked(); fill(hits); q.value = ''; } }, p.name, h('small', {}, [p.brand, p.size].filter(Boolean).join(' · ')))) : h('div', { class: 'tiny muted' }, 'لا نتائج.'), r.total > 8 ? h('div', { class: 'tiny muted' }, `${r.total} نتيجة — اكتب أكثر لتضييقها`) : null);
+    } catch (e) { fill(hits, h('div', { class: 'notice err' }, e.message)); }
+  }));
+  const sels = { values: () => chosen.map((p) => String(p.id)) };
   const out = h('div', {});
   const ROWS = [['العلامة', 'brand'], ['التصنيف', 'category'], ['نوع المنتج', 'product_type'], ['حجم العبوة', 'size'], ['المكونات', 'ingredients'], ['الفوائد/الاستخدام', 'benefits'], ['التحذيرات', 'warnings'], ['التوفر', 'availability_effective'], ['التوثيق', 'verification']];
   const val = (p, k) => (k === 'product_type' ? typeLabel(p[k]) || 'غير مصنف' : k === 'availability_effective' ? AV[p[k]] + (p.availability_stale ? ' (قديم)' : '') : k === 'verification' ? VER[p[k]] : p[k] || 'غير موثق');
   const run = async () => {
-    const ids = [...new Set(sels.map((s) => s.value).filter(Boolean))];
+    const ids = [...new Set(sels.values())];
     if (ids.length < 2) { out.replaceChildren(h('div', { class: 'notice' }, 'اختر منتجين مختلفين على الأقل.')); return; }
     const ps = (await Promise.all(ids.map((i) => api('GET', '/api/products/' + i)))).map((r) => r.product);
     const diff = ROWS.filter(([, k]) => new Set(ps.map((p) => val(p, k))).size > 1).map(([l]) => l);
@@ -105,27 +113,23 @@ export async function compare(root) {
       h('div', { class: 'notice ok' }, diff.length ? 'أبرز الفروق (مظللة): ' + diff.join('، ') + '.' : 'لا فروق في البيانات المسجلة.'),
       h('div', { class: 'notice' }, 'لا يوجد «فائز مطلق». اختر حسب احتياج العميل المحدد، وحيث تظهر «غير موثق» فالمعلومة غير مسجلة ولا يجوز افتراضها.'));
   };
-  root.append(h('h2', { class: 't' }, 'مقارنة المنتجات'), h('div', { class: 'card' }, sels.map((s, i) => field(['المنتج الأول', 'المنتج الثاني', 'المنتج الثالث'][i], s)), h('button', { class: 'btn', onclick: () => run().catch((e) => toast(e.message)) }, 'عرض المقارنة')), out);
+  root.append(h('h2', { class: 't' }, 'مقارنة المنتجات'), h('div', { class: 'card' }, field('ابحث عن منتج', q), hits, picked, h('button', { class: 'btn', id: 'cmp-run', onclick: () => run().catch((e) => toast(e.message)) }, 'عرض المقارنة')), out);
+  drawPicked();
 }
 
 /* ---------- routine: built from REAL store products; gaps become unmet-request prompts ---------- */
-const STEPS = {
-  skin: { am: [['تنظيف لطيف', /(غسول|منظف|تنظيف|cleanser)/i], ['ترطيب', /(مرطب|ترطيب|moistur)/i], ['حماية من الشمس', null, 'واقيات الشمس']], pm: [['تنظيف لطيف', /(غسول|منظف|تنظيف|cleanser)/i], ['ترطيب', /(مرطب|ترطيب|moistur)/i]] },
-  hair: { am: [['غسل الشعر', /(شامبو|shampoo)/i], ['بلسم / ترطيب الأطراف', /(بلسم|ماسك|conditioner)/i]], pm: [] },
-};
 export async function routine(root) {
   const type = select([['skin', 'العناية بالبشرة'], ['hair', 'العناية بالشعر']], 'skin');
   const out = h('div', {});
   const run = async () => {
-    const { products } = await api('GET', '/api/products?limit=500');
-    const def = STEPS[type.value];
-    const block = (title, steps) => steps.length ? h('div', { class: 'card' }, h('h3', {}, title), steps.map(([label, re, cat]) => {
-      const m = products.filter((p) => (cat ? p.category === cat : re.test(p.name)));
-      const ok = m.filter((p) => p.availability_effective === 'yes'), rest = m.filter((p) => p.availability_effective !== 'yes');
-      return h('div', { style: 'border-top:1px solid var(--line);padding:8px 0' }, h('b', {}, label),
+    // CP06: computed by the server/on-device engine over the WHOLE catalog (was limited to 500 downloaded products)
+    const def = await api('GET', '/api/routine?area=' + type.value);
+    const block = (title, steps) => steps.length ? h('div', { class: 'card' }, h('h3', {}, title), steps.map((st) => {
+      const ok = st.products.filter((p) => p.availability_effective === 'yes'), rest = st.products.filter((p) => p.availability_effective !== 'yes');
+      return h('div', { style: 'border-top:1px solid var(--line);padding:8px 0', 'data-step': st.label }, h('b', {}, st.label), st.total > st.products.length ? h('span', { class: 'tiny muted' }, ` (يُعرض ${st.products.length} من ${st.total})`) : null,
         ok.length ? ok.map((p) => h('div', {}, '✔ ', p.name, ' ', verBadge(p.verification), p.warnings ? h('div', { class: 'tiny' }, '⚠ ', p.warnings) : null)) : h('div', { class: 'muted tiny' }, 'لا يوجد منتج متوفر مؤكد لهذه الخطوة.'),
         rest.length ? h('div', { class: 'tiny muted' }, 'غير متوفر/غير مؤكد: ', rest.map((p) => p.name).join('، ')) : null,
-        !ok.length ? h('button', { class: 'btn sm light', onclick: () => go('#/request?text=' + encodeURIComponent(label)) }, 'سجّل كطلب غير ملبّى') : null);
+        !ok.length ? h('button', { class: 'btn sm light', onclick: () => go('#/request?text=' + encodeURIComponent(st.label)) }, 'سجّل كطلب غير ملبّى') : null);
     })) : null;
     fill(out, block('صباحًا', def.am), block('مساءً', def.pm),
       h('div', { class: 'notice' }, 'الترتيب عام. عدد مرات الاستخدام والتداخلات تؤخذ من تعليمات كل عبوة، ولا تُعرض هنا ما لم تكن موثقة. لا يغني عن مختص عند الأعراض أو الحساسية الشديدة.'));
