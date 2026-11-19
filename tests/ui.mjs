@@ -42,7 +42,7 @@ await step('scan: manual unknown barcode -> new product form prefilled -> save',
   await page.click('text=إنشاء بطاقة ومراجعتها'); await page.waitForSelector('h2:has-text("منتج جديد")');
   assert.equal(await page.inputValue('#f-barcode'), '5901234123457');
   assert.equal(await page.locator('#f-name').inputValue(), 'Demo Gentle Moisturizer', 'name prefilled from DRAFT'); assert.equal(await page.locator('#f-ingredients').inputValue(), '', 'unreviewed ingredients are NOT copied');
-  await page.locator('#f-name').fill('كريم يدين تجريبي'); await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('h2:has-text("كريم يدين تجريبي")');
+  await page.locator('#f-name').fill('كريم يدين تجريبي'); await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("كريم يدين تجريبي")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("كريم يدين تجريبي")');
 });
 await step('scan: same barcode again -> existing record, no duplicate', async () => {
   await page.click('.nav button:nth-child(3)'); await page.fill('input[aria-label="رقم الباركود"]', '5901234123457'); await page.keyboard.press('Enter');
@@ -52,9 +52,10 @@ await step('scan: invalid check digit rejected with message', async () => {
   await page.fill('input[aria-label="رقم الباركود"]', '5901234123458'); await page.keyboard.press('Enter'); await page.waitForSelector('.notice.err');
 });
 await step('availability: 3-tap update changes badge', async () => {
-  await page.click('.nav button:nth-child(4)'); await page.waitForSelector('.prod');
-  const card = page.locator('.prod', { hasText: 'كريم يدين تجريبي' }); await card.locator('button:has-text("متوفر")').first().click();
-  await page.waitForSelector('.prod:has-text("كريم يدين تجريبي") .badge.ok'); await page.screenshot({ path: out + '06-products.png' });
+  await page.click('.nav button:nth-child(4)'); await page.waitForSelector('.prow');
+  await page.click('.prow:has-text("كريم يدين تجريبي")'); await page.waitForSelector('.pedit .card button:has-text("متوفر")');
+  await page.locator('.pedit .card button:text-is("متوفر")').first().click(); await page.waitForSelector('.phead .badge.ok');
+  await page.click('.nav button:nth-child(4)'); await page.waitForSelector('.prow:has-text("كريم يدين تجريبي") .badge.ok'); await page.screenshot({ path: out + '06-products.png' });
 });
 await step('compare: two products show differences, no "winner"', async () => {
   await page.click('.nav button:nth-child(5)'); await page.click('.sheet >> text=مقارنة المنتجات');
@@ -150,7 +151,7 @@ const pickFile = async (button, file) => { const [fc] = await Promise.all([page.
 await step('product form: never shows "null"; sanitises ?barcode=null; sections + required/optional marks', async () => {
   await page.evaluate(() => (location.hash = '#/product-new?barcode=null')); await page.waitForSelector('#f-name');
   assert.equal(await page.inputValue('#f-barcode'), ''); assert.doesNotMatch(await page.textContent('main'), /\bnull\b|undefined|\[object/);
-  for (const sec of ['التعرف على المنتج', 'الهوية والتصنيف', 'المكونات ومحتوى العبوة', 'الاستخدام والفوائد والتحذيرات', 'المصادر والتوثيق']) assert.match(await page.textContent('main'), new RegExp(sec));
+  for (const sec of ['التعرف على المنتج', 'تفاصيل التصنيف', 'المكونات ومحتوى العبوة', 'الاستخدام والفوائد والتحذيرات', 'المصادر والتوثيق']) assert.match(await page.textContent('main'), new RegExp(sec));
   assert.match(await page.textContent('.field[data-field=name] label'), /مطلوب/); assert.match(await page.textContent('.field[data-field=brand] label'), /اختياري/);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
   await page.screenshot({ path: out + '17-product-new.png', fullPage: true });
@@ -168,7 +169,7 @@ await step('images: gallery pick -> preview (size info) -> staged on new product
   await page.waitForSelector('.imgprev img'); assert.match(await page.textContent('.imgprev'), /64×48/);
   await page.screenshot({ path: out + '19-image-preview.png' });
   await page.click('.imgprev >> text=حفظ الصورة'); await page.waitForSelector('.imgitem >> text=تُرفع بعد الحفظ');
-  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('h2:has-text("مرطب بصورة")');
+  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("مرطب بصورة")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("مرطب بصورة")');
   await page.waitForFunction(() => [...document.querySelectorAll('.imgitem img')].some((i) => i.src.startsWith('blob:') && i.naturalWidth > 0));
   await page.waitForFunction(() => { const i = document.querySelector('.phead .th img'); return i && i.naturalWidth > 0; });
   const id = Number((await page.evaluate(() => location.hash)).split('/')[2]); const imgs = (await apiGet(`/api/products/${id}/images`)).images;
@@ -176,7 +177,7 @@ await step('images: gallery pick -> preview (size info) -> staged on new product
   await page.screenshot({ path: out + '20-product-with-image.png', fullPage: true });
   await page.click('.imgopen'); await page.waitForFunction(() => { const i = document.querySelector('.sheet.viewer img'); return i && i.naturalWidth > 0; }); await page.click('.sheet.viewer >> text=إغلاق');
   await page.evaluate(() => (location.hash = '#/products')); await page.fill('input[type=search]', 'مرطب بصورة');
-  await page.waitForFunction(() => { const i = document.querySelector('.grid .card .th img'); return i && i.naturalWidth > 0; });
+  await page.waitForFunction(() => { const i = document.querySelector('.plist .prow .th img'); return i && i.naturalWidth > 0; });
   await page.evaluate(() => (location.hash = '#/advisor')); await page.waitForSelector('.composer input'); await page.fill('.composer input', 'مرطب'); await page.keyboard.press('Enter');
   await page.waitForFunction(() => [...document.querySelectorAll('.bub.res .th img')].some((i) => i.naturalWidth > 0), null, { timeout: 10000 });
 });
@@ -198,7 +199,7 @@ await step('CP05 new product: identify by barcode -> store first, then source dr
   await page.locator('.disc .cand', { has: page.locator('b:text-is("الاسم")') }).locator('button:has-text("استخدام في النموذج")').click();
   assert.equal(await page.inputValue('#f-name'), 'Demo Scented Cream'); assert.equal(await page.inputValue('#f-ingredients'), '', 'ingredients are never copied into the form');
   await page.screenshot({ path: out + '22-identify-barcode.png', fullPage: true });
-  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('h2:has-text("Demo Scented Cream")');
+  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("Demo Scented Cream")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("Demo Scented Cream")');
 });
 await step('CP05 product card: pending drafts for THIS record; manager approves ingredients there; no new product created', async () => {
   const before = (await apiGet('/api/products?limit=500')).products.length;
@@ -224,10 +225,10 @@ await step('CP05 import preview UI: stats, missing data allowed, commit; importe
   await page.screenshot({ path: out + '24-imported-complete.png', fullPage: true });
 });
 await step('CP05 filters: without image / missing info / pending suggestions', async () => {
-  await page.evaluate(() => (location.hash = '#/products')); await page.waitForSelector('.chip');
-  await page.click('.chip:has-text("بدون صورة")'); await page.waitForFunction(() => document.querySelectorAll('.grid .card').length > 0);
-  assert.ok((await page.textContent('.grid')).includes('منتج مستورد بلا صورة'));
-  await page.click('.chip:has-text("معلومات ناقصة")'); await page.waitForFunction(() => document.querySelector('.grid .card .compl'));
+  await page.evaluate(() => { sessionStorage.removeItem('mh_catalog_filters'); location.hash = '#/products'; }); await page.waitForSelector('.chip');
+  await page.click('button:has-text("مرشحات أخرى")'); await page.click('.morefilters .chip:has-text("بدون صورة")'); await page.waitForFunction(() => document.querySelectorAll('.prow').length > 0);
+  assert.ok((await page.textContent('.plist')).includes('منتج مستورد بلا صورة'));
+  await page.click('.morefilters .chip:has-text("معلومات ناقصة")'); await page.waitForSelector('.activef .chip:has-text("معلومات ناقصة")');
   await page.screenshot({ path: out + '25-filters.png', fullPage: true });
 });
 await step('CP05 no lost work: unsaved new-product fields survive navigation', async () => {
@@ -235,6 +236,59 @@ await step('CP05 no lost work: unsaved new-product fields survive navigation', a
   await page.fill('#f-name', 'مسودة لم تُحفظ'); await page.evaluate(() => (location.hash = '#/home')); await page.waitForSelector('.hero');
   await page.evaluate(() => (location.hash = '#/product-new')); await page.waitForSelector('#f-name');
   assert.equal(await page.inputValue('#f-name'), 'مسودة لم تُحفظ'); await page.evaluate(() => sessionStorage.removeItem('mh_new_product_draft'));
+});
+// ---- CP05.2: taxonomy, compact catalog, rapid entry ----
+const apiPost = async (path, body) => page.evaluate(async ([p, b, t]) => (await fetch(p, { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + t }, body: JSON.stringify(b) })).json(), [path, body, await tok()]);
+await step('catalog: choose a FORM (cream / cleanser / serum) — rows match, counts match, categories keep face and hair creams apart, search combines, clear restores', async () => {
+  for (const b of [{ name: 'TX كريم وجه', category: 'العناية بالبشرة', product_type: 'cream' }, { name: 'TX كريم شعر', category: 'العناية بالشعر', product_type: 'cream' },
+    { name: 'TX غسول CeraVe', brand: 'CeraVe', category: 'العناية بالبشرة', product_type: 'cleanser' }, { name: 'TX سيروم CeraVe', brand: 'CeraVe', category: 'العناية بالبشرة', product_type: 'serum' }]) await apiPost('/api/products', b);
+  await page.evaluate(() => { sessionStorage.removeItem('mh_catalog_filters'); location.hash = '#/products'; }); await page.waitForSelector('.prow');
+  const rows = async () => page.evaluate(() => [...document.querySelectorAll('.prow .pr-name')].map((e) => e.textContent));
+  const waitRows = async (pred) => until(async () => { const r = await rows(); return pred(r) ? r : null; });
+  await page.fill('input[type=search]', 'TX '); await waitRows((r) => r.length === 4);
+  await page.click('.chipbar[aria-label="نوع المنتج"] .chip:has-text("كريم")');
+  const creams = await waitRows((r) => r.length === 2); assert.deepEqual(creams.sort(), ['TX كريم شعر', 'TX كريم وجه']);
+  assert.match(await page.textContent('.chipbar[aria-label="نوع المنتج"] .chip.on'), /2/);
+  await page.click('.chipbar[aria-label="الفئة"] .chip:has-text("العناية بالبشرة")'); assert.deepEqual(await waitRows((r) => r.length === 1), ['TX كريم وجه']);
+  await page.click('.chipbar[aria-label="نوع المنتج"] .chip:has-text("سيروم")'); assert.deepEqual(await waitRows((r) => r.length === 1 && r[0].includes('سيروم')), ['TX سيروم CeraVe']);
+  await page.fill('input[type=search]', 'CeraVe'); assert.deepEqual(await waitRows((r) => r.length === 1 && r[0].includes('سيروم')), ['TX سيروم CeraVe']);
+  await page.click('.chipbar[aria-label="نوع المنتج"] .chip:has-text("غسول")'); assert.deepEqual(await waitRows((r) => r[0]?.includes('غسول')), ['TX غسول CeraVe']);
+  await page.screenshot({ path: out + '26-catalog-type.png' });
+  await page.click('text=إزالة كل المرشحات'); await waitRows((r) => r.length > 4);
+  assert.ok(await page.$('.chipbar[aria-label="نوع المنتج"] .chip:has-text("غير مصنف")'), 'unclassified products have their own filter');
+  const bar = await page.evaluate(() => { const b = document.querySelector('.chipbar[aria-label="نوع المنتج"]'); return { h: b.offsetHeight, wrap: getComputedStyle(b).flexWrap }; });
+  assert.ok(bar.h < 60 && bar.wrap === 'nowrap', 'type bar is one scrollable line, not a wall of buttons');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
+  await page.click('.prow:has-text("TX سيروم CeraVe")'); await page.waitForSelector('.phead .badge:has-text("سيروم")');
+});
+await step('rapid entry: pick category + form from typical chips, save -> fresh empty form, banner with link, focus on barcode', async () => {
+  await page.evaluate(() => { sessionStorage.removeItem('mh_new_product_draft'); location.hash = '#/product-new'; }); await page.waitForSelector('#f-name');
+  await page.selectOption('#f-category', 'العناية بالشعر'); await page.waitForSelector('.field[data-field=product_type] .chip:has-text("شامبو")');
+  assert.ok(!(await page.$('.field[data-field=product_type] .chip:text-is("تونر")')), 'typical forms only (others via "أنواع أخرى")');
+  await page.click('.field[data-field=product_type] .chip:has-text("شامبو")'); await page.fill('#f-name', 'RE شامبو 1');
+  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("RE شامبو 1")');
+  assert.equal(await page.inputValue('#f-name'), ''); assert.equal(await page.inputValue('#f-product_type'), '', 'previous data cleared');
+  assert.equal(await page.evaluate(() => document.activeElement?.id), 'f-barcode');
+  const p = (await apiGet('/api/products?q=' + encodeURIComponent('RE شامبو 1'))).products[0]; assert.equal(p.product_type, 'shampoo'); assert.equal(p.classification_status, 'confirmed');
+  await page.screenshot({ path: out + '27-rapid-entry.png' });
+});
+await step('name suggestion: an unambiguous form in the name is offered, never applied silently', async () => {
+  await page.fill('#f-name', 'RE سيروم فيتامين سي'); await page.waitForSelector('.typesug:has-text("سيروم")');
+  assert.equal(await page.inputValue('#f-product_type'), ''); await page.click('.typesug button'); assert.equal(await page.inputValue('#f-product_type'), 'serum');
+});
+await step('save failure keeps everything; retry after reconnect saves ONCE (same submission id); double tap creates one record', async () => {
+  await ctx.setOffline(true); await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.notice.err:has-text("تعذر الاتصال")');
+  assert.equal(await page.inputValue('#f-name'), 'RE سيروم فيتامين سي', 'inputs kept'); assert.equal(await page.locator('.savedbar:has-text("RE سيروم فيتامين سي")').count(), 0, 'not reported as saved');
+  await ctx.setOffline(false);
+  await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('حفظ البطاقة')); b.click(); b.click(); });
+  await page.waitForSelector('.savedbar:has-text("RE سيروم فيتامين سي")');
+  assert.equal((await apiGet('/api/products?q=' + encodeURIComponent('RE سيروم فيتامين سي'))).products.length, 1);
+});
+await step('editing an existing product saves in place and stays on its screen (no new record, no new form)', async () => {
+  const before = (await apiGet('/api/products?limit=1')).total; const id = (await apiGet('/api/products?q=' + encodeURIComponent('RE شامبو 1'))).products[0].id;
+  await page.evaluate((i) => (location.hash = '#/product/' + i), id); await page.waitForSelector('#f-size');
+  await page.fill('#f-size', '400 ml'); await page.click('button:has-text("حفظ التعديلات")'); await page.waitForFunction(() => document.querySelector('#f-size')?.value === '400 ml' && !document.querySelector('.savedbar'));
+  assert.equal(await page.evaluate(() => location.hash), '#/product/' + id); assert.equal((await apiGet('/api/products?limit=1')).total, before);
 });
 await step('Samsung checklist: items listed, an answer is stored and also becomes a feedback note', async () => {
   await page.evaluate(() => { localStorage.removeItem('mh_feedback_v1'); localStorage.removeItem('mh_checklist_v1'); location.hash = '#/checklist'; }); await page.waitForSelector('.ck');

@@ -6,6 +6,7 @@ import { importView, reports, users, academy } from './views-admin.js';
 import { review } from './views-review.js';
 import { getEnrich } from './views-core.js';
 import { feedback, checklist } from './views-feedback.js';
+import { loadTaxonomy } from './taxonomy.js';
 
 const app = $('#app');
 let me = null;
@@ -44,6 +45,7 @@ async function render() {
   await metaReady;
   if (!getToken()) { loginView(); return; }
   if (!me) { try { me = (await api('GET', '/api/auth/me')).user; } catch { loginView(); return; } }
+  await loadTaxonomy().catch(() => {});
   const [, route = 'home', arg] = (location.hash.split('?')[0] || '#/home').split('/');
   const params = new URLSearchParams(location.hash.split('?')[1] ?? '');
   const main = h('main', { id: 'main' });

@@ -7,7 +7,7 @@ import { audit, now } from './db.ts';
 import { route } from './http.ts';
 import { hashPassword } from './security.ts';
 
-export const APP_VERSION = '3.0.0-cp05-staging';
+export const APP_VERSION = '3.0.0-cp05.2-staging';
 export const STAGING_NOTICE = 'نسخة تجريبية: كل البيانات وهمية وقد تُحذف عند أي إعادة تشغيل للخادم. لا تُدخل بيانات حقيقية لعملاء أو موظفين، ولا تعتمد عليها كقاعدة بيانات للمحل.';
 
 route('GET', '/api/health', 'none', () => ({ ok: true }));
@@ -40,6 +40,10 @@ export function seedStaging(db: DB, env: NodeJS.ProcessEnv = process.env): { pro
   const n = (db.prepare('SELECT COUNT(*) n FROM products').get() as { n: number }).n;
   if (n > 0) return { products: 0, staff };
   const ins = db.prepare('INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,ingredients,benefits,warnings,source_url,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+  const TYPES: Record<string, string> = { '2000000000015': 'cream', '2000000000022': 'sunscreen', '2000000000039': 'cleanser', '2000000000046': 'cream' };
+  const setType = db.prepare("UPDATE products SET product_type = ?, classification_status = 'confirmed' WHERE barcode = ?");
   for (const [bc, name, brand, cat, size, av, ver, ingr, ben, warn] of DEMO) ins.run(bc, name, brand, cat, size, av, av === 'unknown' ? null : t, av === 'unknown' ? null : by, ver, ingr, ben, warn, ver === 'verified' ? 'https://example.invalid/demo-source' : '', by, t, t);
+  for (const [bc, t] of Object.entries(TYPES)) setType.run(t, bc);
+  db.prepare("UPDATE products SET product_type = 'shampoo', classification_status = 'confirmed' WHERE barcode IS NULL AND name LIKE 'شامبو%'").run();
   return { products: DEMO.length, staff };
 }

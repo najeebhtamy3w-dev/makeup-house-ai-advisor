@@ -83,6 +83,7 @@ export function discoveryPanel(o) {
 
   const render = (r) => {
     const g = r.global; const blocks = [localBlock(r.local)];
+    if (o.mode === 'new' && r.type_suggestion && o.applyType) blocks.push(h('div', { class: 'notice info row' }, `نوع مقترح من الاسم: ${r.type_suggestion.label} (مقترح، غير مؤكد)`, h('button', { class: 'btn sm light', type: 'button', onclick: () => { o.applyType(r.type_suggestion.id); toast('اختير النوع — يمكنك تغييره'); } }, 'استخدام')));
     if (g.mode === 'disabled' || g.outcome === 'unsupported') blocks.push(h('div', { class: 'notice' }, g.note));
     else if (g.mode === 'barcode') {
       const out = g.outcome === 'found' && g.conflict ? 'conflict' : g.outcome;

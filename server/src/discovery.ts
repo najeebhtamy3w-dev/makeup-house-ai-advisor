@@ -7,6 +7,7 @@ import { audit } from './db.ts';
 import { HttpError, route } from './http.ts';
 import { gtinValid, normalizeBarcode } from './gtin.ts';
 import { norm } from './advisor.ts';
+import { suggestTypeFromName, typeLabel } from './taxonomy.ts';
 import { compareBrand, compareName, compareSize, type FieldCmp } from './enrichment/identity.ts';
 import { enrichBarcode, getConnectors } from './enrichment/engine.ts';
 import { Unreachable, type SearchHit } from './enrichment/types.ts';
@@ -55,13 +56,15 @@ export async function identify(db: DB, cfg: Parameters<typeof enrichBarcode>[1],
   if (q.barcode && !gtinValid(q.barcode)) throw new HttpError(400, 'الباركود غير صالح (الطول أو رقم التحقق). أعد مسحه.');
   if (!q.barcode && q.name.length < 2) throw new HttpError(400, 'أدخل الباركود أو اسم المنتج (حرفان على الأقل) للبحث.');
   const local = findLocal(db, q, input.product_id);
+  const typeHint = (n: string) => { const t = suggestTypeFromName(n); return t ? { id: t, label: typeLabel(t), basis: 'name', status: 'suggested' } : null; };
   const connectors = getConnectors();
   if (!connectors.length) return { query: q, local, global: { mode: 'disabled' as const, outcome: 'disabled', note: 'البحث في المصادر غير مفعّل على هذا الخادم. أدخل البيانات يدويًا.' }, coverage_note: COVERAGE_NOTE };
 
   if (q.barcode) {
     try {
       const r = await enrichBarcode(db, cfg, q.barcode, userId);
-      return { query: q, local, global: { mode: 'barcode' as const, ...r, status: r.outcome === 'found' ? POSSIBLE : null }, coverage_note: COVERAGE_NOTE };
+      const srcName = r.candidates.find((x) => x.field === 'name')?.value ?? '';
+      return { query: q, local, type_suggestion: typeHint(q.name) ?? typeHint(srcName), global: { mode: 'barcode' as const, ...r, status: r.outcome === 'found' ? POSSIBLE : null }, coverage_note: COVERAGE_NOTE };
     } catch (e) { if ((e as Error).message === 'invalid_barcode') throw new HttpError(400, 'الباركود غير صالح'); throw e; }
   }
   const searchable = connectors.filter((c) => c.searchByName);
@@ -81,7 +84,7 @@ export async function identify(db: DB, cfg: Parameters<typeof enrichBarcode>[1],
   }
   hits.sort((a, b) => b.score - a.score);
   audit(db, userId, 'discovery_search', 'name', norm(q.name).slice(0, 40), `${outcome}:${hits.length}`);
-  return { query: q, local, global: { mode: 'name' as const, outcome, hits: hits.slice(0, 10), status: hits.length ? POSSIBLE : null }, coverage_note: COVERAGE_NOTE };
+  return { query: q, local, type_suggestion: typeHint(q.name), global: { mode: 'name' as const, outcome, hits: hits.slice(0, 10), status: hits.length ? POSSIBLE : null }, coverage_note: COVERAGE_NOTE };
 }
 
 route('POST', '/api/discovery/identify', 'any', async (c) => {

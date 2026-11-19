@@ -3,6 +3,7 @@ import { h, fill, toast, CATEGORIES, AV, VER, avBadge, verBadge, fmtDate, field,
 import { startCamera } from './scanner.js';
 import { thumb, imageManager, authImg } from './images.js';
 import { discoveryPanel, scanSheet, completeness } from './discovery.js';
+import { loadTaxonomy, tx, typeLabel, typicalTypes } from './taxonomy.js';
 
 export const go = (hash) => { location.hash = hash; };
 
@@ -60,28 +61,84 @@ export async function home(root, me) {
 }
 
 /* ---------- products: search + filters + skeleton + empty state ---------- */
+/* ---------- products: compact catalog — search + category + product form + other filters, paged (CP05) ---------- */
+const CKEY = 'mh_catalog_filters';
+const PAGE = 30;
+/** One compact, tappable row. Full details / actions live on the product screen. */
+export function productRow(p) {
+  const missing = [!p.primary_image_id && 'بلا صورة', p.has && !p.has.ingredients && 'بلا مكونات'].filter(Boolean);
+  return h('button', { class: 'prow', type: 'button', onclick: () => go('#/product/' + p.id) }, thumb(p, 'sm'),
+    h('div', { class: 'pr-bd' },
+      h('div', { class: 'pr-name' }, p.name),
+      h('div', { class: 'pr-sub' }, [p.brand, typeLabel(p.product_type), p.size].filter(Boolean).join(' · ') || '—'),
+      h('div', { class: 'pr-tags' }, h('span', { class: 'dotv ' + (p.verification === 'verified' ? 'ok' : p.verification === 'partial' ? 'warn' : 'rev') }, VER[p.verification]),
+        p.classification_status === 'suggested' || p.classification_status === 'needs_review' ? h('span', { class: 'mini warn' }, 'تصنيف للمراجعة') : null,
+        p.pending_suggestions ? h('span', { class: 'mini warn' }, `${p.pending_suggestions} اقتراح`) : null,
+        missing.map((m) => h('span', { class: 'mini' }, m)))),
+    avBadge(p));
+}
+
 export async function products(root, params = new URLSearchParams()) {
-  const q = h('input', { type: 'search', placeholder: 'ابحث بالاسم أو العلامة أو الباركود', 'aria-label': 'بحث' });
-  const f = { availability: params.get('availability') ?? '', verification: params.get('verification') ?? '', category: params.get('category') ?? '', missing: params.get('missing') ?? '' };
-  const list = h('div', { class: 'grid c2' }); const bars = h('div', {});
-  const chips = (key, label, opts) => h('div', { class: 'chipbar', role: 'group', 'aria-label': label }, opts.map(([v, l]) => h('button', { class: 'chip' + (f[key] === v ? ' on' : ''), 'aria-pressed': String(f[key] === v), onclick: () => { f[key] = v; drawBars(); load(); } }, l)));
-  const drawBars = () => fill(bars,
-    chips('category', 'التصنيف', [['', 'كل الأنواع'], ...CATEGORIES.map((c) => [c, c])]),
-    chips('availability', 'التوفر', [['', 'كل التوفر'], ['yes', 'متوفر'], ['no', 'غير متوفر'], ['unknown', 'غير مؤكد']]),
-    chips('verification', 'التوثيق', [['', 'كل التوثيق'], ['verified', VER.verified], ['partial', VER.partial], ['review', VER.review]]),
-    chips('missing', 'الاكتمال', [['', 'كل المنتجات'], ['image', 'بدون صورة'], ['info', 'معلومات ناقصة'], ['pending', 'اقتراحات بانتظار المراجعة']]));
-  let seq = 0;
-  const load = async () => {
-    const my = ++seq; fill(list, skeleton(2));
-    const qs = new URLSearchParams({ limit: '100' }); if (q.value.trim()) qs.set('q', q.value.trim()); for (const [k, v] of Object.entries(f)) if (v) qs.set(k, v);
-    try {
-      const { products: ps } = await api('GET', '/api/products?' + qs); if (my !== seq) return;
-      fill(list, ps.length ? ps.map((p) => productCard(p, load)) : emptyState('⌕', 'لا توجد نتائج', 'جرّب تغيير البحث أو الفلاتر.', h('button', { class: 'btn sm light', onclick: () => go('#/request?text=' + encodeURIComponent(q.value)) }, 'سجّل كطلب غير ملبّى')));
-    } catch (e) { if (my === seq) fill(list, errorBox(e.message, load)); }
+  await loadTaxonomy().catch(() => {});
+  const KEYS = ['category', 'type', 'availability', 'verification', 'missing', 'classification'];
+  let saved = {}; try { saved = JSON.parse(sessionStorage.getItem(CKEY) || '{}'); } catch { /* ignore */ }
+  const fromUrl = KEYS.some((k) => params.get(k));
+  const f = Object.fromEntries(KEYS.map((k) => [k, (fromUrl ? params.get(k) : saved[k]) ?? '']));
+  const q = h('input', { type: 'search', placeholder: 'ابحث بالاسم أو العلامة أو الباركود', 'aria-label': 'بحث', value: fromUrl ? '' : saved.q ?? '' });
+  const catBar = h('div', { class: 'chipbar', role: 'group', 'aria-label': 'الفئة' });
+  const typeBar = h('div', { class: 'chipbar', role: 'group', 'aria-label': 'نوع المنتج' });
+  const more = h('div', { class: 'morefilters hide' }); const active = h('div', { class: 'activef' });
+  const list = h('div', { class: 'plist', 'aria-live': 'polite' }); const foot = h('div', {});
+  const LABELS = { availability: { yes: 'متوفر', no: 'غير متوفر', unknown: 'غير مؤكد' }, verification: VER, missing: { image: 'بدون صورة', info: 'معلومات ناقصة', pending: 'اقتراحات بانتظار المراجعة' }, classification: { review: 'تصنيف يحتاج مراجعة' } };
+  const persist = () => { try { sessionStorage.setItem(CKEY, JSON.stringify({ ...f, q: q.value })); } catch { /* ignore */ } };
+  const qs = () => { const x = new URLSearchParams(); if (q.value.trim()) x.set('q', q.value.trim()); for (const [k, v] of Object.entries(f)) if (v) x.set(k, v); return x; };
+  const set = (k, v) => { f[k] = f[k] === v && v ? '' : v; persist(); refresh(); };
+  const chip = (on, label, n, onclick) => h('button', { class: 'chip' + (on ? ' on' : ''), 'aria-pressed': String(on), type: 'button', onclick }, label, n != null ? h('span', { class: 'cnt' }, n) : null);
+
+  const drawBars = (facets) => {
+    const ct = facets?.categories ?? {}; const tt = facets?.types ?? {};
+    const totalCats = Object.values(ct).reduce((a, b) => a + b, 0); const totalTypes = Object.values(tt).reduce((a, b) => a + b, 0);
+    fill(catBar, chip(!f.category, 'كل الفئات', facets ? totalCats : null, () => set('category', '')),
+      CATEGORIES.filter((c) => ct[c] || f.category === c).map((c) => chip(f.category === c, c, ct[c] ?? 0, () => set('category', c))));
+    // only forms that actually have products under the other active filters (no crowded bar of empty buttons)
+    const types = tx().product_types.filter((t) => tt[t.id] || f.type === t.id).sort((a, b) => (tt[b.id] ?? 0) - (tt[a.id] ?? 0));
+    fill(typeBar, chip(!f.type, 'كل الأنواع', facets ? totalTypes : null, () => set('type', '')), types.map((t) => chip(f.type === t.id, t.ar, tt[t.id] ?? 0, () => set('type', t.id))),
+      tt.none || f.type === 'none' ? chip(f.type === 'none', 'غير مصنف', tt.none ?? 0, () => set('type', 'none')) : null);
+    const group = (k, title, opts) => h('div', {}, h('div', { class: 'tiny muted' }, title), h('div', { class: 'chipbar wrap' }, opts.map(([v, l]) => chip(f[k] === v, l, null, () => set(k, v)))));
+    fill(more, group('availability', 'التوفر', Object.entries(LABELS.availability)), group('verification', 'التوثيق', Object.entries(VER)),
+      group('missing', 'الاكتمال', Object.entries(LABELS.missing)), group('classification', 'التصنيف', Object.entries(LABELS.classification)));
+    const on = KEYS.filter((k) => f[k]);
+    fill(active, on.length || q.value.trim() ? [on.map((k) => h('button', { class: 'chip on sm', type: 'button', 'aria-label': 'إزالة المرشح', onclick: () => set(k, '') },
+      k === 'type' ? (f.type === 'none' ? 'غير مصنف' : typeLabel(f.type)) : k === 'category' ? f.category : LABELS[k]?.[f[k]] ?? f[k], ' ✕')),
+      h('button', { class: 'linkbtn', type: 'button', onclick: () => { KEYS.forEach((k) => (f[k] = '')); q.value = ''; persist(); refresh(); } }, 'إزالة كل المرشحات')] : null);
   };
-  q.addEventListener('input', debounce(load));
-  root.append(h('div', { class: 'row sb' }, h('h2', { class: 't' }, 'منتجات المكتبة'), h('button', { class: 'btn sm', onclick: () => go('#/product-new') }, '＋ جديد')), q, h('div', { style: 'height:8px' }), bars, list);
-  drawBars(); load();
+  let seq = 0, offset = 0, total = 0;
+  const load = async (append = false) => {
+    const my = ++seq; if (!append) { offset = 0; fill(list, skeleton(3)); fill(foot); }
+    const x = qs(); x.set('view', 'compact'); x.set('limit', String(PAGE)); x.set('offset', String(offset));
+    try {
+      const [r, facets] = await Promise.all([api('GET', '/api/products?' + x), append ? null : api('GET', '/api/products/facets?' + qs()).catch(() => null)]);
+      if (my !== seq) return;
+      if (!append) drawBars(facets);
+      total = r.total; offset += r.products.length;
+      if (!append) fill(list);
+      list.append(...r.products.map(productRow));
+      if (!total) {
+        const why = [q.value.trim() && `البحث «${q.value.trim()}»`, ...KEYS.filter((k) => f[k]).map((k) => k === 'type' ? `النوع: ${f.type === 'none' ? 'غير مصنف' : typeLabel(f.type)}` : k === 'category' ? `الفئة: ${f.category}` : LABELS[k]?.[f[k]])].filter(Boolean);
+        fill(list, emptyState('⌕', 'لا توجد منتجات مطابقة', why.length ? 'المرشحات النشطة: ' + why.join(' · ') : 'المكتبة فارغة.',
+          why.length ? h('button', { class: 'btn sm', type: 'button', onclick: () => { KEYS.forEach((k) => (f[k] = '')); q.value = ''; persist(); refresh(); } }, 'إزالة المرشحات') : null,
+          q.value.trim() ? h('button', { class: 'btn sm light', type: 'button', onclick: () => go('#/request?text=' + encodeURIComponent(q.value)) }, 'سجّل كطلب غير ملبّى') : null));
+      }
+      fill(foot, total ? h('div', { class: 'tiny muted', style: 'text-align:center;margin:8px 0' }, `عرض ${offset} من ${total}`) : null,
+        offset < total ? h('button', { class: 'btn out', type: 'button', style: 'width:100%', onclick: (e) => busy(e.currentTarget, () => load(true)) }, 'عرض المزيد') : null);
+    } catch (e) { if (my === seq) fill(list, errorBox(e.status ? e.message : 'تعذر الاتصال بالخادم.', () => load())); }
+  };
+  const refresh = () => load();
+  q.addEventListener('input', debounce(() => { persist(); refresh(); }));
+  const moreBtn = h('button', { class: 'btn sm out', type: 'button', 'aria-expanded': 'false', onclick: (e) => { const open = more.classList.toggle('hide') === false; e.currentTarget.setAttribute('aria-expanded', String(open)); } }, '⚙ مرشحات أخرى');
+  root.append(h('div', { class: 'row sb' }, h('h2', { class: 't' }, 'المنتجات'), h('button', { class: 'btn sm', type: 'button', onclick: () => go('#/product-new') }, '＋ جديد')),
+    h('div', { class: 'searchrow' }, q, moreBtn), catBar, typeBar, more, active, list, foot);
+  load();
 }
 
 /* ---------- product detail / edit (CP04: sections, inline validation, images; never renders "null") ---------- */
@@ -107,18 +164,19 @@ const section = (title, sub, ...kids) => h('section', { class: 'card fsec' }, h(
 
 export async function productEdit(root, id, me, prefill = {}) {
   const host = h('div', { class: 'pedit' }); root.append(host);
+  await loadTaxonomy().catch(() => {});
   let draft = {}; try { draft = JSON.parse(sessionStorage.getItem('mh_prefill') || '{}'); sessionStorage.removeItem('mh_prefill'); } catch { /* ignore */ }
   const preBarcode = digits(prefill.barcode);
   if (draft.barcode && draft.barcode !== preBarcode) draft = {};
   const str = (v) => (v == null ? '' : String(v));   // API nulls never reach the inputs as the text "null"
-  let p = { name: str(draft.name), brand: str(draft.brand), category: 'العناية بالبشرة', size: str(draft.size), barcode: preBarcode, ingredients: '', benefits: '', warnings: '', source_url: '', verification: 'review', availability: 'unknown' };
+  let p = { name: str(draft.name), brand: str(draft.brand), category: 'العناية بالبشرة', size: str(draft.size), barcode: preBarcode, ingredients: '', benefits: '', warnings: '', source_url: '', verification: 'review', availability: 'unknown', product_type: '', application_area: '', functions: '' };
   if (id) { try { p = (await api('GET', '/api/products/' + id)).product; } catch (e) { fill(host, errorBox(e.status === 404 ? 'المنتج غير موجود (ربما حُذف أو أُعيد تشغيل نسخة التجربة).' : e.message, e.status ? null : () => { host.remove(); productEdit(root, id, me, prefill); })); return; } }
   const inp = (k, props = {}) => h('input', { value: str(p[k]), ...props });
   const area = (k, props = {}) => { const t = h('textarea', props); t.value = str(p[k]); return t; };
   const f = {
     name: inp('name', { maxlength: 200, autocomplete: 'off', required: true }),
     brand: inp('brand', { maxlength: 120, autocomplete: 'off' }),
-    barcode: inp('barcode', { inputmode: 'numeric', dir: 'ltr', autocomplete: 'off', maxlength: 14, placeholder: '8 أو 12 أو 13 أو 14 رقمًا' }),
+    barcode: inp('barcode', { inputmode: 'numeric', dir: 'ltr', autocomplete: 'off', maxlength: 14, placeholder: 'امسح أو اكتب الرقم' }),
     category: select(CATEGORIES.map((c) => [c, c]), p.category),
     size: inp('size', { maxlength: 60, placeholder: 'مثال: 50 مل، أو 200 غ – إصدار 2024' }),
     ingredients: area('ingredients', { rows: 4, maxlength: 5000, dir: 'auto', placeholder: 'انسخها كما هي من العبوة (INCI)، أو اتركها فارغة.' }),
@@ -126,19 +184,48 @@ export async function productEdit(root, id, me, prefill = {}) {
     warnings: area('warnings', { rows: 3, maxlength: 3000, placeholder: 'مثال: للاستخدام الخارجي فقط، تجنب ملامسة العينين' }),
     source_url: inp('source_url', { type: 'url', dir: 'ltr', maxlength: 500, placeholder: 'https://…' }),
     verification: select(me.role === 'manager' ? [['review', VER.review], ['partial', VER.partial], ['verified', VER.verified]] : [['review', VER.review], ['partial', VER.partial]], p.verification === 'verified' && me.role !== 'manager' ? 'review' : p.verification),
+    product_type: h('input', { type: 'hidden', value: str(p.product_type) }),
+    application_area: select([['', 'غير محددة'], ...tx().areas.map((a) => [a.id, a.ar])], str(p.application_area)),
   };
+  const fnSet = new Set(str(p.functions).split(',').filter(Boolean));
   const W = {
-    name: fieldX('name', FIELD_AR.name, f.name, { req: true, hint: 'الاسم كما يظهر على العبوة.' }),
-    brand: fieldX('brand', FIELD_AR.brand, f.brand, { hint: 'مهم لمطابقة المنتج مع المصادر العالمية.' }),
-    barcode: fieldX('barcode', FIELD_AR.barcode, f.barcode, { hint: 'يُتحقق من رقم التحقق تلقائيًا. اتركه فارغًا للمنتجات بلا باركود.' }),
+    name: fieldX('name', FIELD_AR.name, f.name, { req: true }),
+    brand: fieldX('brand', FIELD_AR.brand, f.brand, {}),
+    barcode: fieldX('barcode', FIELD_AR.barcode, f.barcode, {}),
     category: fieldX('category', FIELD_AR.category, f.category, { req: true }),
-    size: fieldX('size', FIELD_AR.size, f.size, { hint: 'اختلاف الحجم أو الإصدار يعني منتجًا مختلفًا عند المطابقة.' }),
-    ingredients: fieldX('ingredients', 'المكونات (من العبوة فقط)', f.ingredients, { hint: 'لا تخمّن ولا تكمل قائمة ناقصة — المستشار يعتمد عليها في أحكام العطر والملاءمة.' }),
-    benefits: fieldX('benefits', 'الاستخدام والفوائد كما يذكرها المصنع', f.benefits, { hint: 'تظهر كسبب للتوصية. لا تكتب وعودًا علاجية أو نتائج مضمونة.' }),
-    warnings: fieldX('warnings', 'التحذيرات والاحتياطات المكتوبة على العبوة', f.warnings, { hint: 'تظهر للموظف بعلامة ⚠ مع كل توصية بهذا المنتج.' }),
-    source_url: fieldX('source_url', FIELD_AR.source_url, f.source_url, { hint: 'موقع المصنع أو صفحة المنتج الرسمية. مطلوب لاعتماد «معتمد من المدير».' }),
+    size: fieldX('size', FIELD_AR.size, f.size, {}),
+    ingredients: fieldX('ingredients', 'المكونات (من العبوة فقط)', f.ingredients, { hint: 'كما هي على العبوة فقط — لا تخمّن.' }),
+    benefits: fieldX('benefits', 'الاستخدام والفوائد كما يذكرها المصنع', f.benefits, { hint: 'بلا وعود علاجية.' }),
+    warnings: fieldX('warnings', 'التحذيرات والاحتياطات المكتوبة على العبوة', f.warnings, {}),
+    source_url: fieldX('source_url', FIELD_AR.source_url, f.source_url, { hint: 'مطلوب لاعتماد «معتمد من المدير».' }),
     verification: fieldX('verification', FIELD_AR.verification, f.verification, { req: true }),
+    product_type: fieldX('product_type', 'نوع المنتج', f.product_type, {}),
+    application_area: fieldX('application_area', 'منطقة الاستخدام', f.application_area, {}),
   };
+  /* --- product FORM picker: forms typical for the chosen category first; every form stays reachable; name-based suggestion --- */
+  const typeBox = h('div', { class: 'chipbar wrap', role: 'group', 'aria-label': 'نوع المنتج' });
+  const otherSel = select([['', 'أنواع أخرى…'], ...tx().product_types.map((t) => [t.id, t.ar])], '', { 'aria-label': 'كل أنواع المنتجات' });
+  const sugBox = h('div', { class: 'typesug' });
+  const setType = (v) => { f.product_type.value = v; typeTouched = true; dirty = true; saveDraft(); drawTypes(); fill(sugBox); };
+  const drawTypes = () => {
+    const cur = f.product_type.value; const shown = typicalTypes(f.category.value);
+    if (cur && !shown.some((t) => t.id === cur)) shown.push(...tx().product_types.filter((t) => t.id === cur));
+    fill(typeBox, shown.map((t) => h('button', { class: 'chip' + (cur === t.id ? ' on' : ''), type: 'button', 'aria-pressed': String(cur === t.id), onclick: () => setType(cur === t.id ? '' : t.id) }, t.ar)),
+      h('button', { class: 'chip' + (!cur ? ' on' : ''), type: 'button', 'aria-pressed': String(!cur), onclick: () => setType('') }, 'غير محدد'), otherSel);
+    otherSel.value = '';
+  };
+  otherSel.addEventListener('change', () => { if (otherSel.value) setType(otherSel.value); });
+  f.category.addEventListener('change', drawTypes);
+  const offerType = (sug) => { if (!sug?.type || f.product_type.value) { fill(sugBox); return; } fill(sugBox, h('span', { class: 'tiny' }, `مقترح من الاسم: ${sug.label}`), h('button', { class: 'btn sm light', type: 'button', onclick: () => setType(sug.type) }, 'استخدام')); };
+  f.name.addEventListener('input', debounce(async () => { if (f.product_type.value || f.name.value.trim().length < 3) { fill(sugBox); return; } try { offerType(await api('GET', '/api/taxonomy/suggest?name=' + encodeURIComponent(f.name.value.trim()))); } catch { /* optional */ } }, 400));
+  W.product_type.querySelector('input').after(typeBox, sugBox);
+  const fnBox = h('div', { class: 'chipbar wrap', role: 'group', 'aria-label': 'الوظيفة التجميلية' }, tx().functions.map((x) => {
+    const b = h('button', { class: 'chip' + (fnSet.has(x.id) ? ' on' : ''), type: 'button', 'aria-pressed': String(fnSet.has(x.id)), onclick: () => { fnSet.has(x.id) ? fnSet.delete(x.id) : fnSet.add(x.id); b.classList.toggle('on'); b.setAttribute('aria-pressed', String(fnSet.has(x.id))); dirty = true; saveDraft(); } }, x.ar); return b; }));
+  const classDetails = h('details', { class: 'subsec', open: p.application_area || fnSet.size ? true : null }, h('summary', {}, 'منطقة الاستخدام والوظيفة (اختياري)'), W.application_area,
+    h('div', { class: 'field' }, h('label', {}, 'الوظيفة التجميلية ', h('span', { class: 'req opt' }, 'اختياري')), fnBox, h('div', { class: 'fhint' }, 'الوظيفة لا تعني الملاءمة لنوع بشرة أو شعر.')));
+  // a person choosing a form confirms it; an imported / suggested one is labelled until then
+  const clsNote = id && (p.classification_status === 'suggested' || p.classification_status === 'needs_review')
+    ? h('div', { class: 'notice' }, p.classification_status === 'suggested' ? 'النوع الحالي مقترح من الاسم — اختره أو غيّره لتأكيده.' : `القيمة الواردة في ملف الاستيراد «${p.classification_raw}» لا تطابق نوعًا معروفًا — اختر النوع الصحيح.`) : null;
   const msg = h('div', { 'aria-live': 'polite' });
   const images = imageManager(id, me, api);
   let dirty = false; host.addEventListener('input', () => { dirty = true; });
@@ -157,6 +244,8 @@ export async function productEdit(root, id, me, prefill = {}) {
     return !errs.length;
   };
   const saveBtn = h('button', { class: 'btn', type: 'submit' }, id ? 'حفظ التعديلات' : 'حفظ البطاقة');
+  let typeTouched = false; f.product_type.addEventListener('change', () => { typeTouched = true; });
+  let clientRef = (crypto.randomUUID?.() ?? String(Date.now()) + '-' + Math.random().toString(16).slice(2)).replace(/[^A-Za-z0-9-]/g, '');
   const saveForm = {};
   const save = async (e) => {
     e?.preventDefault(); fill(msg);
@@ -164,14 +253,23 @@ export async function productEdit(root, id, me, prefill = {}) {
     const body = Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value.trim()]));
     body.barcode = body.barcode || null;
     if (id && me.role !== 'manager' && p.verification === 'verified') delete body.verification;
-    if (!id) body.availability = 'unknown';
+    if (!id) { body.availability = 'unknown'; body.client_ref = clientRef; }
+    body.functions = [...fnSet];
+    if (id && p.classification_status !== 'confirmed' && body.product_type === str(p.product_type) && !typeTouched) delete body.product_type; // untouched suggestion stays a suggestion
     await busy(saveBtn, async () => {
       try {
         const r = id ? await api('PATCH', '/api/products/' + id, body) : await api('POST', '/api/products', body);
         dirty = false; saveForm.clearDraft?.();
-        if (!id && images.count()) { const failed = await images.flush(r.id); if (failed.length) toast('حُفظت البطاقة، لكن تعذر رفع ' + failed.length + ' صورة: ' + failed[0], 5000); }
-        toast(id && r.verification === 'review' && p.verification === 'verified' ? 'تم الحفظ. أُعيدت حالة التوثيق إلى «تحتاج مراجعة» بسبب التعديل.' : 'تم الحفظ');
-        go('#/product/' + (id ?? r.id));
+        let imgFail = [];
+        if (!id && images.count()) imgFail = await images.flush(r.id);
+        if (!id) {
+          // RAPID ENTRY: saved for sure (server answered) -> fresh empty form, focus on the barcode, link to the product just saved
+          host.remove(); window.scrollTo(0, 0);
+          productEdit(root, null, me, { saved: { id: r.id, name: body.name, duplicate: !!r.duplicate_request, imgFail } });
+          return;
+        }
+        toast(r.verification === 'review' && p.verification === 'verified' ? 'تم الحفظ. أُعيدت حالة التوثيق إلى «تحتاج مراجعة» بسبب التعديل.' : 'تم الحفظ');
+        host.remove(); productEdit(root, id, me);   // stay on the same record
       } catch (x) {
         const fields = x.data?.fields ?? [];
         fields.forEach((k) => W[k]?.setError('القيمة غير مقبولة.'));
@@ -184,48 +282,59 @@ export async function productEdit(root, id, me, prefill = {}) {
   };
   const hasContent = !!(p.ingredients || p.benefits || p.warnings);
   const head = h('div', { class: 'phead' }, h('div', { class: 'prod' }, thumb(p, 'lg'), h('div', { class: 'bd' }, h('h2', { class: 't' }, id ? (p.name || 'منتج') : 'منتج جديد'),
-    id ? h('div', { class: 'row' }, avBadge(p), verBadge(p.verification), p.barcode ? h('span', { class: 'tiny muted', dir: 'ltr' }, p.barcode) : null) : h('p', { class: 'tiny muted' }, 'المطلوب للحفظ: الاسم والتصنيف فقط. الصورة وباقي المعلومات اختيارية ويمكن إكمالها لاحقًا.'))),
+    id ? h('div', { class: 'row' }, avBadge(p), verBadge(p.verification), p.product_type ? h('span', { class: 'badge' }, typeLabel(p.product_type)) : null, p.barcode ? h('span', { class: 'tiny muted', dir: 'ltr' }, p.barcode) : null) : h('p', { class: 'tiny muted' }, 'المطلوب: الاسم والفئة فقط.'))),
     id ? (() => { const c = completeness(p); return h('div', { class: 'tiny' }, h('b', {}, `اكتمال البيانات ${c.n}/${c.total}`), ' (الاكتمال لا يعني الصحة)', c.el); })() : null);
   // CP05: one shared discovery component for new / imported / existing products
   const disc = discoveryPanel(id
     ? { mode: 'product', me, product: p, onChanged: (x) => { if (!x?.soft) { host.remove(); productEdit(root, id, me); } } }
     : { mode: 'new', me, query: () => ({ barcode: digits(f.barcode.value), name: f.name.value.trim(), brand: f.brand.value.trim(), size: f.size.value.trim() }),
-        apply: (k, v) => { f[k].value = v; W[k].classList.add('fromsrc'); dirty = true; saveDraft(); }, setBarcode: (code) => { f.barcode.value = code; W.barcode.setError(''); saveDraft(); } });
+        apply: (k, v) => { f[k].value = v; W[k].classList.add('fromsrc'); dirty = true; saveDraft(); }, setBarcode: (code) => { f.barcode.value = code; W.barcode.setError(''); saveDraft(); }, applyType: (t) => setType(t) });
   const scanBtn = h('button', { class: 'btn sm out', type: 'button', 'aria-label': 'مسح الباركود بالكاميرا', onclick: () => scanSheet((code) => { f.barcode.value = digits(code); saveDraft(); disc.run(); }) }, '▥ مسح');
   W.barcode.querySelector('input').after(scanBtn); W.barcode.classList.add('withbtn');
   const idBtn = h('button', { class: 'btn', type: 'button', style: 'width:100%', onclick: (e) => disc.run(e.currentTarget) }, id ? '⟳ استكمال معلومات المنتج من الإنترنت' : '⌕ التعرف وجلب المعلومات');
   // unsaved NEW-product work survives navigation / reload (sessionStorage only, cleared on save)
   const DKEY = 'mh_new_product_draft';
-  const saveDraft = () => { if (id) return; try { sessionStorage.setItem(DKEY, JSON.stringify(Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value])))); } catch { /* ignore */ } };
+  const saveDraft = () => { if (id) return; try { sessionStorage.setItem(DKEY, JSON.stringify({ ...Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value])), _fn: [...fnSet], _ref: clientRef })); } catch { /* ignore */ } };
   if (!id) {
     host.addEventListener('input', saveDraft);
-    try { const d = JSON.parse(sessionStorage.getItem(DKEY) || 'null'); if (d && !preBarcode && !draft.name) { for (const [k, v] of Object.entries(d)) if (f[k] && v) f[k].value = v; if (Object.values(d).some(Boolean)) setTimeout(() => toast('استُعيدت بيانات لم تُحفظ من المرة السابقة'), 300); } } catch { /* ignore */ }
+    try {
+      const d = JSON.parse(sessionStorage.getItem(DKEY) || 'null');
+      if (d && !preBarcode && !draft.name && !prefill.saved) {
+        for (const [k, v] of Object.entries(d)) if (f[k] && v) f[k].value = v;
+        (d._fn ?? []).forEach((x) => fnSet.add(x)); if (d._ref) clientRef = d._ref;   // same ref on retry => the server will not create a duplicate
+        if (['name', 'brand', 'barcode', 'size', 'ingredients', 'benefits', 'warnings', 'source_url'].some((k) => d[k])) setTimeout(() => { if (host.isConnected) toast('استُعيدت بيانات لم تُحفظ من المرة السابقة'); }, 300);
+      }
+    } catch { /* ignore */ }
     saveForm.clearDraft = () => { try { sessionStorage.removeItem(DKEY); } catch { /* ignore */ } };
   }
   const usage = [W.benefits, W.warnings];
   const sourcesSec = h('details', { class: 'card fsec', open: true }, h('summary', { class: 'fsec-t' }, (id ? '٥' : '٥') + ' · المصادر والتوثيق'), W.source_url, W.verification,
-    h('div', { class: 'notice' }, 'لا أسعار ولا كميات في هذا النظام. «معتمد من المدير» للمدير فقط ويتطلب رابط مصدر، وأي تعديل لاحق يعيده إلى «تحتاج مراجعة».'));
+    h('div', { class: 'fhint' }, '«معتمد من المدير» للمدير فقط ويتطلب رابط مصدر؛ أي تعديل لاحق يعيده إلى «تحتاج مراجعة».'));
   const sections = id ? [
-    section('استكمال المعلومات والصور', 'يعمل على هذا السجل نفسه — لا يُنشأ منتج جديد. الاقتراحات مسودات حتى يعتمدها المدير.', idBtn, disc.el),
-    section('الصور', 'التقط صورة للعبوة أو اخترها من المعرض. الصورة الرئيسية تظهر في البطاقات والبحث والمستشار.', images.el),
-    section('١ · الهوية والتصنيف', 'ما يميز هذا المنتج عن غيره (الحجم والإصدار مهمان).', W.name, W.brand, W.barcode, h('div', { class: 'grid2' }, W.category, W.size)),
+    section('استكمال المعلومات', null, idBtn, disc.el),
+    section('الصور', null, images.el),
+    section('١ · الهوية والتصنيف', null, clsNote, W.name, W.brand, W.barcode, h('div', { class: 'grid2' }, W.category, W.size), W.product_type, classDetails),
   ] : [
-    section('١ · التعرف على المنتج', 'صوّر المنتج، امسح الباركود أو اكتب الاسم، ثم اضغط «التعرف وجلب المعلومات» قبل الكتابة يدويًا.', images.el, W.barcode, W.name, W.brand, idBtn, disc.el),
-    section('٢ · الهوية والتصنيف', 'الحجم والإصدار يميزان المنتجات المتشابهة.', h('div', { class: 'grid2' }, W.category, W.size)),
+    section('١ · التعرف على المنتج', null, images.el, W.barcode, W.name, W.brand, h('div', { class: 'grid2' }, W.category, W.size), W.product_type, idBtn, disc.el),
+    section('٢ · تفاصيل التصنيف', null, classDetails),
   ];
   const form = h('form', { class: 'pform', novalidate: true, onsubmit: save },
     draft.name || draft.brand || draft.size ? h('div', { class: 'notice info' }, 'الاسم/العلامة/الحجم مسودة من مصدر عالمي لم يعتمدها المدير. قارنها بالعبوة قبل الحفظ. المكونات لا تُنسخ قبل اعتماد المدير.') : null,
     sections,
-    h('details', { class: 'card fsec', open: hasContent || !id ? true : null }, h('summary', { class: 'fsec-t' }, (id ? '٢' : '٣') + ' · المكونات ومحتوى العبوة'), h('p', { class: 'tiny muted' }, 'بيانات العبوة كما هي — ليست معرفة علمية ولا تقييمًا.'), W.ingredients),
-    h('details', { class: 'card fsec', open: hasContent || !id ? true : null }, h('summary', { class: 'fsec-t' }, (id ? '٣' : '٤') + ' · الاستخدام والفوائد والتحذيرات'), h('p', { class: 'tiny muted' }, 'ادعاءات الشركة المصنعة وتحذيرات العبوة — تُعرض كما هي ولا تُعامل كحقائق علمية.'), ...usage),
+    h('details', { class: 'card fsec', open: hasContent || !id ? true : null }, h('summary', { class: 'fsec-t' }, (id ? '٢' : '٣') + ' · المكونات ومحتوى العبوة'), W.ingredients),
+    h('details', { class: 'card fsec', open: hasContent || !id ? true : null }, h('summary', { class: 'fsec-t' }, (id ? '٣' : '٤') + ' · الاستخدام والفوائد والتحذيرات'), h('p', { class: 'tiny muted' }, 'ادعاءات المصنع وتحذيرات العبوة كما هي.'), ...usage),
     sourcesSec,
     msg,
     h('div', { class: 'savebar' }, saveBtn, h('button', { class: 'btn out', type: 'button', onclick: () => { if (!dirty || confirm('توجد تعديلات غير محفوظة. الخروج دون حفظ؟')) history.back(); } }, 'إلغاء'),
       id && me.role === 'manager' ? h('button', { class: 'btn danger', type: 'button', onclick: async () => { if (!confirm('حذف هذا المنتج وصوره نهائيًا؟')) return; try { await api('DELETE', '/api/products/' + id); toast('تم الحذف'); go('#/products'); } catch (e) { toast(e.message); } } }, 'حذف') : null));
-  fill(host, head,
+  const savedBanner = prefill.saved ? h('div', { class: 'notice ok savedbar', role: 'status' }, prefill.saved.duplicate ? '✓ هذا المنتج حُفظ سابقًا (لم يُكرَّر): ' : '✓ حُفظ: ', h('b', {}, prefill.saved.name), ' ',
+    h('a', { href: '#/product/' + prefill.saved.id }, 'فتح المنتج'), prefill.saved.imgFail?.length ? h('div', { class: 'tiny' }, `تعذر رفع ${prefill.saved.imgFail.length} صورة — افتح المنتج وأعد إضافتها.`) : null) : null;
+  fill(host, savedBanner, head,
     id ? h('div', { class: 'card' }, h('h3', { class: 'fsec-t' }, 'التوفر الآن'), h('p', { class: 'tiny' }, 'آخر تحديث للتوفر: ', fmtDate(p.availability_updated_at)), availButtons(p, () => { host.remove(); productEdit(root, id, me); })) : null,
     form);
+  drawTypes();
   if (id) disc.loadPending();
+  else if (prefill.saved) { haptic(40); f.barcode.focus(); }
 }
 
 /* ---------- scan: SCAN → LOCAL → GLOBAL → MATCH → ENRICH(draft) → REVIEW ---------- */

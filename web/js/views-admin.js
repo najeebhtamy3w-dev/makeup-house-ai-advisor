@@ -14,6 +14,7 @@ export function importView(root) {
         const r = await api('POST', `/api/imports/${commit ? 'commit' : 'preview'}?filename=${encodeURIComponent(name)}${commit && enrich.checked ? '&enrich=1' : ''}`, buf, { raw: true });
         fill(out, h('div', { class: 'card' }, h('h3', {}, commit ? 'تم الاستيراد' : 'معاينة — لم يُحفظ شيء بعد'),
           h('div', { class: 'stats' }, [['جديد', r.new], ['موجود مسبقًا', r.duplicates_existing], ['يُستكمل (حقول فارغة)', r.completions], ['تعارض', r.conflicts], ['مشابه محتمل', r.possible_duplicates], ['مكرر في الملف', r.duplicates_in_file], ['غير صالح', r.invalid]].map(([l, n]) => h('div', { class: 'stat' }, h('b', {}, n ?? 0), h('small', {}, l)))),
+          r.classification ? h('p', { class: 'tiny' }, `نوع المنتج في الجديد: مطابق ${r.classification.confirmed} · مقترح من الاسم ${r.classification.suggested} · قيمة غير معروفة (للمراجعة) ${r.classification.needs_review} · غير مصنف ${r.classification.unknown}`) : null,
           r.new ? h('p', { class: 'tiny' }, `بيانات ناقصة في الجديد (مسموح): بلا باركود ${r.missing.barcode} · بلا علامة ${r.missing.brand} · بلا حجم ${r.missing.size}. الصور والمكونات تُستكمل لاحقًا من بطاقة المنتج.`) : null,
           r.ignored_columns.length ? h('div', { class: 'notice' }, 'أعمدة أُهملت كليًا ولم تُقرأ قيمها: ', r.ignored_columns.join('، ')) : null,
           r.warnings.map((w) => h('div', { class: 'notice' }, w)),
@@ -31,7 +32,7 @@ export function importView(root) {
   };
   file.addEventListener('change', async () => { const f = file.files[0]; if (!f) return; if (f.size > 8 * 1024 * 1024) { fill(out, h('div', { class: 'notice err' }, 'الملف أكبر من 8 ميغابايت. قسّمه إلى ملفات أصغر.')); return; } name = f.name; buf = await f.arrayBuffer(); send(false); });
   root.append(h('h2', { class: 't' }, 'استيراد المنتجات (XLSX / CSV)'), h('div', { class: 'card' },
-    h('p', {}, 'الأعمدة المقبولة: barcode, name, brand, category, size, availability (أو أسماؤها العربية). المطلوب: الاسم فقط. الصور والمكونات غير مطلوبة وتُستكمل لاحقًا.'),
+    h('p', {}, 'الأعمدة المقبولة: barcode, name, brand, category, product_type (نوع المنتج: كريم، غسول، Serum…), size, availability — أو أسماؤها العربية. المطلوب: الاسم فقط؛ الملفات القديمة بلا product_type تعمل كما هي.'),
     h('div', { class: 'notice' }, 'لا تُقرأ أي أعمدة أخرى (أسعار، كميات…). إعادة رفع الملف لا تكرر المنتجات، ولا تستبدل أي قيمة موجودة.'),
     h('details', {}, h('summary', {}, 'تجهيز عمود الباركود في Excel (مهم)'), h('ol', { class: 'tiny' },
       h('li', {}, 'حدّد عمود الباركود ← تنسيق الخلايا ← «نص»، ثم الصق/اكتب الباركودات.'),

@@ -58,7 +58,7 @@ if (user && pass) {
     await page.waitForSelector('nav.nav'); assert.match(await page.textContent('#main .staging-banner'), /تجريبية/);
   });
   await step('front-end <-> back-end: products list loads with fake demo items', async () => {
-    await page.evaluate(() => { location.hash = '#/products'; }); await page.waitForFunction(() => document.querySelectorAll('#main .card h4').length > 0, null, { timeout: 15000 });
+    await page.evaluate(() => { location.hash = '#/products'; }); await page.waitForFunction(() => document.querySelectorAll('#main .prow, #main .card h4').length > 0, null, { timeout: 15000 });
     assert.match(await page.textContent('#main'), /تجريبي/);
   });
   await step('advisor answers with an explained recommendation', async () => {

@@ -16,7 +16,8 @@ export const $ = (sel, root = document) => root.querySelector(sel);
 export function toast(msg, ms = 2800) {
   const t = $('#toast'); t.replaceChildren(h('div', {}, msg)); clearTimeout(toast.t); toast.t = setTimeout(() => t.replaceChildren(), ms);
 }
-export const CATEGORIES = ['العناية بالبشرة', 'العناية بالشعر', 'واقيات الشمس', 'المكياج والجمال', 'العطور والعناية', 'أخرى'];
+// filled from GET /api/taxonomy after login (server is the single source of truth); this is only a fallback
+export const CATEGORIES = ['العناية بالبشرة', 'العناية بالشعر', 'واقيات الشمس', 'المكياج والجمال', 'العطور والعناية', 'العناية بالجسم', 'العناية بالأظافر', 'أدوات التجميل', 'أخرى'];
 export const AV = { yes: 'متوفر', no: 'غير متوفر', unknown: 'غير مؤكد' };
 export const VER = { verified: 'معتمد من المدير', partial: 'معلومات جزئية', review: 'تحتاج مراجعة' };
 export const avBadge = (p) => h('span', { class: 'badge ' + ({ yes: 'ok', no: 'no', unknown: 'warn' }[p.availability_effective ?? p.availability]) }, AV[p.availability_effective ?? p.availability] + (p.availability_stale ? ' (قديم)' : ''));

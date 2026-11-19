@@ -129,3 +129,22 @@ body:has(.savebar) #toast{bottom:150px}
 .field.fromsrc input{background:var(--warn-bg)}
 .compl{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;font-size:11.5px}.compl .y{color:var(--ok)}.compl .n{color:var(--muted)}
 input[type=checkbox],input[type=radio]{width:auto;min-height:0;height:20px;width:20px;flex:0 0 20px;padding:0;margin:0;accent-color:var(--wine-600)}
+/* ---------- CP05.2: compact catalog & taxonomy ---------- */
+.searchrow{display:flex;gap:8px;align-items:center;margin-bottom:6px}.searchrow input{flex:1;min-width:0}.searchrow .btn{flex:0 0 auto;white-space:nowrap}
+.chip .cnt{display:inline-block;margin-inline-start:5px;font-size:11px;opacity:.75;font-variant-numeric:tabular-nums}
+.chipbar.wrap{flex-wrap:wrap;overflow:visible}
+.morefilters{display:grid;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:4px 0 6px}
+.activef{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 8px}.activef:empty{display:none}.chip.sm{font-size:12px;padding:3px 9px;min-height:28px}
+.linkbtn{all:unset;cursor:pointer;color:var(--wine-600);font-size:12.5px;text-decoration:underline;padding:4px}
+.plist{display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}.plist:empty{border:0}
+.prow{all:unset;box-sizing:border-box;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;min-height:62px}
+.prow:last-child{border-bottom:0}.prow:active{background:var(--rose-50)}.prow:focus-visible{outline:2px solid var(--wine-600);outline-offset:-2px}
+.prow .th{width:44px;height:44px;border-radius:10px;font-size:16px}
+.pr-bd{min-width:0}.pr-name{font-weight:600;color:var(--plum);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;font-size:11px}.mini{color:var(--muted)}.mini.warn{color:var(--warn)}
+.dotv::before{content:'●';margin-inline-end:3px}.dotv.ok{color:var(--ok)}.dotv.warn{color:var(--warn)}.dotv.rev{color:var(--muted)}
+.typesug{display:flex;gap:8px;align-items:center;margin-top:4px}.typesug:empty{display:none}
+details.subsec{border-top:1px dashed var(--line);padding-top:6px}details.subsec>summary{cursor:pointer;font-size:13.5px;color:var(--plum);padding:4px 0}
+.savedbar{position:sticky;top:60px;z-index:3}
+.field[data-field=product_type] select{max-width:180px}

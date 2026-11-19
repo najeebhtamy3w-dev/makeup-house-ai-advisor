@@ -2,6 +2,7 @@ import { api } from './api.js';
 import { h, fill, toast, AV, VER, avBadge, verBadge, fmtDate, field, select, skeleton, errorBox } from './util.js';
 import { go } from './views-core.js';
 import { thumb } from './images.js';
+import { loadTaxonomy, typeLabel } from './taxonomy.js';
 
 /* ---------- WhatsApp recommendation card: no prices, no personal data ---------- */
 export async function recommendationCard(productId) {
@@ -44,7 +45,7 @@ export function advisor(root) {
   const productLine = (e) => h('div', { class: 'pl' },
     h('div', { class: 'prod' }, thumb(e, 'sm'), h('div', { class: 'bd' },
       h('div', { class: 'row sb' }, h('b', {}, e.name), verBadge(e.verification)),
-      h('div', { class: 'tiny muted' }, [e.brand, e.size].filter(Boolean).join(' · ')))),
+      h('div', { class: 'tiny muted' }, [e.brand, e.product_type_label, e.size].filter(Boolean).join(' · ')))),
     e.suitability ? h('div', { class: 'blk' }, h('b', {}, 'الملاءمة: '), h('span', { class: 'badge ' + (VERDICT[e.suitability.verdict] || 'info') }, e.suitability.verdict_label || LEVEL[e.suitability.level][0]),
       e.formulation && e.formulation.status !== 'verified' ? h('span', { class: 'badge warn', style: 'margin-inline-start:6px', title: e.formulation.label }, 'FORMULATION NOT VERIFIED') : null,
       ul(e.suitability.reasons), e.reason ? h('div', {}, 'ℹ ', e.reason) : null, e.suitability.used_info ? why(e.suitability) : null) : null,
@@ -85,13 +86,14 @@ export function advisor(root) {
 
 /* ---------- compare 2–3 products ---------- */
 export async function compare(root) {
+  await loadTaxonomy().catch(() => {});
   let list = [];
   try { list = (await api('GET', '/api/products?limit=500')).products; } catch (e) { root.append(h('div', { class: 'notice err' }, e.message)); return; }
   const opts = [['', 'اختر منتجًا'], ...list.map((p) => [String(p.id), p.name])];
   const sels = [select(opts, ''), select(opts, ''), select([['', 'منتج ثالث (اختياري)'], ...opts.slice(1)], '')];
   const out = h('div', {});
-  const ROWS = [['العلامة', 'brand'], ['التصنيف', 'category'], ['حجم العبوة', 'size'], ['المكونات', 'ingredients'], ['الفوائد/الاستخدام', 'benefits'], ['التحذيرات', 'warnings'], ['التوفر', 'availability_effective'], ['التوثيق', 'verification']];
-  const val = (p, k) => (k === 'availability_effective' ? AV[p[k]] + (p.availability_stale ? ' (قديم)' : '') : k === 'verification' ? VER[p[k]] : p[k] || 'غير موثق');
+  const ROWS = [['العلامة', 'brand'], ['التصنيف', 'category'], ['نوع المنتج', 'product_type'], ['حجم العبوة', 'size'], ['المكونات', 'ingredients'], ['الفوائد/الاستخدام', 'benefits'], ['التحذيرات', 'warnings'], ['التوفر', 'availability_effective'], ['التوثيق', 'verification']];
+  const val = (p, k) => (k === 'product_type' ? typeLabel(p[k]) || 'غير مصنف' : k === 'availability_effective' ? AV[p[k]] + (p.availability_stale ? ' (قديم)' : '') : k === 'verification' ? VER[p[k]] : p[k] || 'غير موثق');
   const run = async () => {
     const ids = [...new Set(sels.map((s) => s.value).filter(Boolean))];
     if (ids.length < 2) { out.replaceChildren(h('div', { class: 'notice' }, 'اختر منتجين مختلفين على الأقل.')); return; }
