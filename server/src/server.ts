@@ -8,6 +8,8 @@ import { hashPassword } from './security.ts';
 import './routes.ts';
 import { seedStagingAccounts } from './staging.ts';
 import './images.ts';
+import { processOne } from './queue.ts';
+import { activeProviders } from './evidence-routes.ts';
 import './discovery.ts';
 import { configureConnectors, processQueueOnce } from './enrichment/engine.ts';
 
@@ -51,5 +53,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   bootstrap(db, cfg);
   configureConnectors(cfg);
   if (cfg.enrich !== 'off') setInterval(() => { processQueueOnce(db, cfg, 1).catch((e) => console.error('[queue]', (e as Error).message)); }, 6000).unref();
+  // CP06.2 v2 queue: one job per tick, provider limits/budgets/cache inside; a sleeping free Render service simply resumes later
+  if (cfg.enrich !== 'off') setInterval(() => { processOne(db, activeProviders()).catch((e) => console.error('[queue2]', (e as Error).message)); }, 5000).unref();
   buildServer(db, cfg).listen(cfg.port, () => console.log(`MAKEUP HOUSE listening on :${cfg.port}`));
 }

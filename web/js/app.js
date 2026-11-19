@@ -22,10 +22,10 @@ const metaReady = Promise.resolve(window.MH_READY).then(() => fetch('/api/meta')
 const stagingBanner = () => (meta?.staging ? h('div', { class: 'notice warn staging-banner', role: 'note' }, meta.notice, getToken() ? h('div', { style: 'margin-top:6px' }, h('a', { href: '#/checklist' }, '☑ قائمة اختبار Samsung')) : null) : null);
 const MAIN = [['home', '⌂', 'الرئيسية'], ['advisor', '✦', 'المستشار'], ['scan', '▥', 'مسح'], ['products', '◈', 'المنتجات']];
 const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '☼', 'روتين العناية'], ['request', '⌕', 'طلب غير ملبّى'], ['academy', '♧', 'الأكاديمية'], ['checklist', '☑', 'قائمة اختبار Samsung'], ['feedback', '✎', 'ملاحظات التجربة'],
-  ['review', '✔', 'مراجعة المعلومات', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
+  ['review', '✔', 'مراجعة المعلومات', true], ['evidence', '⧉', 'مراجعة أدلة المصادر', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
 // CP06: backup / restore exists only where the data lives on the device
 if (window.MH_LOCAL) MORE.push(['backup', '⛁', 'النسخ الاحتياطي والاستعادة', true]);
-const TITLES = { backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+const TITLES = { backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
@@ -96,7 +96,7 @@ async function render() {
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
   if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
-  const managerOnly = ['import', 'reports', 'users', 'review', 'backup'];
+  const managerOnly = ['import', 'reports', 'users', 'review', 'backup', 'evidence'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
     case 'home': return home(main, me);
@@ -116,6 +116,7 @@ async function render() {
     case 'users': return users(main);
     case 'backup': return localViews().then((m) => m.backupView(main, me));
     case 'review': return review(main);
+    case 'evidence': return import('./views-evidence.js').then((m) => m.evidenceReview(main));
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }
 }
