@@ -9,20 +9,33 @@
   "scripts": {
     "start": "node --no-warnings --import tsx server/src/server.ts",
     "test": "node --no-warnings --import tsx --test tests/*.test.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p mobile",
     "test:ui": "scripts/ui-run.sh",
     "seed:dev": "node --no-warnings --import tsx scripts/dev-seed.ts",
     "backup": "node --no-warnings --import tsx scripts/backup.ts",
     "live:obf": "node --no-warnings --import tsx scripts/obf-live-check.ts",
     "pilot": "node --no-warnings --import tsx scripts/pilot-run.ts",
-    "test:ui:empty": "scripts/ui-empty-run.sh"
+    "test:ui:empty": "scripts/ui-empty-run.sh",
+    "build:mobile": "node scripts/build-mobile.mjs",
+    "test:local": "scripts/local-run.sh",
+    "android:sync": "node scripts/build-mobile.mjs && npx cap sync android"
   },
   "dependencies": {
     "tsx": "4.23.15",
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/cli": "8.6.2",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/share": "8.0.3",
+    "@noble/hashes": "2.4.0",
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
     "@types/node": "22.20.5",
+    "buffer": "6.0.3",
+    "esbuild": "0.28.2",
+    "fflate": "0.8.3",
     "typescript": "5.9.3"
   }
 }

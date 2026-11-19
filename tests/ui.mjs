@@ -59,8 +59,10 @@ await step('availability: 3-tap update changes badge', async () => {
 });
 await step('compare: two products show differences, no "winner"', async () => {
   await page.click('.nav button:nth-child(5)'); await page.click('.sheet >> text=مقارنة المنتجات');
-  await page.waitForSelector('h2.t:has-text("مقارنة المنتجات")'); await page.waitForFunction(() => document.querySelectorAll('main select').length === 3 && document.querySelector('main select').options.length > 2);
-  const sels = page.locator('main select'); await sels.nth(0).selectOption({ index: 1 }); await sels.nth(1).selectOption({ index: 2 }); await page.click('text=عرض المقارنة');
+  await page.waitForSelector('h2.t:has-text("مقارنة المنتجات")');
+  // CP06: products are picked by searching the whole catalog (no 500-item dropdown)
+  for (const t of ['تجريبي', 'تجريبي']) { await page.fill('#cmp-q', t); await page.waitForSelector('.cmp-hit:not([disabled])'); await page.click('.cmp-hit:not([disabled]) >> nth=0'); }
+  assert.equal(await page.locator('#cmp-picked .chip').count(), 2); await page.click('#cmp-run');
   await page.waitForSelector('table'); assert.match(await page.textContent('main'), /غير موثق/); await page.screenshot({ path: out + '07-compare.png' });
 });
 await step('routine: built from store products', async () => {

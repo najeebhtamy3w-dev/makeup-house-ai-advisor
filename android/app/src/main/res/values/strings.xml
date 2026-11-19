@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Makeup House</string>
+    <string name="title_activity_main">Makeup House</string>
+    <string name="package_name">com.makeuphouse.advisor</string>
+    <string name="custom_url_scheme">com.makeuphouse.advisor</string>
+</resources>

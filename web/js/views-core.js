@@ -47,18 +47,20 @@ export async function home(root, me) {
       h('button', { onclick: () => go('#/product-new') }, h('b', {}, '＋'), 'إضافة منتج')));
   const box = h('div', {}, skeleton(2)); root.append(box);
   try {
-    const [{ products }, st] = await Promise.all([api('GET', '/api/products?limit=500'), getEnrich(true)]);
-    const stale = products.filter((p) => p.availability_stale || (p.availability === 'unknown'));
-    const toReview = products.filter((p) => p.verification === 'review').length;
+    // CP06: counts over the WHOLE catalog from the server (no client-side cap); only 3 items are downloaded to show
+    const [all, unk, old, rev, st] = await Promise.all([api('GET', '/api/products?view=compact&limit=1'), api('GET', '/api/products?limit=3&availability=unknown'), api('GET', '/api/products?limit=3&availability=stale'), api('GET', '/api/products?view=compact&limit=1&verification=review'), getEnrich(true)]);
+    const products = { length: all.total };
+    const stale = [...old.products, ...unk.products].slice(0, 3); stale.total = old.total + unk.total;
+    const toReview = rev.total;
     const items = [];
     if (me.role === 'manager' && st.pending_candidates) items.push(h('button', { class: 'card', style: 'width:100%;text-align:start;display:flex;justify-content:space-between;align-items:center', onclick: () => go('#/review') }, h('span', {}, h('b', {}, `${st.pending_candidates} منتج بانتظار مراجعة المعلومات`), h('div', { class: 'tiny muted' }, 'اقتراحات من المصادر العالمية')), h('span', { class: 'btn sm' }, 'راجع')));
     if (toReview) items.push(h('button', { class: 'card', style: 'width:100%;text-align:start;display:flex;justify-content:space-between;align-items:center', onclick: () => go('#/products?verification=review') }, h('span', {}, h('b', {}, `${toReview} منتج يحتاج مراجعة معلومات`), h('div', { class: 'tiny muted' }, 'لن تُعرض كتوصية حاسمة قبل اعتمادها')), h('span', { class: 'btn sm light' }, 'عرض')));
     fill(box,
       products.length === 0 ? emptyState('▥', 'المكتبة فارغة', 'ابدأ بمسح باركود منتج، أو اطلب من المدير استيراد ملف الأصناف.', h('button', { class: 'btn sm', onclick: () => go('#/scan') }, 'مسح أول منتج')) : null,
-      items.length || stale.length ? h('h2', { class: 't' }, 'يحتاج إجراءً') : null, items,
-      stale.slice(0, 3).map((p) => productCard(p, () => go('#/home'))),
-      stale.length > 3 ? h('button', { class: 'btn out', style: 'width:100%', onclick: () => go('#/products?availability=unknown') }, `عرض كل المنتجات غير المؤكدة (${stale.length})`) : null,
-      products.length && !items.length && !stale.length ? h('div', { class: 'notice ok' }, 'كل شيء محدّث. لا توجد إجراءات معلقة.') : null);
+      items.length || stale.total ? h('h2', { class: 't' }, 'يحتاج إجراءً') : null, items,
+      stale.map((p) => productCard(p, () => go('#/home'))),
+      stale.total > 3 ? h('button', { class: 'btn out', style: 'width:100%', onclick: () => go('#/products?availability=unknown') }, `عرض كل المنتجات غير المؤكدة (${stale.total})`) : null,
+      products.length && !items.length && !stale.total ? h('div', { class: 'notice ok' }, 'كل شيء محدّث. لا توجد إجراءات معلقة.') : null);
   } catch (e) { fill(box, errorBox(e.message, () => go('#/home'))); }
 }
 

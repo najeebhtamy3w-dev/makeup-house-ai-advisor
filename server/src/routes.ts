@@ -127,11 +127,12 @@ function checkVerification(user: NonNullable<Ctx['user']>, verification: string,
 }
 
 /** One filter builder for the list AND its facet counts, so the numbers always match the results. `skip` drops one dimension (for its own counts). */
-function productFilter(qs: URLSearchParams, skip: '' | 'type' | 'category' = '') {
+function productFilter(qs: URLSearchParams, skip: '' | 'type' | 'category' = '', staleHours: number | null = null) {
   const where: string[] = []; const args: (string | number)[] = [];
   const q = (qs.get('q') ?? '').trim();
   if (q) { where.push('(products.name LIKE ? OR products.brand LIKE ? OR products.barcode LIKE ?)'); const l = `%${q.replace(/[%_]/g, '')}%`; args.push(l, l, l); }
   const av = qs.get('availability'); if (av && ['yes', 'no', 'unknown'].includes(av)) { where.push('products.availability = ?'); args.push(av); }
+  if (av === 'stale' && staleHours != null) { where.push("products.availability = 'yes' AND (products.availability_updated_at IS NULL OR products.availability_updated_at < ?)"); args.push(new Date(Date.now() - staleHours * 3.6e6).toISOString()); }
   const cat = qs.get('category'); if (cat && skip !== 'category') { where.push('products.category = ?'); args.push(cat); }
   const ver = qs.get('verification'); if (ver && ['review', 'partial', 'verified'].includes(ver)) { where.push('products.verification = ?'); args.push(ver); }
   // CP05 product form: an id, or 'none' for unclassified products (they never disappear: they have their own filter)
@@ -155,7 +156,7 @@ const compact = (p: ReturnType<typeof presentProduct>) => ({ id: p.id, name: p.n
 route('GET', '/api/products', 'any', (c) => {
   const limit = Math.min(Number(c.query.get('limit') ?? 100) || 100, 500);
   const offset = Math.max(0, Math.min(Number(c.query.get('offset') ?? 0) || 0, 1_000_000));
-  const f = productFilter(c.query);
+  const f = productFilter(c.query, '', c.cfg.availabilityStaleHours);
   const rows = c.db.prepare(`${PRODUCT_SELECT} ${f.sql} ORDER BY products.updated_at DESC, products.id DESC LIMIT ? OFFSET ?`).all(...f.args, limit, offset) as unknown as ProductRow[];
   const total = (c.db.prepare(`SELECT COUNT(*) n FROM products ${f.sql}`).get(...f.args) as { n: number }).n;
   const list = rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours));
@@ -171,6 +172,31 @@ route('GET', '/api/products/facets', 'any', (c) => {
 });
 
 route('GET', '/api/taxonomy', 'any', () => taxonomyPayload());
+
+/**
+ * Routine steps computed over the WHOLE catalog (CP06: the screen used to download at most 500 products).
+ * A product matches a step by its classified FORM, or — for products not classified yet — by its name or category.
+ * Availability is shown, never used as suitability.
+ */
+const ROUTINE: Record<string, { am: [string, string[], string[], string?][]; pm: [string, string[], string[], string?][] }> = {
+  skin: { am: [['تنظيف لطيف', ['cleanser'], ['غسول', 'منظف', 'تنظيف', 'cleanser']], ['ترطيب', ['cream', 'lotion'], ['مرطب', 'ترطيب', 'moistur']], ['حماية من الشمس', ['sunscreen'], ['واقي', 'شمس', 'spf'], 'واقيات الشمس']],
+    pm: [['تنظيف لطيف', ['cleanser'], ['غسول', 'منظف', 'تنظيف', 'cleanser']], ['ترطيب', ['cream', 'lotion'], ['مرطب', 'ترطيب', 'moistur']]] },
+  hair: { am: [['غسل الشعر', ['shampoo'], ['شامبو', 'shampoo']], ['بلسم / ترطيب الأطراف', ['conditioner'], ['بلسم', 'ماسك', 'conditioner']]], pm: [] },
+};
+route('GET', '/api/routine', 'any', (c) => {
+  const area = c.query.get('area') === 'hair' ? 'hair' : 'skin';
+  const step = ([label, types, words, cat]: [string, string[], string[], string?]) => {
+    const conds = [`products.product_type IN (${types.map(() => '?').join(',')})`, `(products.product_type = '' AND (${words.map(() => 'products.name LIKE ?').join(' OR ')}))`];
+    const args: (string | number)[] = [...types, ...words.map((w) => `%${w}%`)];
+    if (cat) { conds.push('products.category = ?'); args.push(cat); }
+    const where = `WHERE (${conds.join(' OR ')})`;
+    const rows = c.db.prepare(`${PRODUCT_SELECT} ${where} ORDER BY (products.availability = 'yes') DESC, products.updated_at DESC LIMIT 12`).all(...args) as unknown as ProductRow[];
+    const total = (c.db.prepare(`SELECT COUNT(*) n FROM products ${where}`).get(...args) as { n: number }).n;
+    return { label, total, products: rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)).map((p) => ({ id: p.id, name: p.name, verification: p.verification, warnings: p.warnings, availability_effective: p.availability_effective })) };
+  };
+  const d = ROUTINE[area]!;
+  return { area, am: d.am.map(step), pm: d.pm.map(step) };
+});
 /** Name -> form SUGGESTION (only when unambiguous). The person decides; nothing is stored. */
 route('GET', '/api/taxonomy/suggest', 'any', (c) => { const t = suggestTypeFromName((c.query.get('name') ?? '').slice(0, 200)); return { type: t, label: t ? typeLabel(t) : null, status: t ? 'suggested' : 'unknown' }; });
 

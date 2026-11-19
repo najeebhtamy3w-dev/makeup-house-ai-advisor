@@ -7,6 +7,7 @@ import { review } from './views-review.js';
 import { getEnrich } from './views-core.js';
 import { feedback, checklist } from './views-feedback.js';
 import { loadTaxonomy } from './taxonomy.js';
+import { backupView, restoreOnly } from './views-backup.js';
 import { icon } from './icons.js';
 import { productHelp } from './views-core.js';
 
@@ -14,16 +15,39 @@ const app = $('#app');
 let me = null;
 // Public, data-free metadata: version + whether this is the protected cloud STAGING copy (shows a permanent warning banner).
 let meta = null;
-const metaReady = fetch('/api/meta').then((r) => r.json()).then((m) => (meta = m)).catch(() => null);
+// CP06: on the Android build the local database worker must be ready before the first request
+const metaReady = Promise.resolve(window.MH_READY).then(() => fetch('/api/meta')).then((r) => r.json()).then((m) => (meta = m)).catch(() => null);
 const stagingBanner = () => (meta?.staging ? h('div', { class: 'notice warn staging-banner', role: 'note' }, meta.notice, getToken() ? h('div', { style: 'margin-top:6px' }, h('a', { href: '#/checklist' }, '☑ قائمة اختبار Samsung')) : null) : null);
 const MAIN = [['home', '⌂', 'الرئيسية'], ['advisor', '✦', 'المستشار'], ['scan', '▥', 'مسح'], ['products', '◈', 'المنتجات']];
 const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '☼', 'روتين العناية'], ['request', '⌕', 'طلب غير ملبّى'], ['academy', '♧', 'الأكاديمية'], ['checklist', '☑', 'قائمة اختبار Samsung'], ['feedback', '✎', 'ملاحظات التجربة'],
   ['review', '✔', 'مراجعة المعلومات', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
-const TITLES = { home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+// CP06: backup / restore exists only where the data lives on the device
+if (window.MH_LOCAL) MORE.push(['backup', '⛁', 'النسخ الاحتياطي والاستعادة', true]);
+const TITLES = { backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
+/** CP06 first run on a new phone: no account exists yet -> the person creates the manager account (or restores a backup). */
+function setupView() {
+  const u = h('input', { autocomplete: 'username', dir: 'ltr', autocapitalize: 'none', id: 'setup-user' }), n = h('input', { id: 'setup-name', placeholder: 'مثال: مدير المحل' });
+  const p = h('input', { type: 'password', autocomplete: 'new-password', id: 'setup-pass' }), p2 = h('input', { type: 'password', autocomplete: 'new-password', id: 'setup-pass2' }); const err = h('div', {});
+  const submit = async (e) => {
+    e.preventDefault(); err.replaceChildren();
+    if (p.value !== p2.value) { err.replaceChildren(h('div', { class: 'notice err' }, 'كلمتا المرور غير متطابقتين.')); return; }
+    try {
+      await api('POST', '/api/local/setup', { username: u.value.trim(), display_name: n.value.trim(), password: p.value });
+      const r = await api('POST', '/api/auth/login', { username: u.value.trim(), password: p.value }); setToken(r.token); me = r.user; meta.setup_required = false; location.hash = '#/products'; render();
+    } catch (x) { err.replaceChildren(h('div', { class: 'notice err' }, x.message)); }
+  };
+  app.replaceChildren(h('form', { class: 'login', onsubmit: submit }, h('div', { class: 'logo' }, h('b', {}, '✦'), h('strong', {}, 'MAKEUP HOUSE'), h('div', { class: 'tiny muted' }, 'إعداد التطبيق على هذا الهاتف')),
+    h('div', { class: 'notice info' }, 'كل البيانات تُحفظ على هذا الهاتف فقط. أنشئ حساب المدير، ثم أضف حسابات الموظفين من «الموظفون والصلاحيات». خذ نسخة احتياطية بانتظام.'),
+    h('div', { class: 'card' }, field('اسم المستخدم للمدير', u), field('الاسم الظاهر', n), field('كلمة المرور (10 أحرف على الأقل)', p), field('تأكيد كلمة المرور', p2), err,
+      h('button', { class: 'btn', style: 'width:100%', type: 'submit' }, 'إنشاء حساب المدير')),
+    h('p', { class: 'tiny', style: 'text-align:center' }, h('a', { href: '#/restore' }, 'لديّ نسخة احتياطية — استعادتها'))));
+}
+
 function loginView() {
+  if (meta?.setup_required) { if (location.hash.startsWith('#/restore')) { app.replaceChildren(h('main', { id: 'main' })); restoreOnly(app.firstChild); return; } setupView(); return; }
   const u = h('input', { autocomplete: 'username', dir: 'ltr', autocapitalize: 'none' }), p = h('input', { type: 'password', autocomplete: 'current-password' }); const err = h('div', {});
   const submit = async (e) => {
     e.preventDefault(); err.replaceChildren();
@@ -63,7 +87,7 @@ async function render() {
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
   if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
-  const managerOnly = ['import', 'reports', 'users', 'review'];
+  const managerOnly = ['import', 'reports', 'users', 'review', 'backup'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
     case 'home': return home(main, me);
@@ -81,10 +105,11 @@ async function render() {
     case 'import': return importView(main);
     case 'reports': return reports(main);
     case 'users': return users(main);
+    case 'backup': return backupView(main, me);
     case 'review': return review(main);
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }
 }
 window.addEventListener('hashchange', render);
-if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('/sw.js').catch(() => {});
+if (!window.MH_LOCAL && 'serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('/sw.js').catch(() => {});
 render();
