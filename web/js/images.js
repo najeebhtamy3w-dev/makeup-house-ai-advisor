@@ -2,6 +2,7 @@
 // orientation-correct resize & compression in the browser, and a small manager for the product's images.
 import { getToken } from './api.js';
 import { h, fill, toast, select, haptic } from './util.js';
+import { icon } from './icons.js';
 
 export const KIND_LABEL = { front: 'الواجهة', package: 'العبوة', ingredients: 'المكونات', other: 'أخرى' };
 const ORIGIN_LABEL = { camera: 'تصوير المحل', upload: 'من المعرض', source: 'مصدر عالمي' };
@@ -106,8 +107,10 @@ function viewImage(img) {
  * productId null => "staged" mode for a new product: picked images are kept in memory and uploaded by `flush(id)` after the
  * product is created. Returns { el, flush, count }.
  */
-export function imageManager(productId, me, api) {
+export function imageManager(productId, me, api, opts = {}) {
   const staged = [];
+  const hero = !productId && opts.layout === 'hero';   // new-product card: one large preview + dots; capture buttons live outside
+  let cur = 0;
   const grid = h('div', { class: 'imggrid' });
   const info = h('div', { class: 'tiny muted' });
   let images = [];
@@ -130,7 +133,16 @@ export function imageManager(productId, me, api) {
       : h('div', { class: 'imgempty' }, h('b', {}, '🖼'), h('div', {}, 'لا توجد صورة للمنتج بعد'), h('div', { class: 'tiny' }, 'صوّر العبوة أو اختر صورة من المعرض.')));
     info.textContent = images.length ? `${images.length} صورة` : '';
   };
+  const drawHero = () => {
+    if (!staged.length) { fill(grid, h('div', { class: 'hero-empty' }, icon('image', 34), h('span', {}, 'صورة المنتج (اختيارية)'))); return; }
+    cur = Math.min(cur, staged.length - 1); const s = staged[cur]; const u = URL.createObjectURL(s.blob);
+    fill(grid, h('figure', { class: 'hero-img' }, h('img', { src: u, alt: `صورة مختارة ${cur + 1} من ${staged.length}`, onload: () => URL.revokeObjectURL(u) }),
+      h('button', { class: 'hero-x', type: 'button', 'aria-label': 'إزالة هذه الصورة', onclick: () => { staged.splice(cur, 1); drawHero(); } }, icon('x', 16)),
+      h('figcaption', { class: 'hero-cap', title: 'تُرفع بعد الحفظ' }, cur === 0 ? 'رئيسية · ' : '', KIND_LABEL[s.kind], ' · تُرفع بعد الحفظ')),
+      staged.length > 1 ? h('div', { class: 'dots', role: 'tablist', 'aria-label': 'الصور' }, staged.map((_, i) => h('button', { class: 'dot' + (i === cur ? ' on' : ''), type: 'button', role: 'tab', 'aria-selected': String(i === cur), 'aria-label': `الصورة ${i + 1}`, onclick: () => { cur = i; drawHero(); } }))) : h('div', { class: 'dots' }, h('span', { class: 'dot on' })));
+  };
   const drawStaged = () => {
+    if (hero) { drawHero(); return; }
     fill(grid, staged.length ? staged.map((s, i) => { const u = URL.createObjectURL(s.blob); return h('figure', { class: 'imgitem' + (i === 0 ? ' primary' : '') }, h('img', { src: u, alt: 'صورة مختارة', onload: () => URL.revokeObjectURL(u) }),
       h('figcaption', {}, h('div', { class: 'row' }, i === 0 ? h('span', { class: 'badge ok' }, 'رئيسية') : null, h('span', { class: 'badge' }, KIND_LABEL[s.kind]), h('span', { class: 'badge info' }, 'تُرفع بعد الحفظ')),
         h('button', { class: 'btn sm danger', onclick: () => { staged.splice(i, 1); drawStaged(); } }, 'إزالة'))); })
@@ -138,15 +150,16 @@ export function imageManager(productId, me, api) {
   };
   const act = async (fn, okMsg) => { try { await fn(); toast(okMsg); reload(); } catch (e) { toast(e.message); } };
   const onPicked = async (res) => {
-    if (!productId) { staged.push(res); drawStaged(); haptic(); return; }
+    if (!productId) { staged.push(res); cur = staged.length - 1; drawStaged(); haptic(); return; }
     try { await uploadImage(productId, res); haptic(); toast('حُفظت الصورة'); reload(); } catch (e) { toast(e.message); }
   };
-  const el = h('div', { class: 'imgmgr' }, grid,
+  const el = hero ? h('div', { class: 'imgmgr imghero' }, grid) : h('div', { class: 'imgmgr' }, grid,
     h('div', { class: 'row' }, h('button', { class: 'btn sm', type: 'button', onclick: () => pickImage('camera', onPicked) }, '📷 تصوير العبوة'), h('button', { class: 'btn sm out', type: 'button', onclick: () => pickImage('upload', onPicked) }, '🖼 من المعرض'), info),
     h('div', { class: 'tiny muted' }, 'JPEG أو PNG أو WebP. تُصحَّح الوضعية وتُصغَّر الصورة تلقائيًا قبل الرفع، وتُزال بيانات الموقع منها.'));
   reload();
   return {
     el, count: () => (productId ? images.length : staged.length),
+    pick: (origin) => pickImage(origin, onPicked),
     async flush(id) { const failed = []; for (const [i, s] of staged.entries()) { try { await uploadImage(id, s, i === 0); } catch (e) { failed.push(e.message); } } staged.length = 0; return failed; },
   };
 }

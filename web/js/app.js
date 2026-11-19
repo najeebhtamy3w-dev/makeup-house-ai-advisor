@@ -7,6 +7,8 @@ import { review } from './views-review.js';
 import { getEnrich } from './views-core.js';
 import { feedback, checklist } from './views-feedback.js';
 import { loadTaxonomy } from './taxonomy.js';
+import { icon } from './icons.js';
+import { productHelp } from './views-core.js';
 
 const app = $('#app');
 let me = null;
@@ -52,8 +54,15 @@ async function render() {
   const nav = h('nav', { class: 'nav', 'aria-label': 'التنقل' }, MAIN.map(([id, ico, label]) => h('button', { class: route === id ? 'on' : '', onclick: () => go('#/' + id) }, h('b', {}, ico), label)),
     h('button', { class: MORE.some((m) => m[0] === route) ? 'on' : '', onclick: openMore }, h('b', {}, '☰'), 'المزيد'));
   if (me.role === 'manager') getEnrich().then((st) => { if (st.pending_candidates && nav.isConnected) nav.lastChild.append(h('i', { class: 'dot', title: 'مراجعة معلقة' })); });
-  app.replaceChildren(h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف'))), main, nav);
-  if (meta?.staging) main.append(stagingBanner());
+  // CP05.3: product entry is a focused task screen — brand header with back + help, no bottom nav (the save bar takes its place)
+  const focus = route === 'product-new';
+  document.body.classList.toggle('focusmode', focus);
+  const header = focus
+    ? h('header', { class: 'top accent' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'مساعدة', onclick: productHelp }, icon('help', 26)), h('h1', {}, 'منتج جديد'),
+        h('button', { class: 'iconbtn backbtn', type: 'button', 'aria-label': 'رجوع إلى المنتجات', onclick: () => go('#/products') }, h('span', {}, 'منتجات'), icon('back', 24)))
+    : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
+  app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
+  if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات وهمية وقد تُحذف') : stagingBanner());
   const managerOnly = ['import', 'reports', 'users', 'review'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {

@@ -39,10 +39,10 @@ await step('advisor: recommendation card has no price and no personal data', asy
 await step('scan: manual unknown barcode -> new product form prefilled -> save', async () => {
   await page.click('.nav button:nth-child(3)'); await page.fill('input[aria-label="رقم الباركود"]', '5901234123457'); await page.keyboard.press('Enter');
   await page.waitForSelector('text=نتيجة البحث العالمي'); assert.match(await page.textContent('main'), /مسودات غير معتمدة/); assert.match(await page.textContent('main'), /تم العثور على منتج محتمل · تم حفظ المسودة · بانتظار اعتماد المدير/); assert.match(await page.textContent('main'), /بيانات وهمية|MOCK/); await page.screenshot({ path: out + '05-scan-new.png' });
-  await page.click('text=إنشاء بطاقة ومراجعتها'); await page.waitForSelector('h2:has-text("منتج جديد")');
+  await page.click('text=إنشاء بطاقة ومراجعتها'); await page.waitForSelector('.pform.entry');
   assert.equal(await page.inputValue('#f-barcode'), '5901234123457');
   assert.equal(await page.locator('#f-name').inputValue(), 'Demo Gentle Moisturizer', 'name prefilled from DRAFT'); assert.equal(await page.locator('#f-ingredients').inputValue(), '', 'unreviewed ingredients are NOT copied');
-  await page.locator('#f-name').fill('كريم يدين تجريبي'); await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("كريم يدين تجريبي")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("كريم يدين تجريبي")');
+  await page.locator('#f-name').fill('كريم يدين تجريبي'); await page.click('button:has-text("حفظ وإضافة منتج آخر")'); await page.waitForSelector('.savedbar:has-text("كريم يدين تجريبي")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("كريم يدين تجريبي")');
 });
 await step('scan: same barcode again -> existing record, no duplicate', async () => {
   await page.click('.nav button:nth-child(3)'); await page.fill('input[aria-label="رقم الباركود"]', '5901234123457'); await page.keyboard.press('Enter');
@@ -147,29 +147,30 @@ await step('advisor: "does it contain fragrance?" on an unverified list answers 
 });
 // ---- CP04: product form + images (manager session) ----
 const PNG_B64 = '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';
+const openFold = async (title) => { await page.click(`details.fold:not([open]) > summary:has-text("${title}")`).catch(() => {}); };
 const pickFile = async (button, file) => { const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.click(button)]); await fc.setFiles(file); return fc; };
 await step('product form: never shows "null"; sanitises ?barcode=null; sections + required/optional marks', async () => {
   await page.evaluate(() => (location.hash = '#/product-new?barcode=null')); await page.waitForSelector('#f-name');
   assert.equal(await page.inputValue('#f-barcode'), ''); assert.doesNotMatch(await page.textContent('main'), /\bnull\b|undefined|\[object/);
-  for (const sec of ['التعرف على المنتج', 'تفاصيل التصنيف', 'المكونات ومحتوى العبوة', 'الاستخدام والفوائد والتحذيرات', 'المصادر والتوثيق']) assert.match(await page.textContent('main'), new RegExp(sec));
-  assert.match(await page.textContent('.field[data-field=name] label'), /مطلوب/); assert.match(await page.textContent('.field[data-field=brand] label'), /اختياري/);
+  for (const sec of ['التعرف على المنتج', 'تصنيف المنتج', 'محتوى العبوة والمكونات', 'الاستخدام والفوائد والتحذيرات', 'المصادر والتوثيق']) assert.match(await page.textContent('main'), new RegExp(sec));
+  assert.match(await page.textContent('.field[data-field=name] label'), /مطلوب/); assert.doesNotMatch(await page.textContent('.field[data-field=brand] label'), /\*|مطلوب/);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
   await page.screenshot({ path: out + '17-product-new.png', fullPage: true });
 });
 await step('product form: inline validation (empty name, bad check digit) without a server round-trip', async () => {
   let posted = 0; const h = (r) => { if (r.method() === 'POST' && r.url().endsWith('/api/products')) posted++; }; page.on('request', h);
-  await page.fill('#f-barcode', '5901234123458'); await page.click('button:has-text("حفظ البطاقة")');
+  await page.fill('#f-barcode', '5901234123458'); await page.click('button:has-text("حفظ وإضافة منتج آخر")');
   await page.waitForSelector('.field.bad[data-field=name]'); assert.match(await page.textContent('.field[data-field=name] .ferr'), /اسم المنتج/);
   assert.match(await page.textContent('.field[data-field=barcode] .ferr'), /رقم التحقق/); assert.equal(posted, 0); page.off('request', h);
   await page.screenshot({ path: out + '18-product-validation.png', fullPage: true });
 });
 await step('images: gallery pick -> preview (size info) -> staged on new product -> uploaded on save -> shown on card, list and advisor', async () => {
-  await page.fill('#f-barcode', ''); await page.fill('#f-name', 'مرطب بصورة (تجريبي)'); await page.fill('#f-ingredients', 'Aqua, Glycerin');
-  await pickFile('button:has-text("من المعرض")', { name: 'p.png', mimeType: 'image/png', buffer: Buffer.from(PNG_B64, 'base64') });
+  await page.fill('#f-barcode', ''); await page.fill('#f-name', 'مرطب بصورة (تجريبي)'); await openFold('محتوى العبوة'); await page.fill('#f-ingredients', 'Aqua, Glycerin');
+  await pickFile('.tile:has-text("الاستوديو")', { name: 'p.png', mimeType: 'image/png', buffer: Buffer.from(PNG_B64, 'base64') });
   await page.waitForSelector('.imgprev img'); assert.match(await page.textContent('.imgprev'), /64×48/);
   await page.screenshot({ path: out + '19-image-preview.png' });
-  await page.click('.imgprev >> text=حفظ الصورة'); await page.waitForSelector('.imgitem >> text=تُرفع بعد الحفظ');
-  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("مرطب بصورة")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("مرطب بصورة")');
+  await page.click('.imgprev >> text=حفظ الصورة'); await page.waitForSelector('.hero-cap:has-text("تُرفع بعد الحفظ")');
+  await page.click('button:has-text("حفظ وإضافة منتج آخر")'); await page.waitForSelector('.savedbar:has-text("مرطب بصورة")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("مرطب بصورة")');
   await page.waitForFunction(() => [...document.querySelectorAll('.imgitem img')].some((i) => i.src.startsWith('blob:') && i.naturalWidth > 0));
   await page.waitForFunction(() => { const i = document.querySelector('.phead .th img'); return i && i.naturalWidth > 0; });
   const id = Number((await page.evaluate(() => location.hash)).split('/')[2]); const imgs = (await apiGet(`/api/products/${id}/images`)).images;
@@ -183,15 +184,14 @@ await step('images: gallery pick -> preview (size info) -> staged on new product
 });
 await step('images: camera button asks for the rear camera; non-image files are refused with a message', async () => {
   await page.evaluate(() => (location.hash = '#/product-new')); await page.waitForSelector('#f-name');
-  const fc = await pickFile('button:has-text("تصوير العبوة")', { name: 'x.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
+  const fc = await pickFile('.tile:has-text("تصوير")', { name: 'x.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
   assert.equal(await fc.element().getAttribute('capture'), 'environment');
   await page.waitForSelector('#toast >> text=نوع الملف غير مدعوم'); assert.equal(await page.$('.imgprev'), null);
 });
 // ---- CP05: smart entry, completion of imported products, filters, import preview (manager, MH_ENRICH=mock) ----
 await step('CP05 new product: identify by barcode -> store first, then source drafts; identity copied into the form only on request', async () => {
   await page.evaluate(() => { sessionStorage.removeItem('mh_new_product_draft'); location.hash = '#/product-new'; }); await page.waitForSelector('#f-name');
-  const order = await page.evaluate(() => [...document.querySelectorAll('.fsec-t')].map((e) => e.textContent.trim()));
-  assert.match(order[0], /التعرف على المنتج/); assert.ok(await page.$('.fsec:first-of-type .imgmgr'), 'photo area is in the first section');
+  assert.match(await page.textContent('.pform .card:first-of-type .ident-t'), /التعرف على المنتج/); assert.ok(await page.$('.pform .ident .imgmgr'), 'photo area is in the first section');
   await page.fill('#f-barcode', '4006381333931'); await page.click('button:has-text("التعرف وجلب المعلومات")');
   await page.waitForSelector('.disc .cand'); const t = await page.textContent('.disc');
   assert.match(t, /مسودات غير معتمدة/); assert.match(t, /Demo Scented Cream/); assert.match(t, /لا يوفر المصدر/);
@@ -199,7 +199,7 @@ await step('CP05 new product: identify by barcode -> store first, then source dr
   await page.locator('.disc .cand', { has: page.locator('b:text-is("الاسم")') }).locator('button:has-text("استخدام في النموذج")').click();
   assert.equal(await page.inputValue('#f-name'), 'Demo Scented Cream'); assert.equal(await page.inputValue('#f-ingredients'), '', 'ingredients are never copied into the form');
   await page.screenshot({ path: out + '22-identify-barcode.png', fullPage: true });
-  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("Demo Scented Cream")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("Demo Scented Cream")');
+  await page.click('button:has-text("حفظ وإضافة منتج آخر")'); await page.waitForSelector('.savedbar:has-text("Demo Scented Cream")'); assert.equal(await page.inputValue('#f-name'), '', 'rapid entry: fresh empty form'); await page.click('.savedbar a'); await page.waitForSelector('h2:has-text("Demo Scented Cream")');
 });
 await step('CP05 product card: pending drafts for THIS record; manager approves ingredients there; no new product created', async () => {
   const before = (await apiGet('/api/products?limit=500')).products.length;
@@ -263,10 +263,10 @@ await step('catalog: choose a FORM (cream / cleanser / serum) — rows match, co
 });
 await step('rapid entry: pick category + form from typical chips, save -> fresh empty form, banner with link, focus on barcode', async () => {
   await page.evaluate(() => { sessionStorage.removeItem('mh_new_product_draft'); location.hash = '#/product-new'; }); await page.waitForSelector('#f-name');
-  await page.selectOption('#f-category', 'العناية بالشعر'); await page.waitForSelector('.field[data-field=product_type] .chip:has-text("شامبو")');
-  assert.ok(!(await page.$('.field[data-field=product_type] .chip:text-is("تونر")')), 'typical forms only (others via "أنواع أخرى")');
-  await page.click('.field[data-field=product_type] .chip:has-text("شامبو")'); await page.fill('#f-name', 'RE شامبو 1');
-  await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.savedbar:has-text("RE شامبو 1")');
+  await page.selectOption('#f-category', 'العناية بالشعر'); await page.waitForSelector('.tchip:has-text("شامبو")');
+  assert.ok(!(await page.$('.tchip:text-is("تونر")')), 'typical forms only (others via "المزيد…")');
+  await page.click('.tchip:has-text("شامبو")'); await page.fill('#f-name', 'RE شامبو 1');
+  await page.click('button:has-text("حفظ وإضافة منتج آخر")'); await page.waitForSelector('.savedbar:has-text("RE شامبو 1")');
   assert.equal(await page.inputValue('#f-name'), ''); assert.equal(await page.inputValue('#f-product_type'), '', 'previous data cleared');
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'f-barcode');
   const p = (await apiGet('/api/products?q=' + encodeURIComponent('RE شامبو 1'))).products[0]; assert.equal(p.product_type, 'shampoo'); assert.equal(p.classification_status, 'confirmed');
@@ -277,18 +277,73 @@ await step('name suggestion: an unambiguous form in the name is offered, never a
   assert.equal(await page.inputValue('#f-product_type'), ''); await page.click('.typesug button'); assert.equal(await page.inputValue('#f-product_type'), 'serum');
 });
 await step('save failure keeps everything; retry after reconnect saves ONCE (same submission id); double tap creates one record', async () => {
-  await ctx.setOffline(true); await page.click('button:has-text("حفظ البطاقة")'); await page.waitForSelector('.notice.err:has-text("تعذر الاتصال")');
+  await ctx.setOffline(true); await page.click('button:has-text("حفظ وإضافة منتج آخر")'); await page.waitForSelector('.notice.err:has-text("تعذر الاتصال")');
   assert.equal(await page.inputValue('#f-name'), 'RE سيروم فيتامين سي', 'inputs kept'); assert.equal(await page.locator('.savedbar:has-text("RE سيروم فيتامين سي")').count(), 0, 'not reported as saved');
   await ctx.setOffline(false);
-  await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('حفظ البطاقة')); b.click(); b.click(); });
+  await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('حفظ وإضافة منتج آخر')); b.click(); b.click(); });
   await page.waitForSelector('.savedbar:has-text("RE سيروم فيتامين سي")');
   assert.equal((await apiGet('/api/products?q=' + encodeURIComponent('RE سيروم فيتامين سي'))).products.length, 1);
 });
 await step('editing an existing product saves in place and stays on its screen (no new record, no new form)', async () => {
   const before = (await apiGet('/api/products?limit=1')).total; const id = (await apiGet('/api/products?q=' + encodeURIComponent('RE شامبو 1'))).products[0].id;
-  await page.evaluate((i) => (location.hash = '#/product/' + i), id); await page.waitForSelector('#f-size');
+  await page.evaluate((i) => (location.hash = '#/product/' + i), id); await page.waitForSelector('details.fold'); await openFold('محتوى العبوة'); await page.waitForSelector('#f-size');
   await page.fill('#f-size', '400 ml'); await page.click('button:has-text("حفظ التعديلات")'); await page.waitForFunction(() => document.querySelector('#f-size')?.value === '400 ml' && !document.querySelector('.savedbar'));
   assert.equal(await page.evaluate(() => location.hash), '#/product/' + id); assert.equal((await apiGet('/api/products?limit=1')).total, before);
+});
+// ---- CP05.3: reference-driven entry screen ----
+const fresh = async () => { await page.evaluate(() => { sessionStorage.removeItem('mh_new_product_draft'); location.hash = '#/home'; }); await page.waitForSelector('.hero'); await page.evaluate(() => (location.hash = '#/product-new')); await page.waitForSelector('.pform.entry'); };
+await step('entry screen follows the reference: brand header (back + help, no bottom nav), stepper, identify card with image + 3 tiles + barcode/name/brand + identify button, classification, closed empty sections, two save buttons', async () => {
+  await fresh();
+  assert.equal(await page.textContent('.top.accent h1'), 'منتج جديد'); assert.ok(await page.$('.top.accent button[aria-label="مساعدة"]')); assert.ok(await page.$('.top.accent button[aria-label="رجوع إلى المنتجات"]'));
+  assert.equal(await page.$('nav.nav'), null, 'bottom nav hidden on the focused entry screen');
+  assert.deepEqual(await page.$$eval('.stepper li', (l) => l.map((x) => x.textContent.replace(/\d/g, '').trim())), ['التعرف على المنتج', 'مراجعة المعلومات', 'الحفظ']);
+  assert.ok(await page.$('.stepper li.on:first-child'));
+  assert.deepEqual(await page.$$eval('.ident .tile span', (l) => l.map((x) => x.textContent)), ['تصوير', 'الاستوديو', 'مسح الباركود']);
+  for (const sel of ['.ident .imgmgr', '.ident #f-barcode', '.ident #f-name', '.ident #f-brand', '.ident button:has-text("التعرف وجلب المعلومات")']) assert.ok(await page.$(sel), sel);
+  assert.ok(await page.$('details.fold[open] > summary:has-text("تصنيف المنتج")'), 'classification open');
+  for (const t of ['محتوى العبوة', 'الاستخدام والفوائد', 'المصادر والتوثيق']) assert.ok(await page.$(`details.fold:not([open]) > summary:has-text("${t}")`), t + ' closed while empty');
+  const chips = await page.$$eval('.typegrid .tchip', (l) => l.map((x) => x.textContent)); assert.ok(chips.length <= 10 && chips.at(-1) === 'المزيد…', 'compact type grid + more');
+  assert.deepEqual(await page.$$eval('.savebar button', (l) => l.map((x) => x.textContent.trim())), ['حفظ وإضافة منتج آخر', 'حفظ وفتح البطاقة']);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
+  await page.screenshot({ path: out + '28-entry-reference.png' });
+  await page.click('button[aria-label="مساعدة"]'); await page.waitForSelector('ul.help'); await page.click('.sheet >> text=إغلاق');
+});
+await step('"المزيد…" sheet: search, كريم and كريم أساس stay distinct, choice saved and kept on reopen; closing without choosing changes nothing', async () => {
+  await page.click('.tchip.more'); await page.waitForSelector('.sheet.picker'); await page.fill('.pk-search input', 'كريم');
+  const labels = await page.$$eval('.pk-item .pk-l', (l) => l.map((x) => x.firstChild.textContent)); assert.ok(labels.includes('كريم') && labels.includes('كريم أساس'));
+  await page.click('.pk-item[data-id=foundation]'); assert.equal(await page.inputValue('#f-product_type'), 'foundation');
+  assert.ok(await page.$('.tchip.on[data-type=foundation]'), 'chosen form shown in the grid');
+  await page.click('.tchip.more'); await page.waitForSelector('.pk-item.on[data-id=foundation]'); await page.click('.sheet.picker button[aria-label="إغلاق"]');
+  assert.equal(await page.inputValue('#f-product_type'), 'foundation');
+  await page.fill('#f-name', 'كريم أساس سائل تجريبي'); await page.waitForTimeout(500);
+  assert.equal(await page.inputValue('#f-product_type'), 'foundation', 'typing a name never overrides a chosen form');
+  assert.ok(await page.$('.stepper li.on:nth-child(2)'), 'step 2 once the product is identified');
+});
+await step('sections keep their data when folded; a field error opens its section; the save bar never covers the last field', async () => {
+  await openFold('محتوى العبوة'); await page.fill('#f-ingredients', 'Aqua, Glycerin'); await page.click('details.fold > summary:has-text("محتوى العبوة")');
+  assert.equal(await page.inputValue('#f-ingredients'), 'Aqua, Glycerin'); assert.equal(await page.textContent('details.fold:has-text("محتوى العبوة") .fbadge'), '1');
+  await openFold('المصادر والتوثيق'); await page.fill('#f-source_url', 'not a url'); await page.click('details.fold > summary:has-text("المصادر والتوثيق")');
+  await page.click('button:has-text("حفظ وإضافة منتج آخر")'); await page.waitForSelector('details.fold[open] .field.bad[data-field=source_url]');
+  assert.equal(await page.textContent('details.fold:has-text("المصادر والتوثيق") .fbadge'), '!');
+  await page.fill('#f-source_url', '');
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await page.waitForTimeout(300);
+  const g = await page.evaluate(() => { const last = [...document.querySelectorAll('.pform > details.fold')].at(-1).getBoundingClientRect(); const bar = document.querySelector('.savebar').getBoundingClientRect(); return { lastBottom: last.bottom, barTop: bar.top }; });
+  assert.ok(g.lastBottom <= g.barTop + 1, `last section (${g.lastBottom}) above the save bar (${g.barTop})`);
+  await page.focus('#f-source_url'); await page.waitForTimeout(700);
+  const v = await page.evaluate(() => { const r = document.querySelector('#f-source_url').getBoundingClientRect(); return { bottom: r.bottom, barTop: document.querySelector('.savebar').getBoundingClientRect().top }; });
+  assert.ok(v.bottom <= v.barTop, 'focused field is visible above the save bar');
+  await page.screenshot({ path: out + '29-entry-bottom.png' });
+});
+await step('"حفظ وفتح البطاقة" saves once and opens the saved card to complete it', async () => {
+  await page.click('button:has-text("حفظ وفتح البطاقة")'); await page.waitForSelector('h2:has-text("كريم أساس سائل تجريبي")');
+  const p = (await apiGet('/api/products?q=' + encodeURIComponent('كريم أساس سائل تجريبي'))).products; assert.equal(p.length, 1); assert.equal(p[0].product_type, 'foundation'); assert.equal(p[0].category, 'العناية بالبشرة');
+  assert.ok(await page.$('nav.nav'), 'regular screens keep the bottom nav');
+  assert.match(await page.evaluate(() => location.hash), /^#\/product\/\d+$/);
+});
+await step('back button returns to products; unsaved entry is kept on the phone and restored', async () => {
+  await fresh(); await page.fill('#f-name', 'مسودة الرجوع'); await page.click('button[aria-label="رجوع إلى المنتجات"]'); await page.waitForSelector('.prow, .empty');
+  await page.evaluate(() => (location.hash = '#/product-new')); await page.waitForSelector('.pform.entry'); assert.equal(await page.inputValue('#f-name'), 'مسودة الرجوع');
+  await page.evaluate(() => sessionStorage.removeItem('mh_new_product_draft'));
 });
 await step('Samsung checklist: items listed, an answer is stored and also becomes a feedback note', async () => {
   await page.evaluate(() => { localStorage.removeItem('mh_feedback_v1'); localStorage.removeItem('mh_checklist_v1'); location.hash = '#/checklist'; }); await page.waitForSelector('.ck');

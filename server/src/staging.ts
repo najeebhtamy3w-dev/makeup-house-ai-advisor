@@ -7,7 +7,7 @@ import { audit, now } from './db.ts';
 import { route } from './http.ts';
 import { hashPassword } from './security.ts';
 
-export const APP_VERSION = '3.0.0-cp05.2-staging';
+export const APP_VERSION = '3.0.0-cp05.3-staging';
 export const STAGING_NOTICE = 'نسخة تجريبية: كل البيانات وهمية وقد تُحذف عند أي إعادة تشغيل للخادم. لا تُدخل بيانات حقيقية لعملاء أو موظفين، ولا تعتمد عليها كقاعدة بيانات للمحل.';
 
 route('GET', '/api/health', 'none', () => ({ ok: true }));
