@@ -7,7 +7,8 @@ import { review } from './views-review.js';
 import { getEnrich } from './views-core.js';
 import { feedback, checklist } from './views-feedback.js';
 import { loadTaxonomy } from './taxonomy.js';
-import { backupView, restoreOnly } from './views-backup.js';
+// CP06.2: Android-only (local-first) screens load on demand, so the Render build can ship without them
+const localViews = () => import('./views-backup.js');
 import { icon } from './icons.js';
 import { productHelp, goBack, RETURN_KEY, LIST_POS_KEY } from './views-core.js';
 import { confirmLeave, clearLeaveGuard, hasUnsavedChanges } from './leave-guard.js';
@@ -48,7 +49,7 @@ function setupView() {
 }
 
 function loginView() {
-  if (meta?.setup_required) { if (location.hash.startsWith('#/restore')) { app.replaceChildren(h('main', { id: 'main' })); restoreOnly(app.firstChild); return; } setupView(); return; }
+  if (meta?.setup_required) { if (location.hash.startsWith('#/restore')) { app.replaceChildren(h('main', { id: 'main' })); localViews().then((m) => m.restoreOnly(app.firstChild)); return; } setupView(); return; }
   const u = h('input', { autocomplete: 'username', dir: 'ltr', autocapitalize: 'none' }), p = h('input', { type: 'password', autocomplete: 'current-password' }); const err = h('div', {});
   const submit = async (e) => {
     e.preventDefault(); err.replaceChildren();
@@ -113,7 +114,7 @@ async function render() {
     case 'import': return importView(main);
     case 'reports': return reports(main);
     case 'users': return users(main);
-    case 'backup': return backupView(main, me);
+    case 'backup': return localViews().then((m) => m.backupView(main, me));
     case 'review': return review(main);
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }
