@@ -18,7 +18,8 @@
     "test:ui:empty": "scripts/ui-empty-run.sh",
     "build:mobile": "node scripts/build-mobile.mjs",
     "test:local": "scripts/local-run.sh",
-    "android:sync": "node scripts/build-mobile.mjs && npx cap sync android"
+    "android:sync": "node scripts/build-mobile.mjs && npx cap sync android",
+    "test:ui:nav": "scripts/ui-nav-run.sh"
   },
   "dependencies": {
     "tsx": "4.23.15",

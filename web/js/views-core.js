@@ -6,8 +6,12 @@ import { discoveryPanel, scanSheet, completeness } from './discovery.js';
 import { loadTaxonomy, tx, typeLabel, typicalTypes } from './taxonomy.js';
 import { icon } from './icons.js';
 import { pickerSheet } from './picker.js';
+import { setLeaveGuard } from './leave-guard.js';
 
 export const go = (hash) => { location.hash = hash; };
+// CP06.2: "back" from a product returns to the screen the person came from (list filters and scroll position are restored there)
+export const RETURN_KEY = 'mh_return', LIST_POS_KEY = 'mh_list_pos';
+export const goBack = () => { let t = '#/products'; try { t = sessionStorage.getItem(RETURN_KEY) || t; } catch { /* ignore */ } go(t); };
 
 /* ---------- shared: availability buttons (no prompt(): 3 clear taps) ---------- */
 export function availButtons(p, after) {
@@ -117,9 +121,12 @@ export async function products(root, params = new URLSearchParams(), me = null) 
       h('button', { class: 'linkbtn', type: 'button', onclick: () => { KEYS.forEach((k) => (f[k] = '')); q.value = ''; persist(); refresh(); } }, 'إزالة كل المرشحات')] : null);
   };
   let seq = 0, offset = 0, total = 0;
+  // CP06.2: coming back from a product restores the same rows (incl. "show more" pages, up to 300) and scroll position
+  let restore = null; try { restore = JSON.parse(sessionStorage.getItem(LIST_POS_KEY) || 'null'); sessionStorage.removeItem(LIST_POS_KEY); } catch { /* ignore */ }
   const load = async (append = false) => {
     const my = ++seq; if (!append) { offset = 0; fill(list, skeleton(3)); fill(foot); }
-    const x = qs(); x.set('view', 'compact'); x.set('limit', String(PAGE)); x.set('offset', String(offset));
+    const want = !append && restore?.n > PAGE ? Math.min(restore.n, 300) : PAGE;
+    const x = qs(); x.set('view', 'compact'); x.set('limit', String(want)); x.set('offset', String(offset));
     try {
       const [r, facets] = await Promise.all([api('GET', '/api/products?' + x), append ? null : api('GET', '/api/products/facets?' + qs()).catch(() => null)]);
       if (my !== seq) return;
@@ -148,6 +155,7 @@ export async function products(root, params = new URLSearchParams(), me = null) 
       }
       fill(foot, total ? h('div', { class: 'tiny muted', style: 'text-align:center;margin:8px 0' }, `عرض ${offset} من ${total}`) : null,
         offset < total ? h('button', { class: 'btn out', type: 'button', style: 'width:100%', onclick: (e) => busy(e.currentTarget, () => load(true)) }, 'عرض المزيد') : null);
+      if (restore && !append) { const y = restore.y; restore = null; requestAnimationFrame(() => window.scrollTo(0, y)); }
     } catch (e) { if (my === seq) fill(list, errorBox(e.status ? e.message : 'تعذر الاتصال بالخادم.', () => load())); }
   };
   const refresh = () => load();
@@ -276,32 +284,36 @@ export async function productEdit(root, id, me, prefill = {}) {
   let saveMode = 'next';   // new product: 'next' = rapid entry (fresh form), 'open' = open the saved card to complete it
   let clientRef = (crypto.randomUUID?.() ?? String(Date.now()) + '-' + Math.random().toString(16).slice(2)).replace(/[^A-Za-z0-9-]/g, '');
   const saveForm = {};
-  const save = async (e) => {
-    e?.preventDefault(); fill(msg);
-    if (!validate()) { fill(msg, h('div', { class: 'notice err' }, 'راجع الحقول المظللة قبل الحفظ.')); return; }
+  // CP06.2: returns true only when the server confirmed the save; a second tap / Enter while saving is ignored (no double save)
+  let saving = false, inflight = null;
+  const save = async (e, opts = {}) => {
+    e?.preventDefault(); if (saving) return false; fill(msg);
+    if (!validate()) { fill(msg, h('div', { class: 'notice err' }, 'راجع الحقول المظللة قبل الحفظ.')); return false; }
     const body = Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value.trim()]));
     body.barcode = body.barcode || null;
     if (id && me.role !== 'manager' && p.verification === 'verified') delete body.verification;
     if (!id) { body.availability = 'unknown'; body.client_ref = clientRef; }
     body.functions = [...fnSet];
     if (id && p.classification_status !== 'confirmed' && body.product_type === str(p.product_type) && !typeTouched) delete body.product_type; // untouched suggestion stays a suggestion
-    const btns = [...host.querySelectorAll('.savebar button')]; btns.forEach((b) => { b.disabled = true; });
+    const btns = [...host.querySelectorAll('.savebar button')]; btns.forEach((b) => { b.disabled = true; }); saving = true;
     setStep(3);
-    await busy(saveMode === 'open' ? openBtn : saveBtn, async () => {
+    return (inflight = busy(saveMode === 'open' ? openBtn : saveBtn, async () => {
       try {
         const r = id ? await api('PATCH', '/api/products/' + id, body) : await api('POST', '/api/products', body);
         dirty = false; saveForm.clearDraft?.();
         let imgFail = [];
         if (!id && images.count()) imgFail = await images.flush(r.id);
-        if (!id && saveMode === 'open') { toast(imgFail.length ? `حُفظ المنتج، لكن تعذر رفع ${imgFail.length} صورة` : 'تم الحفظ'); go('#/product/' + r.id); return; }
+        if (opts.exit) { if (imgFail.length) toast(`حُفظ المنتج، لكن تعذر رفع ${imgFail.length} صورة`); else toast('تم الحفظ'); return true; }   // save-and-leave: the router navigates
+        if (!id && saveMode === 'open') { toast(imgFail.length ? `حُفظ المنتج، لكن تعذر رفع ${imgFail.length} صورة` : 'تم الحفظ'); go('#/product/' + r.id); return true; }
         if (!id) {
           // RAPID ENTRY: saved for sure (server answered) -> fresh empty form, focus on the barcode, link to the product just saved
           host.remove(); window.scrollTo(0, 0);
           productEdit(root, null, me, { saved: { id: r.id, name: body.name, duplicate: !!r.duplicate_request, imgFail } });
-          return;
+          return true;
         }
         toast(r.verification === 'review' && p.verification === 'verified' ? 'تم الحفظ. أُعيدت حالة التوثيق إلى «تحتاج مراجعة» بسبب التعديل.' : 'تم الحفظ');
         host.remove(); productEdit(root, id, me);   // stay on the same record
+        return true;
       } catch (x) {
         setStep(2);
         const fields = x.data?.fields ?? [];
@@ -310,8 +322,9 @@ export async function productEdit(root, id, me, prefill = {}) {
         fill(msg, h('div', { class: 'notice err', role: 'alert' }, x.status ? x.message : 'تعذر الاتصال بالخادم. لم يُحفظ شيء — بياناتك ما زالت في النموذج، أعد المحاولة.',
           fields.length ? h('div', { class: 'tiny' }, 'الحقول: ' + fields.map((k) => FIELD_AR[k] ?? k).join('، ')) : null,
           x.data?.existingId ? h('button', { class: 'btn sm light', type: 'button', style: 'margin-inline-start:8px', onclick: () => go('#/product/' + x.data.existingId) }, 'فتح السجل الموجود') : null));
-      } finally { btns.forEach((b) => { b.disabled = false; }); saveMode = 'next'; }
-    });
+        return false;
+      } finally { btns.forEach((b) => { b.disabled = false; }); saveMode = 'next'; saving = false; }
+    }));
   };
   const openBtn = h('button', { class: 'btn out', type: 'button', onclick: () => { saveMode = 'open'; form.requestSubmit(saveBtn); } }, icon('doc', 20), ' حفظ وفتح البطاقة');
   const hasContent = !!(p.ingredients || p.benefits || p.warnings);
@@ -378,9 +391,13 @@ export async function productEdit(root, id, me, prefill = {}) {
     id ? [section('استكمال المعلومات', null, idBtn, disc.el), section('الصور', null, images.el), editIdentity] : identCard,
     classCard, pkgCard, useCard, srcCard,
     msg,
-    h('div', { class: 'savebar' }, id ? [saveBtn, h('button', { class: 'btn out', type: 'button', onclick: () => { if (!dirty || confirm('توجد تعديلات غير محفوظة. الخروج دون حفظ؟')) history.back(); } }, 'إلغاء'),
-      me.role === 'manager' ? h('button', { class: 'btn danger', type: 'button', onclick: async () => { if (!confirm('حذف هذا المنتج وصوره نهائيًا؟')) return; try { await api('DELETE', '/api/products/' + id); toast('تم الحذف'); go('#/products'); } catch (e) { toast(e.message); } } }, 'حذف') : null]
-      : [saveBtn, openBtn]));
+    id && me.role === 'manager' ? h('div', { class: 'card dangerzone' }, h('h3', { class: 'fsec-t' }, 'حذف المنتج'), h('p', { class: 'tiny muted' }, 'يحذف المنتج وصوره نهائيًا ولا يمكن التراجع.'),
+      h('button', { class: 'btn danger', type: 'button', id: 'delete-product', onclick: async () => { if (!confirm('حذف هذا المنتج وصوره نهائيًا؟')) return; try { await api('DELETE', '/api/products/' + id); dirty = false; toast('تم الحذف'); goBack(); } catch (e) { toast(e.message); } } }, 'حذف المنتج')) : null,
+    // CP06.2: "إلغاء" leaves through the same guard as every other exit (save & leave / leave without saving / keep editing)
+    h('div', { class: 'savebar' }, id ? [saveBtn, h('button', { class: 'btn out', type: 'button', id: 'cancel-edit', onclick: goBack }, 'إلغاء')] : [saveBtn, openBtn]));
+  // the guard protects EDITS of a saved product. A NEW entry is already kept as a draft on the phone when leaving (CP05.3) and
+  // restored on return, so leaving it never loses work and needs no prompt.
+  if (id) setLeaveGuard({ isDirty: () => dirty, save: () => save(null, { exit: true }), pending: () => (saving ? inflight : null) });
   // keyboard on phones: keep the focused field above the fixed save bar
   form.addEventListener('focusin', (e) => { if (e.target.matches('input,textarea')) setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250); });
   const savedBanner = prefill.saved ? h('div', { class: 'notice ok savedbar', role: 'status' }, prefill.saved.duplicate ? '✓ هذا المنتج حُفظ سابقًا (لم يُكرَّر): ' : '✓ حُفظ: ', h('b', {}, prefill.saved.name), ' ',

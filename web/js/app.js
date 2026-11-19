@@ -9,7 +9,8 @@ import { feedback, checklist } from './views-feedback.js';
 import { loadTaxonomy } from './taxonomy.js';
 import { backupView, restoreOnly } from './views-backup.js';
 import { icon } from './icons.js';
-import { productHelp } from './views-core.js';
+import { productHelp, goBack, RETURN_KEY, LIST_POS_KEY } from './views-core.js';
+import { confirmLeave, clearLeaveGuard, hasUnsavedChanges } from './leave-guard.js';
 
 const app = $('#app');
 let me = null;
@@ -79,11 +80,18 @@ async function render() {
     h('button', { class: MORE.some((m) => m[0] === route) ? 'on' : '', onclick: openMore }, h('b', {}, '☰'), 'المزيد'));
   if (me.role === 'manager') getEnrich().then((st) => { if (st.pending_candidates && nav.isConnected) nav.lastChild.append(h('i', { class: 'dot', title: 'مراجعة معلقة' })); });
   // CP05.3: product entry is a focused task screen — brand header with back + help, no bottom nav (the save bar takes its place)
+  // CP05.3: new-product entry is a focused task screen (no bottom bar). CP06.2: the product card keeps the bottom bar (approved
+  // CP05.3 behaviour) and gets a visible back button in its header; every way out goes through the unsaved-changes guard.
   const focus = route === 'product-new';
   document.body.classList.toggle('focusmode', focus);
+  let back = '#/products'; try { back = sessionStorage.getItem(RETURN_KEY) || back; } catch { /* ignore */ }
+  const backLabel = back.startsWith('#/products') ? 'منتجات' : 'رجوع';
   const header = focus
     ? h('header', { class: 'top accent' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'مساعدة', onclick: productHelp }, icon('help', 26)), h('h1', {}, 'منتج جديد'),
-        h('button', { class: 'iconbtn backbtn', type: 'button', 'aria-label': 'رجوع إلى المنتجات', onclick: () => go('#/products') }, h('span', {}, 'منتجات'), icon('back', 24)))
+        h('button', { class: 'iconbtn backbtn', type: 'button', id: 'back-btn', 'aria-label': 'رجوع إلى المنتجات', onclick: () => go('#/products') }, h('span', {}, 'منتجات'), icon('back', 24)))   // CP05.3 reference: entry goes back to Products
+    : route === 'product'
+    ? h('header', { class: 'top withback' }, h('button', { class: 'backlink', type: 'button', id: 'back-btn', 'aria-label': backLabel === 'منتجات' ? 'رجوع إلى المنتجات' : 'رجوع', onclick: goBack }, icon('back', 22), h('span', {}, backLabel)),
+        h('h1', {}, 'تعديل المنتج'), h('div', { class: 'who' }, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')))
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
   if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
@@ -110,6 +118,26 @@ async function render() {
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }
 }
-window.addEventListener('hashchange', render);
+// CP06.2 router: nothing leaves a screen with unsaved edits without asking (header, cancel, bottom bar, browser Back/Forward, links)
+let shown = location.hash;
+const routeOf = (hash) => (hash.split('?')[0] || '#/home').split('/')[1] || 'home';
+window.addEventListener('hashchange', async () => {
+  const target = location.hash;
+  if (target === shown) return;
+  if (hasUnsavedChanges()) {
+    history.pushState(null, '', shown);   // put the address bar back while the person decides (pushState does not fire hashchange)
+    if (await confirmLeave()) location.hash = target;   // re-enters this handler with the guard cleared
+    return;
+  }
+  const from = routeOf(shown), to = routeOf(target);
+  try {
+    // remember where the person came from, and where they were in the list, so "back" returns to the same place
+    if (from === 'products') sessionStorage.setItem(LIST_POS_KEY, JSON.stringify({ y: window.scrollY, n: document.querySelectorAll('.plist .prow').length }));
+    if ((to === 'product' || to === 'product-new') && from !== 'product' && from !== 'product-new') sessionStorage.setItem(RETURN_KEY, shown || '#/products');
+  } catch { /* storage unavailable: back falls back to the product list */ }
+  clearLeaveGuard();
+  shown = target;
+  render();
+});
 if (!window.MH_LOCAL && 'serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('/sw.js').catch(() => {});
 render();
