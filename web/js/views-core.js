@@ -293,6 +293,7 @@ export async function productEdit(root, id, me, prefill = {}) {
     body.barcode = body.barcode || null;
     if (id && me.role !== 'manager' && p.verification === 'verified') delete body.verification;
     if (!id) { body.availability = 'unknown'; body.client_ref = clientRef; }
+    else if (p.version) body.version = p.version;   // CP06.2: refuse to overwrite a newer edit made by someone else
     body.functions = [...fnSet];
     if (id && p.classification_status !== 'confirmed' && body.product_type === str(p.product_type) && !typeTouched) delete body.product_type; // untouched suggestion stays a suggestion
     const btns = [...host.querySelectorAll('.savebar button')]; btns.forEach((b) => { b.disabled = true; }); saving = true;
@@ -318,9 +319,10 @@ export async function productEdit(root, id, me, prefill = {}) {
         setStep(2);
         const fields = x.data?.fields ?? [];
         fields.forEach((k) => W[k]?.setError('القيمة غير مقبولة.'));
-        if (x.status === 409) W.barcode.setError(x.message);
+        if (x.status === 409 && !x.data?.stale) W.barcode.setError(x.message);
         fill(msg, h('div', { class: 'notice err', role: 'alert' }, x.status ? x.message : 'تعذر الاتصال بالخادم. لم يُحفظ شيء — بياناتك ما زالت في النموذج، أعد المحاولة.',
           fields.length ? h('div', { class: 'tiny' }, 'الحقول: ' + fields.map((k) => FIELD_AR[k] ?? k).join('، ')) : null,
+          x.data?.stale ? h('button', { class: 'btn sm light', type: 'button', id: 'reload-product', style: 'margin-inline-start:8px', onclick: () => { dirty = false; host.remove(); productEdit(root, id, me); } }, 'إعادة فتح آخر نسخة (تُفقد تعديلاتك غير المحفوظة)') : null,
           x.data?.existingId ? h('button', { class: 'btn sm light', type: 'button', style: 'margin-inline-start:8px', onclick: () => go('#/product/' + x.data.existingId) }, 'فتح السجل الموجود') : null));
         return false;
       } finally { btns.forEach((b) => { b.disabled = false; }); saveMode = 'next'; saving = false; }

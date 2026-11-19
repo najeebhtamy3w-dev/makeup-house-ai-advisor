@@ -70,7 +70,8 @@ export async function dispatch(db: DB, cfg: Config, req: ApiRequest): Promise<Ap
     if (out instanceof RawResponse) return { status: out.status, headers: { ...out.headers, 'x-robots-tag': 'noindex, nofollow' }, body: out.body };
     return send(200, out ?? { ok: true });
   } catch (e) {
-    if (e instanceof HttpError) return send(e.status, { error: e.message, ...((e as HttpError & { existingId?: number }).existingId ? { existingId: (e as HttpError & { existingId?: number }).existingId } : {}) });
+    if (e instanceof HttpError) { const x = e as HttpError & { existingId?: number; stale?: boolean; currentVersion?: number };
+      return send(e.status, { error: e.message, ...(x.existingId ? { existingId: x.existingId } : {}), ...(x.stale ? { stale: true, currentVersion: x.currentVersion } : {}) }); }
     if (e instanceof ZodError) return send(400, { error: 'بيانات غير صالحة', fields: e.issues.map((i) => i.path.join('.')) });
     console.error('[internal]', (e as Error).message); return send(500, { error: 'خطأ داخلي' });
   }

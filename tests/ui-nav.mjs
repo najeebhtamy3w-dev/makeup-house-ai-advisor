@@ -134,6 +134,17 @@ for (const width of [360, 390]) {
     assert.equal(await page.inputValue('#f-name'), 'مسودة التنقل'); await page.evaluate(() => sessionStorage.removeItem('mh_new_product_draft'));
   });
 
+  await step(`[${width}] someone else saved the product meanwhile: my save is refused, nothing is overwritten, I can reopen the latest copy`, async () => {
+    const id = ids[20];
+    await page.evaluate((i) => (location.hash = '#/product/' + i), id); await page.waitForSelector('#f-name');
+    const v = (await api('GET', '/api/products/' + id)).json.product.version;
+    assert.equal((await api('PATCH', '/api/products/' + id, { brand: 'تعديل زميل', version: v })).status, 200);
+    await page.fill('#f-size', '30 ml'); await page.click('button:has-text("حفظ التعديلات")');
+    await page.waitForSelector('#reload-product'); assert.match(await page.textContent('.notice.err'), /عدّل شخص آخر/);
+    const p = (await api('GET', '/api/products/' + id)).json.product; assert.equal(p.brand, 'تعديل زميل'); assert.notEqual(p.size, '30 ml');
+    await page.click('#reload-product'); await page.waitForFunction(() => document.querySelector('#f-brand')?.value === 'تعديل زميل');
+  });
+
   await step(`[${width}] reload / close with unsaved edits triggers the browser's leave prompt`, async () => {
     await page.evaluate((i) => (location.hash = '#/product/' + i), ids[5]); await page.waitForSelector('#f-name');
     await page.fill('#f-brand', 'سيُفقد');
