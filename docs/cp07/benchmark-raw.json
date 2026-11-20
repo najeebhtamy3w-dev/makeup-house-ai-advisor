@@ -1,6 +1,6 @@
 {
  "summary": {
-  "generated_at": "2026-11-20T04:04:33.332Z",
+  "generated_at": "2026-11-20T05:10:37.531Z",
   "questions": 410,
   "conversations": 50,
   "conflict_cases": 30,
@@ -173,15 +173,15 @@
   },
   "latency_ms": {
    "cp07": {
-    "p50": 0.7,
-    "p95": 1.7
+    "p50": 0.6,
+    "p95": 1.4
    },
    "original": {
-    "p50": 0.7,
-    "p95": 1.4
+    "p50": 0.6,
+    "p95": 1.2
    }
   },
-  "rss_mb_after": 113,
+  "rss_mb_after": 100,
   "network_calls": 0,
   "gaps_logged": [
    {
@@ -460,8 +460,7 @@
     "insufOk": null,
     "evidence_status": "unreviewed",
     "products": [
-     "Gentle Hydrating Cleanser TEST",
-     "Foaming Gel Cleanser TEST"
+     "Gentle Hydrating Cleanser TEST"
     ]
    },
    "original": {
@@ -1128,8 +1127,7 @@
     "insufOk": null,
     "evidence_status": "unreviewed",
     "products": [
-     "Gentle Hydrating Cleanser TEST",
-     "Foaming Gel Cleanser TEST"
+     "Gentle Hydrating Cleanser TEST"
     ]
    },
    "original": {
@@ -1908,8 +1906,7 @@
     "insufOk": null,
     "evidence_status": "unreviewed",
     "products": [
-     "Gentle Hydrating Cleanser TEST",
-     "Foaming Gel Cleanser TEST"
+     "Gentle Hydrating Cleanser TEST"
     ]
    },
    "original": {
@@ -2092,8 +2089,7 @@
     "insufOk": null,
     "evidence_status": "unreviewed",
     "products": [
-     "Gentle Hydrating Cleanser TEST",
-     "Foaming Gel Cleanser TEST"
+     "Gentle Hydrating Cleanser TEST"
     ]
    },
    "original": {
@@ -2874,8 +2870,7 @@
     "insufOk": null,
     "evidence_status": "unreviewed",
     "products": [
-     "Gentle Hydrating Cleanser TEST",
-     "Foaming Gel Cleanser TEST"
+     "Gentle Hydrating Cleanser TEST"
     ]
    },
    "original": {
@@ -3541,8 +3536,7 @@
     "insufOk": null,
     "evidence_status": "unreviewed",
     "products": [
-     "Gentle Hydrating Cleanser TEST",
-     "Foaming Gel Cleanser TEST"
+     "Gentle Hydrating Cleanser TEST"
     ]
    },
    "original": {
@@ -4323,8 +4317,7 @@
     "insufOk": null,
     "evidence_status": "unreviewed",
     "products": [
-     "Gentle Hydrating Cleanser TEST",
-     "Foaming Gel Cleanser TEST"
+     "Gentle Hydrating Cleanser TEST"
     ]
    },
    "original": {
