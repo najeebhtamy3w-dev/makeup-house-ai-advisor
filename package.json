@@ -21,7 +21,9 @@
     "android:sync": "node scripts/build-mobile.mjs && npx cap sync android",
     "test:ui:nav": "scripts/ui-nav-run.sh",
     "test:ui:evidence": "scripts/ui-evidence-run.sh",
-    "test:ui:advisor": "scripts/ui-advisor-run.sh"
+    "test:ui:advisor": "scripts/ui-advisor-run.sh",
+    "test:ui:intel": "scripts/ui-intel-run.sh",
+    "eval:natural": "node --no-warnings --import tsx scripts/cp08-natural-eval.ts"
   },
   "dependencies": {
     "tsx": "4.23.15",

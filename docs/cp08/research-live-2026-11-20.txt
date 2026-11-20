@@ -1,0 +1,21 @@
+(node:1158) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+### هل حمض الترانيكساميك ينفع للكلف ok [{"connector":"pubmed","q":"tranexamic acid topical hyperpigmentation melasma"},{"connector":"medlineplus","q":"hyperpigmentation melasma"}] [ 'بعض النتائج ضعيفة الصلة بالسؤال؛ المراجعة البشرية ضرورية.' ]
+  0.58 | pubmed | narrative_review | 2023 | THE USE OF TRANEXAMIC ACID IN DERMATOLOGY.
+  0.48 | pubmed | systematic_review | 2022 | Melasma treatment: a systematic review.
+  0.48 | pubmed | systematic_review | 2022 | Microneedling as an adjuvant to topical therapies for melasma: A systematic review and met
+  0.38 | pubmed | narrative_review | 2017 | Melasma: an Up-to-Date Comprehensive Review.
+  0.35 | pubmed | unknown | 2026 | Delphi consensus on melasma management by international experts and pigmentary disorders s
+  0.2 | medlineplus | expert_patient_education | - | Skin Pigmentation Disorders
+
+### ينفع اخلط النياسيناميد مع الساليسيليك؟ ok [{"connector":"pubmed","q":"niacinamide salicylic acid combination topical"}] [ 'بعض النتائج ضعيفة الصلة بالسؤال؛ المراجعة البشرية ضرورية.' ]
+  0.27 | pubmed | narrative_review | 2022 | Topical Treatments for Melasma and Their Mechanism of Action.
+  0.22 | pubmed | narrative_review | 2016 | The role of topical dermocosmetics in acne vulgaris.
+
+### القشرة رجعت لي وتحكني بالليل ok [{"connector":"medlineplus","q":"dermatitis dandruff"},{"connector":"pubmed","q":"seborrheic dermatitis dandruff management skin care"}] [ 'بعض النتائج ضعيفة الصلة بالسؤال؛ المراجعة البشرية ضرورية.' ]
+  0.68 | medlineplus | expert_patient_education | - | Dandruff , Cradle Cap, and Other Scalp Conditions
+  0.32 | medlineplus | expert_patient_education | - | Cosmetics
+  0.2 | medlineplus | expert_patient_education | - | Skin Conditions
+  0.2 | medlineplus | expert_patient_education | - | Hair Problems
+  0.2 | medlineplus | expert_patient_education | - | Common Infant and Newborn Problems

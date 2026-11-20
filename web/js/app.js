@@ -25,7 +25,7 @@ const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '
   ['review', '✔', 'مراجعة المعلومات', true], ['evidence', '⧉', 'مراجعة أدلة المصادر', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
 // CP06: backup / restore exists only where the data lives on the device
 if (window.MH_LOCAL) MORE.push(['backup', '⛁', 'النسخ الاحتياطي والاستعادة', true]);
-const TITLES = { backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+const TITLES = { intel: 'المستشار العلمي', knowledge: 'مراجعة المعرفة', backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
@@ -69,10 +69,18 @@ function openMore() {
   document.body.append(sheet);
 }
 
+// CP08: the scientific advisor screens appear only when the server offers them (MH_CP07=1). The Android worker and
+// a server without the flag answer 404, so nothing changes there.
+let cp08Probed = false;
+function probeCp08() {
+  if (cp08Probed) return; cp08Probed = true;
+  api('GET', '/api/cp08/status').then((st) => { if (!st?.enabled) return; MORE.unshift(['intel', '✧', 'المستشار العلمي (تجريبي)']); MORE.push(['knowledge', '⚗', 'مراجعة المعرفة العلمية', true]); }).catch(() => {});
+}
 async function render() {
   await metaReady;
   if (!getToken()) { loginView(); return; }
   if (!me) { try { me = (await api('GET', '/api/auth/me')).user; } catch { loginView(); return; } }
+  probeCp08();
   await loadTaxonomy().catch(() => {});
   const [, route = 'home', arg] = (location.hash.split('?')[0] || '#/home').split('/');
   const params = new URLSearchParams(location.hash.split('?')[1] ?? '');
@@ -96,7 +104,7 @@ async function render() {
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
   if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
-  const managerOnly = ['import', 'reports', 'users', 'review', 'backup', 'evidence'];
+  const managerOnly = ['import', 'reports', 'users', 'review', 'backup', 'evidence', 'knowledge'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
     case 'home': return home(main, me);
@@ -117,6 +125,8 @@ async function render() {
     case 'backup': return localViews().then((m) => m.backupView(main, me));
     case 'review': return review(main);
     case 'evidence': return import('./views-evidence.js').then((m) => m.evidenceReview(main));
+    case 'intel': return import('./views-intel.js').then((m) => m.intel(main));
+    case 'knowledge': return import('./views-intel.js').then((m) => m.knowledge(main));
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }
 }

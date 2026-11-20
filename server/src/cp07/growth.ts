@@ -5,7 +5,7 @@
  *   → manager approves → retrievable. No step publishes automatically.
  */
 import type { DB } from '../db.ts';
-import { CONNECTORS, guardedSearch, type FetchLike } from './connectors.ts';
+import { CONNECTORS, guardedSearch, type FetchLike, type RawEvidence } from './connectors.ts';
 import { validateEvidence } from './validate.ts';
 import { KnowledgeError } from './store.ts';
 
@@ -43,6 +43,18 @@ export function enqueueGap(db: DB, gapId: number, connectors = ['medlineplus', '
   return { queued: n, query: q };
 }
 
+/** Validate and store connector results as DISCOVERED evidence (pending review or rejected). Shared by growth jobs and CP08 research. */
+export function storeEvidence(db: DB, connector: string, query: string, items: RawEvidence[], at: string, jobId: number | null, gapId: number | null): number {
+  let stored = 0;
+  const ins = db.prepare(`INSERT OR IGNORE INTO knowledge_retrievals(source,query_key,title,url,snippet,language,retrieved_at,review_state,publisher,pub_types,published_at,license_status,evidence_level,validation,evidence_state,job_id,gap_id)
+    VALUES (?,?,?,?,?,'en',?,'unreviewed',?,?,?,?,?,?,?,?,?)`);
+  for (const e of items) {
+    const v = validateEvidence({ title: e.title, url: e.url, publisher: e.publisher, published_at: e.published_at, pub_types: e.pub_types, snippet: e.snippet, affiliation: e.affiliation });
+    stored += Number(ins.run(connector, query, e.title, e.url, e.snippet, at, e.publisher, e.pub_types.join('; '), e.published_at, connector === 'pubmed' ? 'metadata_only' : 'link_and_summary_only', v.evidence_level, JSON.stringify(v), v.verdict === 'blocked' ? 'rejected' : 'pending_review', jobId, gapId).changes);
+  }
+  return stored;
+}
+
 /** Process ONE due job. Never throws for connector problems: the job records why it is waiting. */
 export async function runIngestionOnce(db: DB, env: { fetch: FetchLike; online: boolean; nowMs?: number; sleep?: (ms: number) => Promise<void> }) {
   const t = new Date(env.nowMs ?? Date.now()).toISOString();
@@ -56,13 +68,7 @@ export async function runIngestionOnce(db: DB, env: { fetch: FetchLike; online: 
     db.prepare('UPDATE knowledge_ingestion_jobs SET state=?, attempts=attempts+1, error=?, next_at=?, updated_at=? WHERE id=?').run(state, r.status + (('error' in r && r.error) ? `: ${r.error}` : ''), later(r.status === 'disabled' ? 60 : 5 * 2 ** Math.min(job.attempts, 5)), t, job.id);
     return { id: job.id, state, reason: r.status };
   }
-  let stored = 0;
-  const ins = db.prepare(`INSERT OR IGNORE INTO knowledge_retrievals(source,query_key,title,url,snippet,language,retrieved_at,review_state,publisher,pub_types,published_at,license_status,evidence_level,validation,evidence_state,job_id,gap_id)
-    VALUES (?,?,?,?,?,'en',?,'unreviewed',?,?,?,?,?,?,?,?,?)`);
-  for (const e of r.items) {
-    const v = validateEvidence({ title: e.title, url: e.url, publisher: e.publisher, published_at: e.published_at, pub_types: e.pub_types, snippet: e.snippet, affiliation: e.affiliation });
-    stored += Number(ins.run(job.connector, job.query, e.title, e.url, e.snippet, t, e.publisher, e.pub_types.join('; '), e.published_at, job.connector === 'pubmed' ? 'metadata_only' : 'link_and_summary_only', v.evidence_level, JSON.stringify(v), v.verdict === 'blocked' ? 'rejected' : 'pending_review', job.id, job.gap_id).changes);
-  }
+  const stored = storeEvidence(db, job.connector, job.query, r.items, t, job.id, job.gap_id);
   db.prepare("UPDATE knowledge_ingestion_jobs SET state='done', attempts=attempts+1, found=?, error='', updated_at=? WHERE id=?").run(stored, t, job.id);
   db.prepare("UPDATE knowledge_gaps SET status='evidence_pending' WHERE id = ? AND status = 'searching'").run(job.gap_id);
   return { id: job.id, state: 'done', found: stored };

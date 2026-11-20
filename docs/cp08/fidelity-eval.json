@@ -1,0 +1,333 @@
+{
+ "summary": {
+  "labelled": 40,
+  "drift": 8,
+  "faithful": 32,
+  "cp07_guard": {
+   "drift_caught": "0/8",
+   "faithful_wrongly_rejected": "0/32"
+  },
+  "cp08_guard": {
+   "drift_caught": "8/8",
+   "faithful_wrongly_rejected": "3/32"
+  }
+ },
+ "perModel": {
+  "Qwen3-0.6B-Q8_0": "5/5 CP07-passing answers now rejected",
+  "Qwen3-1.7B-Q8_0": "8/11 CP07-passing answers now rejected",
+  "Qwen3-4B-Q4_K_M": "9/12 CP07-passing answers now rejected",
+  "SmolLM3-Q4_K_M": "1/1 CP07-passing answers now rejected",
+  "qwen2.5-1.5b-instruct-q4_k_m": "5/6 CP07-passing answers now rejected"
+ },
+ "rows": [
+  {
+   "n": 1,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 3,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 4,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 5,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 6,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 8,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "low support 0% (sentence not traceable to the cited claim)"
+   ]
+  },
+  {
+   "n": 9,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 10,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 11,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 12,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 13,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "low support 38% (sentence not traceable to the cited claim)",
+    "hedge dropped (claim is qualified, sentence is categorical)",
+    "directive inversion («استشيري» → منع)",
+    "qualifier dropped «وصفي»"
+   ]
+  },
+  {
+   "n": 14,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "low support 40% (sentence not traceable to the cited claim)",
+    "qualifier dropped «الطبيه»"
+   ]
+  },
+  {
+   "n": 15,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "low support 13% (sentence not traceable to the cited claim)",
+    "hedge dropped (claim is qualified, sentence is categorical)"
+   ]
+  },
+  {
+   "n": 16,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 17,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "directive inversion («استشيري» → منع)",
+    "qualifier dropped «الطبيه»"
+   ]
+  },
+  {
+   "n": 19,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "hedge dropped (claim is qualified, sentence is categorical)"
+   ]
+  },
+  {
+   "n": 20,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 21,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 22,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 23,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 24,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 25,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 26,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 27,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 29,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "certainty escalation «نعم»",
+    "hedge dropped (claim is qualified, sentence is categorical)"
+   ]
+  },
+  {
+   "n": 30,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 32,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 33,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 34,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "echoes the question"
+   ]
+  },
+  {
+   "n": 35,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "foreign script"
+   ]
+  },
+  {
+   "n": 36,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 37,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 38,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 39,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 40,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 41,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 42,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 44,
+   "label": "drift",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "low support 45% (sentence not traceable to the cited claim)"
+   ]
+  },
+  {
+   "n": 45,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": false,
+   "problems": []
+  },
+  {
+   "n": 46,
+   "label": "faithful",
+   "cp07_rejects": false,
+   "cp08_rejects": true,
+   "problems": [
+    "hedge dropped (claim is qualified, sentence is categorical)"
+   ]
+  }
+ ]
+}

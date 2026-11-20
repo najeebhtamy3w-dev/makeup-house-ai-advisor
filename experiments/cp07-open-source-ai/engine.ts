@@ -8,6 +8,7 @@
  * only rewrite them. groundingCheck() (server/src/cp07/answer.ts) validates every output; any failure → LOCAL_RULES text.
  */
 import { answerCp07, groundingCheck, type Cp07Answer, type Cp07Deps } from '../../server/src/cp07/answer.ts';
+import { fidelityCheck } from '../../server/src/cp08/fidelity.ts';
 import type { DB } from '../../server/src/db.ts';
 import type { TAdvisorContext } from '../../server/src/contracts.ts';
 
@@ -91,6 +92,9 @@ export async function hybridAnswer(db: DB, question: string, mode: Mode, engine:
     const arabicRatio = (r.text.match(/[؀-ۿ]/g)?.length ?? 0) / Math.max(1, (r.text.match(/\p{L}/gu)?.length ?? 0));
     if (arabicRatio < 0.7) check.problems.push(`non-Arabic output (${Math.round(arabicRatio * 100)}% Arabic letters)`);
     if (/[一-鿿]/.test(r.text)) check.problems.push('CJK characters in output');
+    // CP08: meaning fidelity per sentence (structure alone let meaning changes through in CP07)
+    for (const f of fidelityCheck(r.text, items.map((i) => ({ id: i.claim_id!, text: i.text })), { question }).problems) check.problems.push(`fidelity: ${f.problem}`);
+    if (/[\u3131-\uD79D]/.test(r.text)) check.problems.push('Hangul characters in output');
     check.ok = !check.problems.length;
     if (!check.ok) return { ...base, model_text: r.text, grounding: check, fallback_reason: 'grounding check failed', model_ms: r.ms };
     return { mode_requested: mode, mode_used: mode, text: `${r.text}\n${a.text.split('\n').filter((l) => l.startsWith('【منتجات') || l.startsWith('【المصادر') || l.startsWith('- ') || l.startsWith('حالة المعلومة')).join('\n')}`, model_text: r.text, grounding: check, model_ms: r.ms, answer: a };

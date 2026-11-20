@@ -28,7 +28,7 @@ export function productBridge(db: DB, products: P[], u: Cp07Understanding, confl
   // sensitive skin → fragrance-free is requested from the unchanged rules, because the knowledge base says so
   // (sensitive-skin claim «اختاري منتجات لطيفة خالية من العطور», AAD). This only builds the query; science/* decides.
   const avoidFragrance = u.constraints.includes('fragrance_free') || u.skin_type.includes('sensitive');
-  const query = [TYPE_AR[type] ?? '', ...u.skin_type.map((s) => `بشرة ${SKIN_AR[s] ?? ''}`), avoidFragrance ? 'بدون عطر' : ''].join(' ').trim();
+  const query = [TYPE_AR[type] ?? '', ...u.skin_type.map((s) => `بشرة ${SKIN_AR[s] ?? ''}`), avoidFragrance ? 'بدون عطر' : '', u.constraints.includes('sulfate_free') ? 'بدون سلفات' : ''].join(' ').trim();
   const wanted = TYPE_TO_TAXONOMY[type] ?? [type];
   const pool = products.filter((p) => wanted.includes(p.product_type ?? '') || wanted.some((w) => p.category === w));
   const r = advise(query, pool, { conflictIds });

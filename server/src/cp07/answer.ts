@@ -69,7 +69,23 @@ export function answerCp07(db: DB, text: string, prev?: TAdvisorContext, deps: C
   const item = (h: Hit): Item => { used.add(h.claim.id); return { text: h.claim.text_ar, claim_id: h.claim.id, source_ids: h.source_ids, trust: trustLabel(h.claim).label_ar }; };
   const take = (pred: (h: Hit) => boolean, n: number) => hits.filter((h) => !used.has(h.claim.id) && pred(h)).slice(0, n).map(item);
 
-  if (u.intent === 'combination') {
+  // CP08: referrals are shown FIRST (before advice), not appended at the end
+  for (const r of u.referrals) sections.push({ kind: 'warnings', title: 'إحالة', items: [{ text: r, source_ids: [] }] });
+  const ingTopicOf = (i: string) => (db.prepare('SELECT topic_id FROM ingredient_knowledge WHERE inci = ?').get(i) as { topic_id: string } | undefined)?.topic_id ?? (i === 'exfoliation' ? 'exfoliation' : null);
+
+  if (u.resolved_reference === 'product_unresolved') {
+    // never guess which product "this cream" is
+    sections.push({ kind: 'follow_up', title: 'أي منتج؟', items: [{ text: 'لم يُحدَّد المنتج المقصود بعد. اكتبي اسمه كما في الكتالوج أو امسحي الباركود، حتى أقرأ مكوناته المعتمدة؛ لن أخمّن ملاءمة منتج لا أعرف مكوناته.', source_ids: [] }] });
+    if (u.ingredients.length) { const inter = take((h) => h.claim.kind === 'interaction' || h.claim.kind === 'caution', 2); if (inter.length) sections.push({ kind: 'warnings', title: `عن ${u.ingredients.map((i) => ING_AR[i] ?? i).join(' و')} عمومًا (لا يخص المنتج المجهول)`, items: inter }); }
+  } else if (u.intent === 'compare' && u.ingredients.length >= 2) {
+    // CP08: comparing two INGREDIENTS = what the sources say about each, side by side; no "winner" is invented
+    for (const ing of u.ingredients.slice(0, 3)) {
+      const tp = ingTopicOf(ing); const its = tp ? take((h) => h.claim.topic_id === tp && ['ingredient', 'education', 'advice', 'caution'].includes(h.claim.kind), 2) : [];
+      if (its.length) sections.push({ kind: 'explanation', title: `عن ${ING_AR[ing] ?? ing}`, items: its });
+      else { gaps.push(`ingredient:${ing}`); sections.push({ kind: 'insufficient', title: `عن ${ING_AR[ing] ?? ing}`, items: [{ text: `لا تتوفر لدي معلومات موثوقة كافية عن ${ING_AR[ing] ?? ing}.`, source_ids: [] }] }); }
+    }
+    sections.push({ kind: 'insufficient', title: 'حدود المقارنة', items: [{ text: 'هذا عرض لما تقوله المصادر عن كل مكوّن على حدة، وليس حكمًا بأن أحدهما أفضل؛ الاختيار يعتمد على نوع البشرة والمشكلة وبقية مكونات المنتج.', source_ids: [] }] });
+  } else if (u.intent === 'combination') {
     const inter = take((h) => h.why.some((w) => w.startsWith('combination:')) || h.claim.kind === 'interaction', 3);
     if (inter.length) sections.push({ kind: 'interaction', title: 'الجمع بين المكونات', items: inter });
     else { gaps.push(gapKey(u)); sections.push({ kind: 'insufficient', title: 'حدود المعرفة', items: [{ text: `لا تتوفر لدي معلومات موثوقة كافية عن الجمع بين ${u.ingredients.map((i) => ING_AR[i] ?? i).join(' و')}. الأسلم استشارة صيدلي أو طبيب جلدية قبل الجمع.`, source_ids: [] }] }); }
@@ -108,14 +124,18 @@ export function answerCp07(db: DB, text: string, prev?: TAdvisorContext, deps: C
     if (ref.length) sections.push({ kind: 'warnings', title: 'متى تراجعين مختصًا', items: ref });
     if (!hits.length && u.intent !== 'product_followup') { gaps.push(gapKey(u)); sections.push({ kind: 'insufficient', title: 'حدود المعرفة', items: [{ text: 'لا تتوفر لدي معلومات موثوقة كافية للإجابة عن هذا السؤال. وضّحي نوع البشرة أو الشعر والمشكلة والمنتج المطلوب.', source_ids: [] }] }); }
   }
-  for (const r of u.referrals) sections.push({ kind: 'warnings', title: 'إحالة', items: [{ text: r, source_ids: [] }] });
-
   // 3) products (approved local catalogue only, availability separate)
   let products: BridgeResult | null = null;
-  if (u.requested_product_type && deps.products) {
-    products = productBridge(db, deps.products(), u, deps.conflictIds);
-    const items: Item[] = products.items.map((p) => ({ text: `${p.name}${p.brand ? ` (${p.brand})` : ''} — ${p.suitability.label}؛ المعلومات: ${p.information === 'documented' ? 'موثقة' : p.information === 'partial' ? 'جزئية' : 'غير معروفة'}؛ التوفر: ${p.availability_note}`, source_ids: [] }));
-    sections.push({ kind: 'products', title: 'منتجات المحل', items: items.length ? items : [{ text: products.note, source_ids: [] }] });
+  if (u.requested_product_type && deps.products && u.resolved_reference !== 'product_unresolved') {
+    const all = deps.products();
+    // CP08: every requested type ("مرطب وواقي") gets its own catalogue lookup
+    for (const t of (u.requested_product_types?.length ? u.requested_product_types : [u.requested_product_type]).slice(0, 3)) {
+    const pr = productBridge(db, all, { ...u, requested_product_type: t }, deps.conflictIds);
+    if (!products) products = pr; else { products.items.push(...pr.items); products.needs_information.push(...pr.needs_information); products.excluded.push(...pr.excluded); }
+    const items: Item[] = pr.items.map((p) => ({ text: `${p.name}${p.brand ? ` (${p.brand})` : ''} — ${p.suitability.label}؛ المعلومات: ${p.information === 'documented' ? 'موثقة' : p.information === 'partial' ? 'جزئية' : 'غير معروفة'}؛ التوفر: ${p.availability_note}`, source_ids: [] }));
+    sections.push({ kind: 'products', title: `منتجات المحل — ${TYPE_AR[t] ?? t}`, items: items.length ? items : [{ text: pr.note, source_ids: [] }] });
+    }
+    if (u.constraints.includes('alcohol_free')) sections.push({ kind: 'insufficient', title: 'حدود التحقق', items: [{ text: 'خلوّ المنتج من الكحول لا تتحقق منه قواعد المحل آليًا بعد؛ راجعي قائمة المكونات على العبوة.', source_ids: [] }] });
   }
   // 4) one necessary follow-up, never repeated
   let follow_up: Cp07Answer['follow_up'] = null;
