@@ -21,6 +21,7 @@ export interface ProductRow {
   primary_image_id?: number | null;
   pending_suggestions?: number;
   product_type?: string; application_area?: string; functions?: string; classification_status?: string; classification_raw?: string;
+  name_ar?: string; name_en?: string; manufacturer?: string; variant?: string; record_status?: 'import_draft' | 'active' | 'archived'; version?: number;
 }
 /** Product columns + id of its primary image (CP04). */
 export const PRODUCT_SELECT = "SELECT products.*, (SELECT i.id FROM product_images i WHERE i.product_id = products.id ORDER BY i.is_primary DESC, i.id LIMIT 1) AS primary_image_id, (SELECT COUNT(*) FROM enrichment_candidates e WHERE e.barcode = products.barcode AND e.review_status = 'pending') AS pending_suggestions FROM products";
@@ -115,6 +116,13 @@ const productInput = z.object({
   application_area: z.string().refine((v) => v === '' || AREA_IDS.has(v), 'منطقة غير معروفة').default(''),
   functions: z.array(z.string().refine((v) => FUNCTION_IDS.has(v))).max(10).default([]),
   client_ref: z.string().regex(/^[A-Za-z0-9-]{8,64}$/).optional(),
+  // CP06.2 identity (migration 006). `name` stays the display name; these never change it automatically.
+  name_ar: z.string().trim().max(200).default(''),
+  name_en: z.string().trim().max(200).default(''),
+  manufacturer: z.string().trim().max(160).default(''),
+  variant: z.string().trim().max(120).default(''),
+  // optimistic concurrency: the version the editor loaded. Omitted = old clients (accepted, as before).
+  version: z.number().int().positive().optional(),
 }).strict();
 /** A person choosing a type in the form confirms it; no type = unknown. */
 const classification = (d: { product_type?: string }) => (d.product_type ? 'confirmed' : 'unknown');
@@ -242,9 +250,9 @@ route('POST', '/api/products', 'any', async (c) => {
   const avSet = d.availability !== 'unknown';
   let r;
   try {
-    r = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,ingredients,benefits,warnings,source_url,created_by,created_at,updated_at,product_type,application_area,functions,classification_status,client_ref)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(barcode, d.name, d.brand, d.category, d.size, d.availability, avSet ? t : null, avSet ? user.id : null, d.verification, d.ingredients, d.benefits, d.warnings, d.source_url, user.id, t, t,
-      d.product_type, d.application_area, [...new Set(d.functions)].join(','), classification(d), d.client_ref ?? null);
+    r = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,ingredients,benefits,warnings,source_url,created_by,created_at,updated_at,product_type,application_area,functions,classification_status,client_ref,name_ar,name_en,manufacturer,variant)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(barcode, d.name, d.brand, d.category, d.size, d.availability, avSet ? t : null, avSet ? user.id : null, d.verification, d.ingredients, d.benefits, d.warnings, d.source_url, user.id, t, t,
+      d.product_type, d.application_area, [...new Set(d.functions)].join(','), classification(d), d.client_ref ?? null, d.name_ar, d.name_en, d.manufacturer, d.variant);
   } catch (e) {
     // two identical submissions racing: the unique index on client_ref is the server-side guarantee
     const prev = d.client_ref ? c.db.prepare('SELECT id FROM products WHERE client_ref = ?').get(d.client_ref) as { id: number } | undefined : undefined;
@@ -261,6 +269,8 @@ route('PATCH', '/api/products/:id', 'any', async (c) => {
   if (!cur) throw new HttpError(404, 'المنتج غير موجود');
   const user = c.user!;
   const d = productInput.omit({ availability: true, client_ref: true }).partial().parse(await c.body());
+  // CP06.2: a save based on an older copy of the record is refused instead of silently overwriting someone else's edit
+  if (d.version !== undefined && d.version !== cur.version) throw Object.assign(new HttpError(409, 'عدّل شخص آخر هذا المنتج بعد فتحك له. أعد فتح المنتج لترى آخر نسخة، ثم أعد تعديلك.'), { stale: true, currentVersion: cur.version });
   if (d.barcode !== undefined) {
     const b = cleanBarcode(d.barcode);
     if (b) { const ex = c.db.prepare('SELECT id FROM products WHERE barcode = ? AND id <> ?').get(b, id); if (ex) throw new HttpError(409, 'الباركود مسجل لمنتج آخر'); }
@@ -278,11 +288,12 @@ route('PATCH', '/api/products/:id', 'any', async (c) => {
   if (next.verification === 'verified' && !next.source_url) throw new HttpError(400, 'لا يمكن اعتماد منتج دون رابط مصدر');
   // classification is not scientific content: changing it does not reset verification; a person choosing a type confirms it
   const cls = d.product_type !== undefined ? { product_type: d.product_type, classification_status: classification(d), classification_raw: d.product_type ? '' : cur.classification_raw ?? '' } : { product_type: cur.product_type ?? '', classification_status: cur.classification_status ?? 'unknown', classification_raw: cur.classification_raw ?? '' };
-  c.db.prepare(`UPDATE products SET barcode=?,name=?,brand=?,category=?,size=?,ingredients=?,benefits=?,warnings=?,source_url=?,verification=?,updated_at=?,product_type=?,application_area=?,functions=?,classification_status=?,classification_raw=? WHERE id=?`)
+  c.db.prepare(`UPDATE products SET barcode=?,name=?,brand=?,category=?,size=?,ingredients=?,benefits=?,warnings=?,source_url=?,verification=?,updated_at=?,product_type=?,application_area=?,functions=?,classification_status=?,classification_raw=?,name_ar=?,name_en=?,manufacturer=?,variant=?,version=version+1 WHERE id=?`)
     .run(next.barcode, next.name, next.brand, next.category, next.size, next.ingredients, next.benefits, next.warnings, next.source_url, next.verification, now(),
-      cls.product_type, d.application_area ?? cur.application_area ?? '', d.functions ? [...new Set(d.functions)].join(',') : cur.functions ?? '', cls.classification_status, cls.classification_raw, id);
-  audit(c.db, user.id, 'update', 'product', id, Object.keys(d).join(','));
-  return { verification: next.verification };
+      cls.product_type, d.application_area ?? cur.application_area ?? '', d.functions ? [...new Set(d.functions)].join(',') : cur.functions ?? '', cls.classification_status, cls.classification_raw,
+      d.name_ar ?? cur.name_ar ?? '', d.name_en ?? cur.name_en ?? '', d.manufacturer ?? cur.manufacturer ?? '', d.variant ?? cur.variant ?? '', id);
+  audit(c.db, user.id, 'update', 'product', id, Object.keys(d).filter((k) => k !== 'version').join(','));
+  return { verification: next.verification, version: (cur.version ?? 1) + 1 };
 });
 
 route('POST', '/api/products/:id/availability', 'any', async (c) => {
@@ -323,11 +334,12 @@ async function runImport(c: Ctx, commit: boolean) {
   let parsed;
   try { parsed = parseImport(filename, buf); } catch (e) { throw new HttpError(400, (e as Error).message); }
   // CP05 import decisions. Existing records are NEVER overwritten: only EMPTY brand/size of a non-verified product may be completed.
-  type Ex = { id: number; barcode: string | null; name: string; brand: string; size: string; verification: string; product_type: string };
-  const all = c.db.prepare('SELECT id, barcode, name, brand, size, verification, product_type FROM products').all() as Ex[];
+  type Ex = { id: number; barcode: string | null; name: string; brand: string; size: string; variant: string; verification: string; product_type: string };
+  const all = c.db.prepare('SELECT id, barcode, name, brand, size, variant, verification, product_type FROM products').all() as Ex[];
   const byBarcode = new Map(all.filter((p) => p.barcode).map((p) => [p.barcode!, p]));
   const sizeKey = (v: string) => { const p = parseSize(v); return p ? `${p.v}${p.unit}` : norm(v); };
-  const idKey = (r: { name: string; brand: string; size: string }) => `${norm(r.name)}|${norm(r.brand)}|${sizeKey(r.size)}`;
+  // CP06.2: the variant (shade / scent / edition) is part of the identity — a different variant is a different product
+  const idKey = (r: { name: string; brand: string; size: string; variant?: string }) => `${norm(r.name)}|${norm(r.brand)}|${sizeKey(r.size)}|${norm(r.variant ?? '')}`;
   const byIdentity = new Map(all.filter((p) => !p.barcode).map((p) => [idKey(p), p]));
   // without a barcode and with a size missing on either side, "same name + brand" is ambiguous: never import it silently
   const byNameBrand = new Map<string, Ex>(); for (const p of all) if (!p.barcode) byNameBrand.set(`${norm(p.name)}|${norm(p.brand)}`, p);
@@ -360,25 +372,15 @@ async function runImport(c: Ctx, commit: boolean) {
     completions: completions.length, completion_rows: completions.slice(0, 20).map((x) => ({ line: x.line, fields: Object.keys(x).filter((k) => k === 'brand' || k === 'size' || k === 'product_type') })),
     classification: { confirmed: fresh.filter((r) => r.classification_status === 'confirmed').length, suggested: fresh.filter((r) => r.classification_status === 'suggested').length, needs_review: fresh.filter((r) => r.classification_status === 'needs_review').length, unknown: fresh.filter((r) => r.classification_status === 'unknown').length },
     conflicts: conflicts.length, conflict_rows: conflicts.slice(0, 50), possible_duplicates: possible.length, possible_rows: possible.slice(0, 50), missing, max_rows: MAX_IMPORT_ROWS,
-    ignored_columns: parsed.ignoredColumns, warnings: parsed.warnings, sample: fresh.slice(0, 10) };
+    ignored_columns: parsed.ignoredColumns, warnings: parsed.warnings, sample: fresh.slice(0, 10), drafts: fresh.filter((r) => r.draft).length };
   if (!commit) return { committed: false, ...summary };
-  const t = now(); const uid = c.user!.id;
-  c.db.exec('BEGIN');
-  try {
-    const ins = c.db.prepare(`INSERT INTO products(barcode,name,brand,category,size,availability,availability_updated_at,availability_updated_by,verification,created_by,created_at,updated_at,product_type,classification_status,classification_raw) VALUES (?,?,?,?,?,?,?,?, 'review',?,?,?,?,?,?)`);
-    for (const r of fresh) ins.run(r.barcode || null, r.name, r.brand, r.category, r.size, r.availability ?? 'unknown', r.availability ? t : null, r.availability ? uid : null, uid, t, t, r.product_type, r.classification_status, r.classification_raw);
-    // completing EMPTY fields only (guarded again in SQL), and the record goes (back) to review
-    const upd = c.db.prepare("UPDATE products SET brand = CASE WHEN brand = '' THEN ? ELSE brand END, size = CASE WHEN size = '' THEN ? ELSE size END, verification = CASE WHEN ? THEN 'review' ELSE verification END, updated_at = ? WHERE id = ? AND verification <> 'verified'");
-    const updType = c.db.prepare("UPDATE products SET product_type = ?, classification_status = 'confirmed' WHERE id = ? AND product_type = ''");
-    for (const x of completions) { upd.run(x.brand ?? '', x.size ?? '', x.brand || x.size ? 1 : 0, t, x.id); if (x.product_type) updType.run(x.product_type, x.id); }
-    c.db.prepare('INSERT INTO import_jobs(filename,status,total,added,duplicates,invalid,ignored_columns,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?)')
-      .run(filename, 'committed', summary.total, fresh.length, dupDb + dupFile, parsed.invalid.length, parsed.ignoredColumns.join(' | '), uid, t);
-    c.db.exec('COMMIT');
-  } catch (e) { c.db.exec('ROLLBACK'); throw e; }
-  audit(c.db, uid, 'import', 'products', filename.replace(/[^\w.\-]/g, '_'), `added=${fresh.length} completed=${completions.length}`);
-  let queued = 0;
-  if (c.query.get('enrich') === '1' && c.cfg.enrich !== 'off') queued = enqueueBarcodes(c.db, fresh.map((r) => r.barcode).filter(Boolean));
-  return { committed: true, enrich_queued: queued, ...summary };
+  // CP06.2: resumable batch (chunks of 500, each in its own transaction); drafts for barcode-only rows; v2 enrichment jobs
+  const providers = c.query.get('enrich') === '1' && c.cfg.enrich !== 'off' ? getConnectors().map((x) => x.id) : [];
+  let res;
+  try { res = commitBatch(c.db, { filename, fileBytes: new Uint8Array(buf), fresh, completions, invalid: parsed.invalid, total: summary.total, userId: c.user!.id, enrichProviders: providers, ignoredColumns: parsed.ignoredColumns }); }
+  catch (e) { const x = e as Error & { batchId?: number; savedSoFar?: number }; throw Object.assign(new HttpError(500, `توقف الاستيراد بعد حفظ ${x.savedSoFar ?? 0} صف. أعد رفع الملف نفسه للمتابعة من حيث توقف (لن يتكرر أي منتج).`), {}); }
+  const queued = res.enrich_queued;
+  return { committed: true, enrich_queued: queued, batch_id: res.batch_id, resumed: res.resumed, ...summary };
 }
 route('POST', '/api/imports/preview', 'manager', (c) => runImport(c, false));
 route('POST', '/api/imports/commit', 'manager', (c) => runImport(c, true));
@@ -386,7 +388,8 @@ route('POST', '/api/imports/commit', 'manager', (c) => runImport(c, true));
 // ---------- advisor (retrieval-only baseline: NO language model yet) ----------
 route('POST', '/api/advisor/search', 'any', async (c) => {
   const { query } = z.object({ query: z.string().trim().min(1).max(500) }).strict().parse(await c.body());
-  const rows = c.db.prepare(PRODUCT_SELECT).all() as unknown as ProductRow[];
+  // CP06.2: import drafts and archived records are visible to staff but never recommended
+  const rows = c.db.prepare(`${PRODUCT_SELECT} WHERE products.record_status = 'active'`).all() as unknown as ProductRow[];
   const conflictIds = new Set((c.db.prepare("SELECT DISTINCT p.id FROM products p JOIN enrichment_candidates e ON e.barcode = p.barcode WHERE e.review_status='pending' AND e.conflict_note <> ''").all() as { id: number }[]).map((r) => r.id));
   return advise(query, rows.map((p) => presentProduct(p, c.cfg.availabilityStaleHours)), { conflictIds });
 });
@@ -406,6 +409,7 @@ route('GET', '/api/reports/summary', 'manager', (c) => {
 
 // ---------- enrichment (global product knowledge). Drafts only: nothing here becomes "verified" automatically ----------
 import { enrichBarcode, reviewCandidate, enqueueBarcodes, processQueueOnce, getConnectors } from './enrichment/engine.ts';
+import { commitBatch, rollbackDrafts, batchReportCsv } from './import-batch.ts';
 
 route('POST', '/api/enrichment/lookup', 'any', async (c) => {
   const { barcode, force } = z.object({ barcode: z.string().max(40), force: z.boolean().optional() }).strict().parse(await c.body());
@@ -451,3 +455,5 @@ route('POST', '/api/enrichment/queue/start', 'manager', (c) => {
   return { queued: enqueueBarcodes(c.db, codes), candidates_total: codes.length };
 });
 route('POST', '/api/enrichment/queue/run', 'manager', async (c) => ({ ...(await processQueueOnce(c.db, c.cfg, 5)) }));
+import './evidence-routes.ts';
+import './advisor2/routes.ts';

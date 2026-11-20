@@ -54,10 +54,15 @@ test('CP05: the catalog starts EMPTY — fresh database, first start, restart, m
 test('CP05: only user actions (create / import) insert products — no other server code path does', async () => {
   const { readdirSync, readFileSync } = await import('node:fs');
   const dir = new URL('../server/src/', import.meta.url); const offenders: string[] = [];
-  const walk = (u: URL) => { for (const e of readdirSync(u, { withFileTypes: true })) { const c = new URL(e.name + (e.isDirectory() ? '/' : ''), u); if (e.isDirectory()) walk(c); else if (/INSERT\s+(OR\s+\w+\s+)?INTO\s+products\s*\(/i.test(readFileSync(c, 'utf8')) && !c.pathname.endsWith('/server/src/routes.ts')) offenders.push(c.pathname); } };
+  const walk = (u: URL) => { for (const e of readdirSync(u, { withFileTypes: true })) { const c = new URL(e.name + (e.isDirectory() ? '/' : ''), u); if (e.isDirectory()) walk(c); else if (/INSERT\s+(OR\s+\w+\s+)?INTO\s+products\s*\(/i.test(readFileSync(c, 'utf8')) && !c.pathname.endsWith('/server/src/routes.ts') && !c.pathname.endsWith('/server/src/import-batch.ts')) offenders.push(c.pathname); } };
   walk(dir); assert.deepEqual(offenders, []);
-  const routes = readFileSync(new URL('routes.ts', dir), 'utf8');
-  assert.equal((routes.match(/INSERT\s+INTO\s+products\s*\(/gi) ?? []).length, 2, 'POST /api/products and the import commit only');
+  // exactly two insert sites: POST /api/products (routes.ts) and the import commit (CP06.2: moved to import-batch.ts)
+  const routes = readFileSync(new URL('routes.ts', dir), 'utf8'), batch = readFileSync(new URL('import-batch.ts', dir), 'utf8');
+  const n = (t: string) => (t.match(/INSERT\s+INTO\s+products\s*\(/gi) ?? []).length;
+  assert.equal(n(routes) + n(batch), 2, 'POST /api/products and the import commit only'); assert.equal(n(batch), 1);
+  // and the batch commit is reachable ONLY from the user's import action (runImport), nowhere else
+  const callers: string[] = []; const scan = (u: URL) => { for (const e of readdirSync(u, { withFileTypes: true })) { const c = new URL(e.name + (e.isDirectory() ? '/' : ''), u); if (e.isDirectory()) scan(c); else if (/\bcommitBatch\(/.test(readFileSync(c, 'utf8')) && !c.pathname.endsWith('/import-batch.ts')) callers.push(c.pathname.split('/').pop()!); } };
+  scan(dir); assert.deepEqual(callers, ['routes.ts']); assert.match(routes, /async function runImport[\s\S]*commitBatch\(/);
 });
 
 test('staging accounts: optional limited staff test account, idempotent, weak password refused; scope has no financial columns', async () => {

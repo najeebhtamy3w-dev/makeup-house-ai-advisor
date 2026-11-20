@@ -7,9 +7,11 @@ import { review } from './views-review.js';
 import { getEnrich } from './views-core.js';
 import { feedback, checklist } from './views-feedback.js';
 import { loadTaxonomy } from './taxonomy.js';
-import { backupView, restoreOnly } from './views-backup.js';
+// CP06.2: Android-only (local-first) screens load on demand, so the Render build can ship without them
+const localViews = () => import('./views-backup.js');
 import { icon } from './icons.js';
-import { productHelp } from './views-core.js';
+import { productHelp, goBack, RETURN_KEY, LIST_POS_KEY } from './views-core.js';
+import { confirmLeave, clearLeaveGuard, hasUnsavedChanges } from './leave-guard.js';
 
 const app = $('#app');
 let me = null;
@@ -20,10 +22,10 @@ const metaReady = Promise.resolve(window.MH_READY).then(() => fetch('/api/meta')
 const stagingBanner = () => (meta?.staging ? h('div', { class: 'notice warn staging-banner', role: 'note' }, meta.notice, getToken() ? h('div', { style: 'margin-top:6px' }, h('a', { href: '#/checklist' }, '☑ قائمة اختبار Samsung')) : null) : null);
 const MAIN = [['home', '⌂', 'الرئيسية'], ['advisor', '✦', 'المستشار'], ['scan', '▥', 'مسح'], ['products', '◈', 'المنتجات']];
 const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '☼', 'روتين العناية'], ['request', '⌕', 'طلب غير ملبّى'], ['academy', '♧', 'الأكاديمية'], ['checklist', '☑', 'قائمة اختبار Samsung'], ['feedback', '✎', 'ملاحظات التجربة'],
-  ['review', '✔', 'مراجعة المعلومات', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
+  ['review', '✔', 'مراجعة المعلومات', true], ['evidence', '⧉', 'مراجعة أدلة المصادر', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
 // CP06: backup / restore exists only where the data lives on the device
 if (window.MH_LOCAL) MORE.push(['backup', '⛁', 'النسخ الاحتياطي والاستعادة', true]);
-const TITLES = { backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+const TITLES = { backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
@@ -47,7 +49,7 @@ function setupView() {
 }
 
 function loginView() {
-  if (meta?.setup_required) { if (location.hash.startsWith('#/restore')) { app.replaceChildren(h('main', { id: 'main' })); restoreOnly(app.firstChild); return; } setupView(); return; }
+  if (meta?.setup_required) { if (location.hash.startsWith('#/restore')) { app.replaceChildren(h('main', { id: 'main' })); localViews().then((m) => m.restoreOnly(app.firstChild)); return; } setupView(); return; }
   const u = h('input', { autocomplete: 'username', dir: 'ltr', autocapitalize: 'none' }), p = h('input', { type: 'password', autocomplete: 'current-password' }); const err = h('div', {});
   const submit = async (e) => {
     e.preventDefault(); err.replaceChildren();
@@ -79,15 +81,22 @@ async function render() {
     h('button', { class: MORE.some((m) => m[0] === route) ? 'on' : '', onclick: openMore }, h('b', {}, '☰'), 'المزيد'));
   if (me.role === 'manager') getEnrich().then((st) => { if (st.pending_candidates && nav.isConnected) nav.lastChild.append(h('i', { class: 'dot', title: 'مراجعة معلقة' })); });
   // CP05.3: product entry is a focused task screen — brand header with back + help, no bottom nav (the save bar takes its place)
+  // CP05.3: new-product entry is a focused task screen (no bottom bar). CP06.2: the product card keeps the bottom bar (approved
+  // CP05.3 behaviour) and gets a visible back button in its header; every way out goes through the unsaved-changes guard.
   const focus = route === 'product-new';
   document.body.classList.toggle('focusmode', focus);
+  let back = '#/products'; try { back = sessionStorage.getItem(RETURN_KEY) || back; } catch { /* ignore */ }
+  const backLabel = back.startsWith('#/products') ? 'منتجات' : 'رجوع';
   const header = focus
     ? h('header', { class: 'top accent' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'مساعدة', onclick: productHelp }, icon('help', 26)), h('h1', {}, 'منتج جديد'),
-        h('button', { class: 'iconbtn backbtn', type: 'button', 'aria-label': 'رجوع إلى المنتجات', onclick: () => go('#/products') }, h('span', {}, 'منتجات'), icon('back', 24)))
+        h('button', { class: 'iconbtn backbtn', type: 'button', id: 'back-btn', 'aria-label': 'رجوع إلى المنتجات', onclick: () => go('#/products') }, h('span', {}, 'منتجات'), icon('back', 24)))   // CP05.3 reference: entry goes back to Products
+    : route === 'product'
+    ? h('header', { class: 'top withback' }, h('button', { class: 'backlink', type: 'button', id: 'back-btn', 'aria-label': backLabel === 'منتجات' ? 'رجوع إلى المنتجات' : 'رجوع', onclick: goBack }, icon('back', 22), h('span', {}, backLabel)),
+        h('h1', {}, 'تعديل المنتج'), h('div', { class: 'who' }, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')))
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
   if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
-  const managerOnly = ['import', 'reports', 'users', 'review', 'backup'];
+  const managerOnly = ['import', 'reports', 'users', 'review', 'backup', 'evidence'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
     case 'home': return home(main, me);
@@ -105,11 +114,32 @@ async function render() {
     case 'import': return importView(main);
     case 'reports': return reports(main);
     case 'users': return users(main);
-    case 'backup': return backupView(main, me);
+    case 'backup': return localViews().then((m) => m.backupView(main, me));
     case 'review': return review(main);
+    case 'evidence': return import('./views-evidence.js').then((m) => m.evidenceReview(main));
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }
 }
-window.addEventListener('hashchange', render);
+// CP06.2 router: nothing leaves a screen with unsaved edits without asking (header, cancel, bottom bar, browser Back/Forward, links)
+let shown = location.hash;
+const routeOf = (hash) => (hash.split('?')[0] || '#/home').split('/')[1] || 'home';
+window.addEventListener('hashchange', async () => {
+  const target = location.hash;
+  if (target === shown) return;
+  if (hasUnsavedChanges()) {
+    history.pushState(null, '', shown);   // put the address bar back while the person decides (pushState does not fire hashchange)
+    if (await confirmLeave()) location.hash = target;   // re-enters this handler with the guard cleared
+    return;
+  }
+  const from = routeOf(shown), to = routeOf(target);
+  try {
+    // remember where the person came from, and where they were in the list, so "back" returns to the same place
+    if (from === 'products') sessionStorage.setItem(LIST_POS_KEY, JSON.stringify({ y: window.scrollY, n: document.querySelectorAll('.plist .prow').length }));
+    if ((to === 'product' || to === 'product-new') && from !== 'product' && from !== 'product-new') sessionStorage.setItem(RETURN_KEY, shown || '#/products');
+  } catch { /* storage unavailable: back falls back to the product list */ }
+  clearLeaveGuard();
+  shown = target;
+  render();
+});
 if (!window.MH_LOCAL && 'serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('/sw.js').catch(() => {});
 render();

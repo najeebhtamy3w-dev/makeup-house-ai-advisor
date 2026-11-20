@@ -29,7 +29,9 @@ await step('advisor: chat is primary; fragrance-free query excludes undocumented
   await page.click('.nav button:nth-child(2)'); await page.waitForSelector('.composer input'); assert.equal(await page.locator('.sugg button').count(), 0, 'no static suggestion buttons');
   await page.fill('.composer input', 'زبونة بشرتها جافة وحساسة وتريد مرطب خالي من العطر'); await page.keyboard.press('Enter');
   await page.waitForSelector('.bub.res h3'); const t = await page.textContent('.bub.res'); assert.doesNotMatch(t, /\[object|null|undefined/);
-  assert.match(t, /مرطب وجه خالٍ من العطر/); assert.match(t, /أولًا: منتجات ميك أب هاوس/); assert.match(t, /ثانيًا: بدائل عالمية/);
+  assert.match(t, /مرطب وجه خالٍ من العطر/); assert.match(t, /أولًا: منتجات ميك أب هاوس/);
+  // CP06.2: the global section appears only when no ELIGIBLE local product exists (authorisation §23); knowledge guidance is always there
+  assert.match(t, /كيف تختارين مرطب|إرشادات عملية/); assert.match(t, /المصادر/);
   await page.screenshot({ path: out + '03-advisor.png' });
 });
 await step('advisor: recommendation card has no price and no personal data', async () => {
@@ -93,7 +95,7 @@ const apiGet = async (path) => page.evaluate(async ([p, t]) => (await fetch(p, {
 await step('advisor: contextual follow-up chip appears and refines the query; suitability and availability are separate blocks', async () => {
   await page.evaluate(() => (location.hash = '#/advisor')); await page.waitForSelector('.composer input');
   await page.fill('.composer input', 'اريد مرطب'); await page.keyboard.press('Enter'); await page.waitForSelector('.sugg button');
-  assert.match(await page.textContent('.msgs'), /ما نوع بشرة العميل/); await page.click('.sugg button:has-text("جافة")'); await page.waitForFunction(() => document.querySelectorAll('.bub.res').length >= 2 && !document.querySelector('.bub.res .skel'));
+  assert.match(await page.textContent('.msgs'), /ما نوع البشرة/);   // CP06.2 wording await page.click('.sugg button:has-text("جافة")'); await page.waitForFunction(() => document.querySelectorAll('.bub.res').length >= 2 && !document.querySelector('.bub.res .skel'));
   const t = await page.textContent('.msgs'); assert.match(t, /الملاءمة:/); assert.match(t, /التوفر:/); assert.doesNotMatch(t, /null|undefined|\[object/); await page.screenshot({ path: out + '11-advisor-followup.png' });
 });
 await step('offline: lookup keeps the barcode, shows retry, recovers when back online', async () => {
@@ -144,7 +146,7 @@ await step('advisor: "does it contain fragrance?" on an unverified list answers 
   const last = await page.locator('.bub.res').last().textContent(); assert.ok(!/لا يظهر عطر/.test(last), last);
   await page.fill('.composer input', 'مرطب كريم للبشرة الجافة'); await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelectorAll('.bub.res h3').length >= 2);
-  const d = page.locator('details.why').last(); await d.locator('summary').click(); assert.match(await d.textContent(), /المعلومات المستخدمة/); assert.match(await d.textContent(), /حدود المعلومة/);
+  const d = page.locator('details.why:not(.srcs)').last();   // CP06.2: the answer also has a sources box await d.locator('summary').click(); assert.match(await d.textContent(), /المعلومات المستخدمة/); assert.match(await d.textContent(), /حدود المعلومة/);
   await d.scrollIntoViewIfNeeded(); await page.screenshot({ path: out + '16-advisor-explained.png' });
 });
 // ---- CP04: product form + images (manager session) ----

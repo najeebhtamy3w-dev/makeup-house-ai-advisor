@@ -50,6 +50,9 @@ export function advise(query: string, products: P[], opts: AdviseOpts = {}) {
   // a specific request (sunscreen / hair) must not be diluted by generic words: "بشرة" or the dryness word "جاف" alone do not make it a skin/moisturiser query
   if (topics.some((t) => t.id === 'sun' || t.id === 'hair')) topics = topics.filter((t) => t.id !== 'skin');
   if (topics.some((t) => t.id === 'hair') && !/(مرطب|ترطيب|كريم)/.test(q)) topics = topics.filter((t) => t.id !== 'moist');
+  // CP06.2 fix (audit B): describing the skin as dry ("جافة") must not add moisturisers to a CLEANSER request; only an explicit
+  // moisturiser word keeps both. Retrieval scope only — suitability rules (science/*) are untouched.
+  if (topics.some((t) => t.id === 'clean') && !/(مرطب|ترطيب|كريم)/.test(q)) topics = topics.filter((t) => t.id !== 'moist' && t.id !== 'skin');   // the generic skin topic would pull every skin-care form too
   const need = parseNeed(q, topics.map((t) => t.id));
   if (!topics.length) notes.push('لم أتعرف على نوع المنتج المطلوب. وضّح: بشرة، شعر، واقي شمس، مرطب…');
   if (/(حساس|تهيج|يهيج|يحرق|يحك)/.test(q)) notes.push('الحساسية: لا يوجد منتج «آمن لجميع الأشخاص». راجع المكونات والتحذيرات وجرّب على منطقة صغيرة وفق تعليمات العبوة.');

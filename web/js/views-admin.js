@@ -1,4 +1,4 @@
-import { api } from './api.js';
+import { api, getToken } from './api.js';
 import { busy, fill, h, toast, AV, field, select, fmtDate } from './util.js';
 
 /* ---------- import (manager): preview -> commit; price/qty columns reported by NAME only ---------- */
@@ -25,6 +25,10 @@ export function importView(root) {
           r.sample.length ? [h('h4', {}, 'عينة من الجديد'), table(['باركود', 'الاسم', 'العلامة', 'التصنيف'], r.sample.map((x) => h('tr', {}, h('td', { dir: 'ltr' }, x.barcode || '—'), h('td', {}, x.name), h('td', {}, x.brand || '—'), h('td', {}, x.category))))] : null,
           !commit && (r.new > 0 || r.completions > 0) ? [h('label', { class: 'row', for: 'imp-enrich', style: 'margin:8px 0' }, enrich, ' بعد الاستيراد: أضف المنتجات ذات الباركود إلى طابور البحث في المصادر (مسودات للمراجعة، على دفعات بحد المصدر)'),
             h('button', { class: 'btn', onclick: (e) => send(true, e.currentTarget) }, `اعتماد: إضافة ${r.new} واستكمال ${r.completions}`)] : null,
+          commit && r.drafts ? h('div', { class: 'notice' }, `${r.drafts} صف يحمل باركودًا فقط حُفظ كمسودة «بانتظار التعرف»: يظهر في القائمة ولا يُرشَّح في المستشار.`) : null,
+          commit && r.batch_id ? h('div', { class: 'row', id: 'batch-actions' }, h('span', { class: 'tiny' }, `الدفعة رقم ${r.batch_id}${r.resumed ? ' (استُكملت من حيث توقفت)' : ''}`),
+            h('button', { class: 'btn sm light', type: 'button', id: 'batch-report', onclick: async () => { try { const res = await fetch(`/api/imports/batches/${r.batch_id}/report`, { headers: { authorization: 'Bearer ' + getToken() } }); const a = h('a', { href: URL.createObjectURL(await res.blob()), download: `import-${r.batch_id}-errors.csv` }); document.body.append(a); a.click(); a.remove(); } catch { toast('تعذر التنزيل'); } } }, 'تنزيل تقرير الأخطاء'),
+            r.drafts ? h('button', { class: 'btn sm danger', type: 'button', id: 'batch-rollback', onclick: (e) => busy(e.currentTarget, async () => { if (!confirm('حذف مسودات هذه الدفعة التي لم يعدّلها أحد؟ لا يُحذف أي منتج آخر.')) return; try { const x = await api('POST', `/api/imports/batches/${r.batch_id}/rollback`); toast(`حُذفت ${x.removed} مسودة${x.kept_edited_drafts ? ` وبقيت ${x.kept_edited_drafts} عُدّلت` : ''}`); } catch (er) { toast(er.message); } }) }, 'التراجع عن المسودات') : null) : null,
           commit ? h('div', { class: 'notice ok' }, `الجديد بحالة «تحتاج مراجعة» وتوفر «غير مؤكد» ما لم يذكر الملف غير ذلك.${r.enrich_queued ? ` أُضيف ${r.enrich_queued} باركود إلى طابور البحث.` : ''}`) : null));
       } catch (e) { fill(out, h('div', { class: 'notice err' }, e.status ? e.message : 'تعذر الاتصال بالخادم. لم يُحفظ شيء — أعد المحاولة.')); }
     };

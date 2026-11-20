@@ -1,6 +1,6 @@
 // App-shell cache only. API responses are NEVER cached (availability must be live).
-const V = 'mh-shell-v8';
-const SHELL = ['/', '/styles.css', '/js/app.js', '/js/api.js', '/js/util.js', '/js/scanner.js', '/js/views-core.js', '/js/views-advisor.js', '/js/views-admin.js', '/js/views-review.js', '/js/views-feedback.js', '/js/views-backup.js', '/js/images.js', '/js/discovery.js', '/js/taxonomy.js', '/js/icons.js', '/js/picker.js', '/icon.svg'];
+const V = 'mh-shell-v10';
+const SHELL = ['/', '/styles.css', '/js/app.js', '/js/api.js', '/js/util.js', '/js/scanner.js', '/js/views-core.js', '/js/views-advisor.js', '/js/views-admin.js', '/js/views-review.js', '/js/views-feedback.js', '/js/views-backup.js', '/js/leave-guard.js', '/js/views-evidence.js', '/js/images.js', '/js/discovery.js', '/js/taxonomy.js', '/js/icons.js', '/js/picker.js', '/icon.svg'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== V).map((k) => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', (e) => {

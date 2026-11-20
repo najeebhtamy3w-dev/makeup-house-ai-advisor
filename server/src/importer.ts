@@ -3,7 +3,7 @@ import { parseXLSX } from './xlsx.ts';
 import { gtinValid, normalizeBarcode } from './gtin.ts';
 
 /** Only these columns are ever read. Everything else (prices, costs, quantities...) is dropped unread. */
-const ALLOWED = ['barcode', 'name', 'brand', 'category', 'size', 'availability', 'product_type'] as const;
+const ALLOWED = ['barcode', 'name', 'brand', 'category', 'size', 'availability', 'product_type', 'name_ar', 'name_en', 'manufacturer', 'variant'] as const;
 const ALIASES: Record<string, (typeof ALLOWED)[number]> = {
   barcode: 'barcode', 'الباركود': 'barcode', ean: 'barcode', upc: 'barcode', gtin: 'barcode',
   name: 'name', 'الاسم': 'name', 'اسم المنتج': 'name', 'المنتج': 'name',
@@ -11,6 +11,11 @@ const ALIASES: Record<string, (typeof ALLOWED)[number]> = {
   category: 'category', 'التصنيف': 'category', 'الفئة': 'category',
   size: 'size', 'الحجم': 'size',
   availability: 'availability', 'التوفر': 'availability',
+  // CP06.2: separate Arabic / English names, maker, variant (shade / scent / edition)
+  name_ar: 'name_ar', 'الاسم العربي': 'name_ar', 'الاسم بالعربي': 'name_ar', 'الاسم بالعربية': 'name_ar', 'arabic name': 'name_ar',
+  name_en: 'name_en', 'الاسم الإنجليزي': 'name_en', 'الاسم الانجليزي': 'name_en', 'الاسم بالانجليزي': 'name_en', 'الاسم بالإنجليزية': 'name_en', 'english name': 'name_en',
+  manufacturer: 'manufacturer', 'الشركة المصنعة': 'manufacturer', 'المصنع': 'manufacturer', 'الشركة': 'manufacturer',
+  variant: 'variant', 'الإصدار': 'variant', 'الاصدار': 'variant', 'اللون': 'variant', 'الدرجة': 'variant', shade: 'variant', color: 'variant',
   product_type: 'product_type', type: 'product_type', 'product type': 'product_type', 'النوع': 'product_type', 'نوع المنتج': 'product_type',
 };
 /** CP05: the product API only accepts these categories. Unknown values used to be stored verbatim, which later made every
@@ -37,7 +42,7 @@ const AVAIL: Record<string, 'yes' | 'no' | 'unknown'> = {
   yes: 'yes', متوفر: 'yes', no: 'no', 'غير متوفر': 'no', unknown: 'unknown', 'غير مؤكد': 'unknown',
 };
 
-export interface ImportRow { line: number; barcode: string; name: string; brand: string; category: string; size: string; availability: 'yes' | 'no' | 'unknown' | null; product_type: string; classification_status: 'unknown' | 'suggested' | 'confirmed' | 'needs_review'; classification_raw: string }
+export interface ImportRow { line: number; barcode: string; name: string; name_ar?: string; name_en?: string; manufacturer?: string; variant?: string; draft?: boolean; brand: string; category: string; size: string; availability: 'yes' | 'no' | 'unknown' | null; product_type: string; classification_status: 'unknown' | 'suggested' | 'confirmed' | 'needs_review'; classification_raw: string }
 export interface ParsedImport {
   rows: ImportRow[];
   invalid: { line: number; reason: string }[];   // reasons never include cell values
@@ -65,7 +70,9 @@ export function parseImport(filename: string, data: Buffer): ParsedImport {
     const k = ALIASES[h.toLowerCase()] ?? ALIASES[h];
     if (k && ![...map.values()].includes(k)) map.set(i, k); else if (h) ignoredColumns.push(h);
   });
-  if (![...map.values()].includes('name')) throw new Error('يجب وجود عمود الاسم (name)');
+  const cols = [...map.values()];
+  // CP06.2: a name in any language, or a barcode column (barcode-only rows become drafts waiting for identification)
+  if (!cols.some((k) => k === 'name' || k === 'name_ar' || k === 'name_en' || k === 'barcode')) throw new Error('يجب وجود عمود الاسم (name أو الاسم العربي/الإنجليزي) أو الباركود');
 
   const rows: ImportRow[] = [];
   const invalid: { line: number; reason: string }[] = [];
@@ -75,11 +82,15 @@ export function parseImport(filename: string, data: Buffer): ParsedImport {
     const line = idx + 2;
     const rec: Record<string, string> = {};
     for (const [i, k] of map) rec[k] = (cells[i] ?? '').trim();
-    if (!rec.name) { invalid.push({ line, reason: 'الاسم فارغ' }); return; }
+    rec.name = rec.name || rec.name_ar || rec.name_en || '';
+    const onlyCode = !rec.name;
+    if (onlyCode && !rec.barcode) { invalid.push({ line, reason: 'الاسم فارغ ولا يوجد باركود' }); return; }
     if (rec.barcode) rawBarcodes++;
     if (rec.barcode && /^\s*[\d.,]+\s*e\s*[+]?\s*\d+\s*$/i.test(rec.barcode)) { invalid.push({ line, reason: 'الباركود بصيغة علمية من Excel (مثل 6.29E+12) وفُقدت أرقامه — نسّق العمود كنص' }); return; }
     const barcode = normalizeBarcode(rec.barcode);
     if (barcode && !gtinValid(barcode)) { invalid.push({ line, reason: 'باركود غير صالح (الطول أو رقم التحقق)' }); return; }
+    // a valid barcode alone does not prove the identity: the row is saved as a DRAFT waiting for identification (never recommended)
+    if (onlyCode) rec.name = `منتج بانتظار التعرف ${barcode}`;
     const av = rec.availability ? AVAIL[rec.availability.toLowerCase()] ?? AVAIL[rec.availability] : undefined;
     if (rec.availability && !av) { invalid.push({ line, reason: 'قيمة التوفر غير معروفة' }); return; }
     const cat = mapCategory(rec.category ?? ''); if (!cat.known) unknownCats++;
@@ -88,7 +99,8 @@ export function parseImport(filename: string, data: Buffer): ParsedImport {
     let product_type = '', status: ImportRow['classification_status'] = 'unknown', raw = '';
     if (rec.product_type) { const t = typeFromValue(rec.product_type); if (t) { product_type = t; status = 'confirmed'; } else { raw = rec.product_type.slice(0, 60); status = 'needs_review'; unknownTypes++; } }
     else { const t = suggestTypeFromName(rec.name!); if (t) { product_type = t; status = 'suggested'; } }
-    rows.push({ line, barcode, name: rec.name!, brand: rec.brand ?? '', category: cat.value, size: rec.size ?? '', availability: av ?? null, product_type, classification_status: status, classification_raw: raw });
+    rows.push({ line, barcode, name: rec.name!, brand: rec.brand ?? '', category: cat.value, size: rec.size ?? '', availability: av ?? null, product_type, classification_status: status, classification_raw: raw,
+      name_ar: rec.name_ar ?? '', name_en: rec.name_en ?? '', manufacturer: rec.manufacturer ?? '', variant: rec.variant ?? '', draft: onlyCode });
   });
   if (hasBarcodeCol && rawBarcodes > 0 && rows.length && rows.every((r) => r.barcode === '')) warnings.push('لم يُقرأ أي باركود. تأكد أن عمود الباركود منسّق كنص في Excel حتى لا تضيع الأصفار البادئة.');
   if (numericCells > 0 && hasBarcodeCol && rows.some((r) => r.barcode && r.barcode.length < 12))

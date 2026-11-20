@@ -71,7 +71,10 @@ test('policy: price / cost / quantity fields are rejected, never stored', async 
 });
 test('policy: schema has no price/cost/quantity columns anywhere', () => {
   const cols = (t.db.prepare("SELECT m.name t, p.name c FROM sqlite_master m, pragma_table_info(m.name) p WHERE m.type='table'").all() as { t: string; c: string }[]);
-  const bad = cols.filter((x) => /price|cost|qty|quantity|profit|discount|balance|amount|سعر/i.test(x.c));
+  // The ONE allowed exception: the advisor's own AI-provider spend estimate (CP06.2 §22 budget limit). It is not shop
+  // finance (no product prices, costs, sales or stock) and is listed explicitly so any other money column still fails.
+  const AI_SPEND = new Set(['ai_usage.est_cost_usd']);
+  const bad = cols.filter((x) => /price|cost|qty|quantity|profit|discount|balance|amount|سعر/i.test(x.c) && !AI_SPEND.has(`${x.t}.${x.c}`));
   assert.deepEqual(bad, []);
 });
 test('product: create, duplicate barcode blocked, invalid barcode rejected', async () => {
