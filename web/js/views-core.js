@@ -7,6 +7,7 @@ import { loadTaxonomy, tx, typeLabel, typicalTypes } from './taxonomy.js';
 import { icon } from './icons.js';
 import { pickerSheet } from './picker.js';
 import { setLeaveGuard } from './leave-guard.js';
+import { codesSection } from './views-final.js';
 
 export const go = (hash) => { location.hash = hash; };
 // CP06.2: "back" from a product returns to the screen the person came from (list filters and scroll position are restored there)
@@ -398,7 +399,7 @@ export async function productEdit(root, id, me, prefill = {}) {
   const editIdentity = id ? section('الهوية', null, W.name, W.brand, W.barcode) : null;
   const form = h('form', { class: 'pform' + (id ? '' : ' entry'), novalidate: true, onsubmit: save },
     draft.name || draft.brand || draft.size ? h('div', { class: 'notice info' }, 'الاسم/العلامة/الحجم مسودة من مصدر عالمي لم يعتمدها المدير. قارنها بالعبوة قبل الحفظ. المكونات لا تُنسخ قبل اعتماد المدير.') : null,
-    id ? [section('استكمال المعلومات', null, idBtn, disc.el), section('الصور', null, images.el), editIdentity] : identCard,
+    id ? [section('استكمال المعلومات', null, idBtn, disc.el), section('الصور', null, images.el), editIdentity, codesSection(id, me)] : identCard,
     classCard, pkgCard, useCard, srcCard,
     msg,
     id && me.role === 'manager' ? h('div', { class: 'card dangerzone' }, h('h3', { class: 'fsec-t' }, 'حذف المنتج'), h('p', { class: 'tiny muted' }, 'يحذف المنتج وصوره نهائيًا ولا يمكن التراجع.'),
@@ -429,6 +430,8 @@ export async function productEdit(root, id, me, prefill = {}) {
       host.prepend(banner);
     } else if (ed) clearEditDraft();
     disc.loadPending();
+    // staff asked about this product now → its enrichment jobs (if any) move to the front of the queue; best effort only
+    api('POST', '/api/queue/prioritize/' + id).catch(() => null);
   }
   else if (prefill.saved) { haptic(40); f.barcode.focus(); }
 }

@@ -36,6 +36,12 @@ route('POST', '/api/queue/cancel', 'manager', async (c) => {
 });
 /** manager "run one now" (useful on the free Render plan, where a background loop sleeps with the service) */
 route('POST', '/api/queue/run-one', 'manager', async (c) => processOne(c.db, activeProviders()));
+/** final completion: the product a staff member is asking about now goes to the front of the queue (no new jobs are created) */
+route('POST', '/api/queue/prioritize/:productId', 'any', (c) => {
+  const pid = id(c.params.productId!);
+  const n = c.db.prepare("UPDATE enrichment_jobs_v2 SET priority = 100, next_at = CASE WHEN job_state IN ('waiting_retry') THEN next_at ELSE ? END, updated_at = ? WHERE product_id = ? AND job_state IN ('queued','waiting_retry','waiting_network')").run(new Date().toISOString(), new Date().toISOString(), pid).changes;
+  return { prioritized: Number(n) };
+});
 
 /* ---------------- evidence review ---------------- */
 const EDITABLE = { name: 'name_en', brand: 'brand', size: 'size', ingredients: 'ingredients', manufacturer: 'manufacturer', variant: 'variant' } as const;   // source "name" fills the ENGLISH name, never the display name

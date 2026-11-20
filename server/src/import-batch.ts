@@ -11,6 +11,10 @@ import type { DB } from './db.ts';
 import { now, audit } from './db.ts';
 import type { ImportRow } from './importer.ts';
 import { enqueue, queryKeyFor, cancel, fp } from './queue.ts';
+import { gtinValid } from './gtin.ts';
+/** final completion: queue order — valid GTIN (50) before English name + brand (20) before the rest (0). A product a staff member
+ *  is looking at right now is raised to 100 by POST /api/queue/prioritize/:productId. */
+const enrichPriority = (r: { barcode?: string | null; name_en?: string; brand?: string }) => (r.barcode && gtinValid(r.barcode) ? 50 : r.name_en && r.brand ? 20 : 0);
 
 export const CHUNK = 500;
 export interface Completion { id: number; line: number; brand?: string; size?: string; product_type?: string }
@@ -58,7 +62,7 @@ export function commitBatch(db: DB, x: CommitInput) {
       const updType = db.prepare("UPDATE products SET product_type = ?, classification_status = 'confirmed' WHERE id = ? AND product_type = ''");
       for (const c of x.completions) { upd.run(c.brand ?? '', c.size ?? '', c.brand || c.size ? 1 : 0, t, c.id); if (c.product_type) updType.run(c.product_type, c.id); }
       // enrichment jobs for the new records (barcode or English/brand name); the queue runs later, the import never waits for the internet
-      for (const { id, row } of created) for (const p of x.enrichProviders) if (row.barcode || row.name_en || row.brand) enqueue(db, id, p, queryKeyFor({ barcode: row.barcode || null, name: row.name, name_en: row.name_en, brand: row.brand }), { batchId });
+      for (const { id, row } of created) for (const p of x.enrichProviders) if (row.barcode || row.name_en || row.brand) enqueue(db, id, p, queryKeyFor({ barcode: row.barcode || null, name: row.name, name_en: row.name_en, brand: row.brand }), { batchId, priority: enrichPriority(row) });
       db.prepare("UPDATE import_batches SET state='done', finished_at=? WHERE id=?").run(now(), batchId);
       db.prepare('INSERT INTO import_jobs(filename,status,total,added,duplicates,invalid,ignored_columns,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?)')
         .run(x.filename, 'committed', x.total, created.length, x.total - created.length - x.invalid.length, x.invalid.length, x.ignoredColumns.join(' | '), x.userId, t);

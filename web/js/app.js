@@ -22,10 +22,10 @@ const metaReady = Promise.resolve(window.MH_READY).then(() => fetch('/api/meta')
 const stagingBanner = () => (meta?.staging ? h('div', { class: 'notice warn staging-banner', role: 'note' }, meta.notice, getToken() ? h('div', { style: 'margin-top:6px' }, h('a', { href: '#/checklist' }, '☑ قائمة اختبار Samsung')) : null) : null);
 const MAIN = [['home', '⌂', 'الرئيسية'], ['advisor', '✦', 'المستشار'], ['scan', '▥', 'مسح'], ['products', '◈', 'المنتجات']];
 const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '☼', 'روتين العناية'], ['request', '⌕', 'طلب غير ملبّى'], ['academy', '♧', 'الأكاديمية'], ['checklist', '☑', 'قائمة اختبار Samsung'], ['feedback', '✎', 'ملاحظات التجربة'],
-  ['review', '✔', 'مراجعة المعلومات', true], ['evidence', '⧉', 'مراجعة أدلة المصادر', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
+  ['dashboard', '▦', 'لوحة المدير', true], ['bulk-classify', '☰', 'تصنيف جماعي', true], ['review', '✔', 'مراجعة المعلومات', true], ['evidence', '⧉', 'مراجعة أدلة المصادر', true], ['import', '⇧', 'استيراد Excel / CSV', true], ['reports', '▤', 'التقارير', true], ['users', '⚙', 'الموظفون والصلاحيات', true]];
 // CP06: backup / restore exists only where the data lives on the device
 if (window.MH_LOCAL) MORE.push(['backup', '⛁', 'النسخ الاحتياطي والاستعادة', true]);
-const TITLES = { 'intel-enable': 'المستشار العلمي', intel: 'المستشار العلمي', knowledge: 'مراجعة المعرفة', backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+const TITLES = { dashboard: 'لوحة المدير', 'bulk-classify': 'تصنيف جماعي', 'intel-enable': 'المستشار العلمي', intel: 'المستشار العلمي', knowledge: 'مراجعة المعرفة', backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
@@ -106,7 +106,7 @@ async function render() {
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
   if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
-  const managerOnly = ['import', 'reports', 'users', 'review', 'backup', 'evidence', 'knowledge', 'intel-enable'];
+  const managerOnly = ['dashboard', 'bulk-classify', 'import', 'reports', 'users', 'review', 'backup', 'evidence', 'knowledge', 'intel-enable'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
     case 'home': return home(main, me);
@@ -129,6 +129,8 @@ async function render() {
     case 'evidence': return import('./views-evidence.js').then((m) => m.evidenceReview(main));
     case 'intel': return import('./views-intel.js').then((m) => m.intel(main));
     case 'knowledge': return import('./views-intel.js').then((m) => m.knowledge(main));
+    case 'dashboard': return import('./views-final.js').then((m) => m.dashboard(main));
+    case 'bulk-classify': return import('./views-final.js').then((m) => m.bulkClassify(main));
     case 'intel-enable': return import('./views-intel.js').then((m) => m.enableIntel(main));
     default: main.append(h('div', { class: 'notice' }, 'الصفحة غير موجودة.'));
   }

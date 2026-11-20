@@ -157,7 +157,7 @@ function productFilter(qs: URLSearchParams, skip: '' | 'type' | 'category' = '',
   return { sql: where.length ? 'WHERE ' + where.join(' AND ') : '', args };
 }
 /** Compact row for the catalog list: no ingredients / benefits / warnings text (just whether they exist). */
-const compact = (p: ReturnType<typeof presentProduct>) => ({ id: p.id, name: p.name, brand: p.brand, size: p.size, barcode: p.barcode, category: p.category, product_type: p.product_type ?? '', classification_status: p.classification_status ?? 'unknown',
+const compact = (p: ReturnType<typeof presentProduct>) => ({ id: p.id, version: (p as { version?: number }).version ?? null, name: p.name, brand: p.brand, size: p.size, barcode: p.barcode, category: p.category, product_type: p.product_type ?? '', classification_status: p.classification_status ?? 'unknown',
   verification: p.verification, availability: p.availability, availability_effective: p.availability_effective, availability_stale: p.availability_stale, primary_image_id: p.primary_image_id ?? null, pending_suggestions: p.pending_suggestions ?? 0,
   has: { ingredients: !!p.ingredients, warnings: !!p.warnings, source: !!p.source_url, barcode: !!p.barcode, brand: !!p.brand, size: !!p.size } });
 
@@ -224,7 +224,8 @@ route('POST', '/api/taxonomy/suggest-existing', 'manager', (c) => {
 
 route('GET', '/api/products/by-barcode/:code', 'any', (c) => {
   const b = cleanBarcode(c.params.code);
-  const p = b ? (c.db.prepare(`${PRODUCT_SELECT} WHERE barcode = ?`).get(b) as ProductRow | undefined) : undefined;
+  // final completion: an ADDITIONAL code (product_codes) also identifies its product
+  const p = b ? ((c.db.prepare(`${PRODUCT_SELECT} WHERE barcode = ?`).get(b) ?? c.db.prepare(`${PRODUCT_SELECT} WHERE products.id = (SELECT product_id FROM product_codes WHERE code = ? LIMIT 1)`).get(b)) as ProductRow | undefined) : undefined;
   // Global enrichment connectors are not implemented yet: say so instead of pretending to search the web.
   return { barcode: b, found: !!p, product: p ? presentProduct(p, c.cfg.availabilityStaleHours) : null, enrichment: p ? null : c.cfg.enrich === 'off' ? { status: 'not_configured', message: 'البحث العالمي غير مفعّل على هذا الخادم. أدخل البيانات يدويًا وستُحفظ بحالة «تحتاج مراجعة».' } : { status: 'available', message: 'يمكن البحث في المصادر العالمية. النتائج مسودات تحتاج مراجعة المدير.' } };
 });
@@ -243,7 +244,7 @@ route('POST', '/api/products', 'any', async (c) => {
   checkVerification(user, d.verification, d.source_url);
   const barcode = cleanBarcode(d.barcode);
   if (barcode) {
-    const ex = c.db.prepare('SELECT id, name FROM products WHERE barcode = ?').get(barcode) as { id: number; name: string } | undefined;
+    const ex = (c.db.prepare('SELECT id, name FROM products WHERE barcode = ?').get(barcode) ?? c.db.prepare('SELECT p.id, p.name FROM product_codes pc JOIN products p ON p.id = pc.product_id WHERE pc.code = ?').get(barcode)) as { id: number; name: string } | undefined;
     if (ex) throw Object.assign(new HttpError(409, 'الباركود مسجل مسبقًا. افتح السجل الموجود.'), { existingId: ex.id });
   }
   const t = now();
@@ -273,7 +274,7 @@ route('PATCH', '/api/products/:id', 'any', async (c) => {
   if (d.version !== undefined && d.version !== cur.version) throw Object.assign(new HttpError(409, 'عدّل شخص آخر هذا المنتج بعد فتحك له. أعد فتح المنتج لترى آخر نسخة، ثم أعد تعديلك.'), { stale: true, currentVersion: cur.version });
   if (d.barcode !== undefined) {
     const b = cleanBarcode(d.barcode);
-    if (b) { const ex = c.db.prepare('SELECT id FROM products WHERE barcode = ? AND id <> ?').get(b, id); if (ex) throw new HttpError(409, 'الباركود مسجل لمنتج آخر'); }
+    if (b) { const ex = c.db.prepare('SELECT id FROM products WHERE barcode = ? AND id <> ?').get(b, id) ?? c.db.prepare('SELECT product_id AS id FROM product_codes WHERE code = ? AND product_id <> ?').get(b, id); if (ex) throw new HttpError(409, 'الباركود مسجل لمنتج آخر'); }
     (d as Record<string, unknown>).barcode = b;
   }
   const next = { ...cur, ...d } as ProductRow;
@@ -337,6 +338,9 @@ async function runImport(c: Ctx, commit: boolean) {
   type Ex = { id: number; barcode: string | null; name: string; brand: string; size: string; variant: string; verification: string; product_type: string };
   const all = c.db.prepare('SELECT id, barcode, name, brand, size, variant, verification, product_type FROM products').all() as Ex[];
   const byBarcode = new Map(all.filter((p) => p.barcode).map((p) => [p.barcode!, p]));
+  // final completion: additional codes (product_codes) also identify an existing product → a re-import is a duplicate, never a new record
+  const byId = new Map(all.map((p) => [p.id, p]));
+  for (const r of c.db.prepare('SELECT code, product_id FROM product_codes WHERE is_primary = 0').all() as { code: string; product_id: number }[]) { const p = byId.get(r.product_id); if (p && !byBarcode.has(r.code)) byBarcode.set(r.code, p); }
   const sizeKey = (v: string) => { const p = parseSize(v); return p ? `${p.v}${p.unit}` : norm(v); };
   // CP06.2: the variant (shade / scent / edition) is part of the identity — a different variant is a different product
   const idKey = (r: { name: string; brand: string; size: string; variant?: string }) => `${norm(r.name)}|${norm(r.brand)}|${sizeKey(r.size)}|${norm(r.variant ?? '')}`;
@@ -456,4 +460,5 @@ route('POST', '/api/enrichment/queue/start', 'manager', (c) => {
 });
 route('POST', '/api/enrichment/queue/run', 'manager', async (c) => ({ ...(await processQueueOnce(c.db, c.cfg, 5)) }));
 import './evidence-routes.ts';
+import './product-codes.ts';
 import './advisor2/routes.ts';
