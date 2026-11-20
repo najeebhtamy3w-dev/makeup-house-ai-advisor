@@ -126,6 +126,6 @@ for (const [label, n, imgs] of [['100 products', 100, false], [`${N_IMG} product
   await step(`[${label}] no page errors`, async () => { assert.deepEqual([...A.errs, ...B.errs], []); });
   await A.ctx.close(); await B.ctx.close();
 }
-writeFileSync(join(process.cwd(), 'docs/cp06-3/backup-scale-results.json'), JSON.stringify({ at: new Date().toISOString(), environment: 'Chromium (Playwright) on a 4-core x64 cloud VM — NOT a phone', results }, null, 1));
+writeFileSync(join(process.cwd(), `docs/cp06-3/backup-scale-last-run-${N_IMG}-${N_STRESS}.json`), JSON.stringify({ at: new Date().toISOString(), environment: 'Chromium (Playwright) on a 4-core x64 cloud VM — NOT a phone', results }, null, 1));
 console.log(JSON.stringify(results, null, 1));
 await b.close(); console.log(failed ? `${failed} FAILED` : 'ALL PASSED'); process.exit(failed ? 1 : 0);
