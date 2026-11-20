@@ -33,6 +33,7 @@ function score(text: string, ctx: TAdvisorContext, g: NGold, inConv: boolean) {
     red_flag: g.red_flag ? red : null,
     referral: g.referral ? (u.referrals.length > 0 || u.medical_red_flags.length > 0) : null,
     insufficient: g.insufficient ? INSUF.test(a.text) : null,
+    refers_previous: g.refers_previous ? Boolean((u as { resolved_reference?: string | null }).resolved_reference || u.refers_to_previous_product) : null,
   };
   // a red flag must never be raised on an ordinary question (false alarm), and never skipped on a critical one
   if (!g.red_flag && u.medical_red_flags.length) r.false_alarm = false;
@@ -43,7 +44,7 @@ const runConvs = (convs: NConv[]) => convs.flatMap((c) => { let ctx = AdvisorCon
 
 type Row = { id: string; text: string; r: Record<string, boolean | null>; ms: number; got: unknown };
 function agg(rows: Row[]) {
-  const fields = ['intent', 'product', 'skin', 'hair', 'ingredients', 'constraints', 'red_flag', 'referral', 'insufficient', 'false_alarm'];
+  const fields = ['intent', 'product', 'skin', 'hair', 'ingredients', 'constraints', 'red_flag', 'referral', 'insufficient', 'refers_previous', 'false_alarm'];
   const out: Record<string, string> = {};
   for (const f of fields) { const v = rows.map((x) => x.r[f]).filter((x) => x !== null && x !== undefined) as boolean[]; if (v.length) out[f] = `${Math.round(1000 * v.filter(Boolean).length / v.length) / 10}% (${v.filter(Boolean).length}/${v.length})`; }
   const all = rows.map((x) => Object.values(x.r).filter((v) => v !== null).every(Boolean));

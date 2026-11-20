@@ -90,6 +90,7 @@ export const AdvisorContext = z.object({
   product_refs: z.array(z.object({ id: z.number().int(), name: z.string() })).default([]),   // products shown earlier in this session
   safety_flags: z.array(z.string()).default([]),
   asked: z.array(z.string()).default([]),             // follow-up questions already asked (never repeated)
+  ingredients_discussed: z.array(z.string()).default([]),   // CP08: INCI of the ingredient(s) last talked about, so "طيب لو استخدمته مع…" resolves (additive, defaults to [])
 });
 export const ConversationTurn = z.object({ role: z.enum(['staff', 'advisor']), text: z.string().max(2000), at: z.string() });
 export const ConversationSession = z.object({ id: z.string(), user_id: z.number().int(), context: AdvisorContext, created_at: z.string(), last_active_at: z.string(), expires_at: z.string() });
