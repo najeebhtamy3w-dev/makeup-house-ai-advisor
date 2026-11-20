@@ -13,14 +13,15 @@ import { planResearch, runResearch } from '../server/src/cp08/research.ts';
 import { setResearchFetchForTests } from '../server/src/cp08/routes.ts';
 import { usage } from '../server/src/advisor2/ai.ts';
 import { AdvisorContext } from '../server/src/contracts.ts';
-import { CRITICAL, DEV } from './fixtures/cp08-natural-eval.ts';
+import { CRITICAL, DEV, BLIND_SAFETY } from './fixtures/cp08-natural-eval.ts';
 import { FIDELITY_LABELS } from './fixtures/cp08-fidelity-labels.ts';
 import { boot } from './helpers.ts';
 
 const fresh = (): DB => { const db = openDb(':memory:'); seedKnowledge(db); return db; };
 
 test('safety: every critical case escalates or refers; negation and plain heat do not raise alarms', () => {
-  for (const c of CRITICAL) {
+  // CRITICAL + the blind safety set (its misses were fixed after its one blind scoring and are now regression cases)
+  for (const c of [...CRITICAL, ...BLIND_SAFETY.filter((x) => x.gold.red_flag || x.gold.referral)]) {
     const u = understandCp07(c.text);
     if (c.gold.red_flag) assert.ok(u.medical_red_flags.length > 0, `missed urgent: ${c.text}`);
     if (c.gold.referral) assert.ok(u.referrals.length > 0 || u.medical_red_flags.length > 0, `missed referral: ${c.text}`);
