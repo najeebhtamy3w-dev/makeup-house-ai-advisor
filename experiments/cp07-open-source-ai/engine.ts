@@ -23,17 +23,19 @@ export interface AIEngineAdapter {
 }
 
 /* ---------------- llama.cpp (node-llama-cpp) ---------------- */
+// runtime-only specifier: the main project's type check and tests must not need this experiment's dependency installed
+const LLAMA_PKG = 'node-llama-cpp';
 export class LlamaCppEngine implements AIEngineAdapter {
   readonly id: string; private llama: any; private model: any; private ctx: any; private abort: AbortController | null = null;
   constructor(private modelPath: string, private contextSize = 4096, private threads = 4, private noThink = false) { this.id = `llama.cpp:${modelPath.split('/').pop()}`; }
   async initialize() {
-    const { getLlama } = await import('node-llama-cpp');
+    const { getLlama } = await import(LLAMA_PKG);
     this.llama = await getLlama({ gpu: false });
     this.model = await this.llama.loadModel({ modelPath: this.modelPath });
     this.ctx = await this.model.createContext({ contextSize: this.contextSize, threads: this.threads });
   }
   async generate(system: string, user: string, opts: GenerateOptions = {}) {
-    const { LlamaChatSession } = await import('node-llama-cpp');
+    const { LlamaChatSession } = await import(LLAMA_PKG);
     const seq = this.ctx.getSequence();
     const session = new LlamaChatSession({ contextSequence: seq, systemPrompt: system });
     this.abort = new AbortController(); const timer = setTimeout(() => this.abort?.abort(), opts.timeoutMs ?? 120_000);
