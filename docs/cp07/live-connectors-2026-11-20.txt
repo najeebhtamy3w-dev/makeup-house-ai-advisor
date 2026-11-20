@@ -1,0 +1,28 @@
+ingredient:azelaic acid { queued: 2, query: 'azelaic acid topical skin' }
+subject:collagen { queued: 2, query: 'collagen topical skin' }
+job { id: 1, state: 'done', found: 0 }
+job { id: 2, state: 'done', found: 5 }
+job { id: 3, state: 'done', found: 0 }
+job { id: 4, state: 'done', found: 5 }
+pubmed | pending_review | guideline | metadata_only | 2024 | Guidelines of care for the management of acne vulgaris. | https://pubmed.ncbi.nlm.nih.gov/38300170/
+pubmed | pending_review | narrative_review | metadata_only | 2021 | Management of Acne Vulgaris: A Review. | https://pubmed.ncbi.nlm.nih.gov/34812859/
+pubmed | pending_review | unknown | metadata_only | 2025 | Skincare ingredients recommended by cosmetic dermatologists: A Delphi consensus study. | https://pubmed.ncbi.nlm.nih.gov/40233838/
+pubmed | pending_review | narrative_review | metadata_only | 2022 | Rosacea management: A comprehensive review. | https://pubmed.ncbi.nlm.nih.gov/35104917/
+pubmed | pending_review | systematic_review | metadata_only | 2024 | Cosmeceuticals in photoaging: A review. | https://pubmed.ncbi.nlm.nih.gov/39233460/
+pubmed | pending_review | narrative_review | metadata_only | 2023 | Human Skin Aging and the Anti-Aging Properties of Retinol. | https://pubmed.ncbi.nlm.nih.gov/38002296/
+pubmed | pending_review | narrative_review | metadata_only | 2017 | The Roles of Vitamin C in Skin Health. | https://pubmed.ncbi.nlm.nih.gov/28805671/
+pubmed | pending_review | narrative_review | metadata_only | 2022 | A review of topical vitamin C derivatives and their efficacy. | https://pubmed.ncbi.nlm.nih.gov/34559950/
+pubmed | pending_review | narrative_review | metadata_only | 2025 | Antioxidants for Skin Health. | https://pubmed.ncbi.nlm.nih.gov/39108105/
+pubmed | pending_review | narrative_review | metadata_only | 2019 | Molecular Mechanisms of Dermal Aging and Antiaging Approaches. | https://pubmed.ncbi.nlm.nih.gov/31036793/
+connector state [
+  [Object: null prototype] {
+    connector: 'medlineplus',
+    failures: 0,
+    calls_today: 2
+  },
+  [Object: null prototype] {
+    connector: 'pubmed',
+    failures: 0,
+    calls_today: 2
+  }
+]
