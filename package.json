@@ -23,6 +23,7 @@
     "test:ui:evidence": "scripts/ui-evidence-run.sh",
     "test:ui:advisor": "scripts/ui-advisor-run.sh",
     "test:ui:intel": "scripts/ui-intel-run.sh",
+    "test:ui:back": "scripts/ui-android-back-run.sh",
     "eval:natural": "node --no-warnings --import tsx scripts/cp08-natural-eval.ts"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@capacitor/android": "8.6.2",
+    "@capacitor/app": "8.1.2",
     "@capacitor/cli": "8.6.2",
     "@capacitor/core": "8.6.2",
     "@capacitor/filesystem": "8.1.5",

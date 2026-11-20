@@ -4,8 +4,9 @@
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { App } from '@capacitor/app';
 
-declare global { interface Window { MH_LOCAL?: boolean; MH_READY?: Promise<void>; MHNative?: { saveFile(name: string, blob: Blob): Promise<string>; isNative: boolean } } }
+declare global { interface Window { MH_onBack?: () => Promise<'handled' | 'exit'>; MH_LOCAL?: boolean; MH_READY?: Promise<void>; MHNative?: { saveFile(name: string, blob: Blob): Promise<string>; isNative: boolean } } }
 
 const worker = new Worker('/local/worker.js', { type: 'module' });
 let seq = 0;
@@ -54,3 +55,16 @@ async function saveFile(name: string, blob: Blob): Promise<string> {
   return 'shared';
 }
 window.MHNative = { saveFile, isNative: Capacitor.isNativePlatform() };
+
+// CP06.3 — Android hardware Back. Capacitor 8 core has no Back handling, so without this listener Back closed the app and an
+// unsaved product edit was lost without any question. Registering the listener replaces the default; the web app decides
+// (window.MH_onBack in web/js/app.js): close a dialog, leave a screen through the unsaved-changes guard, or — on the home
+// screen — minimise (not kill) the app.
+if (Capacitor.isNativePlatform()) {
+  App.addListener('backButton', async () => {
+    try { const r = await window.MH_onBack?.(); if (r === 'exit' || r === undefined) await App.minimizeApp(); }
+    catch { /* never crash on Back */ }
+  });
+  // coming back to the foreground: nothing is saved automatically; the product form keeps its own unsaved-edit draft
+  App.addListener('pause', () => { document.dispatchEvent(new Event('mh:pause')); });
+}

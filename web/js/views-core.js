@@ -265,6 +265,14 @@ export async function productEdit(root, id, me, prefill = {}) {
   const msg = h('div', { 'aria-live': 'polite' });
   const images = imageManager(id, me, api, { layout: 'hero' });
   let dirty = false; host.addEventListener('input', () => { dirty = true; });
+  // CP06.3: an EDIT of a saved product is also kept on the phone (localStorage survives Android killing the app in the
+  // background). It is only OFFERED back on the next open; nothing reaches the database until the person taps «حفظ».
+  const EKEY = id ? `mh_edit_draft_${id}` : null;
+  const clearEditDraft = () => { if (EKEY) try { localStorage.removeItem(EKEY); } catch { /* ignore */ } };
+  let edT = null;
+  const saveEditDraft = (now = false) => { if (!EKEY) return; clearTimeout(edT); const write = () => { if (!dirty) return; try { localStorage.setItem(EKEY, JSON.stringify({ at: new Date().toISOString(), version: p.version ?? null, fields: Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value])), fn: [...fnSet] })); } catch { /* storage full / unavailable */ } }; if (now) write(); else edT = setTimeout(write, 400); };
+  // Android sends the app to the background (Home, call, app switch): write the draft immediately
+  if (EKEY) { const onPause = () => { if (host.isConnected) saveEditDraft(true); else document.removeEventListener('mh:pause', onPause); }; document.addEventListener('mh:pause', onPause); document.addEventListener('visibilitychange', () => { if (document.hidden && host.isConnected) saveEditDraft(true); }); }
 
   const validate = () => {
     Object.values(W).forEach((w) => w.setError(''));
@@ -301,7 +309,7 @@ export async function productEdit(root, id, me, prefill = {}) {
     return (inflight = busy(saveMode === 'open' ? openBtn : saveBtn, async () => {
       try {
         const r = id ? await api('PATCH', '/api/products/' + id, body) : await api('POST', '/api/products', body);
-        dirty = false; saveForm.clearDraft?.();
+        dirty = false; saveForm.clearDraft?.(); clearEditDraft();
         let imgFail = [];
         if (!id && images.count()) imgFail = await images.flush(r.id);
         if (opts.exit) { if (imgFail.length) toast(`حُفظ المنتج، لكن تعذر رفع ${imgFail.length} صورة`); else toast('تم الحفظ'); return true; }   // save-and-leave: the router navigates
@@ -343,7 +351,7 @@ export async function productEdit(root, id, me, prefill = {}) {
   const idBtn = h('button', { class: 'btn primary wide', type: 'button', onclick: (e) => disc.run(e.currentTarget) }, icon('sparkle', 20), id ? ' استكمال معلومات المنتج من الإنترنت' : ' التعرف وجلب المعلومات');
   // unsaved NEW-product work survives navigation / reload (sessionStorage only, cleared on save)
   const DKEY = 'mh_new_product_draft';
-  const saveDraft = () => { if (id) return; try { sessionStorage.setItem(DKEY, JSON.stringify({ ...Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value])), _fn: [...fnSet], _ref: clientRef })); } catch { /* ignore */ } };
+  const saveDraft = () => { if (id) { saveEditDraft(); return; } try { sessionStorage.setItem(DKEY, JSON.stringify({ ...Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value])), _fn: [...fnSet], _ref: clientRef })); } catch { /* ignore */ } };
   if (!id) {
     host.addEventListener('input', saveDraft);
     try {
@@ -394,12 +402,13 @@ export async function productEdit(root, id, me, prefill = {}) {
     classCard, pkgCard, useCard, srcCard,
     msg,
     id && me.role === 'manager' ? h('div', { class: 'card dangerzone' }, h('h3', { class: 'fsec-t' }, 'حذف المنتج'), h('p', { class: 'tiny muted' }, 'يحذف المنتج وصوره نهائيًا ولا يمكن التراجع.'),
-      h('button', { class: 'btn danger', type: 'button', id: 'delete-product', onclick: async () => { if (!confirm('حذف هذا المنتج وصوره نهائيًا؟')) return; try { await api('DELETE', '/api/products/' + id); dirty = false; toast('تم الحذف'); goBack(); } catch (e) { toast(e.message); } } }, 'حذف المنتج')) : null,
+      h('button', { class: 'btn danger', type: 'button', id: 'delete-product', onclick: async () => { if (!confirm('حذف هذا المنتج وصوره نهائيًا؟')) return; try { await api('DELETE', '/api/products/' + id); dirty = false; clearEditDraft(); toast('تم الحذف'); goBack(); } catch (e) { toast(e.message); } } }, 'حذف المنتج')) : null,
     // CP06.2: "إلغاء" leaves through the same guard as every other exit (save & leave / leave without saving / keep editing)
     h('div', { class: 'savebar' }, id ? [saveBtn, h('button', { class: 'btn out', type: 'button', id: 'cancel-edit', onclick: goBack }, 'إلغاء')] : [saveBtn, openBtn]));
   // the guard protects EDITS of a saved product. A NEW entry is already kept as a draft on the phone when leaving (CP05.3) and
   // restored on return, so leaving it never loses work and needs no prompt.
-  if (id) setLeaveGuard({ isDirty: () => dirty, save: () => save(null, { exit: true }), pending: () => (saving ? inflight : null) });
+  if (id) setLeaveGuard({ isDirty: () => dirty, save: () => save(null, { exit: true }), pending: () => (saving ? inflight : null), discard: () => { dirty = false; clearEditDraft(); } });
+  if (id) host.addEventListener('input', () => saveEditDraft());
   // keyboard on phones: keep the focused field above the fixed save bar
   form.addEventListener('focusin', (e) => { if (e.target.matches('input,textarea')) setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250); });
   const savedBanner = prefill.saved ? h('div', { class: 'notice ok savedbar', role: 'status' }, prefill.saved.duplicate ? '✓ هذا المنتج حُفظ سابقًا (لم يُكرَّر): ' : '✓ حُفظ: ', h('b', {}, prefill.saved.name), ' ',
@@ -408,7 +417,19 @@ export async function productEdit(root, id, me, prefill = {}) {
     id ? h('div', { class: 'card' }, h('h3', { class: 'fsec-t' }, 'التوفر الآن'), h('p', { class: 'tiny' }, 'آخر تحديث للتوفر: ', fmtDate(p.availability_updated_at)), availButtons(p, () => { host.remove(); productEdit(root, id, me); })) : null,
     form);
   drawTypes(); drawFn(); updateUi();
-  if (id) disc.loadPending();
+  if (id) {
+    // CP06.3: offer an unsaved edit left from a previous session (app killed / phone restarted) — never applied silently
+    let ed = null; try { ed = JSON.parse(localStorage.getItem(EKEY) || 'null'); } catch { /* ignore */ }
+    const differs = ed && Object.entries(ed.fields ?? {}).some(([k, v]) => f[k] && String(v) !== String(f[k].value));
+    if (differs) {
+      const banner = h('div', { class: 'notice warn', id: 'edit-draft-banner', role: 'status' },
+        `يوجد تعديل غير محفوظ على هذا المنتج من ${fmtDate(ed.at)}. `, ed.version != null && p.version != null && ed.version !== p.version ? h('b', {}, 'حُفظ المنتج بعده من جهة أخرى — راجع القيم قبل الحفظ. ') : null,
+        h('button', { class: 'btn sm', type: 'button', id: 'edit-draft-restore', onclick: () => { for (const [k, v] of Object.entries(ed.fields)) if (f[k]) f[k].value = v; fnSet.clear(); (ed.fn ?? []).forEach((x) => fnSet.add(x)); dirty = true; drawFn(); drawTypes(); updateUi(); banner.remove(); toast('استُرجع التعديل — لم يُحفظ بعد'); } }, 'استرجاع التعديل'), ' ',
+        h('button', { class: 'btn sm out', type: 'button', id: 'edit-draft-discard', onclick: () => { clearEditDraft(); banner.remove(); } }, 'تجاهل'));
+      host.prepend(banner);
+    } else if (ed) clearEditDraft();
+    disc.loadPending();
+  }
   else if (prefill.saved) { haptic(40); f.barcode.focus(); }
 }
 

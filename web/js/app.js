@@ -151,5 +151,18 @@ window.addEventListener('hashchange', async () => {
   shown = target;
   render();
 });
+// CP06.3 — ONE deterministic answer to Android's hardware Back (wired in mobile/src/client.ts through @capacitor/app).
+// Never a blind history.back(): open dialog → close it (= keep editing); product screen → its remembered list, through the
+// same unsaved-changes guard as every other exit; any other screen → home; home / login → 'exit' (the app is minimised).
+export async function handleBack() {
+  const sheets = document.querySelectorAll('.sheet');
+  if (sheets.length) { const top = sheets[sheets.length - 1]; const stay = top.querySelector('#leave-stay'); if (stay) stay.click(); else top.remove(); return 'handled'; }
+  if (!me) return 'exit';
+  const route = routeOf(location.hash);
+  if (route === 'product' || route === 'product-new') { goBack(); return 'handled'; }
+  if (route === 'home') return 'exit';
+  go('#/home'); return 'handled';
+}
+window.MH_onBack = handleBack;
 if (!window.MH_LOCAL && 'serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('/sw.js').catch(() => {});
 render();

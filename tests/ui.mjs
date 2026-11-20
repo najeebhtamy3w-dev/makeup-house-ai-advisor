@@ -111,6 +111,7 @@ await step('camera unavailable/denied: precise explanation, manual input stays u
 });
 await step('reduced motion: animations are disabled', async () => {
   const c2 = await browser.newContext({ viewport: { width: 390, height: 800 }, reducedMotion: 'reduce' }); const p2 = await c2.newPage(); await p2.goto(base);
+  await p2.waitForSelector('.login');   // CP06.3: the login card renders after /api/meta — reading it earlier was a race (intermittent TypeError)
   const d = await p2.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.login .card, .login')).animationDuration) || 0); assert.ok(d < 0.01); await c2.close();
 });
 // ---- manager: sign in again
