@@ -36,7 +36,7 @@ const snapshot = (db: DatabaseSync) => Object.fromEntries(['products', 'product_
 
 test('upgrade 005 -> 006 keeps every existing row and value, backfills codes, and is idempotent', () => {
   const db = legacyDb(); const before = snapshot(db);
-  const ran = migrate(db); assert.deepEqual(ran, ['006_cp06_2_contracts.sql', '007_cp06_2_import_queue.sql']);
+  const ran = migrate(db); assert.deepEqual(ran.slice(0, 2), ['006_cp06_2_contracts.sql', '007_cp06_2_import_queue.sql']); assert.ok(ran.slice(2).every((f) => f >= '008'), 'later additive migrations (CP07: 008) may follow');
   const after = snapshot(db);
   for (const tb of Object.keys(before)) {
     assert.equal(after[tb]!.length, before[tb]!.length, `${tb} row count`);

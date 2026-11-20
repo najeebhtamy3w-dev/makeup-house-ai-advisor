@@ -1,0 +1,9 @@
+{
+  "name": "cp07-open-source-ai-experiment",
+  "private": true,
+  "type": "module",
+  "description": "CP07 isolated prototype. NOT part of the app. Never bundled into the APK or Render.",
+  "dependencies": {
+    "node-llama-cpp": "3.22.3"
+  }
+}

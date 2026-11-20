@@ -1,0 +1,2090 @@
+{
+ "summary": {
+  "intent": {
+   "cp07": "90% (n=40)",
+   "original": "75% (n=40)"
+  },
+  "product": {
+   "cp07": "100% (n=11)",
+   "original": "100% (n=11)"
+  },
+  "skin": {
+   "cp07": "100% (n=10)",
+   "original": "100% (n=10)"
+  },
+  "hair": {
+   "cp07": "100% (n=6)",
+   "original": "100% (n=6)"
+  },
+  "ingredients": {
+   "cp07": "100% (n=11)",
+   "original": "0% (n=11)"
+  },
+  "topic_hit": {
+   "cp07": "100% (n=24)",
+   "original": "—"
+  },
+  "red": {
+   "cp07": "80% (n=5)",
+   "original": "80% (n=5)"
+  },
+  "refer": {
+   "cp07": "100% (n=5)",
+   "original": "80% (n=5)"
+  },
+  "insuf": {
+   "cp07": "70% (n=10)",
+   "original": "0% (n=10)"
+  }
+ },
+ "rows": [
+  {
+   "id": "b2-1",
+   "cat": "skin",
+   "text": "وجهي ناشف من الشتاء وأحتاج مرطب قوي",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "moisturizer",
+     [
+      "dry"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-2",
+   "cat": "skin",
+   "text": "زبونة بشرتها دهنية تبي غسول للوجه",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "cleanser",
+     [
+      "oily"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-3",
+   "cat": "skin",
+   "text": "بشرة مختلطة وتحتاج واقي شمس خفيف",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "sunscreen",
+     [
+      "combination"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-4",
+   "cat": "skin",
+   "text": "وش أحسن غسول للبشرة الحساسة",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "cleanser",
+     [
+      "sensitive"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-5",
+   "cat": "skin",
+   "text": "ليش تطلع لي حبوب قبل الدورة",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-6",
+   "cat": "skin",
+   "text": "كيف أخفف البقع البنية في وجهي",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-7",
+   "cat": "skin",
+   "text": "أبغى روتين بسيط للبشرة الدهنية",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "routine",
+     null,
+     [
+      "oily"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-8",
+   "cat": "skin",
+   "text": "بشرتي تقشر حول الأنف ايش السبب",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-9",
+   "cat": "skin",
+   "text": "تنصحيني بمرطب للبشرة الدهنية ما يسبب حبوب",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "moisturizer",
+     [
+      "oily"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-10",
+   "cat": "skin",
+   "text": "هل أحتاج واقي شمس في البيت",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "sunscreen",
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-11",
+   "cat": "hair",
+   "text": "شعري خفيف ويدهن بسرعة أريد شامبو",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "shampoo",
+     [],
+     [
+      "oily"
+     ],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-12",
+   "cat": "hair",
+   "text": "أطراف شعري متقصفة ايش أسوي",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [
+      "damaged"
+     ],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-13",
+   "cat": "hair",
+   "text": "شعري مصبوغ وجاف أحتاج بلسم",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "conditioner",
+     [],
+     [
+      "colored",
+      "dry"
+     ],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-14",
+   "cat": "hair",
+   "text": "عندي قشرة كثيرة تنزل على ملابسي",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-15",
+   "cat": "hair",
+   "text": "الشعر يتساقط مع التمشيط كل يوم",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-16",
+   "cat": "hair",
+   "text": "كم مرة أغسل شعري الدهني",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [
+      "oily"
+     ],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-17",
+   "cat": "hair",
+   "text": "شامبو مناسب لفروة رأس فيها حكة",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "shampoo",
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-18",
+   "cat": "hair",
+   "text": "شعري مجعد وناشف كيف أعتني فيه",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [
+      "curly",
+      "dry"
+     ],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-19",
+   "cat": "hair",
+   "text": "هل الاستشوار يتلف الشعر",
+   "cp07": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "unclear",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-20",
+   "cat": "hair",
+   "text": "تساقط شعري زاد بعد الولادة",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-21",
+   "cat": "ingredient",
+   "text": "هل الجليسرين ينفع للبشرة الجافة؟",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "ingredient_question",
+     null,
+     [
+      "dry"
+     ],
+     [],
+     [
+      "glycerin"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-22",
+   "cat": "ingredient",
+   "text": "وش هي فايدة البانثينول",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     [
+      "panthenol"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-23",
+   "cat": "ingredient",
+   "text": "السيراميدات مفيدة للبشرة؟",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     [
+      "ceramide np"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-24",
+   "cat": "ingredient",
+   "text": "هل الفازلين يسد المسام",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     [
+      "petrolatum"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-25",
+   "cat": "ingredient",
+   "text": "كم تركيز اليوريا المناسب للترطيب",
+   "cp07": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "product_guidance",
+     "moisturizer",
+     [],
+     [],
+     [
+      "urea"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-26",
+   "cat": "ingredient",
+   "text": "البنزويل بيروكسايد يبيض المناشف؟",
+   "cp07": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "ingredient",
+     null,
+     [
+      "dry"
+     ],
+     [],
+     [
+      "benzoyl peroxide"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-27",
+   "cat": "ingredient",
+   "text": "الأدابالين يزيد حساسية البشرة للشمس؟",
+   "cp07": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "explain",
+     null,
+     [
+      "sensitive"
+     ],
+     [],
+     [
+      "adapalene"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-28",
+   "cat": "ingredient",
+   "text": "أقدر أجمع الأدابالين مع المقشر؟",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "combination",
+     null,
+     [],
+     [],
+     [
+      "adapalene",
+      "exfoliation"
+     ]
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-29",
+   "cat": "ingredient",
+   "text": "حمض الهيالورونيك يعبي التجاعيد؟",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     [
+      "sodium hyaluronate"
+     ]
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-30",
+   "cat": "ingredient",
+   "text": "هل النياسيناميد مع الريتينول ينفع؟",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "combination",
+     null,
+     [],
+     [],
+     [
+      "niacinamide",
+      "retinol"
+     ]
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-31",
+   "cat": "yemeni",
+   "text": "اشتي شي لوشي يخليه ما يلمع",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [
+      "oily"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-32",
+   "cat": "yemeni",
+   "text": "معي حبوب وابغى غسول",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "cleanser",
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-33",
+   "cat": "yemeni",
+   "text": "شعري يطيح من الصبغة",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [
+      "colored"
+     ],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-34",
+   "cat": "yemeni",
+   "text": "وشي يحرقني من الكريمات",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [
+      "sensitive"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-35",
+   "cat": "yemeni",
+   "text": "ايش احط لشعري الناشف",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [
+      "dry"
+     ],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-36",
+   "cat": "yemeni",
+   "text": "ابغى واقي ما يخلي وشي ابيض",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "sunscreen",
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-37",
+   "cat": "yemeni",
+   "text": "راسي فيه قشره ويحكني",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-38",
+   "cat": "yemeni",
+   "text": "اشتي مرطب لوشي الناشف",
+   "cp07": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "moisturizer",
+     [
+      "dry"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-39",
+   "cat": "yemeni",
+   "text": "وش الفايده من الريتينول",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     [
+      "retinol"
+     ]
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-40",
+   "cat": "yemeni",
+   "text": "بشرتي دسمة وفيها حبوب صغار",
+   "cp07": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [
+      "oily"
+     ],
+     [],
+     []
+    ],
+    "topic_hit": true,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-41",
+   "cat": "medical",
+   "text": "حطيت كريم وانتفخت عيوني ووجهي",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "unclear",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": false,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-42",
+   "cat": "medical",
+   "text": "جرح في وجهي ملتهب وفيه قيح",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "unclear",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-43",
+   "cat": "medical",
+   "text": "عندي حمى وطفح منتشر في الجسم",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "unclear",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-44",
+   "cat": "medical",
+   "text": "خال في رقبتي صار ينزف",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "unclear",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-45",
+   "cat": "medical",
+   "text": "تقرحات في الفم والشفايف بعد مرطب",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "moisturizer",
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true,
+    "refer": null,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-46",
+   "cat": "medical",
+   "text": "أنا حامل أبغى غسول فيه ساليسيليك",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "product_guidance",
+     "cleanser",
+     [],
+     [],
+     [
+      "salicylic acid"
+     ]
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-47",
+   "cat": "medical",
+   "text": "ولدي الرضيع عنده طفح بسيط",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "unclear",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": false,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-48",
+   "cat": "medical",
+   "text": "شعري طاح فجأة وصار فيه بقعة فارغة",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-49",
+   "cat": "medical",
+   "text": "آخذ دواء للحبوب من الدكتور ايش أحط معه",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-50",
+   "cat": "medical",
+   "text": "الحكة في راسي مستمرة من شهور",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": true,
+    "insuf": null
+   }
+  },
+  {
+   "id": "b2-51",
+   "cat": "insufficient",
+   "text": "هل زيت الخروع يطول الرموش؟",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": true
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-52",
+   "cat": "insufficient",
+   "text": "ما فائدة حمض الكوجيك؟",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": true
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-53",
+   "cat": "insufficient",
+   "text": "هل الألوفيرا تعالج الحبوب؟",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-54",
+   "cat": "insufficient",
+   "text": "ايش فايدة الكيراتين للشعر",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": true
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-55",
+   "cat": "insufficient",
+   "text": "هل الشاي الأخضر يقلل الدهون؟",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": true
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-56",
+   "cat": "insufficient",
+   "text": "ما فائدة الجلوتاثيون للتفتيح",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": true
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-57",
+   "cat": "insufficient",
+   "text": "هل البيوتين يوقف التساقط؟",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "explain",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-58",
+   "cat": "insufficient",
+   "text": "ايش الفرق بين الكريم والجل",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "compare",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": true
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-59",
+   "cat": "insufficient",
+   "text": "هل ماء الورد مفيد للوجه؟",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "ingredient_question",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": true
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  },
+  {
+   "id": "b2-60",
+   "cat": "insufficient",
+   "text": "هل زيت الزيتون يرطب الشعر؟",
+   "cp07": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "got": [
+     "unclear",
+     null,
+     [],
+     [],
+     []
+    ],
+    "topic_hit": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   },
+   "original": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null,
+    "refer": null,
+    "insuf": false
+   }
+  }
+ ]
+}

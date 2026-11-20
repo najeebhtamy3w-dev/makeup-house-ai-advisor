@@ -6,6 +6,7 @@ import { audit, now, openDb, type DB } from './db.ts';
 import { makeHandler } from './http.ts';
 import { hashPassword } from './security.ts';
 import './routes.ts';
+import './cp07/routes.ts';   // CP07: registered on the Node server only (not in the Android worker bundle); 404 unless MH_CP07=1
 import { seedStagingAccounts } from './staging.ts';
 import './images.ts';
 import { processOne } from './queue.ts';

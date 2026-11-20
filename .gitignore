@@ -7,3 +7,5 @@ tests/ui-shots/
 dist-mobile/
 *.apk
 release-out/
+*.gguf
+experiments/**/models/
