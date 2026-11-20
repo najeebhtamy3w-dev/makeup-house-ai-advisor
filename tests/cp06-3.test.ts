@@ -45,3 +45,21 @@ test('thumbnails: lists get the original flagged "missing" until a thumb exists;
     assert.equal(rep.status, 200); assert.equal(rep.json.orphans, 0); assert.equal(rep.json.missing_thumbs, 0); assert.equal(rep.json.thumbs.n, 1);
   } finally { await t.close(); }
 });
+
+test('interrupted migration (process killed mid-way) leaves the database at the previous version, and the next start completes it', async () => {
+  const { mkdtempSync } = await import('node:fs'); const { join } = await import('node:path'); const { tmpdir } = await import('node:os');
+  const path = join(mkdtempSync(join(tmpdir(), 'mh-mig-')), 'app.db');
+  const files = readdirSync(new URL('../server/migrations/', import.meta.url)).filter((f) => f.endsWith('.sql')).sort();
+  let db = new DatabaseSync(path); db.exec('CREATE TABLE schema_migrations (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)');
+  for (const f of files.filter((f) => f < '009')) { db.exec(readFileSync(new URL(`../server/migrations/${f}`, import.meta.url), 'utf8')); db.prepare('INSERT INTO schema_migrations VALUES (?, ?)').run(f, 'x'); }
+  db.prepare("INSERT INTO products(name, created_at, updated_at) VALUES ('P', 'x', 'x')").run();
+  // the app dies after the first statement of 009, before COMMIT (same BEGIN … COMMIT as migrate() on server and phone)
+  db.exec('BEGIN'); db.exec('ALTER TABLE product_images ADD COLUMN thumb BLOB'); db.close();   // no COMMIT
+  db = new DatabaseSync(path);
+  const cols = (db.prepare("SELECT name FROM pragma_table_info('product_images')").all() as { name: string }[]).map((r) => r.name);
+  assert.ok(!cols.includes('thumb'), 'the half-applied migration was rolled back');
+  assert.equal((db.prepare("SELECT COUNT(*) n FROM schema_migrations WHERE name LIKE '009%'").get() as { n: number }).n, 0);
+  assert.deepEqual(migrate(db as never), ['009_cp06_3_image_thumbs.sql'], 'completed on the next start');
+  assert.equal((db.prepare('SELECT COUNT(*) n FROM products').get() as { n: number }).n, 1, 'no data lost');
+  db.close();
+});
