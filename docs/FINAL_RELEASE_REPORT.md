@@ -7,7 +7,7 @@ Chromium and Node results are never presented as device results.
 
 The core functionality is complete and every software gate passes. The deliverable is a **release candidate**, not a final signed, device-verified release:
 
-- **Gate E (permanent signing): BLOCKED.** The owner's permanent key does not exist yet. By rule it cannot be created or kept in this cloud session.
+- **Gate E (permanent signing): DONE.** The owner's key was created and used on the owner's phone (see `docs/final/SIGNING_RECORD_3.0.0.md`). Pending: copying the key off the phone.
 - **Gate F (Samsung): BLOCKED.** No physical device and no emulator were available.
 
 ## Gates
@@ -18,7 +18,7 @@ The core functionality is complete and every software gate passes. The deliverab
 | B — CP06.2 core completion | VERIFIED (server, UI and on-device-bundle tests) |
 | C — CP09 integration | VERIFIED (catalog → advisor test; CP09 suites green) |
 | D — Android readiness | VERIFIED for compilation, bundle and WebView engine (Chromium); NOT VERIFIED on a device |
-| E — Final signing and release | **BLOCKED**: owner key needed; the signing path is prepared and tested with the debug keystore |
+| E — Final signing and release | DONE: signed by the owner with the permanent key on the owner's phone (`docs/final/SIGNING_RECORD_3.0.0.md`); key copy off the phone still PENDING |
 | F — Physical device acceptance | **BLOCKED**: no device |
 | G — Final delivery | Delivered as a release candidate plus the owner signing procedure |
 
@@ -40,9 +40,9 @@ The core functionality is complete and every software gate passes. The deliverab
 | 12 | Backup and restore report | VERIFIED (Chromium) | this phase: 100 and 300 products with images, plus attacks and MHBAK1 legacy (`docs/final/backup-scale-last-run-300-0.json`); 1,000 / 2,500-image runs REPORTED from CP06.3 (the full rerun was stopped in this container) |
 | 13 | Security and permissions report | VERIFIED | manager-only routes enforced in the backend (403 tests); all changes audited; APK scanned: no keystore, private key, API key or `storePassword` in it; no financial fields |
 | 14 | Signing procedure | VERIFIED | `docs/RELEASE_SIGNING_AND_CUSTODY.md`, `scripts/owner-keygen.sh`, `scripts/sign-release.sh` |
-| 15 | Signing certificate fingerprint | **BLOCKED** | exists only after the owner creates the key. The debug TEST-ONLY build is signed `F4:AE:B8:68:…:CE:C0:E7` (cloud debug key, **not** for release) |
-| 16 | Final Release APK | **BLOCKED** (signed) / VERIFIED (candidate) | `makeuphouse-advisor-3.0.0-release-candidate-UNSIGNED.apk` (3,980,663 bytes) — the owner signs it |
-| 17 | APK SHA-256 | VERIFIED (candidate) | unsigned candidate `eda179f809640c9f25984e227ee9723b33de8b1792d3289d03a12f518cda329d`; debug test `cac99752378f044b374c15c26d9da7c424f2195e7925916fc774a7d580ab7c14`. The signed APK gets a new hash, which `sign-release.sh` prints |
+| 15 | Signing certificate fingerprint | REPORTED | `B5:1B:F9:B0:42:27:7C:F4:FD:0C:36:83:7C:5A:93:D7:7C:B6:73:FE:B1:C6:EE:9E:57:BD:60:26:50:4D:63:86` (owner key; matches the signed APK) |
+| 16 | Final Release APK | REPORTED | `makeuphouse-advisor-3.0.0-release-candidate-SIGNED.apk`, signed on the owner's phone; `apksigner verify`: Verifies, v2 + v3 true. Still a release candidate until the Samsung acceptance |
+| 17 | APK SHA-256 | REPORTED (signed) / VERIFIED (unsigned) | **signed `9ce93846d79f354374e6d8cd7f69c49f1d3aa351c251cf01676ba36656eaa358`**; unsigned candidate `eda179f809640c9f25984e227ee9723b33de8b1792d3289d03a12f518cda329d`; debug test `cac99752378f044b374c15c26d9da7c424f2195e7925916fc774a7d580ab7c14`. The signed APK gets a new hash, which `sign-release.sh` prints |
 | 18 | Samsung acceptance report | **BLOCKED** | `docs/SAMSUNG_ACCEPTANCE_V3.md`: 28 NOT TESTED, 2 BLOCKED |
 | 19 | Update continuity report | VERIFIED (data layer) / BLOCKED (APK on device) | `docs/UPDATE_CONTINUITY.md` |
 | 20 | Known limitations | REPORTED | below |

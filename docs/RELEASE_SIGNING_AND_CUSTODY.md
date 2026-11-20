@@ -1,6 +1,6 @@
 # Release Signing — Owner-Controlled Key and Custody
 
-**Status: final signed release BLOCKED — waiting for the owner's permanent key.**
+**Status (2026-11-20): permanent key created by the owner on their phone; v3.0.0 signed and verified — see `docs/final/SIGNING_RECORD_3.0.0.md`. Certificate SHA-256 `B5:1B:F9:B0:…:4D:63:86`.**
 
 No permanent key was created in the cloud session, per "Do not create an uncontrolled substitute key". What exists:
 
