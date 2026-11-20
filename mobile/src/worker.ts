@@ -13,8 +13,10 @@ import '../../server/src/discovery.ts';
 import { configureConnectors, processQueueOnce } from '../../server/src/enrichment/engine.ts';
 import { hashPassword } from '../../server/src/security.ts';
 import * as backup from './backup.ts';
+import { processOne } from '../../server/src/queue.ts';
+import { activeProviders } from '../../server/src/evidence-routes.ts';
 
-export const LOCAL_VERSION = '3.0.0-cp06-local';
+export const LOCAL_VERSION = '3.0.0-cp06.2-local';
 const DB_FILE = '/makeup-house.db';
 const CHECK_FILE = '/restore-check.db';
 const SAFETY_FILE = '/pre-restore.db';
@@ -131,6 +133,8 @@ const ready = (async () => {
   openMain();
   // optional background enrichment queue — only does anything when online and products were queued
   setInterval(() => { if (navigator.onLine) processQueueOnce(db as never, cfg, 1).catch(() => { /* offline / source down: retried later */ }); }, 8000);
+  // CP06.2: the v2 queue (import batches, evidence for review). Offline, jobs simply wait; results are evidence only, never product data.
+  setInterval(() => { processOne(db as never, activeProviders(), { online: navigator.onLine }).catch(() => { /* retried by the queue's own backoff */ }); }, 6000);
 })();
 
 self.onmessage = async (e: MessageEvent) => {
