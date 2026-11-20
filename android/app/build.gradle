@@ -7,8 +7,8 @@ android {
         applicationId "com.makeuphouse.advisor"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "3.0.0-cp06.3"
+        versionCode 4
+        versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +16,27 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Release signing — OWNER-CONTROLLED key only. Nothing secret is in the repository: the owner keeps the keystore and a
+    // keystore.properties file (storeFile, storePassword, keyAlias, keyPassword) OUTSIDE git (.gitignore blocks both), and
+    // points MH_KEYSTORE_PROPERTIES at it, or places it at android/keystore.properties on their own computer.
+    // Without that file the release build is produced UNSIGNED (a release candidate) — never signed with a substitute key.
+    def ksPropsFile = file(System.getenv('MH_KEYSTORE_PROPERTIES') ?: rootProject.file('keystore.properties').path)
+    def ksProps = new Properties()
+    if (ksPropsFile.exists()) { ksPropsFile.withInputStream { ksProps.load(it) } }
+    signingConfigs {
+        if (ksProps['storeFile']) {
+            release {
+                storeFile file(ksProps['storeFile'])
+                storePassword ksProps['storePassword']
+                keyAlias ksProps['keyAlias']
+                keyPassword ksProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            if (ksProps['storeFile']) { signingConfig signingConfigs.release }
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

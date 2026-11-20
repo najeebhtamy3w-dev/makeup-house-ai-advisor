@@ -1,0 +1,6 @@
+{
+ "old_version": "3.0.0-cp09-local",
+ "new_version": "3.0.0-local",
+ "at": "2026-11-20T10:32:41.537Z",
+ "note": "Chromium persistent profile, same origin; data-layer continuity only, not an APK update on a device"
+}

@@ -1,6 +1,7 @@
 import { api, getToken } from './api.js';
 import { busy, fill, h, toast, AV, field, select, fmtDate } from './util.js';
 
+const FIELD_AR = { barcode: 'الباركود', name: 'الاسم', name_ar: 'الاسم العربي', name_en: 'الاسم الإنجليزي', brand: 'العلامة', manufacturer: 'الشركة المصنّعة', variant: 'النسخة/اللون', category: 'الفئة', size: 'الحجم', availability: 'التوفر', product_type: 'نوع المنتج' };
 /* ---------- import (manager): preview -> commit; price/qty columns reported by NAME only ---------- */
 export function importView(root) {
   const file = h('input', { type: 'file', accept: '.csv,.xlsx' }); const out = h('div', {});
@@ -16,6 +17,7 @@ export function importView(root) {
           h('div', { class: 'stats' }, [['جديد', r.new], ['موجود مسبقًا', r.duplicates_existing], ['يُستكمل (حقول فارغة)', r.completions], ['تعارض', r.conflicts], ['مشابه محتمل', r.possible_duplicates], ['مكرر في الملف', r.duplicates_in_file], ['غير صالح', r.invalid]].map(([l, n]) => h('div', { class: 'stat' }, h('b', {}, n ?? 0), h('small', {}, l)))),
           r.classification ? h('p', { class: 'tiny' }, `نوع المنتج في الجديد: مطابق ${r.classification.confirmed} · مقترح من الاسم ${r.classification.suggested} · قيمة غير معروفة (للمراجعة) ${r.classification.needs_review} · غير مصنف ${r.classification.unknown}`) : null,
           r.new ? h('p', { class: 'tiny' }, `بيانات ناقصة في الجديد (مسموح): بلا باركود ${r.missing.barcode} · بلا علامة ${r.missing.brand} · بلا حجم ${r.missing.size}. الصور والمكونات تُستكمل لاحقًا من بطاقة المنتج.`) : null,
+          r.column_mapping?.length ? h('details', { class: 'card', id: 'import-mapping', open: true }, h('summary', {}, 'كيف قُرئت أعمدة الملف'), table(['عمود الملف', 'يُقرأ إلى'], r.column_mapping.map((m) => h('tr', {}, h('td', {}, m.header), h('td', {}, FIELD_AR[m.field] ?? m.field))))) : null,
           r.ignored_columns.length ? h('div', { class: 'notice' }, 'أعمدة أُهملت كليًا ولم تُقرأ قيمها: ', r.ignored_columns.join('، ')) : null,
           r.warnings.map((w) => h('div', { class: 'notice' }, w)),
           r.completions ? h('div', { class: 'notice info' }, `${r.completions} منتج موجود ستُملأ حقوله الفارغة فقط (العلامة/الحجم) ويعود إلى «تحتاج مراجعة». المنتجات المعتمدة والقيم الموجودة لا تُستبدل.`) : null,

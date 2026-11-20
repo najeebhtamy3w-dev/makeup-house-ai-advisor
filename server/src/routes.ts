@@ -376,7 +376,7 @@ async function runImport(c: Ctx, commit: boolean) {
     completions: completions.length, completion_rows: completions.slice(0, 20).map((x) => ({ line: x.line, fields: Object.keys(x).filter((k) => k === 'brand' || k === 'size' || k === 'product_type') })),
     classification: { confirmed: fresh.filter((r) => r.classification_status === 'confirmed').length, suggested: fresh.filter((r) => r.classification_status === 'suggested').length, needs_review: fresh.filter((r) => r.classification_status === 'needs_review').length, unknown: fresh.filter((r) => r.classification_status === 'unknown').length },
     conflicts: conflicts.length, conflict_rows: conflicts.slice(0, 50), possible_duplicates: possible.length, possible_rows: possible.slice(0, 50), missing, max_rows: MAX_IMPORT_ROWS,
-    ignored_columns: parsed.ignoredColumns, warnings: parsed.warnings, sample: fresh.slice(0, 10), drafts: fresh.filter((r) => r.draft).length };
+    ignored_columns: parsed.ignoredColumns, column_mapping: parsed.mapping ?? [], warnings: parsed.warnings, sample: fresh.slice(0, 10), drafts: fresh.filter((r) => r.draft).length };
   if (!commit) return { committed: false, ...summary };
   // CP06.2: resumable batch (chunks of 500, each in its own transaction); drafts for barcode-only rows; v2 enrichment jobs
   const providers = c.query.get('enrich') === '1' && c.cfg.enrich !== 'off' ? getConnectors().map((x) => x.id) : [];

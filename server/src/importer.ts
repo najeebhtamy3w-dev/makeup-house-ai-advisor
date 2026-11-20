@@ -47,6 +47,8 @@ export interface ParsedImport {
   rows: ImportRow[];
   invalid: { line: number; reason: string }[];   // reasons never include cell values
   ignoredColumns: string[];                       // header names only
+  /** which file header was read into which field (header names only — never cell values) */
+  mapping?: { header: string; field: string }[];
   warnings: string[];
 }
 
@@ -71,6 +73,7 @@ export function parseImport(filename: string, data: Buffer): ParsedImport {
     if (k && ![...map.values()].includes(k)) map.set(i, k); else if (h) ignoredColumns.push(h);
   });
   const cols = [...map.values()];
+  const mapping = [...map.entries()].map(([i, k]) => ({ header: header[i]!, field: k }));
   // CP06.2: a name in any language, or a barcode column (barcode-only rows become drafts waiting for identification)
   if (!cols.some((k) => k === 'name' || k === 'name_ar' || k === 'name_en' || k === 'barcode')) throw new Error('يجب وجود عمود الاسم (name أو الاسم العربي/الإنجليزي) أو الباركود');
 
@@ -107,5 +110,5 @@ export function parseImport(filename: string, data: Buffer): ParsedImport {
     warnings.push('بعض الباركودات قصيرة: قد تكون خانات Excel رقمية وفُقدت أصفارها البادئة. نسّق العمود كنص ثم أعد التصدير.');
   if (unknownTypes) warnings.push(`${unknownTypes} صف بنوع منتج غير معروف: حُفظت القيمة الأصلية وأصبح «تصنيف يحتاج مراجعة».`);
   if (unknownCats) warnings.push(`${unknownCats} صف بتصنيف غير معروف: سُجّل كـ«أخرى». التصنيفات المقبولة: ${CATEGORIES.join('، ')}.`);
-  return { rows, invalid, ignoredColumns, warnings };
+  return { rows, invalid, ignoredColumns, mapping, warnings };
 }

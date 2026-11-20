@@ -79,3 +79,35 @@ test('manager dashboard: real counts from the database; staff refused', async ()
     assert.ok(!/price|cost|sale|profit/i.test(JSON.stringify(d)), 'no financial metric');
   } finally { await t.close(); }
 });
+
+test('import preview shows how each file header was read (header names only, no cell values)', async () => {
+  const t = await boot();
+  try {
+    const csv = Buffer.from('Barcode,اسم المنتج,Brand,Price\n6299999000014,غسول سري,B,9.99\n');
+    const r = await t.call('POST', '/api/imports/preview?filename=m.csv', { token: t.manager, raw: csv });
+    assert.equal(r.status, 200);
+    const fields = r.json.column_mapping.map((m: { field: string }) => m.field);
+    assert.ok(fields.includes('barcode') && fields.includes('brand'), JSON.stringify(r.json.column_mapping));
+    assert.ok(r.json.ignored_columns.includes('Price'));
+    assert.ok(!JSON.stringify(r.json.column_mapping).includes('9.99') && !JSON.stringify(r.json.column_mapping).includes('سري'));
+  } finally { await t.close(); }
+});
+
+test('catalog → advisor: imported drafts are never recommended; a product without ingredients is listed as «needs information», never recommended', async () => {
+  const prev = process.env.MH_CP07; process.env.MH_CP07 = '1';
+  const t = await boot();
+  try {
+    // a barcode-only row becomes an import DRAFT; a named row without ingredients becomes an active, unverified product
+    const csv = Buffer.from('barcode,name,brand,product_type,category\n6299999000038,,,,\n,غسول تجريبي مستورد,B,cleanser,العناية بالبشرة\n');
+    const r = await t.call('POST', '/api/imports/commit?filename=adv.csv', { token: t.manager, raw: csv });
+    assert.equal(r.status, 200); assert.equal(r.json.drafts, 1);
+    const a = await t.call('POST', '/api/cp08/advisor/chat', { token: t.staff, body: { message: 'بشرتي جافة وأشتي غسول' } });
+    const items = a.json.answer.products?.items ?? [];
+    assert.ok(!items.some((p: { barcode?: string }) => p.barcode === '6299999000038'), 'draft not recommended');
+    assert.ok(!items.some((p: { name: string }) => p.name === 'غسول تجريبي مستورد'), 'no ingredients → never a confident recommendation');
+    const need = a.json.answer.products?.needs_information ?? [];
+    assert.ok(need.some((p: { name: string }) => p.name === 'غسول تجريبي مستورد'), 'it is listed as needing information: ' + JSON.stringify(need));
+    const txt = JSON.stringify(a.json.answer.sections);
+    assert.ok(!/سعر|ريال|خصم/.test(txt), 'no prices');
+  } finally { await t.close(); if (prev === undefined) delete process.env.MH_CP07; else process.env.MH_CP07 = prev; }
+});

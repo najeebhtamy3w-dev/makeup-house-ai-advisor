@@ -27,7 +27,8 @@
     "test:ui:images": "scripts/ui-images-run.sh",
     "test:local:backup-scale": "scripts/local-backup-scale-run.sh",
     "eval:natural": "node --no-warnings --import tsx scripts/cp08-natural-eval.ts",
-    "test:ui:final": "scripts/ui-final-run.sh"
+    "test:ui:final": "scripts/ui-final-run.sh",
+    "test:local:final": "scripts/local-final-run.sh"
   },
   "dependencies": {
     "tsx": "4.23.15",
