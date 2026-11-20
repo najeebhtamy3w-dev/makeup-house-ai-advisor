@@ -1,0 +1,51 @@
+{
+ "at": "2026-11-20T08:03:24.692Z",
+ "environment": "Chromium (Playwright) on a 4-core x64 cloud VM — NOT a phone",
+ "results": {
+  "100 products": {
+   "products": 100,
+   "image_bytes": 0,
+   "db_bytes": 712704,
+   "backup_bytes": 713394,
+   "backup_ms": 199,
+   "frames": 1,
+   "peak_buffer_bytes_backup": 1425429,
+   "wasm_heap_before": 8388608,
+   "wasm_heap_after_backup": 8388608,
+   "restore_ms": 305,
+   "peak_buffer_bytes_restore": 0,
+   "wasm_heap_after_restore": 8388608,
+   "active_slot_after": "/makeup-house-b.db"
+  },
+  "1000 products with images": {
+   "products": 1000,
+   "image_bytes": 45890214,
+   "db_bytes": 50249728,
+   "backup_bytes": 50251414,
+   "backup_ms": 7908,
+   "frames": 48,
+   "peak_buffer_bytes_backup": 2097173,
+   "wasm_heap_before": 21037056,
+   "wasm_heap_after_backup": 21037056,
+   "restore_ms": 17193,
+   "peak_buffer_bytes_restore": 0,
+   "wasm_heap_after_restore": 8388608,
+   "active_slot_after": "/makeup-house-b.db"
+  },
+  "stress: 2500 products with images": {
+   "products": 2500,
+   "image_bytes": 114729290,
+   "db_bytes": 124641280,
+   "backup_bytes": 124644460,
+   "backup_ms": 16101,
+   "frames": 119,
+   "peak_buffer_bytes_backup": 2097173,
+   "wasm_heap_before": 21037056,
+   "wasm_heap_after_backup": 21037056,
+   "restore_ms": 29947,
+   "peak_buffer_bytes_restore": 0,
+   "wasm_heap_after_restore": 8388608,
+   "active_slot_after": "/makeup-house-b.db"
+  }
+ }
+}

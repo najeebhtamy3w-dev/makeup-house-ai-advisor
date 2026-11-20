@@ -517,7 +517,7 @@ export async function scan(root, me) {
   const openCam = async () => {
     halt(); vf.classList.remove('hide'); vfmsg.textContent = 'جارٍ طلب إذن الكاميرا…';
     try {
-      stop = await startCamera(video, { onState: (s) => { if (s === 'scanning') vfmsg.textContent = 'ضع الباركود داخل الإطار'; if (s === 'success') { frame.classList.add('ok'); vfmsg.textContent = '✔ تمت القراءة'; haptic(60); } }, onCode: (v) => { code.value = v; lookup(); } });
+      stop = await startCamera(video, { onState: (s) => { if (s === 'paused') { vf.classList.add('hide'); say('info', 'أُوقفت الكاميرا عند مغادرة التطبيق. اضغط «فتح الكاميرا» للمتابعة، أو اكتب الرقم.'); } if (s === 'slow') vfmsg.textContent = 'لم تُقرأ بعد — قرّب الباركود وأضئه، أو اكتب الرقم يدويًا'; if (s === 'scanning') vfmsg.textContent = 'ضع الباركود داخل الإطار'; if (s === 'success') { frame.classList.add('ok'); vfmsg.textContent = '✔ تمت القراءة'; haptic(60); } }, onCode: (v) => { code.value = v; lookup(); } });
       say('info', 'وجّه الكاميرا إلى الباركود. تُقبل القراءة بعد تطابقين متتاليين.');
     } catch (e) { vf.classList.add('hide'); say('err', e.message); code.focus(); }
   };

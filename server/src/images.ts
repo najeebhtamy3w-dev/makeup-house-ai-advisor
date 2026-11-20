@@ -148,9 +148,45 @@ route('POST', '/api/products/:id/images', 'any', async (c) => {
 });
 
 route('GET', '/api/images/:id', 'any', (c) => {
-  const r = c.db.prepare('SELECT mime, bytes FROM product_images WHERE id = ?').get(parseId(c.params.id!)) as { mime: string; bytes: Uint8Array } | undefined;
+  const id = parseId(c.params.id!);
+  // CP06.3: lists ask for ?size=thumb — the small copy when it exists, else the original (flagged so the client can make one)
+  if (c.query.get('size') === 'thumb') {
+    const t = c.db.prepare('SELECT thumb, thumb_mime, mime, bytes FROM product_images WHERE id = ?').get(id) as { thumb: Uint8Array | null; thumb_mime: string | null; mime: string; bytes: Uint8Array } | undefined;
+    if (!t) throw new HttpError(404, 'الصورة غير موجودة');
+    if (t.thumb && t.thumb_mime) return imageResponse(t.thumb, t.thumb_mime);
+    const res = imageResponse(t.bytes, t.mime); res.headers['x-mh-thumb'] = 'missing'; return res;
+  }
+  const r = c.db.prepare('SELECT mime, bytes FROM product_images WHERE id = ?').get(id) as { mime: string; bytes: Uint8Array } | undefined;
   if (!r) throw new HttpError(404, 'الصورة غير موجودة');
   return imageResponse(r.bytes, r.mime);
+});
+
+/** CP06.3: store a small display copy made by the client. Set once (an existing thumbnail is kept); the original is untouched. */
+export const MAX_THUMB_BYTES = 64 * 1024, MAX_THUMB_SIDE = 400;
+route('PUT', '/api/images/:id/thumb', 'any', async (c) => {
+  const id = parseId(c.params.id!);
+  const row = c.db.prepare('SELECT thumb IS NOT NULL AS has FROM product_images WHERE id = ?').get(id) as { has: number } | undefined;
+  if (!row) throw new HttpError(404, 'الصورة غير موجودة');
+  if (row.has) return { ok: true, kept: true };
+  const bytes = new Uint8Array(await c.raw());
+  if (bytes.length > MAX_THUMB_BYTES) throw new HttpError(413, 'الصورة المصغرة كبيرة');
+  const info = validateImage(bytes);
+  if ((info.width ?? 0) > MAX_THUMB_SIDE || (info.height ?? 0) > MAX_THUMB_SIDE) throw new HttpError(400, 'أبعاد الصورة المصغرة كبيرة');
+  c.db.prepare('UPDATE product_images SET thumb = ?, thumb_mime = ? WHERE id = ? AND thumb IS NULL').run(bytes, info.mime, id);
+  return { ok: true, kept: false };
+});
+
+/** CP06.3: storage report for the manager — read-only; nothing is deleted here (orphans need a separate, authorised clean-up). */
+route('GET', '/api/images-report', 'manager', (c) => {
+  const q = (sql: string) => c.db.prepare(sql).get() as Record<string, number>;
+  return {
+    images: q('SELECT COUNT(*) n, COALESCE(SUM(size),0) bytes, COALESCE(MAX(size),0) max_bytes FROM product_images'),
+    thumbs: q('SELECT COUNT(thumb) n, COALESCE(SUM(length(thumb)),0) bytes FROM product_images'),
+    missing_thumbs: q('SELECT COUNT(*) n FROM product_images WHERE thumb IS NULL').n,
+    orphans: q('SELECT COUNT(*) n FROM product_images i LEFT JOIN products p ON p.id = i.product_id WHERE p.id IS NULL').n,
+    products_without_primary: q("SELECT COUNT(*) n FROM products p WHERE EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = p.id) AND NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = p.id AND i.is_primary = 1)").n,
+    from_sources_without_license: q("SELECT COUNT(*) n FROM product_images WHERE origin = 'source' AND license = ''").n,
+  };
 });
 
 route('PATCH', '/api/images/:id', 'any', async (c) => {

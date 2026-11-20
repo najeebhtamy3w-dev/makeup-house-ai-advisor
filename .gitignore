@@ -9,3 +9,10 @@ dist-mobile/
 release-out/
 *.gguf
 experiments/**/models/
+
+# CP06.3: signing material must never enter the repository
+*.jks
+*.keystore
+*.p12
+keystore.properties
+key.properties

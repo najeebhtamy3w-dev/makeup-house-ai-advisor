@@ -12,23 +12,55 @@ const MAX_SIDE = 1600;                       // enough to read an ingredient lis
 const SERVER_MAX = 2 * 1024 * 1024;
 
 /* ---------- display (bytes are behind login, so <img src> cannot fetch them directly) ---------- */
+// CP06.3: a BOUNDED cache (least-recently-used). Before, every image ever shown stayed in memory as a full-size blob for the
+// life of the page — scrolling a 1,000-product catalogue kept 1,000 photos alive. Evicted object URLs are revoked.
+const URL_CACHE_MAX = 120;
 const urlCache = new Map();
-async function objectUrl(path) {
-  if (urlCache.has(path)) return urlCache.get(path);
-  const p = fetch(path, { headers: { authorization: 'Bearer ' + getToken() } }).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.blob(); }).then((b) => URL.createObjectURL(b));
-  urlCache.set(path, p); p.catch(() => urlCache.delete(path));
+const evict = () => { while (urlCache.size > URL_CACHE_MAX) { const [k, p] = urlCache.entries().next().value; urlCache.delete(k); p.then((u) => URL.revokeObjectURL(u)).catch(() => {}); } };
+async function objectUrl(path, onMissingThumb) {
+  if (urlCache.has(path)) { const p = urlCache.get(path); urlCache.delete(path); urlCache.set(path, p); return p; }   // refresh LRU order
+  let missing = false;
+  const p = fetch(path, { headers: { authorization: 'Bearer ' + getToken() } }).then((r) => { if (!r.ok) throw new Error(String(r.status)); missing = !!onMissingThumb && r.headers.get('x-mh-thumb') === 'missing'; return r.blob(); })
+    .then((b) => { if (missing) queueThumb(path, b); return URL.createObjectURL(b); });
+  urlCache.set(path, p); p.catch(() => urlCache.delete(path)); evict();
   return p;
 }
-export const forgetImage = (id) => urlCache.delete('/api/images/' + id);
-export function authImg(path, alt, cls = '') {
+export const forgetImage = (id) => { for (const k of [...urlCache.keys()]) if (k === '/api/images/' + id || k.startsWith('/api/images/' + id + '?')) urlCache.delete(k); };
+
+/* ---------- CP06.3 thumbnails: made once in the browser/app from the original, stored next to it; the original is untouched ---------- */
+const THUMB_SIDE = 240, THUMB_MAX_BYTES = 60 * 1024;
+export async function makeThumb(blob) {
+  const bmp = await createImageBitmap(blob);
+  const k = Math.min(1, THUMB_SIDE / Math.max(bmp.width, bmp.height)); const w = Math.max(1, Math.round(bmp.width * k)), hh = Math.max(1, Math.round(bmp.height * k));
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = hh; cv.getContext('2d').drawImage(bmp, 0, 0, w, hh); bmp.close?.();
+  for (const q of [0.72, 0.6, 0.45]) { const t = await new Promise((r) => cv.toBlob(r, 'image/webp', q)) ?? await new Promise((r) => cv.toBlob(r, 'image/jpeg', q)); if (t && t.size <= THUMB_MAX_BYTES) return t; }
+  return null;
+}
+export async function storeThumb(imageId, blob) {
+  const t = await makeThumb(blob).catch(() => null); if (!t) return false;
+  const r = await fetch(`/api/images/${imageId}/thumb`, { method: 'PUT', headers: { authorization: 'Bearer ' + getToken(), 'content-type': t.type }, body: t }).catch(() => null);
+  return !!r?.ok;
+}
+// existing photos without a thumbnail get one lazily, two at a time, only for images that are actually being shown
+const thumbQueue = []; let thumbBusy = 0;
+function queueThumb(path, blob) {
+  const id = Number(path.match(/\/api\/images\/(\d+)/)?.[1]); if (!id) return;
+  thumbQueue.push([id, blob]); pump();
+}
+function pump() { while (thumbBusy < 2 && thumbQueue.length) { const [id, blob] = thumbQueue.shift(); thumbBusy++; storeThumb(id, blob).finally(() => { thumbBusy--; pump(); }); } }
+
+// images are fetched only when they come near the screen (a long list does not download every photo at once)
+const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) { io.unobserve(e.target); e.target._load?.(); } }, { rootMargin: '300px' }) : null;
+export function authImg(path, alt, cls = '', opts = {}) {
   const img = h('img', { alt, class: cls + ' loading', decoding: 'async' });
-  objectUrl(path).then((u) => { img.src = u; img.classList.remove('loading'); }).catch(() => { img.classList.remove('loading'); img.classList.add('broken'); img.alt = 'تعذر تحميل الصورة'; });
+  const load = () => objectUrl(path, opts.thumb ? () => {} : undefined).then((u) => { img.src = u; img.classList.remove('loading'); }).catch(() => { img.classList.remove('loading'); img.classList.add('broken'); img.alt = 'تعذر تحميل الصورة'; });
+  if (opts.lazy && io) { img._load = load; io.observe(img); } else load();
   return img;
 }
 /** Thumbnail for cards / search / advisor: the product photo, or its initial when there is none. */
 export function thumb(p, size = 'md') {
   return h('div', { class: 'th ' + size, 'aria-hidden': p.primary_image_id ? null : 'true' },
-    p.primary_image_id ? authImg('/api/images/' + p.primary_image_id, 'صورة ' + (p.name || 'المنتج')) : (p.name || '؟').trim()[0]);
+    p.primary_image_id ? authImg('/api/images/' + p.primary_image_id + '?size=thumb', 'صورة ' + (p.name || 'المنتج'), '', { lazy: true, thumb: true }) : (p.name || '؟').trim()[0]);
 }
 
 /* ---------- capture + processing ---------- */
@@ -92,6 +124,8 @@ export async function uploadImage(productId, { blob, kind, origin }, primary = f
     .catch(() => { throw new Error('تعذر رفع الصورة. تحقق من الاتصال وأعد المحاولة.'); });
   const data = await res.json().catch(() => null);
   if (!res.ok) throw new Error(data?.error ?? 'تعذر حفظ الصورة');
+  const imageId = data?.image?.id ?? data?.id;
+  if (imageId) storeThumb(imageId, blob).catch(() => {});   // CP06.3: small display copy, made from the compressed upload
   return data;
 }
 

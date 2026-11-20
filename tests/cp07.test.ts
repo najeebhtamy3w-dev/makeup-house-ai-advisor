@@ -28,7 +28,7 @@ test('migration 008 is additive: a 007 database with data upgrades without loss;
   db.prepare("INSERT INTO products(name, created_at, updated_at) VALUES ('P1', 'x', 'x')").run();
   db.prepare("INSERT INTO knowledge_retrievals(source, query_key, title, url, retrieved_at) VALUES ('s','q','t','https://a.b/c','x')").run();
   const ran = migrate(db as never);
-  assert.deepEqual(ran, ['008_cp07_knowledge.sql']);
+  assert.equal(ran[0], '008_cp07_knowledge.sql'); assert.ok(ran.slice(1).every((f) => f > '008'), 'later additive migrations (CP06.3: 009) may follow');
   assert.equal((db.prepare('SELECT COUNT(*) n FROM products').get() as { n: number }).n, 1);
   const r = db.prepare('SELECT evidence_state, license_status FROM knowledge_retrievals').get() as { evidence_state: string; license_status: string };
   assert.equal(r.evidence_state, 'discovered'); assert.equal(r.license_status, 'unknown');

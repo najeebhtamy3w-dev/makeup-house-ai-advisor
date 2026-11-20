@@ -85,7 +85,7 @@ await step('backup: encrypted .mhbak created (passphrase), verified header, no p
   await go(A.p, '#/backup', '#backup-pass'); await A.p.fill('#backup-pass', 'backup-secret-1'); await A.p.fill('#backup-pass2', 'backup-secret-1');
   const [dl] = await Promise.all([A.p.waitForEvent('download'), A.p.click('#backup-go')]); await A.p.waitForSelector('#backup-done');
   backupFile = join(tmp, dl.suggestedFilename()); await dl.saveAs(backupFile);
-  const buf = readFileSync(backupFile); assert.equal(buf.subarray(0, 7).toString(), 'MHBAK1\n');
+  const buf = readFileSync(backupFile); assert.equal(buf.subarray(0, 7).toString(), 'MHBAK2\n');   // CP06.3: streamed, chunk-authenticated format (MHBAK1 files still restore — tests/local-backup-scale.mjs)
   const header = JSON.parse(buf.subarray(7, buf.indexOf(10, 7)).toString()); assert.deepEqual(header.counts, { products: 4, images: 1, users: 2 });
   assert.equal(buf.includes(Buffer.from('كريم محلي أوفلاين')), false, 'product names are not readable in the file'); assert.equal(buf.includes(Buffer.from('scrypt$')), false, 'no password hashes in clear');
 });

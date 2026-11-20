@@ -23,12 +23,14 @@ function restoreSection(onDone) {
   const verifyBtn = h('button', { class: 'btn out', type: 'button', onclick: (e) => busy(e.currentTarget, async () => {
     fill(out); verified = null;
     try {
-      const r = await (await call('/api/local/restore', pack({ passphrase: pass.value, dry: true }, await read()), true)).json();
+      // CP06.3: the worker reads the file in slices (bounded memory); falls back to the one-piece request only if the bridge lacks it
+      const f = file.files?.[0]; if (!f) throw new Error('اختر ملف النسخة (.mhbak)');
+      const r = window.MHNative?.restore ? await window.MHNative.restore(f, pass.value, true, getToken()) : await (await call('/api/local/restore', pack({ passphrase: pass.value, dry: true }, await read()), true)).json();
       verified = r.header;
       fill(out, h('div', { class: 'notice ok' }, `✓ النسخة سليمة ومطابقة لبصمتها. تاريخها: ${fmtDate(r.header.created_at)} · منتجات: ${r.header.counts.products} · صور: ${r.header.counts.images} · حسابات: ${r.header.counts.users}`),
         h('button', { class: 'btn danger', type: 'button', id: 'restore-go', onclick: (e2) => busy(e2.currentTarget, async () => {
           if (!confirm('ستُستبدل كل البيانات الحالية على هذا الهاتف بمحتوى النسخة. متابعة؟')) return;
-          try { await call('/api/local/restore', pack({ passphrase: pass.value }, await read()), true); setToken(null); fill(out, h('div', { class: 'notice ok', id: 'restore-done' }, 'تمت الاستعادة. سجّل الدخول بحساب من النسخة.')); onDone?.(); }
+          try { const f2 = file.files?.[0]; if (window.MHNative?.restore) await window.MHNative.restore(f2, pass.value, false, getToken()); else await call('/api/local/restore', pack({ passphrase: pass.value }, await read()), true); setToken(null); fill(out, h('div', { class: 'notice ok', id: 'restore-done' }, 'تمت الاستعادة. سجّل الدخول بحساب من النسخة.')); onDone?.(); }
           catch (x) { fill(out, h('div', { class: 'notice err' }, x.message)); }
         }) }, 'استعادة الآن (تستبدل البيانات الحالية)'));
     } catch (x) { fill(out, h('div', { class: 'notice err' }, x.message)); }
@@ -53,9 +55,11 @@ export async function backupView(main) {
     if (pass.value.length < 8) { fill(out, h('div', { class: 'notice err' }, 'كلمة مرور النسخة 8 أحرف على الأقل.')); return; }
     if (pass.value !== pass2.value) { fill(out, h('div', { class: 'notice err' }, 'كلمتا المرور غير متطابقتين.')); return; }
     try {
-      const res = await call('/api/local/backup', { passphrase: pass.value });
-      const blob = await res.blob(); const name = res.headers.get('x-mh-filename') || 'makeup-house.mhbak'; const counts = JSON.parse(res.headers.get('x-mh-counts') || '{}');
-      const how = await window.MHNative.saveFile(name, blob);
+      // CP06.3: streamed backup — the file is written chunk by chunk, the database is never held whole in memory
+      let how, name, counts, size;
+      if (window.MHNative?.backup) ({ how, name, counts, size } = await window.MHNative.backup(pass.value, getToken()));
+      else { const res = await call('/api/local/backup', { passphrase: pass.value }); const blob = await res.blob(); name = res.headers.get('x-mh-filename') || 'makeup-house.mhbak'; counts = JSON.parse(res.headers.get('x-mh-counts') || '{}'); size = blob.size; how = await window.MHNative.saveFile(name, blob); }
+      const blob = { size };
       try { localStorage.setItem(LAST, JSON.stringify({ at: new Date().toISOString(), size: blob.size, name })); } catch { /* ignore */ }
       fill(out, h('div', { class: 'notice ok', id: 'backup-done' }, `✓ أُنشئت النسخة «${name}» (${kb(blob.size)} · منتجات ${counts.products} · صور ${counts.images}). ${how === 'shared' ? 'اختر مكان الحفظ من نافذة المشاركة (الملفات، Drive، USB).' : 'نُزّل الملف.'}`),
         h('div', { class: 'notice' }, 'احفظ كلمة مرور النسخة في مكان آمن منفصل عن الهاتف. بدونها لا يمكن استعادة النسخة، ولا يمكن لأحد استرجاعها.'));
