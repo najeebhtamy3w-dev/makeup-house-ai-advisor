@@ -47,6 +47,7 @@ export async function intel(root) {
       opt('offline', true, 'يعمل دائمًا'),
       opt('research', m.research.available, !m.research.enabled ? 'معطّل من المدير' : !m.research.online ? 'لا اتصال' : 'النتائج غير مراجعة'),
       opt('cloud', m.cloud.enabled, m.cloud.enabled ? `${m.cloud.provider}` : m.cloud.reason),
+      (m.research.sources ?? []).filter((x) => !x.available).map((x) => h('p', { class: 'tiny muted', id: 'research-source-note' }, x.reason_ar)),
       h('p', { class: 'tiny muted' }, status.note_ar));
   };
   root.append(h('h2', { class: 't' }, 'المستشار العلمي (تجريبي)'),
@@ -93,6 +94,8 @@ export async function knowledge(root) {
     const s = d.stats;
     fill(body,
       h('div', { class: 'card', id: 'k-settings' }, h('h3', { class: 'fsec-t' }, 'الإعدادات'),
+        st.source === 'env' ? h('div', { class: 'tiny muted' }, 'المستشار العلمي مفعّل من إعدادات الخادم.')
+          : h('label', { class: 'item', style: 'display:flex;gap:8px;align-items:center' }, h('input', { type: 'checkbox', id: 'k-feature', checked: true, onchange: async (e) => { if (!confirm('إيقاف المستشار العلمي لكل الموظفين على هذا الجهاز/الخادم؟')) { e.target.checked = true; return; } try { await api('POST', '/api/features/scientific-advisor', { enabled: false }); window.MH_refreshFeatures?.(); location.hash = '#/home'; } catch (x) { toast(x.message); e.target.checked = true; } } }), 'المستشار العلمي مفعّل'),
         toggle('k-research', 'البحث العلمي عبر الإنترنت (MedlinePlus، PubMed)', d.external_search_enabled, 'external_search_enabled', 'استعلامات مفاهيم عامة فقط'),
         st.modes.cloud.configured ? toggle('k-cloud', `النموذج السحابي (${st.modes.cloud.provider})`, st.modes.cloud.enabled, 'cloud_llm_enabled', `إنفاق هذا الشهر $${(st.modes.cloud.month_usd ?? 0).toFixed(2)} من $${st.modes.cloud.monthly_budget_usd}`)
           : h('div', { class: 'tiny muted', id: 'k-cloud-off' }, `النموذج السحابي: غير مضبوط — ${st.modes.cloud.reason}. المفتاح يُضبط في بيئة الخادم فقط، لا في التطبيق.`)),
@@ -116,4 +119,17 @@ export async function knowledge(root) {
           : emptyState('⌕', 'لا أدلة مكتشفة بعد', 'فعّل البحث العلمي ثم ابحث في فجوة.')));
   };
   load();
+}
+
+// CP09: switching the scientific advisor on (manager). The runtime (server or the phone's local worker) checks the role.
+export function enableIntel(root) {
+  const out = h('div', { 'aria-live': 'polite' });
+  root.append(h('h2', { class: 't' }, 'تفعيل المستشار العلمي'),
+    h('div', { class: 'card' },
+      h('p', {}, 'المستشار العلمي يفهم أسئلة العربية واللهجة اليمنية، ويجيب من معرفة منظمة بمصادرها، ويطبّق فحص سلامة مستقلًا، ويعمل دون إنترنت.'),
+      h('ul', { class: 'tiny' }, h('li', {}, 'المعرفة لم يراجعها مختص مؤهل بعد، وكل إجابة تقول ذلك.'), h('li', {}, 'البحث العلمي عبر الإنترنت والنموذج السحابي يبقيان معطّلين حتى تفعّلهما بشكل منفصل.'), h('li', {}, 'ليس تشخيصًا طبيًا.')),
+      h('button', { class: 'btn', type: 'button', id: 'intel-enable-go', onclick: (e) => busy(e.currentTarget, async () => {
+        try { await api('POST', '/api/features/scientific-advisor', { enabled: true }); fill(out, h('div', { class: 'notice ok', id: 'intel-enabled' }, 'تم التفعيل.')); window.MH_refreshFeatures?.(); location.hash = '#/intel'; }
+        catch (x) { fill(out, errorBox(x.message)); }
+      }) }, 'تفعيل'), out));
 }

@@ -15,8 +15,14 @@ import { hashPassword } from '../../server/src/security.ts';
 import * as backup from './backup.ts';
 import { processOne } from '../../server/src/queue.ts';
 import { activeProviders } from '../../server/src/evidence-routes.ts';
+// CP09: the scientific advisor (CP07 knowledge + CP08 understanding, safety, research, review) now runs ON THE PHONE too —
+// the same TypeScript as the server, over the local database. Off until a manager switches it on (stored setting).
+import '../../server/src/cp07/routes.ts';
+import '../../server/src/cp08/routes.ts';
+import { setRuntime } from '../../server/src/cp08/features.ts';
+setRuntime('device', () => navigator.onLine);
 
-export const LOCAL_VERSION = '3.0.0-cp06.3-local';
+export const LOCAL_VERSION = '3.0.0-cp09-local';
 // CP06.3 — two database slots + a tiny pointer database. A restore is written into the INACTIVE slot, verified there, and
 // only then does the pointer switch; the active database is never copied into memory and never touched before that.
 // Existing installs: no pointer yet → slot A = the original file name, so nothing moves on upgrade.
@@ -238,8 +244,22 @@ const ready = (async () => {
 })();
 
 // one request at a time: no write can slip into a backup's read transaction or a restore's swap
-let chain: Promise<unknown> = Promise.resolve();
-const withLock = <T>(fn: () => Promise<T>): Promise<T> => { const r = chain.then(fn, fn); chain = r.catch(() => {}); return r; };
+// CP09: read/write lock. Ordinary requests run concurrently as before CP06.3 (a slow network call — scientific research —
+// must not freeze the app); a backup or restore is EXCLUSIVE: it waits for in-flight requests to finish, and new ones wait
+// for it. This keeps the CP06.3 guarantee that no write slips into a backup's read transaction or a restore's swap.
+let readers = 0; let exclusive: Promise<void> | null = null; let drained: (() => void) | null = null;
+async function shared<T>(fn: () => Promise<T>): Promise<T> {
+  while (exclusive) await exclusive;
+  readers++;
+  try { return await fn(); } finally { readers--; if (readers === 0) drained?.(); }
+}
+async function withLock<T>(fn: () => Promise<T>): Promise<T> {
+  while (exclusive) await exclusive;
+  let release!: () => void; exclusive = new Promise<void>((r) => { release = r; });
+  try { while (readers > 0) await new Promise<void>((r) => { drained = r; }); drained = null; return await fn(); }
+  finally { exclusive = null; release(); }
+}
+const isExclusiveRequest = (method: string, url: string) => method === 'POST' && /^\/api\/local\/(backup|restore)(\?|$)/.test(url);
 const replies = new Map<string, (v: unknown) => void>();
 const post = (m: unknown, transfer: Transferable[] = []) => (self as unknown as Worker).postMessage(m, transfer);
 const ask = (key: string, m: unknown, transfer: Transferable[] = []) => new Promise<unknown>((resolve) => { replies.set(key, resolve); post(m, transfer); });
@@ -272,7 +292,8 @@ self.onmessage = async (e: MessageEvent) => {
   }
   try {
     await ready;
-    const res = await withLock(() => dispatch(db as never, cfg, { method: m.method, url: m.url, authorization: m.authorization, raw: async () => Buffer.from(m.body ? new Uint8Array(m.body) : new Uint8Array()) as never }));
+    const run = isExclusiveRequest(m.method, m.url) ? withLock : shared;
+    const res = await run(() => dispatch(db as never, cfg, { method: m.method, url: m.url, authorization: m.authorization, raw: async () => Buffer.from(m.body ? new Uint8Array(m.body) : new Uint8Array()) as never }));
     const body = typeof res.body === 'string' ? res.body : res.body.slice().buffer;
     (self as unknown as Worker).postMessage({ id: m.id, status: res.status, headers: res.headers, body }, typeof body === 'string' ? [] : [body as ArrayBuffer]);
   } catch (err) {

@@ -1,0 +1,30 @@
+{
+ "at": "2026-11-20T08:40:20.794Z",
+ "note": "blind set written before scoring; scored once per runtime; phone = Android web bundle in Chromium (offline), NOT a device",
+ "server": {
+  "urgent": "13/14",
+  "referral": "7/7",
+  "benign_no_false_alarm": "8/10",
+  "multi_turn": "2/2"
+ },
+ "device": {
+  "urgent": "13/14",
+  "referral": "7/7",
+  "benign_no_false_alarm": "8/10",
+  "multi_turn": "2/2"
+ },
+ "parity": true,
+ "misses": {
+  "server": [
+   "u5(urgent)",
+   "n1(benign)",
+   "n9(benign)"
+  ],
+  "device": [
+   "u5(urgent)",
+   "n1(benign)",
+   "n9(benign)"
+  ],
+  "convs": []
+ }
+}

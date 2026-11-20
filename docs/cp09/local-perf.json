@@ -1,0 +1,25 @@
+{
+ "at": "2026-11-20T08:42:00.195Z",
+ "environment": "Chromium on a 4-core x64 cloud VM, Galaxy S9+ viewport — NOT a phone",
+ "cold_start_to_worker_ready_ms": 608,
+ "warm_restart_to_worker_ready_ms": 322,
+ "products": 1000,
+ "advisor_answer_ms": {
+  "n": 24,
+  "p50": 64.6,
+  "p95": 154.1
+ },
+ "catalogue_search_ms": {
+  "n": 4,
+  "p50": 6.8,
+  "max": 8
+ },
+ "js_heap_main_thread_mb": 3.6,
+ "worker_wasm_heap_mb": 8.4,
+ "db_mb": 1.2,
+ "not_measured": [
+  "worker JS heap (no API in a dedicated worker)",
+  "native process memory",
+  "any Samsung number"
+ ]
+}

@@ -12,12 +12,15 @@ import { dashboard, enqueueGap, claimFromEvidence } from './growth.ts';
 import { setExternalSearch, externalSearchEnabled } from './connectors.ts';
 import { findConflicts } from './validate.ts';
 import type { DB } from '../db.ts';
+import { scientificAdvisor } from '../cp08/features.ts';
 
 const env = () => (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env ?? {};
-export const cp07Enabled = () => env().MH_CP07 === '1';
+/** CP09: unified switch (database setting on both runtimes; MH_CP07=1 still force-enables on the server) */
+export const cp07Enabled = (db: DB) => scientificAdvisor(db).enabled;
+void env;
 const seeded = new WeakSet<DB>();
 function ready(c: Ctx) {
-  if (!cp07Enabled()) throw new HttpError(404, 'CP07 غير مفعّل');
+  if (!cp07Enabled(c.db)) throw new HttpError(404, 'CP07 غير مفعّل');
   if (!seeded.has(c.db)) { seedKnowledge(c.db); seeded.add(c.db); }
 }
 const wrap = <T>(f: () => T): T => { try { return f(); } catch (e) { if (e instanceof KnowledgeError) throw new HttpError(e.code === 'not_found' ? 404 : e.code === 'forbidden' ? 403 : 400, e.message); throw e; } };

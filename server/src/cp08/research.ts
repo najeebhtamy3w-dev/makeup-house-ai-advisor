@@ -14,6 +14,7 @@ import { CONNECTORS, guardedSearch, externalSearchEnabled, type FetchLike, type 
 import { storeEvidence, logGap } from '../cp07/growth.ts';
 import { validateEvidence } from '../cp07/validate.ts';
 import type { Cp07Understanding } from '../cp07/nlu.ts';
+import { researchSources } from './features.ts';
 
 // Arabic concept → English scientific terms (ingredients come from INCI; conditions and common unknown subjects here)
 const CONCERN_EN: Record<string, string> = { acne: 'acne vulgaris', dryness: 'xerosis dry skin', sensitivity: 'sensitive skin', pigmentation: 'hyperpigmentation melasma', dandruff: 'seborrheic dermatitis dandruff', itch: 'pruritus scalp', hair_loss: 'hair loss alopecia', oil: 'oily skin sebum', sun: 'sunscreen photoprotection' };
@@ -52,7 +53,9 @@ const words = (s: string) => new Set(s.toLowerCase().replace(/[^a-z0-9 ]/g, ' ')
 /** Run the plan. Never throws; every connector problem becomes a note. */
 export async function runResearch(db: DB, u: Cp07Understanding, env: { fetch: FetchLike; online: boolean; sleep?: (ms: number) => Promise<void>; nowMs?: number }): Promise<ResearchResult> {
   const plan = planResearch(u); const notes: string[] = [];
-  if (!plan.queries.length) return { status: 'no_plan', plan, items: [], stored: 0, notes_ar: [plan.unmapped ? `لا أعرف المصطلح العلمي لـ «${plan.unmapped}» بعد؛ لم يُبحث حتى لا يُرسل نص حر. سُجّلت فجوة معرفية.` : 'لا يوجد مفهوم علمي واضح للبحث عنه في هذا السؤال.'] };
+  // CP09: only sources that technically work in this runtime (MedlinePlus is blocked inside the Android WebView by CORS)
+  for (const src of researchSources()) if (!src.available && plan.queries.some((q) => q.connector === src.id)) { plan.queries = plan.queries.filter((q) => q.connector !== src.id); if (src.reason_ar) notes.push(src.reason_ar); }
+  if (!plan.queries.length) return { status: 'no_plan', plan, items: [], stored: 0, notes_ar: [...notes, plan.unmapped ? `لا أعرف المصطلح العلمي لـ «${plan.unmapped}» بعد؛ لم يُبحث حتى لا يُرسل نص حر. سُجّلت فجوة معرفية.` : 'لا يوجد مفهوم علمي واضح للبحث عنه في هذا السؤال.'] };
   if (!externalSearchEnabled(db)) return { status: 'disabled', plan, items: [], stored: 0, notes_ar: ['البحث العلمي عبر الإنترنت معطّل من المدير.'] };
   if (!env.online) return { status: 'offline', plan, items: [], stored: 0, notes_ar: ['لا يوجد اتصال بالإنترنت؛ الإجابة من المعرفة المحلية فقط.'] };
   const seen = new Map<string, ResearchItem>(); let stored = 0; let failures = 0;
