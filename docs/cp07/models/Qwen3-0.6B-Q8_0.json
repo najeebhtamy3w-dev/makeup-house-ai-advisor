@@ -1,0 +1,2118 @@
+{
+ "summary": {
+  "model": "Qwen3-0.6B-Q8_0",
+  "file_bytes": 639446688,
+  "threads": 4,
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "load_ms": 2223,
+  "rss_after_load_mb": 2131,
+  "peak_rss_mb": 2178,
+  "nlu": {
+   "n": 48,
+   "json_failures": 1,
+   "p50_ms": 2252,
+   "p95_ms": 3443,
+   "model": {
+    "intent": {
+     "pct": 42.5,
+     "n": 40
+    },
+    "product": {
+     "pct": 50,
+     "n": 26
+    },
+    "skin": {
+     "pct": 13.3,
+     "n": 15
+    },
+    "hair": {
+     "pct": 10,
+     "n": 10
+    },
+    "ingredients": {
+     "pct": 70,
+     "n": 10
+    },
+    "red": {
+     "pct": 82.2,
+     "n": 45
+    }
+   },
+   "rules": {
+    "intent": {
+     "pct": 100,
+     "n": 40
+    },
+    "product": {
+     "pct": 100,
+     "n": 26
+    },
+    "skin": {
+     "pct": 100,
+     "n": 15
+    },
+    "hair": {
+     "pct": 100,
+     "n": 10
+    },
+    "ingredients": {
+     "pct": 100,
+     "n": 10
+    },
+    "red": {
+     "pct": 100,
+     "n": 46
+    }
+   }
+  },
+  "rephrase": {
+   "n": 12,
+   "grounded_pass": 5,
+   "fallbacks": 7,
+   "p50_ms": 8226,
+   "p95_ms": 39138,
+   "problems": [
+    [
+     "unknown citation",
+     6
+    ],
+    [
+     "no",
+     1
+    ]
+   ]
+  },
+  "nlu_tokens_per_s": 30.9
+ },
+ "nlu": [
+  {
+   "id": "skin-1",
+   "cat": "skin",
+   "text": "بشرتي جافة وأريد غسول",
+   "ms": 1940,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "dry",
+     "oily",
+     "sensitive"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "glycerin",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-11",
+   "cat": "skin",
+   "text": "أبحث عن مرطب لأن بشرتي مختلطة",
+   "ms": 1738,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "combination"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "benzoyl peroxide"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-21",
+   "cat": "skin",
+   "text": "عندي بشرة جافة جدا، أحتاج واقي شمس",
+   "ms": 1709,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "sunscreen",
+    "skin_type": [
+     "sensitive",
+     "dry",
+     "oily"
+    ],
+    "hair_type": [],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": true,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-31",
+   "cat": "skin",
+   "text": "بشرة بنتي حساسة وتنصحني بغسول مناسب",
+   "ms": 2188,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "sensitive"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-41",
+   "cat": "skin",
+   "text": "أريد غسول لأن بشرتي جافة",
+   "ms": 1865,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "glycerin",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-51",
+   "cat": "skin",
+   "text": "بشرتي مختلطة، أبحث عن مرطب",
+   "ms": 2669,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "sensitive"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "benzoyl peroxide",
+     "panthenol",
+     "panthenol",
+     "panthenol"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-61",
+   "cat": "skin",
+   "text": "عندي بشرة جافة جدا وأحتاج واقي شمس",
+   "ms": 1496,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "sunscreen",
+    "skin_type": [
+     "dry",
+     "oily"
+    ],
+    "hair_type": [],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": true,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-71",
+   "cat": "skin",
+   "text": "عندي حبوب في الوجه ليش تطلع؟",
+   "ms": 2864,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "oily",
+     "normal",
+     "sensitive",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "petrolatum",
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-81",
+   "cat": "skin",
+   "text": "سؤال: عندي حبوب في الوجه ليش تطلع؟",
+   "ms": 2467,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "oily",
+     "normal",
+     "sensitive"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-91",
+   "cat": "skin",
+   "text": "سؤال: عندي حبوب في الوجه ليش تطلع؟",
+   "ms": 2578,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "oily",
+     "normal",
+     "sensitive"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-1",
+   "cat": "hair",
+   "text": "شعري دهني وأريد شامبو",
+   "ms": 2353,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry",
+     "oily",
+     "normal"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-11",
+   "cat": "hair",
+   "text": "شعري مصبوغ وأبحث عن بلسم",
+   "ms": 2434,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "normal"
+    ],
+    "hair_type": [
+     "colored",
+     "colored"
+    ],
+    "ingredients": [
+     "niacinamide",
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-21",
+   "cat": "hair",
+   "text": "شعري مجعد ايش أسوي له؟",
+   "ms": 2469,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily",
+     "oily"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-31",
+   "cat": "hair",
+   "text": "فروة رأسي دهنية كيف أعتني به",
+   "ms": 1798,
+   "err": "",
+   "out": {
+    "intent": "greeting",
+    "product_type": "none",
+    "skin_type": [
+     "dry",
+     "oily",
+     "sensitive"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-41",
+   "cat": "hair",
+   "text": "شعري دهني وأريد شامبو",
+   "ms": 2500,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry",
+     "oily",
+     "normal"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-51",
+   "cat": "hair",
+   "text": "شعري مصبوغ وأبحث عن بلسم",
+   "ms": 2537,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "normal"
+    ],
+    "hair_type": [
+     "colored",
+     "colored"
+    ],
+    "ingredients": [
+     "niacinamide",
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-61",
+   "cat": "hair",
+   "text": "شعري مجعد ايش أسوي له؟",
+   "ms": 2438,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily",
+     "oily"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-71",
+   "cat": "hair",
+   "text": "عندي قشرة في الرأس",
+   "ms": 1633,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "normal"
+    ],
+    "hair_type": [
+     "dry",
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-81",
+   "cat": "hair",
+   "text": "عندي قشرة في الرأس؟",
+   "ms": 1808,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "dry",
+     "oily",
+     "sensitive"
+    ],
+    "hair_type": [
+     "dry",
+     "oily"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-91",
+   "cat": "hair",
+   "text": "لو سمحت عندي قشرة في الرأس",
+   "ms": 3541,
+   "err": "Unterminated string in JSON at position 311 (line 1 column 312)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-1",
+   "cat": "ingredient",
+   "text": "ما فائدة الجليسرين للبشرة؟",
+   "ms": 2530,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily",
+     "oily"
+    ],
+    "ingredients": [
+     "glycerin",
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-11",
+   "cat": "ingredient",
+   "text": "ايش يسوي البانثينول؟",
+   "ms": 2332,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "benzoyl peroxide",
+     "benzoyl peroxide",
+     "benzoyl peroxide"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-21",
+   "cat": "ingredient",
+   "text": "ما هو البنزويل بيروكسايد",
+   "ms": 2049,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily",
+     "oily"
+    ],
+    "ingredients": [
+     "benzoyl peroxide"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-31",
+   "cat": "ingredient",
+   "text": "ما فائدة حمض الساليسيليك للبشرة؟",
+   "ms": 1927,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily"
+    ],
+    "ingredients": [
+     "salicylic acid"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-41",
+   "cat": "ingredient",
+   "text": "هل حمض الهيالورونيك آمن؟",
+   "ms": 2770,
+   "err": "",
+   "out": {
+    "intent": "routine",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "oily",
+     "sensitive",
+     "dry",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily",
+     "oily"
+    ],
+    "ingredients": [
+     "panthenol",
+     "panthenol",
+     "panthenol"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-51",
+   "cat": "ingredient",
+   "text": "هل الفازلين يضر البشرة الدهنية؟",
+   "ms": 2287,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "sensitive"
+    ],
+    "hair_type": [
+     "dry",
+     "oily"
+    ],
+    "ingredients": [
+     "exfoliation",
+     "salicylic acid",
+     "panthenol"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-61",
+   "cat": "ingredient",
+   "text": "هل الجليسرين يناسب البشرة الحساسة؟",
+   "ms": 2241,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "sensitive"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "glycerin",
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-71",
+   "cat": "ingredient",
+   "text": "هل البانثينول آمن؟",
+   "ms": 2461,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "benzoyl peroxide",
+     "panthenol",
+     "panthenol",
+     "panthenol"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-81",
+   "cat": "ingredient",
+   "text": "هل البنزويل بيروكسايد يضر البشرة الدهنية؟",
+   "ms": 1832,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "benzoyl peroxide"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-91",
+   "cat": "ingredient",
+   "text": "الريتينول مع الأحماض المقشرة سوا؟",
+   "ms": 2453,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "sensitive",
+     "dry",
+     "oily",
+     "normal",
+     "oily",
+     "normal"
+    ],
+    "hair_type": [
+     "oily",
+     "dry",
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "retinol",
+     "panthenol"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-1",
+   "cat": "yemeni",
+   "text": "بشرتي ناشفة وأشتي غسول",
+   "ms": 2339,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "shampoo",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "glycerin",
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-6",
+   "cat": "yemeni",
+   "text": "اشتي كريم خفيف ما يسد المسام",
+   "ms": 1626,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "exfoliation"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-11",
+   "cat": "yemeni",
+   "text": "بشرتي تتحسس من أي شي",
+   "ms": 3467,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "oily",
+     "dry",
+     "dry"
+    ],
+    "ingredients": [
+     "adapalene",
+     "benzoyl peroxide",
+     "panthenol",
+     "panthenol",
+     "panthenol",
+     "panthenol",
+     "panthenol",
+     "panthenol"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-16",
+   "cat": "yemeni",
+   "text": "معي حبوب في وشي من زمان ما تروح",
+   "ms": 1360,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [],
+    "hair_type": [],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   }
+  },
+  {
+   "id": "ye-21",
+   "cat": "yemeni",
+   "text": "يا أخت بشرتي ناشفة وأشتي غسول",
+   "ms": 2314,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "normal"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "niacinamide",
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-26",
+   "cat": "yemeni",
+   "text": "يا أخت اشتي كريم خفيف ما يسد المسام",
+   "ms": 2130,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "cleanser",
+    "skin_type": [
+     "dry",
+     "oily"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "ceramide np",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-31",
+   "cat": "yemeni",
+   "text": "يا أخت بشرتي تتحسس من أي شي",
+   "ms": 1793,
+   "err": "",
+   "out": {
+    "intent": "greeting",
+    "product_type": "none",
+    "skin_type": [
+     "normal"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "benzoyl peroxide"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-36",
+   "cat": "yemeni",
+   "text": "يا أخت معي حبوب في وشي من زمان ما تروح",
+   "ms": 1511,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal"
+    ],
+    "hair_type": [
+     "colored"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   }
+  },
+  {
+   "id": "ye-41",
+   "cat": "yemeni",
+   "text": "لو سمحتي بشرتي ناشفة وأشتي غسول",
+   "ms": 2252,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "normal"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "salicylic acid",
+     "glycerin",
+     "panthenol"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-46",
+   "cat": "yemeni",
+   "text": "لو سمحتي اشتي كريم خفيف ما يسد المسام",
+   "ms": 1769,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "exfoliation"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-1",
+   "cat": "medical",
+   "text": "وجهي فيه تورم وصعوبة في التنفس بعد كريم",
+   "ms": 3443,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "combination",
+     "normal"
+    ],
+    "hair_type": [
+     "curly"
+    ],
+    "ingredients": [
+     "ceramide np",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-3",
+   "cat": "medical",
+   "text": "ظهر عندي طفح شديد منتشر مع حمى",
+   "ms": 1956,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "dry",
+     "oily",
+     "sensitive"
+    ],
+    "hair_type": [
+     "dry",
+     "oily",
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-5",
+   "cat": "medical",
+   "text": "حروق في البشرة بعد مقشر وفيها فقاعات",
+   "ms": 2490,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily"
+    ],
+    "ingredients": [
+     "other",
+     "other"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-7",
+   "cat": "medical",
+   "text": "عندي نزيف من حبة في الوجه",
+   "ms": 1794,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "normal"
+    ],
+    "hair_type": [
+     "dry",
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-9",
+   "cat": "medical",
+   "text": "حكة شديدة جدا ما أقدر أنام",
+   "ms": 2073,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-11",
+   "cat": "medical",
+   "text": "وجهي فيه تورم وصعوبة في التنفس بعد كريم، ايش أسوي؟",
+   "ms": 1900,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "combination",
+     "combination"
+    ],
+    "hair_type": [
+     "curly"
+    ],
+    "ingredients": [
+     "ceramide np"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-13",
+   "cat": "medical",
+   "text": "ظهر عندي طفح شديد منتشر مع حمى، ايش أسوي؟",
+   "ms": 2276,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "dry",
+     "oily",
+     "sensitive"
+    ],
+    "hair_type": [
+     "oily",
+     "dry"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-15",
+   "cat": "medical",
+   "text": "حروق في البشرة بعد مقشر وفيها فقاعات، ايش أسوي؟",
+   "ms": 2167,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "none",
+    "skin_type": [
+     "normal",
+     "dry",
+     "oily",
+     "combination"
+    ],
+    "hair_type": [
+     "dry",
+     "oily"
+    ],
+    "ingredients": [
+     "other",
+     "other"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  }
+ ],
+ "rephrase": [
+  {
+   "q": "بشرتي جافه وحساسه وأشتي غسول",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 9990,
+   "fallback": null,
+   "problems": [],
+   "model_text": "[dry_skin-2] يُفضَّل غسول لطيف خالٍ من العطور، وماء دافئ لا حار، ومدة غسل قصيرة، ثم تجفيف بالتربيت لا بالفرك. [dry_skin-1] البشرة الجافة تفقد الماء بسهولة، فتظهر عليها مشدودة أو خشنة أو متقشرة، وقد تزداد مع الماء الحار والمنظفات القوية. [sensitive_skin-7] البشرة الحساسة تتفاعل بسهولة مع بعض المكونات (احمرار، لسع، حكة)، والسبب يختلف من شخص لآخر، لذا لا يوجد منتج «آمن للجميع». [dry_skin-4] الكريمات والمراهم عادةً أكثر ترطيبًا من اللوشن الخفيف للبشرة الجافة. [dry_skin-3] وضع المرطب مباشرة بعد الغسل والبشرة ما زالت رطبة قليلًا يساعد على حبس الرطوبة. [sensitive_skin-9] تجنّبي الفرك بالليفة أو الإسفنج والمقشرات الخشنة؛"
+  },
+  {
+   "q": "معي بشرة دهنية وأشتي واقي شمس",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 39138,
+   "fallback": null,
+   "problems": [],
+   "model_text": "[sun-24] يُعاد وضع الواقي كل ساعتين تقريبًا، وأسرع بعد السباحة أو التعرق.  \n[sun-23] اختاري واقيًا «واسع الطيف» (Broad spectrum) بعامل حماية SPF 30 أو أكثر، ومقاومًا للماء عند التعرق أو السباحة.  \n[routine-47] روتين بسيط يكفي غالبًا: صباحًا غسول لطيف ← مرطب ← واقي شمس SPF 30+؛ ومساءً غسول ← المنتج العلاجي إن وُجد ← مرطب.  \n[sun-25] أفضل واقٍ هو الذي ستستخدمينه يوميًا وبانتظام.  \n[oily_skin-13] عبارات مثل «oil-free» و«non-comedogenic» تعني أن المنتج صُمّم ليقل احتمال سدّه للمسام.  \n[oily_skin-15] لإزالة اللمعان خلال اليوم: ضغط ورق امتصاص الزيوت على الجلد ثوانٍ دون فركه"
+  },
+  {
+   "q": "أقدر أستخدم الريتينول مع المقشر؟",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 17084,
+   "fallback": null,
+   "problems": [],
+   "model_text": "[cp07-exfoliation-7] استعمال ريتينويد وصفي أو ريتينول ثم إضافة التقشير قد يزيد الجفاف أو يسبب حبوبًا؛ الأفضل عدم الجمع بينهما دون رأي مختص.  \n[retinoid-44] الريتينويدات الطبية تُستخدم بإشراف الطبيب؛ ويُسأل الطبيب قبل استخدامها عند الحمل أو التخطيط له.  \n[retinoid-43] إذا كانت البشرة جافة ومتهيجة، فالريتينويدات من المنتجات التي يُنصح بالتوقف عنها مؤقتًا حتى تهدأ البشرة.  \n[cp07-exfoliation-6] في البشرة الداكنة أو التي تترك فيها الحبوب بقعًا داكنة، قد يزيد التقشير القوي (الكيميائي أو الميكانيكي) التصبغ."
+  },
+  {
+   "q": "ايش فايدة اليوريا",
+   "mode_used": "LOCAL_RULES",
+   "ms": 4223,
+   "fallback": "grounding check failed",
+   "problems": [
+    "unknown citation dry_skin-2"
+   ],
+   "model_text": "[dry_skin-2]. اليوريا جزء من عامل الترطيب الطبيعي في البشرة؛ بتراكيز حتى 10% تقريبًا تعمل كمرطب، وفوق 10% يغلب عليها أثر مقشّر يذيب القشور."
+  },
+  {
+   "q": "شعري دهني وأريد شامبو",
+   "mode_used": "LOCAL_RULES",
+   "ms": 4520,
+   "fallback": "grounding check failed",
+   "problems": [
+    "unknown citation dry_skin-2"
+   ],
+   "model_text": "[dry_skin-2] شعري دهني وأريد شامبو، وضعي الشامبو على فروة الرأس لا على أطراف الشعر، وضعي البلسم على الأطراف (خاصة للشعر الناعم) لا على الفروة. [oily_hair-35] فروة الرأس الدهنية قد تحتاج الغسل يوميًا؛ تكرار الغسل يتبع كمية الدهون. [oily_hair-36] الشامبو الجاف يمتص الدهون بين الغسلات لكنه لا يغني عن الغسل المنتظم."
+  },
+  {
+   "q": "عندي قشرة في الرأس",
+   "mode_used": "LOCAL_RULES",
+   "ms": 8226,
+   "fallback": "grounding check failed",
+   "problems": [
+    "unknown citation dry_skin-2"
+   ],
+   "model_text": "[dry_skin-2] القشرة غالبًا من صور «التهاب الجلد الدهني» في فروة الرأس، ويرتبط بنشاط الغدد الدهنية وبنوع من الخمائر الموجودة على الجلد، وتتكرر عادةً. [dandruff-31] من مكونات شامبوهات القشرة المعروفة: الكيتوكونازول بتركيز 1%. [dandruff-30] شامبو القشرة (المضاد للقشرة) هو الخطوة الأولى للحالات الخفيفة والمتوسطة، ويُترك على الفروة المدة المذكورة في تعليماته قبل الشطف. [dandruff-32] الماء الحار قد يزيد الجفاف والتهيج، وبقايا المنظف غير المشطوفة جيدًا قد تهيّج الفروة؛ والمنتجات المعطرة أو الكحولية قد تزيد الحكة. [dandruff-33] إذا لم يتحسن مع شامبو القشرة أو كانت الحكة شديدة أو مع احمرار وقشور سميكة، فالأفضل"
+  },
+  {
+   "q": "هل النياسيناميد يناسب البشرة الدهنية؟",
+   "mode_used": "LOCAL_RULES",
+   "ms": 1638,
+   "fallback": "grounding check failed",
+   "problems": [
+    "unknown citation dry_skin-2"
+   ],
+   "model_text": "[dry_skin-2]. النياسيناميد يناسب البشرة الدهنية، لأنه يدعم الحاجة إلى الدهون ويزيد السيراميدات."
+  },
+  {
+   "q": "بشرتي مختلطة وأبحث عن مرطب",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 6654,
+   "fallback": null,
+   "problems": [],
+   "model_text": "[combination_skin-17] يمكن التعامل معها كمنطقتين: ترطيب أكثر للمناطق الجافة، ومنتجات أخف للمناطق الدهنية.  \n[cp07-moisturizer_basics-3] للجفاف المستمر، تُعدّ المرطبات الأساسية التي تجمع مادة جاذبة للماء (جليسرين أو يوريا) مع مادة عازلة (فازلين أو بارافين سائل) هي العناية القياسية طويلة المدى.  \n[combination_skin-16] البشرة المختلطة دهنية في منطقة T (الجبهة والأنف والذقن) وجافة في مناطق أخرى.  \n[cp07-moisturizer_basics-2] المرطبات تختلف كثيرًا فيما بينها، وبعض مكونات التركيبة نفسها قد تُضعف الحاجز أو تقوّيه؛ لذلك كلمة «مرطب» على العبوة لا تكفي للحكم على المنتج."
+  },
+  {
+   "q": "ما فائدة الجليسرين للبشرة؟",
+   "mode_used": "LOCAL_RULES",
+   "ms": 1099,
+   "fallback": "grounding check failed",
+   "problems": [
+    "no citation"
+   ],
+   "model_text": "[dry_skin-2. الجليسرين يحسّن ترطيب البشرة ووظيفة الحاجز."
+  },
+  {
+   "q": "شعري جاف ومصبوغ",
+   "mode_used": "LOCAL_RULES",
+   "ms": 4006,
+   "fallback": "grounding check failed",
+   "problems": [
+    "unknown citation dry_skin-2"
+   ],
+   "model_text": "[dry_skin-2] شعري جاف ومصبوغ. [dry_damaged_hair-37] استخدام البلسم بعد كل غسلة يقلل التلف ويحسّن ملمس الشعر؛ وللشعر الجاف أو المجعد يمكن وضعه على كامل الطول. [dry_damaged_hair-38] عادات يومية مثل الحرارة العالية والتمشيط العنيف والتسريحات المشدودة قد تتلف الشعر. [oily_hair-36] الشامبو الجاف يمتص الدهون بين الغسلات لكنه لا يغني عن الغسل المنتظم."
+  },
+  {
+   "q": "عندي حبوب في الوجه ليش تطلع؟",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 14556,
+   "fallback": null,
+   "problems": [],
+   "model_text": "[acne-20] الترطيب مهم حتى مع الحبوب، خاصة عند استخدام منتجات علاجية قد تجفف البشرة.  \n[acne-18] لا تجففي البشرة بالقوة: الإفراط في المجففات والمنظفات القوية يهيّج الجلد وقد يزيد الحبوب.  \n[acne-19] منتجات الحبوب تحتاج عادةً 6–8 أسابيع لظهور تحسّن، وتوضع على كامل المنطقة المعرّضة لا على الحبة فقط.  \n[acne-21] لمس الوجه كثيرًا، وفقء الحبوب، والنوم بالمكياج عادات قد تزيد المشكلة.  \n[acne-22] الحبوب الملتهبة أو المؤلمة أو المنتشرة، أو التي لا تتحسن، تحتاج تقييم طبيب جلدية؛ المنتجات التجميلية لا تعالج الحالات المرضية."
+  },
+  {
+   "q": "كيف أحمي بشرتي من الشمس",
+   "mode_used": "LOCAL_RULES",
+   "ms": 12407,
+   "fallback": "grounding check failed",
+   "problems": [
+    "unknown citation dry_skin-2"
+   ],
+   "model_text": "[sun-25] أفضل واقٍ هو الذي ستستخدمينه يوميًا وبانتظام.  \n[sun-24] يُعاد وضع الواقي كل ساعتين تقريبًا، وأسرع بعد السباحة أو التعرق.  \n[sun-23] اختاري واقيًا «واسع الطيف» بعامل حماية SPF 30 أو أكثر، ومقاومًا للماء عند التعرق أو السباحة.  \n[routine-47] روتين بسيط يكفي غالبًا: صباحًا غسول لطيف ← مرطب ← واقي شمس SPF 30+؛ ومساءً غسول ← المنتج العلاجي إن وُجد ← مرطب.  \n\n[dry_skin-2]"
+  }
+ ]
+}

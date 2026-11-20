@@ -42,7 +42,7 @@ const loadMs = Math.round(performance.now() - t0); const rssLoaded = rss();
 const nlu: Record<string, unknown>[] = []; let tok = 0, genMs = 0;
 for (const q of SAMPLE) {
   let out: any = null, err = '', ms = 0;
-  try { const r = await engine.generate(NLU_SYS, q.text, { jsonSchema: SCHEMA, maxTokens: 120, temperature: 0, timeoutMs: 90_000 }); ms = r.ms; tok += r.tokens; genMs += r.ms; out = JSON.parse(r.text); } catch (e) { err = (e as Error).message; }
+  try { const r = await engine.generate(NLU_SYS, q.text, { jsonSchema: SCHEMA, maxTokens: 320, temperature: 0, timeoutMs: 90_000 }); ms = r.ms; tok += r.tokens; genMs += r.ms; out = JSON.parse(r.text); } catch (e) { err = (e as Error).message; }
   const rules = understandCp07(q.text);
   const g = q.gold; const pt = out?.product_type === 'none' ? null : out?.product_type ?? null;
   const ings = (out?.ingredients ?? []).filter((x: string) => x !== 'other');

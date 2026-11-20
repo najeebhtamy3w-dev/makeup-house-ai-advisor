@@ -1,0 +1,1562 @@
+{
+ "summary": {
+  "model": "qwen2.5-1.5b-instruct-q4_k_m",
+  "file_bytes": 1117320736,
+  "threads": 4,
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "load_ms": 1996,
+  "rss_after_load_mb": 2313,
+  "peak_rss_mb": 2468,
+  "nlu": {
+   "n": 48,
+   "json_failures": 32,
+   "p50_ms": 7892,
+   "p95_ms": 14755,
+   "model": {
+    "intent": {
+     "pct": 15,
+     "n": 40
+    },
+    "product": {
+     "pct": 34.6,
+     "n": 26
+    },
+    "skin": {
+     "pct": 26.7,
+     "n": 15
+    },
+    "hair": {
+     "pct": 30,
+     "n": 10
+    },
+    "ingredients": {
+     "pct": 40,
+     "n": 10
+    },
+    "red": {
+     "pct": 66.7,
+     "n": 24
+    }
+   },
+   "rules": {
+    "intent": {
+     "pct": 100,
+     "n": 40
+    },
+    "product": {
+     "pct": 100,
+     "n": 26
+    },
+    "skin": {
+     "pct": 100,
+     "n": 15
+    },
+    "hair": {
+     "pct": 100,
+     "n": 10
+    },
+    "ingredients": {
+     "pct": 100,
+     "n": 10
+    },
+    "red": {
+     "pct": 100,
+     "n": 46
+    }
+   }
+  },
+  "rephrase": {
+   "n": 12,
+   "grounded_pass": 6,
+   "fallbacks": 6,
+   "p50_ms": 9763,
+   "p95_ms": 18407,
+   "problems": [
+    [
+     "non-Arabic output (61% Arabic",
+     1
+    ],
+    [
+     "no",
+     5
+    ]
+   ]
+  },
+  "nlu_tokens_per_s": 12.2
+ },
+ "nlu": [
+  {
+   "id": "skin-1",
+   "cat": "skin",
+   "text": "بشرتي جافة وأريد غسول",
+   "ms": 11956,
+   "err": "Unterminated string in JSON at position 254 (line 14 column 19)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-11",
+   "cat": "skin",
+   "text": "أبحث عن مرطب لأن بشرتي مختلطة",
+   "ms": 9027,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "toner",
+    "skin_type": [
+     "combination"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "salicylic acid",
+     "glycerin"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-21",
+   "cat": "skin",
+   "text": "عندي بشرة جافة جدا، أحتاج واقي شمس",
+   "ms": 8425,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "none",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "dimethicone"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-31",
+   "cat": "skin",
+   "text": "بشرة بنتي حساسة وتنصحني بغسول مناسب",
+   "ms": 9320,
+   "err": "Unterminated string in JSON at position 259 (line 14 column 28)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-41",
+   "cat": "skin",
+   "text": "أريد غسول لأن بشرتي جافة",
+   "ms": 4422,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-51",
+   "cat": "skin",
+   "text": "بشرتي مختلطة، أبحث عن مرطب",
+   "ms": 7276,
+   "err": "Unterminated string in JSON at position 260 (line 14 column 10)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-61",
+   "cat": "skin",
+   "text": "عندي بشرة جافة جدا وأحتاج واقي شمس",
+   "ms": 7258,
+   "err": "Expected double-quoted property name in JSON at position 251 (line 14 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-71",
+   "cat": "skin",
+   "text": "عندي حبوب في الوجه ليش تطلع؟",
+   "ms": 14755,
+   "err": "Unexpected end of JSON input",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-81",
+   "cat": "skin",
+   "text": "سؤال: عندي حبوب في الوجه ليش تطلع؟",
+   "ms": 14164,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "none",
+    "skin_type": [
+     "combination"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "salicylic acid",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": true,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "skin-91",
+   "cat": "skin",
+   "text": "سؤال: عندي حبوب في الوجه ليش تطلع؟",
+   "ms": 6775,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "none",
+    "skin_type": [
+     "combination"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "salicylic acid",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": true,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-1",
+   "cat": "hair",
+   "text": "شعري دهني وأريد شامبو",
+   "ms": 6116,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-11",
+   "cat": "hair",
+   "text": "شعري مصبوغ وأبحث عن بلسم",
+   "ms": 4074,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-21",
+   "cat": "hair",
+   "text": "شعري مجعد ايش أسوي له؟",
+   "ms": 6982,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "shampoo",
+    "skin_type": [
+     "oily"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "glycerin"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-31",
+   "cat": "hair",
+   "text": "فروة رأسي دهنية كيف أعتني به",
+   "ms": 20368,
+   "err": "Unexpected end of JSON input",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-41",
+   "cat": "hair",
+   "text": "شعري دهني وأريد شامبو",
+   "ms": 9693,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-51",
+   "cat": "hair",
+   "text": "شعري مصبوغ وأبحث عن بلسم",
+   "ms": 6530,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "shampoo",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-61",
+   "cat": "hair",
+   "text": "شعري مجعد ايش أسوي له؟",
+   "ms": 9075,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "shampoo",
+    "skin_type": [
+     "oily"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [
+     "sodium hyaluronate",
+     "glycerin"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": false,
+    "skin": null,
+    "hair": false,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-71",
+   "cat": "hair",
+   "text": "عندي قشرة في الرأس",
+   "ms": 9394,
+   "err": "Expected double-quoted property name in JSON at position 251 (line 14 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-81",
+   "cat": "hair",
+   "text": "عندي قشرة في الرأس؟",
+   "ms": 12266,
+   "err": "Expected double-quoted property name in JSON at position 252 (line 14 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "hair-91",
+   "cat": "hair",
+   "text": "لو سمحت عندي قشرة في الرأس",
+   "ms": 10125,
+   "err": "Expected double-quoted property name in JSON at position 252 (line 14 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": true,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-1",
+   "cat": "ingredient",
+   "text": "ما فائدة الجليسرين للبشرة؟",
+   "ms": 9075,
+   "err": "Unterminated string in JSON at position 249 (line 15 column 19)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-11",
+   "cat": "ingredient",
+   "text": "ايش يسوي البانثينول؟",
+   "ms": 13140,
+   "err": "Unterminated string in JSON at position 251 (line 15 column 13)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-21",
+   "cat": "ingredient",
+   "text": "ما هو البنزويل بيروكسايد",
+   "ms": 10018,
+   "err": "Unterminated string in JSON at position 250 (line 16 column 6)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-31",
+   "cat": "ingredient",
+   "text": "ما فائدة حمض الساليسيليك للبشرة؟",
+   "ms": 7538,
+   "err": "Expected double-quoted property name in JSON at position 249 (line 15 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-41",
+   "cat": "ingredient",
+   "text": "هل حمض الهيالورونيك آمن؟",
+   "ms": 6866,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "none",
+    "skin_type": [
+     "normal"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "glycerin",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-51",
+   "cat": "ingredient",
+   "text": "هل الفازلين يضر البشرة الدهنية؟",
+   "ms": 7417,
+   "err": "Expected ',' or ']' after array element in JSON at position 258 (line 13 column 29)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-61",
+   "cat": "ingredient",
+   "text": "هل الجليسرين يناسب البشرة الحساسة؟",
+   "ms": 7515,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "none",
+    "skin_type": [
+     "sensitive"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "glycerin",
+     "sodium hyaluronate"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-71",
+   "cat": "ingredient",
+   "text": "هل البانثينول آمن؟",
+   "ms": 7319,
+   "err": "Unterminated string in JSON at position 258 (line 15 column 21)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": false,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-81",
+   "cat": "ingredient",
+   "text": "هل البنزويل بيروكسايد يضر البشرة الدهنية؟",
+   "ms": 6621,
+   "err": "",
+   "out": {
+    "intent": "product_guidance",
+    "product_type": "toner",
+    "skin_type": [
+     "oily"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "benzoyl peroxide"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ing-91",
+   "cat": "ingredient",
+   "text": "الريتينول مع الأحماض المقشرة سوا؟",
+   "ms": 4761,
+   "err": "",
+   "out": {
+    "intent": "combination",
+    "product_type": "none",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "dry"
+    ],
+    "ingredients": [
+     "retinol",
+     "salicylic acid"
+    ],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": true,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-1",
+   "cat": "yemeni",
+   "text": "بشرتي ناشفة وأشتي غسول",
+   "ms": 9600,
+   "err": "Expected double-quoted property name in JSON at position 254 (line 14 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-6",
+   "cat": "yemeni",
+   "text": "اشتي كريم خفيف ما يسد المسام",
+   "ms": 25867,
+   "err": "Unterminated string in JSON at position 253 (line 15 column 13)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-11",
+   "cat": "yemeni",
+   "text": "بشرتي تتحسس من أي شي",
+   "ms": 12171,
+   "err": "Unterminated string in JSON at position 254 (line 16 column 8)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-16",
+   "cat": "yemeni",
+   "text": "معي حبوب في وشي من زمان ما تروح",
+   "ms": 9623,
+   "err": "Unterminated string in JSON at position 255 (line 15 column 28)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   }
+  },
+  {
+   "id": "ye-21",
+   "cat": "yemeni",
+   "text": "يا أخت بشرتي ناشفة وأشتي غسول",
+   "ms": 11145,
+   "err": "Expected double-quoted property name in JSON at position 255 (line 14 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-26",
+   "cat": "yemeni",
+   "text": "يا أخت اشتي كريم خفيف ما يسد المسام",
+   "ms": 9844,
+   "err": "",
+   "out": {
+    "intent": "explain",
+    "product_type": "none",
+    "skin_type": [
+     "dry"
+    ],
+    "hair_type": [
+     "oily"
+    ],
+    "ingredients": [],
+    "medical_red_flag": false
+   },
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-31",
+   "cat": "yemeni",
+   "text": "يا أخت بشرتي تتحسس من أي شي",
+   "ms": 6908,
+   "err": "Unterminated string in JSON at position 254 (line 16 column 8)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-36",
+   "cat": "yemeni",
+   "text": "يا أخت معي حبوب في وشي من زمان ما تروح",
+   "ms": 7621,
+   "err": "Unexpected end of JSON input",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   }
+  },
+  {
+   "id": "ye-41",
+   "cat": "yemeni",
+   "text": "لو سمحتي بشرتي ناشفة وأشتي غسول",
+   "ms": 7444,
+   "err": "Expected double-quoted property name in JSON at position 255 (line 14 column 7)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": false,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": true,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "ye-46",
+   "cat": "yemeni",
+   "text": "لو سمحتي اشتي كريم خفيف ما يسد المسام",
+   "ms": 7432,
+   "err": "Unterminated string in JSON at position 261 (line 14 column 11)",
+   "out": null,
+   "model": {
+    "intent": false,
+    "product": false,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": null
+   },
+   "rules": {
+    "intent": true,
+    "product": true,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-1",
+   "cat": "medical",
+   "text": "وجهي فيه تورم وصعوبة في التنفس بعد كريم",
+   "ms": 7523,
+   "err": "Unexpected end of JSON input",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-3",
+   "cat": "medical",
+   "text": "ظهر عندي طفح شديد منتشر مع حمى",
+   "ms": 7706,
+   "err": "Unexpected end of JSON input",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-5",
+   "cat": "medical",
+   "text": "حروق في البشرة بعد مقشر وفيها فقاعات",
+   "ms": 7987,
+   "err": "Unexpected end of JSON input",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-7",
+   "cat": "medical",
+   "text": "عندي نزيف من حبة في الوجه",
+   "ms": 7201,
+   "err": "Unexpected end of JSON input",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-9",
+   "cat": "medical",
+   "text": "حكة شديدة جدا ما أقدر أنام",
+   "ms": 12558,
+   "err": "Unterminated string in JSON at position 251 (line 16 column 10)",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-11",
+   "cat": "medical",
+   "text": "وجهي فيه تورم وصعوبة في التنفس بعد كريم، ايش أسوي؟",
+   "ms": 7627,
+   "err": "Unterminated string in JSON at position 261 (line 14 column 11)",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-13",
+   "cat": "medical",
+   "text": "ظهر عندي طفح شديد منتشر مع حمى، ايش أسوي؟",
+   "ms": 7356,
+   "err": "Unterminated string in JSON at position 241 (line 15 column 11)",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  },
+  {
+   "id": "med-15",
+   "cat": "medical",
+   "text": "حروق في البشرة بعد مقشر وفيها فقاعات، ايش أسوي؟",
+   "ms": 7892,
+   "err": "Unterminated string in JSON at position 261 (line 15 column 16)",
+   "out": null,
+   "model": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": false
+   },
+   "rules": {
+    "intent": null,
+    "product": null,
+    "skin": null,
+    "hair": null,
+    "ingredients": null,
+    "red": true
+   }
+  }
+ ],
+ "rephrase": [
+  {
+   "q": "بشرتي جافه وحساسه وأشتي غسول",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 18407,
+   "fallback": null,
+   "problems": [],
+   "model_text": "- [dry_skin-2] غسول لطيف خالٍ من العطور، ماء دافئ لا حار، ومدة غسل قصيرة، تجفيف بالتربيت لا بالفرك.\n- [dry_skin-1] البشرة الجافة تفقد الماء بسهولة، مشدودة أو خشنة، متقشرة، تزداد مع الماء الحار والمنظفات القوية.\n- [sensitive_skin-7] البشرة الحساسة تتفاعل بسهولة مع بعض المكونات، الأفضل «fragrance-free».\n- [dry_skin-4] الكريمات والمراهم أكثر ترطيبًا من اللوشن الخفيف للبشرة الجافة.\n- [dry_skin-3] وضع المرطب مباشرة بعد الغسل والبشرة ما زالت رطبة قليلًا يساعد على حبس الرطوبة.\n- [sensitive_skin-9] تجنّبي الفرك بالليفة أو الإسفنج والمقشرات الخشنة، تهيج قد يزيد الحساسية.\n- [sensitive_skin-10] مكونات قد تهيّج البشرة الحساسة لدى بعض الناس:"
+  },
+  {
+   "q": "معي بشرة دهنية وأشتي واقي شمس",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 12077,
+   "fallback": null,
+   "problems": [],
+   "model_text": "- [sun-24] يُعاد وضع الواقي كل ساعتين تقريبًا، وأسرع بعد السباحة أو التعرق.\n- [oily_skin-14] البشرة الدهنية تحتاج مرطبًا أيضًا؛ ويمكن اختيار مرطب فيه واقٍ واسع الطيف SPF 30 أو أكثر للنهار.\n- [cp07-ing_adapalene-25] الأدابالين (من الريتينويدات) قد يسبب جفافًا أو تهيجًا في أول 2–4 أسابيع، وقد يزيد حساسية البشرة للشمس، فيلزم واقي شمس؛ ولا يوضع على جلد محروق بالشمس أو مجروح أو مصاب بالإكزيما."
+  },
+  {
+   "q": "أقدر أستخدم الريتينول مع المقشر؟",
+   "mode_used": "LOCAL_RULES",
+   "ms": 4573,
+   "fallback": "grounding check failed",
+   "problems": [
+    "non-Arabic output (61% Arabic letters)"
+   ],
+   "model_text": "لا أستطيع إعطاء إجابة محددة دون معرفة نوع البشرة والظروف الشخصية. [cp07-exfoliation-6] [retinoid-44] [cp07-exfoliation-7]"
+  },
+  {
+   "q": "ايش فايدة اليوريا",
+   "mode_used": "LOCAL_RULES",
+   "ms": 6506,
+   "fallback": "grounding check failed",
+   "problems": [
+    "no citation"
+   ],
+   "model_text": "يوريا تساهم في الترطيب الطبيعي للبشرة، حيث تأتي في تركيزات حتى 10% كمرطب وفوق 10% كمزيج مقشر يذيب القشور. قد تسبب بعض الأشخاص إحساسًا باللسع، خاصة على جلد متهيج، لذا يجب التأكد من عدم تجربتها قبل استخدامها."
+  },
+  {
+   "q": "شعري دهني وأريد شامبو",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 4221,
+   "fallback": null,
+   "problems": [],
+   "model_text": "- [oily_hair-35] ركّزي الشامبو على فروة الرأس لا على أطراف الشعر، وضعي البلسم على الأطراف (خاصة للشعر الناعم) لا على الفروة."
+  },
+  {
+   "q": "عندي قشرة في الرأس",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 12157,
+   "fallback": null,
+   "problems": [],
+   "model_text": "- [dandruff-29] القشرة في الرأس غالبًا من صور «التهاب الجلد الدهني» في فروة الرأس، ويرتبط بنشاط الغدد الدهنية وبنوع من الخمائر الموجودة على الجلد، وتتكرر عادةً.\n- [dandruff-31] من مكونات شامبوهات القشرة المعروفة: الكيتوكونازول بتركيز 1%؛ الاستمرار المنتظم يقلل القشور والحكة.\n- [dandruff-30] شامبو القشرة (المضاد للقشرة) هو الخطوة الأولى للحالات الخفيفة والمتوسطة، ويُترك على الفروة المدة المذكورة في تعليماته قبل الشطف."
+  },
+  {
+   "q": "هل النياسيناميد يناسب البشرة الدهنية؟",
+   "mode_used": "LOCAL_RULES",
+   "ms": 2429,
+   "fallback": "grounding check failed",
+   "problems": [
+    "no citation"
+   ],
+   "model_text": "النياسيناميد يناسب البشرة الدهنية إذا كان التركيز بين 2–5%."
+  },
+  {
+   "q": "بشرتي مختلطة وأبحث عن مرطب",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 9763,
+   "fallback": null,
+   "problems": [],
+   "model_text": "- [combination_skin-17] يمكن التعامل معها كمنطقتين: ترطيب أكثر للمناطق الجافة، ومنتجات أخف للمناطق الدهنية.\n- [cp07-moisturizer_basics-3] للجفاف المستمر، تُعدّ المرطبات الأساسية التي تجمع مادة جاذبة للماء (جليسرين أو يوريا) مع مادة عازلة (فازلين أو بارافين سائل) هي العناية القياسية طويلة المدى.\n- [combination_skin-16] البشرة المختلطة دهنية في منطقة T (الجبهة والأنف والذقن) وجافة في مناطق أخرى."
+  },
+  {
+   "q": "ما فائدة الجليسرين للبشرة؟",
+   "mode_used": "LOCAL_RULES",
+   "ms": 2086,
+   "fallback": "grounding check failed",
+   "problems": [
+    "no citation"
+   ],
+   "model_text": "الجليسرين يحسّن ترطيب الطبقة الخارجية للبشرة ووظيفة الحاجز."
+  },
+  {
+   "q": "شعري جاف ومصبوغ",
+   "mode_used": "LOCAL_RULES",
+   "ms": 4758,
+   "fallback": "grounding check failed",
+   "problems": [
+    "no citation"
+   ],
+   "model_text": "- استخدام البلسم بعد كل غسلة يقلل التلف ويحسّن ملمس الشعر؛ وللشعر الجاف أو المجعد يمكن وضعه على كامل الطول.\n- عادات يومية مثل الحرارة العالية والتمشيط العنيف والتسريحات المشدودة قد تتلف الشعر."
+  },
+  {
+   "q": "عندي حبوب في الوجه ليش تطلع؟",
+   "mode_used": "LOCAL_RULES",
+   "ms": 11027,
+   "fallback": "grounding check failed",
+   "problems": [
+    "no citation"
+   ],
+   "model_text": "الحبوب في الوجه قد تظهر بسبب الترطيب، خاصة عند استخدام منتجات علاجية قد تجفف البشرة. لا تجففي البشرة بالقوة: الإفراط في المجففات والمنظفات القوية يهيّج الجلد وقد يزيد الحبوب. منتجات الحبوب تحتاج عادةً 6–8 أسابيع لظهور تحسّن، وتوضع على كامل المنطقة المعرّضة لا على الحبة فقط. لمس الوجه كثيرًا، وفقء الحبوب، والنوم بالمكياج قد تزيد المشكلة. الحبوب الملتهبة أو المؤلمة أو المنتشرة، أو التي لا تتحسن، تحتاج تقييم طبيب جلدية؛ المنتجات التجميلية لا تعالج الحالات المرضية."
+  },
+  {
+   "q": "كيف أحمي بشرتي من الشمس",
+   "mode_used": "LOCAL_MODEL",
+   "ms": 12837,
+   "fallback": null,
+   "problems": [],
+   "model_text": "- [sun-25] أفضل واقٍ هو الذي ستستخدمينه يوميًا وبانتظام.\n- [pigmentation-26] الشمس تزيد الكلف والتصبغات سوءًا، لذا الحماية اليومية من الشمس — حتى في الأيام الغائمة — أساس العناية.\n- [sun-24] يُعاد وضع الواقي كل ساعتين تقريبًا، وأسرع بعد السباحة أو التعرق.\n- [sun-23] اختاري واقيًا «واسع الطيف» (Broad spectrum) بعامل حماية SPF 30 أو أكثر، ومقاومًا للماء عند التعرق أو السباحة.\n- [routine-47] روتين بسيط يكفي غالبًا: صباحًا غسول لطيف ← مرطب ← واقي شمس SPF 30+؛ ومساءً غسول ← المنتج العلاجي إن وُجد ← مرطب."
+  }
+ ]
+}
