@@ -12,6 +12,8 @@ const USED_BADGE = { offline: ['إجابة محلية', 'ok'], research: ['مح�
 const SKIN = { dry: 'جافة', oily: 'دهنية', combination: 'مختلطة', sensitive: 'حساسة', normal: 'عادية' };
 const HAIR = { dry: 'جاف', oily: 'دهني', colored: 'مصبوغ', curly: 'مجعد', damaged: 'متقصف' };
 const TYPE = { cleanser: 'غسول', moisturizer: 'مرطب', sunscreen: 'واقي شمس', serum: 'سيروم', toner: 'تونر', shampoo: 'شامبو', conditioner: 'بلسم', hair_oil: 'زيت شعر', mask: 'ماسك', exfoliant: 'مقشر' };
+const ING = { glycerin: 'الجليسرين', urea: 'اليوريا', petrolatum: 'الفازلين', 'ceramide np': 'السيراميدات', 'sodium hyaluronate': 'الهيالورونيك', niacinamide: 'النياسيناميد', 'salicylic acid': 'الساليسيليك', retinol: 'الريتينول', adapalene: 'الأدابالين', 'benzoyl peroxide': 'البنزويل بيروكسايد', dimethicone: 'الدايميثيكون', panthenol: 'البانثينول', 'vitamin c': 'فيتامين C' };
+const CONS = { lightweight: 'خفيف', non_comedogenic: 'لا يسد المسام', fragrance_free: 'بدون عطر', for_sensitive: 'لطيف', oil_free: 'بدون زيوت', alcohol_free: 'بدون كحول', sulfate_free: 'بدون سلفات' };
 const SECTION_CLASS = { referral: 'notice err', warnings: 'notice warn', insufficient: 'notice info', scope: 'notice info' };
 
 export async function intel(root) {
@@ -33,8 +35,8 @@ export async function intel(root) {
     if (c.skin?.length) chips.push(`البشرة: ${c.skin.map((s) => SKIN[s] ?? s).join('، ')}`);
     if (c.hair?.length) chips.push(`الشعر: ${c.hair.map((s) => HAIR[s] ?? s).join('، ')}`);
     if (c.product_type) chips.push(`المطلوب: ${TYPE[c.product_type] ?? c.product_type}`);
-    if (c.ingredients_discussed?.length) chips.push(`المكوّن: ${c.ingredients_discussed.join('، ')}`);
-    if (c.avoid?.length) chips.push(`الشروط: ${c.avoid.join('، ')}`);
+    if (c.ingredients_discussed?.length) chips.push(`المكوّن: ${c.ingredients_discussed.map((x) => ING[x] ?? x).join('، ')}`);
+    if (c.avoid?.length) chips.push(`الشروط: ${c.avoid.map((x) => CONS[x] ?? x).join('، ')}`);
     fill(ctxEl, chips.length ? [h('b', {}, 'سياق المحادثة: '), chips.map((x) => h('span', { class: 'badge', style: 'margin:2px' }, x))] : null);
   };
   const drawStatus = () => {
