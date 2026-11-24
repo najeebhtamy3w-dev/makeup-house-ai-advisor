@@ -1,0 +1,7 @@
+{
+  "name": "ai-council",
+  "version": "2.0.0",
+  "description": "On-demand, manual-only multi-agent advisory council: 9 read-only expert subagents + Chairman protocol. NORMAL MODE by default.",
+  "license": "UNLICENSED",
+  "keywords": ["council", "multi-agent", "review", "advisory", "arabic"]
+}

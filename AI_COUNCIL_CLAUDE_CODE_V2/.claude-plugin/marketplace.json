@@ -1,0 +1,12 @@
+{
+  "name": "ai-council-marketplace",
+  "owner": { "name": "AI Council owner" },
+  "plugins": [
+    {
+      "name": "ai-council",
+      "source": "./",
+      "description": "On-demand, manual-only multi-agent advisory council (9 read-only experts).",
+      "version": "2.0.0"
+    }
+  ]
+}
