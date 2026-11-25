@@ -2,8 +2,8 @@
   "app": "SMART STOCK — الجرد الذكي",
   "applicationId": "com.smartstock",
   "debugApplicationId": "com.smartstock.debug",
-  "versionName": "1.0.0",
-  "versionCode": 10000,
+  "versionName": "1.0.1",
+  "versionCode": 10001,
   "minSdk": 26,
   "targetSdk": 35,
   "date": "2026-11-25",
@@ -14,10 +14,10 @@
       "releaseApkUnsigned": true
     },
     "TEST_PASSED": {
-      "automatedTests": "50/50",
+      "automatedTests": "53/53",
       "suites": {
-        "core": 28,
-        "data_pdf": 14,
+        "core": 30,
+        "data_pdf": 15,
         "ui_flows": 8
       }
     },
@@ -34,7 +34,7 @@
   ],
   "notes": [
     "SMART_STOCK_SAMPLE_PRINT*.pdf are raster renders of the app's PDF drawing code (vector PdfDocument runs only on device)",
-    "SMART_STOCK_V1.0_RELEASE.apk not delivered: release is unsigned until owner key exists"
+    "SMART_STOCK_V1.0.1_RELEASE.apk not delivered: release is unsigned until owner key exists"
   ],
   "files": {
     "SMART_STOCK_BUILD_GUIDE.md": {
@@ -62,24 +62,27 @@
       "bytes": 1735
     },
     "SMART_STOCK_TEST_REPORT.md": {
-      "sha256": "e728d37e40a870f02556beb78dee95ba573ebef7bd4afb2e34ad2b5cd7ec3057",
-      "bytes": 10533
+      "sha256": "90ef7bf23177216967eeea6e80bb23aee8e068e77e91b81b4e5a22d86f8226c3",
+      "bytes": 11303
     },
     "SMART_STOCK_USER_GUIDE_AR.pdf": {
       "sha256": "57f15dcdadb32775312b8239e3ac051a6a9fd833719a913c856bce451e50bf79",
       "bytes": 78096
     },
-    "SMART_STOCK_V1.0_DEBUG.apk": {
-      "sha256": "8183a71128b6ad023980ad9a9af0c38b85195854cde484a2d85d928b34994506",
-      "bytes": 5867851
+    "SMART_STOCK_V1.0.1_DEBUG.apk": {
+      "sha256": "cc50cf5889f6e5d57b5b91b0f85ff834619761b11683b3982345648638246be9",
+      "bytes": 5812345
     },
-    "SMART_STOCK_V1.0_RELEASE_UNSIGNED.apk": {
-      "sha256": "8d887c78dc88be025f16c71c41c4d739549c188683e88bff2d6e4afb356ab712",
+    "SMART_STOCK_V1.0.1_RELEASE_UNSIGNED.apk": {
+      "sha256": "28ebee8d5ef93fef60c25a83eeeb2918e5245e8f039e843fa71051931b1adca2",
       "bytes": 4666513
     },
-    "SMART_STOCK_V1.0_SOURCE_FINAL.zip": {
-      "sha256": "b97c82015f4a1ff93e9978329f6970020c5e15a530092c2c2201f20f19deb7cd",
-      "bytes": 446166
+    "SMART_STOCK_V1.0.1_SOURCE_FINAL.zip": {
+      "sha256": "385703b8f2a7db45844248ec87e238a957ff0d6db68f88c5285fcb599a6ac9e8",
+      "bytes": 457934
     }
-  }
+  },
+  "changes_1_0_1": [
+    "Fix: import failed on workbooks whose XML parts start with a byte-order mark (device error 'Unexpected token @1:2')"
+  ]
 }

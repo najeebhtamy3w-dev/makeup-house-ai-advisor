@@ -58,7 +58,7 @@ public final class XlsxPackage implements AutoCloseable {
             throw e;
         } catch (Exception e) {
             close();
-            throw new IOException("تعذر قراءة بنية ملف Excel: " + e.getMessage(), e);
+            throw new IOException("تعذر قراءة بنية ملف Excel. جرّب فتحه في Excel وحفظه بصيغة xlsx ثم أعد الاستيراد.\n(تفاصيل تقنية: " + e.getMessage() + ")", e);
         }
     }
 
@@ -73,8 +73,33 @@ public final class XlsxPackage implements AutoCloseable {
     XmlPullParser parser(InputStream in) throws Exception {
         XmlPullParser p = pf.newParser();
         try { p.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true); } catch (Exception ignored) {}
-        p.setInput(new InputStreamReader(in, StandardCharsets.UTF_8));
+        p.setInput(cleanReader(in));
         return p;
+    }
+
+    /**
+     * Some programs write a byte-order mark (UTF-8 EF BB BF, or UTF-16) and/or whitespace before
+     * "&lt;?xml". Android's XmlPullParser rejects that ("Unexpected token @1:2"), so both are skipped here.
+     */
+    static java.io.Reader cleanReader(InputStream raw) throws java.io.IOException {
+        java.io.BufferedInputStream in = new java.io.BufferedInputStream(raw, 1 << 16);
+        in.mark(4);
+        int b0 = in.read(), b1 = in.read(), b2 = in.read();
+        java.nio.charset.Charset cs = StandardCharsets.UTF_8;
+        if (b0 == 0xEF && b1 == 0xBB && b2 == 0xBF) {
+            // UTF-8 BOM: already consumed
+        } else if (b0 == 0xFF && b1 == 0xFE) {
+            in.reset(); in.skip(2); cs = StandardCharsets.UTF_16LE;
+        } else if (b0 == 0xFE && b1 == 0xFF) {
+            in.reset(); in.skip(2); cs = StandardCharsets.UTF_16BE;
+        } else {
+            in.reset();
+        }
+        java.io.PushbackReader r = new java.io.PushbackReader(new java.io.BufferedReader(new InputStreamReader(in, cs), 1 << 16), 1);
+        int c;
+        while ((c = r.read()) != -1 && (c == '\uFEFF' || Character.isWhitespace(c))) { /* skip */ }
+        if (c != -1) r.unread(c);
+        return r;
     }
 
     static String resolve(String baseDir, String target) {

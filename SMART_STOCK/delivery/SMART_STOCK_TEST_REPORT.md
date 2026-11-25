@@ -1,4 +1,16 @@
-# SMART STOCK V1.0.0 — Test Report
+# SMART STOCK — Test Report
+
+## Update 1.0.1 (versionCode 10001) — first device feedback
+**Bug reported from the phone:** import failed with `Unexpected token (position:TEXT @1:2)`.
+**Cause:** the workbook's XML parts start with a byte-order mark (BOM) before `<?xml`; Android's XML parser
+rejects that. Synthetic test files did not contain a BOM, so it was missed.
+**Fix:** every XML part is now read through a reader that skips a UTF-8/UTF-16 BOM and leading whitespace.
+**Tests added:** `BomTest` (import + verified export of a BOM workbook, UTF-16 and whitespace cases) and
+`BomAndroidTest` (same file through the Android platform parser — reproduced the exact phone error before the fix).
+Total now **53 / 53 TEST PASSED**. Error message for unreadable files is now actionable Arabic text.
+
+---
+
 
 Date: 2026-11-25 · Environment: Linux x86_64 container, JDK 21, Android SDK 35, Gradle 8.14.3, AGP 8.10.1,
 Robolectric 4.14.1 (SDK 34, native graphics). **No physical device and no emulator** (no KVM available).
@@ -10,10 +22,10 @@ Status legend: **IMPLEMENTED** · **BUILD PASSED** · **TEST PASSED** (automated
 | Area | Status |
 |---|---|
 | Source recovery, restore point (original prototype kept unmodified in `reference/`) | DONE |
-| Debug APK `com.smartstock.debug` 1.0.0 (10000) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
-| Release APK `com.smartstock` 1.0.0 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
+| Debug APK `com.smartstock.debug` 1.0.1 (10001) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
+| Release APK `com.smartstock` 1.0.1 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
 | RELEASE SIGNED with permanent key | **BLOCKED** — owner must create the key (see signing guide) |
-| Automated tests | **50 / 50 TEST PASSED** (core 28 · data/PDF 14 · UI flows 8) |
+| Automated tests | **53 / 53 TEST PASSED** (core 30 · data/PDF 15 · UI flows 8) |
 | Samsung Galaxy S22 Ultra | **NOT DEVICE VERIFIED** — acceptance checklist below |
 | APK permissions | CAMERA, VIBRATE only — no INTERNET (checked with `aapt2 dump permissions`) |
 
