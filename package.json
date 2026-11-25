@@ -1,6 +1,6 @@
 {
   "name": "makeup-house-beauty-advisor",
-  "version": "3.0.0-alpha.1",
+  "version": "3.1.0-rc.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "tsx": "4.23.15",
-    "zod": "3.25.76"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@capacitor/android": "8.6.2",

@@ -269,7 +269,10 @@ route('PATCH', '/api/products/:id', 'any', async (c) => {
   const cur = loadProduct(c.db, id);
   if (!cur) throw new HttpError(404, 'المنتج غير موجود');
   const user = c.user!;
-  const d = productInput.omit({ availability: true, client_ref: true }).partial().parse(await c.body());
+  const raw = await c.body();
+  const parsed = productInput.omit({ availability: true, client_ref: true }).partial().parse(raw);
+  // Zod 4 applies defaults inside optional fields. PATCH must update only keys actually sent by the editor.
+  const d = Object.fromEntries(Object.entries(parsed).filter(([key]) => Object.hasOwn(raw as object, key))) as typeof parsed;
   // CP06.2: a save based on an older copy of the record is refused instead of silently overwriting someone else's edit
   if (d.version !== undefined && d.version !== cur.version) throw Object.assign(new HttpError(409, 'عدّل شخص آخر هذا المنتج بعد فتحك له. أعد فتح المنتج لترى آخر نسخة، ثم أعد تعديلك.'), { stale: true, currentVersion: cur.version });
   if (d.barcode !== undefined) {
