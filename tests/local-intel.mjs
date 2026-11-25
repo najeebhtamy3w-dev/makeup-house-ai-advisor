@@ -78,6 +78,7 @@ await step('concurrency: requests keep flowing while a research call waits on th
 });
 let bk;
 await step('backup on the phone carries the knowledge state and the switch; restore on a fresh phone brings both back', async () => {
+  assert.equal((await api(A.p, '/api/local-ai/config', { method: 'POST', body: JSON.stringify({ model_id: 'qwen35-2b-q4km', desired_active: true }) })).status, 200);
   const claim = (await api(A.p, '/api/cp07/knowledge/dashboard')).json.pending_claims[0].id;
   assert.equal((await api(A.p, `/api/cp07/knowledge/claims/${encodeURIComponent(claim)}/transition`, { method: 'POST', body: JSON.stringify({ to: 'approved' }) })).status, 200);
   await A.p.evaluate(() => (location.hash = '#/backup')); await A.p.waitForSelector('#backup-pass');
@@ -93,6 +94,7 @@ await step('backup on the phone carries the knowledge state and the switch; rest
   B.p.once('dialog', (d) => d.accept()); await B.p.waitForSelector('#restore-go'); await B.p.click('#restore-go'); await B.p.waitForSelector('#restore-done', { timeout: 60000 });
   await login(B.p, 'owner', 'owner-pass-123');
   assert.equal((await api(B.p, '/api/cp08/status')).json.enabled, true, 'switch restored');
+  assert.deepEqual((await api(B.p, '/api/local-ai/config')).json.metadata, { model_id: 'qwen35-2b-q4km', desired_active: true }, 'model metadata restored without weights or automatic activation');
   const d = (await api(B.p, '/api/cp07/knowledge/dashboard')).json; assert.equal(d.stats.claims_by_state.approved, 1, 'review decision restored');
   const h = (await api(B.p, `/api/cp07/knowledge/claims/${encodeURIComponent(claim)}`)).json; assert.ok(h.history.some((x) => x.action === 'state:approved'), 'review history restored');
   await B.ctx.close();

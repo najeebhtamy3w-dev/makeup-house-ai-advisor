@@ -108,7 +108,7 @@ for (const [label, n, imgs] of [['100 products', 100, false], [`${N_IMG} product
     });
     // ------------------------------------------- an MHBAK1 file from CP06 / CP06.2 still restores -------------------------------------------
     await step('legacy: an MHBAK1 backup (CP06.2 schema 001–007) restores into the slot layout and migrates to the current schema', async () => {
-      const dbPath = join(tmp, 'legacy.db'); const d = new DatabaseSync(dbPath);
+      const dbPath = join(tmp, `legacy-${n}-${imgs}.db`); const d = new DatabaseSync(dbPath);
       for (const m of readdirSync('server/migrations').filter((x) => x.endsWith('.sql') && x < '008').sort()) d.exec(readFileSync(join('server/migrations', m), 'utf8'));
       d.exec('CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)');
       for (const m of readdirSync('server/migrations').filter((x) => x.endsWith('.sql') && x < '008').sort()) d.prepare('INSERT INTO schema_migrations VALUES (?, ?)').run(m, 'x');

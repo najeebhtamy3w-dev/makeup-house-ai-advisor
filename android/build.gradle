@@ -27,3 +27,10 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+// Pin one installed, API-36-compatible tool version across app and Capacitor modules.
+subprojects {
+    afterEvaluate { p ->
+        if (p.hasProperty('android')) p.android.buildToolsVersion = '36.0.0'
+    }
+}

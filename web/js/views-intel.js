@@ -4,7 +4,7 @@
 //   knowledge : manager-only knowledge review — gaps, pending claims (approve / reject / record a qualified review),
 //               discovered evidence, research and cloud switches. Administrative approval is labelled as such.
 // No prices, no stock quantities, no customer data. Arabic RTL, mobile-first (360 px).
-import { api } from './api.js';
+import { api, getToken } from './api.js';
 import { h, fill, toast, busy, skeleton, errorBox, emptyState } from './util.js';
 
 const MODE_AR = { offline: 'محلي (دون إنترنت)', research: 'بحث علمي على الإنترنت', cloud: 'نموذج سحابي' };
@@ -19,18 +19,23 @@ const SECTION_CLASS = { referral: 'notice err', warnings: 'notice warn', insuffi
 export async function intel(root) {
   let sessionId; let mode = 'offline'; let status = null;
   let sending = false;
+  let epoch = 0;
   const statusEl = h('div', { class: 'card', id: 'intel-status' }, skeleton(1));
   const ctxEl = h('div', { class: 'tiny', id: 'intel-context', 'aria-live': 'polite' });
   const log = h('div', { class: 'chat', id: 'intel-log' });
   const input = h('input', { placeholder: 'اكتب سؤال العميلة… مثل: بشرتي جافة وأشتي غسول', 'aria-label': 'السؤال', maxlength: 1000 });
   const send = async (text) => {
     const q = (text ?? input.value).trim(); if (!q || sending) return; input.value = ''; sending = true;
+    const turnEpoch = epoch;
     log.append(h('div', { class: 'bub me' }, q)); const wait = h('div', { class: 'bub res ibub' }, skeleton(2)); log.append(wait); wait.scrollIntoView({ block: 'end' });
+    const showScientific = e => { if (turnEpoch === epoch && wait.isConnected) { sessionId = e.detail.session_id; fill(wait, renderAnswer(e.detail, send)); drawContext(e.detail.answer.understanding); } };
+    window.addEventListener('mh-ai-scientific-result', showScientific);
     try {
       const r = await api('POST', '/api/cp08/advisor/chat', { message: q, session_id: sessionId, mode });
+      if (turnEpoch !== epoch) return;
       sessionId = r.session_id; fill(wait, renderAnswer(r, send)); drawContext(r.answer.understanding);
     } catch (e) { fill(wait, errorBox(e.message)); }
-    finally { sending = false; }
+    finally { window.removeEventListener('mh-ai-scientific-result', showScientific); sending = false; }
   };
   const drawContext = (u) => {
     const c = u.conversation_context ?? {}; const chips = [];
@@ -57,8 +62,14 @@ export async function intel(root) {
     statusEl, ctxEl, log,
     h('form', { class: 'composer', onsubmit: (e) => { e.preventDefault(); send(); } }, input, h('button', { class: 'btn', type: 'submit' }, 'إرسال')),
     window.MHLocalAI?.available ? h('button', { class: 'btn sm out', onclick: async () => { const { getToken } = await import('./api.js'); await window.MHLocalAI.call('cancel', getToken()).catch(() => {}); } }, 'إلغاء التوليد') : null,
-    h('button', { class: 'btn sm out', type: 'button', id: 'intel-reset', onclick: () => { sessionId = undefined; fill(log); fill(ctxEl); log.append(h('div', { class: 'notice info' }, 'محادثة جديدة: لا يُستخدم أي سياق سابق.')); } }, 'محادثة جديدة'));
-  try { status = await api('GET', '/api/cp08/status'); drawStatus(); } catch (e) { fill(statusEl, errorBox(e.message)); }
+    h('button', { class: 'btn sm out', type: 'button', id: 'intel-reset', onclick: () => { epoch++; window.MHLocalAI?.call('cancel', getToken()).catch(() => {}); sessionId = undefined; fill(log); fill(ctxEl); log.append(h('div', { class: 'notice info' }, 'محادثة جديدة: لا يُستخدم أي سياق سابق.')); } }, 'محادثة جديدة'));
+  try {
+    status = await api('GET', '/api/cp08/status'); drawStatus();
+    if (window.MHLocalAI?.available) {
+      try { const s = await window.MHLocalAI.call('status', getToken()); statusEl.append(h('p', { class: 'tiny' }, s.active && s.installed && !s.error ? 'الذكاء التوليدي المحلي متاح؛ كل صياغة تمر بالتحقق العلمي.' : 'الذكاء التوليدي المحلي غير متاح؛ المستشار العلمي بالقواعد يعمل.')); }
+      catch { statusEl.append(h('p', { class: 'tiny' }, 'تعذر التحقق من النموذج المحلي؛ المستشار العلمي بالقواعد يعمل.')); }
+    }
+  } catch (e) { fill(statusEl, errorBox(e.message)); }
 }
 
 function renderAnswer(r, send) {

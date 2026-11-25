@@ -34,6 +34,9 @@ await step('previous version: first run, products, a staff account, the scientif
 await A.ctx.close(); srv.kill();
 
 srv = await serve(newDir); A = await open();
+// The old APK is extracted today, so its files can have NEWER mtimes than the new bundle.
+// Python's If-Modified-Since check otherwise returns 304 for changed worker code. Clear HTTP cache only; keep OPFS.
+const cdp = await A.ctx.newCDPSession(A.p); await cdp.send('Network.clearBrowserCache'); await cdp.detach();
 await step('new version on the same storage: same data, the account still logs in, settings kept', async () => {
   await login(A.p);
   result.new_version = (await api(A.p, '/api/meta')).json.version; assert.notEqual(result.new_version, result.old_version);

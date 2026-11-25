@@ -17,7 +17,7 @@ void LocalRuntime::load(const std::string &path) {
     auto start=Clock::now();
     unload(); cancelled=false;
     llama_backend_init();
-    auto mp=llama_model_default_params(); mp.n_gpu_layers=0; mp.use_mmap=true;
+    auto mp=llama_model_default_params(); mp.n_gpu_layers=0; mp.load_mode=LLAMA_LOAD_MODE_MMAP;
     model=llama_model_load_from_file(path.c_str(),mp);
     if(!model) throw std::runtime_error("MODEL_INVALID");
     auto cp=llama_context_default_params(); cp.n_ctx=2048; cp.n_batch=128;

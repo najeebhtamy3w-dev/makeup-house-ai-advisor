@@ -16,3 +16,7 @@ experiments/**/models/
 *.p12
 keystore.properties
 key.properties
+
+# Raw engineering evidence is delivered in the source ZIP; compact verified summaries are tracked explicitly.
+docs/v3.1/evidence/
+docs/v3.1/research/
