@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Only what is needed: camera for barcode scanning, vibration for scan feedback. No INTERNET. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.SmartStock"
+        android:supportsRtl="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:largeHeap="true"
+        android:hardwareAccelerated="true"
+        tools:targetApi="35">
+
+        <activity android:name=".ui.MainActivity" android:exported="true" android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Open / share an .xlsx from other apps (WhatsApp, Files, Downloads, e-mail...) -->
+        <activity android:name=".ui.ImportActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.ms-excel" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.CountActivity" android:exported="false" android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
+        <activity android:name=".ui.ScanActivity" android:exported="false" android:theme="@style/Theme.SmartStock.Scan" android:screenOrientation="fullUser" tools:ignore="DiscouragedApi" />
+        <activity android:name=".ui.ItemsActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.ReportsActivity" android:exported="false" />
+        <activity android:name=".ui.ExportActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.PrintActivity" android:exported="false" />
+        <activity android:name=".ui.SessionsActivity" android:exported="false" />
+        <activity android:name=".ui.SettingsActivity" android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>

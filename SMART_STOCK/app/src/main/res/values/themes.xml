@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SmartStock" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/navy</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#D6E3EA</item>
+        <item name="colorOnPrimaryContainer">@color/navy</item>
+        <item name="colorSecondary">@color/gold_dark</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#F4E9D2</item>
+        <item name="colorOnSecondaryContainer">@color/navy</item>
+        <item name="colorError">@color/error</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">@color/text</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/navy</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:fontFamily">@font/app_font</item>
+        <item name="fontFamily">@font/app_font</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+    <style name="Theme.SmartStock.Scan" parent="Theme.SmartStock">
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:statusBarColor">#000000</item>
+    </style>
+</resources>
