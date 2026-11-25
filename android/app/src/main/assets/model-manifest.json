@@ -1,0 +1,14 @@
+{
+  "id": "qwen3-1.7b-q4km",
+  "version": "daeb8e2d528a760970442092f6bf1e55c3b659eb",
+  "source": "https://huggingface.co/ggml-org/Qwen3-1.7B-GGUF",
+  "url": "https://huggingface.co/ggml-org/Qwen3-1.7B-GGUF/resolve/daeb8e2d528a760970442092f6bf1e55c3b659eb/Qwen3-1.7B-Q4_K_M.gguf",
+  "license": "Apache-2.0",
+  "format": "GGUF",
+  "quantization": "Q4_K_M",
+  "size": 1282439264,
+  "sha256": "d2387ca2dbfee2ffabce7120d3770dadca0b293052bc2f0e138fdc940d9bc7b5",
+  "runtime": "llama.cpp-a7a98e0",
+  "requirements": "arm64-v8a; Android 7+; 8 GB device RAM; 2048 context; CPU baseline",
+  "acceptance": "EXPERIMENTAL_UNTIL_DEVICE_AND_ARABIC_GATES_PASS"
+}

@@ -3,12 +3,17 @@ apply plugin: 'com.android.application'
 android {
     namespace = "com.makeuphouse.advisor"
     compileSdk = rootProject.ext.compileSdkVersion
+    ndkVersion "28.2.13676358"
+    externalNativeBuild { cmake { path file('../../native/CMakeLists.txt'); version '3.22.1' } }
     defaultConfig {
         applicationId "com.makeuphouse.advisor"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "3.0.0"
+        versionCode 5
+        versionName "3.1.0-rc.1"
+        ndk { abiFilters 'arm64-v8a' }
+        externalNativeBuild { cmake { arguments '-DGGML_CPU_ARM_ARCH=armv8-a', '-DCMAKE_BUILD_TYPE=Release'
+            if (System.getenv('MH_LLAMA_SOURCE_DIR')) arguments "-DLLAMA_SOURCE_DIR=${System.getenv('MH_LLAMA_SOURCE_DIR')}" } }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
