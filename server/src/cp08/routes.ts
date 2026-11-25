@@ -18,6 +18,7 @@ import { cloudCompose, cloudProviderFromEnv, cloudStatus, setCloudEnabled, type 
 import type { DB } from '../db.ts';
 import { scientificAdvisor, setScientificAdvisor, isOnline, researchSources, cloudUnavailableReason, getRuntime } from './features.ts';
 import { redact } from './llm.ts';
+import { prepareLocalContext } from '../local-ai.ts';
 
 const env = () => (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env ?? {};
 const enabled = (db: DB) => scientificAdvisor(db).enabled;
@@ -71,5 +72,6 @@ route('POST', '/api/cp08/advisor/chat', 'any', async (c) => {
   // privacy: phone numbers / e-mails typed into the consultation are not stored in the session history
   saveTurn(c.db, s, redact(b.message), answer.sections.map((x) => x.title).join(' / ').slice(0, 300), ctx);
   const mode_used = cloud?.mode_used === 'cloud_assisted' ? 'cloud' : research && research.status === 'ok' ? 'research' : 'offline';
-  return { session_id: s.id, mode_requested: b.mode, mode_used, ms: Date.now() - t0, answer, research, cloud };
+  return { session_id: s.id, mode_requested: b.mode, mode_used, ms: Date.now() - t0, answer, research, cloud,
+    local_ai_context: b.mode === 'offline' && getRuntime() === 'device' ? prepareLocalContext(c.db, c.user!.id, answer, b.message) : null };
 });

@@ -5,6 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { App } from '@capacitor/app';
+import { localAI } from './local-ai.ts';
 
 declare global { interface Window { MH_onBack?: () => Promise<'handled' | 'exit'>; MH_LOCAL?: boolean; MH_READY?: Promise<void>; MHNative?: { saveFile(name: string, blob: Blob): Promise<string>; isNative: boolean; backup?: typeof backupStream; restore?: typeof restoreStream } } }
 
@@ -40,6 +41,10 @@ window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     waiting.set(id, resolve);
     worker.postMessage({ id, method, url: url.pathname + url.search, authorization: headers.get('authorization') ?? undefined, body }, body ? [body] : []);
   });
+  if (url.pathname === '/api/cp08/advisor/chat' && reply.status === 200 && typeof reply.body === 'string') {
+    const result = await localAI.compose(JSON.parse(reply.body), (headers.get('authorization') ?? '').replace(/^Bearer /, ''), window.fetch);
+    return new Response(JSON.stringify(result), { status: reply.status, headers: reply.headers });
+  }
   return new Response(reply.body, { status: reply.status, headers: reply.headers });
 }) as typeof fetch;
 

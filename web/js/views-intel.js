@@ -18,17 +18,19 @@ const SECTION_CLASS = { referral: 'notice err', warnings: 'notice warn', insuffi
 
 export async function intel(root) {
   let sessionId; let mode = 'offline'; let status = null;
+  let sending = false;
   const statusEl = h('div', { class: 'card', id: 'intel-status' }, skeleton(1));
   const ctxEl = h('div', { class: 'tiny', id: 'intel-context', 'aria-live': 'polite' });
   const log = h('div', { class: 'chat', id: 'intel-log' });
   const input = h('input', { placeholder: 'اكتب سؤال العميلة… مثل: بشرتي جافة وأشتي غسول', 'aria-label': 'السؤال', maxlength: 1000 });
   const send = async (text) => {
-    const q = (text ?? input.value).trim(); if (!q) return; input.value = '';
+    const q = (text ?? input.value).trim(); if (!q || sending) return; input.value = ''; sending = true;
     log.append(h('div', { class: 'bub me' }, q)); const wait = h('div', { class: 'bub res ibub' }, skeleton(2)); log.append(wait); wait.scrollIntoView({ block: 'end' });
     try {
       const r = await api('POST', '/api/cp08/advisor/chat', { message: q, session_id: sessionId, mode });
       sessionId = r.session_id; fill(wait, renderAnswer(r, send)); drawContext(r.answer.understanding);
     } catch (e) { fill(wait, errorBox(e.message)); }
+    finally { sending = false; }
   };
   const drawContext = (u) => {
     const c = u.conversation_context ?? {}; const chips = [];
@@ -54,6 +56,7 @@ export async function intel(root) {
     h('p', { class: 'tiny muted' }, 'كل جملة مرتبطة بمصدر. المعرفة لم يراجعها مختص مؤهل بعد، والإجابة تقول ذلك. ليس تشخيصًا.'),
     statusEl, ctxEl, log,
     h('form', { class: 'composer', onsubmit: (e) => { e.preventDefault(); send(); } }, input, h('button', { class: 'btn', type: 'submit' }, 'إرسال')),
+    window.MHLocalAI?.available ? h('button', { class: 'btn sm out', onclick: async () => { const { getToken } = await import('./api.js'); await window.MHLocalAI.call('cancel', getToken()).catch(() => {}); } }, 'إلغاء التوليد') : null,
     h('button', { class: 'btn sm out', type: 'button', id: 'intel-reset', onclick: () => { sessionId = undefined; fill(log); fill(ctxEl); log.append(h('div', { class: 'notice info' }, 'محادثة جديدة: لا يُستخدم أي سياق سابق.')); } }, 'محادثة جديدة'));
   try { status = await api('GET', '/api/cp08/status'); drawStatus(); } catch (e) { fill(statusEl, errorBox(e.message)); }
 }
@@ -61,6 +64,7 @@ export async function intel(root) {
 function renderAnswer(r, send) {
   const a = r.answer; const [label, cls] = USED_BADGE[r.mode_used] ?? USED_BADGE.offline;
   const out = [h('div', {}, h('span', { class: `badge ${cls}`, id: 'answer-mode' }, label), r.mode_requested !== r.mode_used ? h('span', { class: 'tiny muted' }, ` (طُلب: ${MODE_AR[r.mode_requested]})`) : null)];
+  if (r.local_ai) out.push(h('div', { class: 'notice info' }, r.local_ai.note), r.local_ai.ok ? h('div', { class: 'card', id: 'local-ai-answer' }, r.local_ai.text.split('\n').map(t => h('p', {}, t))) : null);
   if (r.cloud?.mode_used === 'cloud_assisted') out.push(h('div', { class: 'card cloud-text' }, r.cloud.text.split('\n').slice(1).filter((l) => !l.startsWith('【') && !l.startsWith('- ') && !l.startsWith('حالة')).map((l) => h('p', {}, l))));
   for (const s of a.sections) {
     const box = h('div', { class: SECTION_CLASS[s.kind] ?? 'isec', role: s.kind === 'referral' ? 'alert' : null }, h('b', {}, s.title));
