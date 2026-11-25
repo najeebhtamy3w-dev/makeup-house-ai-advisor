@@ -6,6 +6,7 @@
 #include <chrono>
 using Clock=std::chrono::steady_clock;
 static double elapsed(Clock::time_point start){return std::chrono::duration<double,std::milli>(Clock::now()-start).count();}
+struct GenerationTimer { double &value; Clock::time_point start; ~GenerationTimer(){value=elapsed(start);} };
 
 void LocalRuntime::unload() {
     if (context) llama_free(context);
@@ -20,19 +21,23 @@ void LocalRuntime::load(const std::string &path) {
     auto mp=llama_model_default_params(); mp.n_gpu_layers=0; mp.load_mode=LLAMA_LOAD_MODE_MMAP;
     model=llama_model_load_from_file(path.c_str(),mp);
     if(!model) throw std::runtime_error("MODEL_INVALID");
-    auto cp=llama_context_default_params(); cp.n_ctx=2048; cp.n_batch=128;
+    auto cp=llama_context_default_params(); cp.n_ctx=4096; cp.n_batch=128;
     cp.n_threads=std::min(4u,std::max(1u,std::thread::hardware_concurrency())); cp.n_threads_batch=cp.n_threads;
     cp.abort_callback=[](void *p) { return static_cast<LocalRuntime*>(p)->cancelled.load(); }; cp.abort_callback_data=this;
     context=llama_init_from_model(model,cp);
     if(!context) { unload(); throw std::runtime_error("CONTEXT_FAILED"); }
     load_ms=elapsed(start);
 }
-std::string LocalRuntime::generate(const std::string &prompt,int limit,const std::function<void(const std::string&)> &progress) {
+std::string LocalRuntime::generate(const std::string &prompt,int limit,const std::function<void(const std::string&)> &progress,const std::string &task) {
+    if(task!="compose" && task!="plan" && task!="decision") throw std::runtime_error("TASK_INVALID");
+    const int output_cap=task=="compose"?384:768;
+    if(limit<1 || limit>output_cap) throw std::runtime_error("OUTPUT_LIMIT");
     if(!context) throw std::runtime_error("MODEL_MISSING");
-    auto start=Clock::now(); generated_tokens=0;first_token_ms=0;reset();
+    auto start=Clock::now(); generated_tokens=0;first_token_ms=0;generation_ms=0;reset();
+    GenerationTimer timing{generation_ms,start};
     auto vocab=llama_model_get_vocab(model);
     int n=-llama_tokenize(vocab,prompt.c_str(),prompt.size(),nullptr,0,true,true);
-    if(n<=0 || n>1536) throw std::runtime_error("CONTEXT_LIMIT");
+    if(n<=0 || n>(task=="compose"?1536:3072)) throw std::runtime_error("CONTEXT_LIMIT");
     std::vector<llama_token> tokens(n);
     if(llama_tokenize(vocab,prompt.c_str(),prompt.size(),tokens.data(),n,true,true)<0) throw std::runtime_error("TOKENIZE_FAILED");
     for(int i=0;i<n;i+=128) {
@@ -40,19 +45,30 @@ std::string LocalRuntime::generate(const std::string &prompt,int limit,const std
         if(llama_decode(context,llama_batch_get_one(tokens.data()+i,std::min(128,n-i)))) throw std::runtime_error(cancelled?"CANCELLED":"DECODE_FAILED");
     }
     // Upstream grammar sampler guarantees JSON structure; scientific meaning is still independently validated.
-    const char *grammar=R"GBNF(
+    const char *compose_grammar=R"GBNF(
 root ::= "{" ws "\"sentences\"" ws ":" ws "[" ws sentence (ws "," ws sentence){0,3} ws "]" ws "}"
 sentence ::= "{" ws "\"text\"" ws ":" ws string ws "," ws "\"claim_ids\"" ws ":" ws "[" ws string (ws "," ws string){0,2} ws "]" ws "}"
 string ::= "\"" ([^"\\\x00-\x1F] | "\\" (["\\/bfnrt] | "u" [0-9a-fA-F]{4}))* "\""
 ws ::= [ \t\n\r]*
 )GBNF";
+    // Syntax only. The independent worker validates task-specific JSON schemas, tool permissions and evidence.
+    // A top-level object is mandatory; strings cannot contain raw control characters.
+    const char *structured_grammar=R"GBNF(
+root ::= object
+object ::= "{" ws (string ws ":" ws value (ws "," ws string ws ":" ws value)*)? ws "}"
+array ::= "[" ws (value (ws "," ws value)*)? ws "]"
+value ::= object | array | string | number | "true" | "false" | "null"
+string ::= "\"" ([^"\\\x00-\x1F] | "\\" (["\\/bfnrt] | "u" [0-9a-fA-F]{4}))* "\""
+number ::= "-"? ("0" | [1-9] [0-9]*) ("." [0-9]+)? ([eE] [+-]? [0-9]+)?
+ws ::= [ \t\n\r]*
+)GBNF";
     auto sampler=llama_sampler_chain_init(llama_sampler_chain_default_params());
-    auto gs=llama_sampler_init_grammar(vocab,grammar,"root");
+    auto gs=llama_sampler_init_grammar(vocab,task=="compose"?compose_grammar:structured_grammar,"root");
     if(!gs){llama_sampler_free(sampler);throw std::runtime_error("GRAMMAR_FAILED");}
     llama_sampler_chain_add(sampler,gs);llama_sampler_chain_add(sampler,llama_sampler_init_greedy());
     std::string output;
     try {
-        for(int i=0;i<std::min(limit,384);i++) {
+        for(int i=0;i<limit;i++) {
             if(cancelled) throw std::runtime_error("CANCELLED");
             auto tok=llama_sampler_sample(sampler,context,-1);
             if(llama_vocab_is_eog(vocab,tok)) break;
@@ -65,5 +81,5 @@ ws ::= [ \t\n\r]*
             if(llama_decode(context,llama_batch_get_one(&tok,1))) throw std::runtime_error(cancelled?"CANCELLED":"DECODE_FAILED");
         }
     } catch(...) { llama_sampler_free(sampler);reset();throw; }
-    generation_ms=elapsed(start);llama_sampler_free(sampler);reset();return output;
+    llama_sampler_free(sampler);reset();return output;
 }

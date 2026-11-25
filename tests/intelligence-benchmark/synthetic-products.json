@@ -1,0 +1,83 @@
+{
+  "provenance": "SYNTHETIC_TEST_ONLY; never import as real catalogue or scientific evidence",
+  "as_of": "2026-11-25",
+  "products": [
+    {
+      "id": 1,
+      "name": "غسول ألف",
+      "brand": "BENCHMARK_ONLY",
+      "product_type": "cleanser",
+      "ingredients": "Aqua, Glycerin",
+      "record_status": "active",
+      "verification": "verified"
+    },
+    {
+      "id": 2,
+      "name": "غسول باء",
+      "brand": "BENCHMARK_ONLY",
+      "product_type": "cleanser",
+      "ingredients": "Aqua, Parfum",
+      "record_status": "active",
+      "verification": "verified"
+    },
+    {
+      "id": 3,
+      "name": "مرطب جيم",
+      "brand": "BENCHMARK_ONLY",
+      "product_type": "cream",
+      "ingredients": "Aqua, Glycerin, Ceramide NP",
+      "record_status": "active",
+      "verification": "verified"
+    },
+    {
+      "id": 4,
+      "name": "واقي دال",
+      "brand": "BENCHMARK_ONLY",
+      "product_type": "sunscreen",
+      "ingredients": "Aqua",
+      "record_status": "active",
+      "verification": "verified"
+    },
+    {
+      "id": 5,
+      "name": "مرطب هاء",
+      "brand": "BENCHMARK_ONLY",
+      "product_type": "cream",
+      "ingredients": "",
+      "record_status": "import_draft",
+      "verification": "pending"
+    }
+  ],
+  "batches": [
+    {
+      "product_id": 1,
+      "quantity": 5,
+      "expires_on": "2027-12-31"
+    },
+    {
+      "product_id": 2,
+      "quantity": 5,
+      "expires_on": "2026-11-24"
+    },
+    {
+      "product_id": 3,
+      "quantity": 0,
+      "expires_on": "2027-12-31"
+    },
+    {
+      "product_id": 4,
+      "quantity": 4,
+      "expires_on": "2026-11-24"
+    }
+  ],
+  "global_catalogue": [],
+  "expected_local_available_product_ids": [
+    1
+  ],
+  "notes": [
+    "Ingredients and product labels are synthetic and do not certify suitability.",
+    "No global product is fabricated to fill an empty global catalogue.",
+    "Only positive-quantity unexpired batches support local availability.",
+    "Fixture4 retains an expired batch specifically to test false availability claims."
+  ]
+}

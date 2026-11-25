@@ -59,7 +59,7 @@ test('interrupted migration (process killed mid-way) leaves the database at the 
   const cols = (db.prepare("SELECT name FROM pragma_table_info('product_images')").all() as { name: string }[]).map((r) => r.name);
   assert.ok(!cols.includes('thumb'), 'the half-applied migration was rolled back');
   assert.equal((db.prepare("SELECT COUNT(*) n FROM schema_migrations WHERE name LIKE '009%'").get() as { n: number }).n, 0);
-  assert.deepEqual(migrate(db as never), ['009_cp06_3_image_thumbs.sql'], 'completed on the next start');
+  assert.deepEqual(migrate(db as never), files.filter(f => f >= '009'), 'all pending migrations completed on the next start');
   assert.equal((db.prepare('SELECT COUNT(*) n FROM products').get() as { n: number }).n, 1, 'no data lost');
   db.close();
 });

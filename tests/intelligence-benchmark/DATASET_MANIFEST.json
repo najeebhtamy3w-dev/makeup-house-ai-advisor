@@ -1,0 +1,48 @@
+{
+  "version": "v32-engineering-320-v1",
+  "provenance": "Agent-authored synthetic engineering scenarios; NOT real customers, NOT clinical validation, NOT evidence about original model training data.",
+  "counts": {
+    "turn_cases": 320,
+    "consultation_families": 80,
+    "splits": {
+      "development": {
+        "turn_cases": 80,
+        "families": 20
+      },
+      "model_selection": {
+        "turn_cases": 80,
+        "families": 20
+      },
+      "validation": {
+        "turn_cases": 80,
+        "families": 20
+      },
+      "final_holdout": {
+        "turn_cases": 80,
+        "families": 20
+      }
+    }
+  },
+  "reference_policy": "Reference topics bind to existing source knowledge; dataset references do not approve existing pending-review facts. Product fixtures are separate synthetic records.",
+  "coverage": [
+    "Arabic and Yemeni phrasing",
+    "multi-concern consultations",
+    "corrections",
+    "product references",
+    "ingredient functions",
+    "compatibility uncertainty",
+    "routine changes",
+    "local/global distinction",
+    "batch validity",
+    "critical safety persistence",
+    "prompt injection",
+    "scope",
+    "session reset"
+  ],
+  "limitations": [
+    "320 turns are not320 independent conversations.",
+    "Automatic slot/tool scores are not human linguistic or scientific judgements.",
+    "Topics are shared across splits, but consultation families and messages are disjoint.",
+    "No inference results are stored by authoring this dataset."
+  ]
+}

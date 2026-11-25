@@ -30,7 +30,8 @@ public class LocalAIPlugin extends Plugin {
     private static native void nativeUnload();
     private static native void nativeReset();
     private static native void nativeCancel();
-    private native byte[] nativeGenerate(String prompt,int limit);
+    private native byte[] nativeGenerate(String prompt,int limit,String task);
+    private static native double[] nativeMetrics();
     @Override public void load() {
         directory=new File(getContext().getNoBackupFilesDir(),"local-ai");directory.mkdirs();
         model=new File(directory,"approved.gguf");partial=new File(directory,"approved.part");
@@ -104,14 +105,19 @@ public class LocalAIPlugin extends Plugin {
     @PluginMethod public void deactivate(PluginCall c){run(c,true,()->{nativeUnload();loaded=false;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",false).apply();return statusObject();});}
     @PluginMethod public void remove(PluginCall c){run(c,true,()->{nativeUnload();loaded=false;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",false).apply();if(model.exists()&&!model.delete())throw new IOException("REMOVE_FAILED");if(partial.exists()&&!partial.delete())throw new IOException("REMOVE_FAILED");return statusObject();});}
     @PluginMethod public void generate(PluginCall c){run(c,false,()->{
+        String task=c.getString("task","compose");
+        if(!task.equals("compose")&&!task.equals("plan")&&!task.equals("decision"))throw new IOException("TASK_INVALID");
+        int cap=task.equals("compose")?384:768,limit=c.getInt("max_tokens",cap);
+        if(limit<1||limit>cap)throw new IOException("OUTPUT_LIMIT");
+        String prompt=c.getString("prompt","");if(prompt.isEmpty()||prompt.length()>(task.equals("compose")?12000:24000))throw new IOException("CONTEXT_LIMIT");
         generationCancelled.set(false);nativeReset();
         if(!foreground)throw new IOException("BACKGROUND");
         if(!getContext().getSharedPreferences("local-ai",0).getBoolean("active",false))throw new IOException("MODEL_DISABLED");
         if(!loaded){cancelDownload.set(false);verify(model);nativeLoad(model.getAbsolutePath());loaded=true;}
         if(generationCancelled.get()||!foreground)throw new IOException("CANCELLED");
-        String prompt=c.getString("prompt","");if(prompt.length()>12000)throw new IOException("CONTEXT_LIMIT");
-        long t=System.nanoTime();String text=new String(nativeGenerate(prompt,384),StandardCharsets.UTF_8);
-        JSObject out=new JSObject();out.put("text",text);out.put("ms",(System.nanoTime()-t)/1000000);return out;
+        long t=System.nanoTime();String text=new String(nativeGenerate(prompt,limit,task),StandardCharsets.UTF_8);
+        double[] m=nativeMetrics();JSObject metrics=new JSObject();metrics.put("model_load_ms",m[0]);metrics.put("first_token_ms",m[1]);metrics.put("generation_ms",m[2]);metrics.put("tokens",(int)m[3]);
+        JSObject out=new JSObject();out.put("text",text);out.put("ms",(System.nanoTime()-t)/1000000);out.put("metrics",metrics);return out;
     });}
     @PluginMethod public void cancel(PluginCall c){authorized(c,managerOperation,()->{generationCancelled.set(true);if(runtimeError==null)nativeCancel();cancelDownload.set(true);HttpURLConnection con=downloadConnection;if(con!=null)con.disconnect();c.resolve();});}
     @PluginMethod public void reset(PluginCall c){run(c,false,()->{nativeReset();return new JSObject();});}
@@ -119,7 +125,7 @@ public class LocalAIPlugin extends Plugin {
         cancelDownload.set(false);verify(model);boolean wasActive=getContext().getSharedPreferences("local-ai",0).getBoolean("active",false);
         if(!loaded){nativeLoad(model.getAbsolutePath());loaded=true;}nativeReset();
         String prompt="<|im_start|>system\nReturn JSON only: {\"sentences\":[{\"text\":\"test complete\",\"claim_ids\":[\"test\"]}]}<|im_end|>\n<|im_start|>user\nRun the test. /no_think<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
-        long started=System.nanoTime();byte[] result=nativeGenerate(prompt,128);JSObject out=new JSObject();out.put("generated_bytes",result.length);out.put("ms",(System.nanoTime()-started)/1000000);out.put("test","REAL_NATIVE_INFERENCE");
+        long started=System.nanoTime();byte[] result=nativeGenerate(prompt,128,"compose");JSObject out=new JSObject();out.put("generated_bytes",result.length);out.put("ms",(System.nanoTime()-started)/1000000);out.put("test","REAL_NATIVE_INFERENCE");
         if(!wasActive){nativeUnload();loaded=false;}return out;
     });}
     public void onProgress(int tokens){JSObject p=new JSObject();p.put("tokens",tokens);notifyListeners("generationProgress",p);}

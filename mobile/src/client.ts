@@ -36,6 +36,13 @@ window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const src = init?.body ?? (req && method !== 'GET' ? await req.arrayBuffer() : null);
   const body = src == null ? null : await new Response(src as BodyInit).arrayBuffer();
   await window.MH_READY;
+  if (url.pathname === '/api/cp08/advisor/chat' && method === 'POST' && Capacitor.isNativePlatform() && body) {
+    const input = JSON.parse(new TextDecoder().decode(body));
+    if ((input.mode ?? 'offline') === 'offline') {
+      const result = await localAI.consult(input, (headers.get('authorization') ?? '').replace(/^Bearer /, ''), window.fetch);
+      return new Response(JSON.stringify(result), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+  }
   const id = ++seq;
   const reply = await new Promise<{ status: number; headers: Record<string, string>; body: string | ArrayBuffer }>((resolve) => {
     waiting.set(id, resolve);
@@ -71,6 +78,13 @@ async function jsonOrThrow(r: Response) { const j = await r.json().catch(() => (
 async function backupStream(passphrase: string, token: string | null): Promise<{ how: string; size: number; name: string; counts: Record<string, number> }> {
   const { ticket, filename } = await jsonOrThrow(await window.fetch('/api/local/backup/stream', { method: 'POST', headers: authHeaders(token), body: JSON.stringify({ passphrase }) }));
   const native = Capacitor.isNativePlatform(); const parts: BlobPart[] = []; let size = 0; let uri = '';
+  if (url.pathname === '/api/cp08/advisor/chat' && method === 'POST' && Capacitor.isNativePlatform() && body) {
+    const input = JSON.parse(new TextDecoder().decode(body));
+    if ((input.mode ?? 'offline') === 'offline') {
+      const result = await localAI.consult(input, (headers.get('authorization') ?? '').replace(/^Bearer /, ''), window.fetch);
+      return new Response(JSON.stringify(result), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+  }
   const id = ++seq;
   const counts = await new Promise<Record<string, number>>((resolve, reject) => {
     streams.set(id, async (m) => {
@@ -94,6 +108,13 @@ async function backupStream(passphrase: string, token: string | null): Promise<{
 /** Restore from a File the person picked: the worker asks for byte ranges and gets one slice at a time (File.slice). */
 async function restoreStream(file: File, passphrase: string, dry: boolean, token: string | null): Promise<any> {
   const { ticket } = await jsonOrThrow(await window.fetch('/api/local/restore/stream', { method: 'POST', headers: authHeaders(token), body: JSON.stringify({ passphrase, dry, size: file.size }) }));
+  if (url.pathname === '/api/cp08/advisor/chat' && method === 'POST' && Capacitor.isNativePlatform() && body) {
+    const input = JSON.parse(new TextDecoder().decode(body));
+    if ((input.mode ?? 'offline') === 'offline') {
+      const result = await localAI.consult(input, (headers.get('authorization') ?? '').replace(/^Bearer /, ''), window.fetch);
+      return new Response(JSON.stringify(result), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+  }
   const id = ++seq;
   return new Promise((resolve, reject) => {
     streams.set(id, async (m) => {

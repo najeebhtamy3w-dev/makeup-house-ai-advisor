@@ -9,7 +9,7 @@ interface NativeAI {
   reset(o: { token: string }): Promise<any>;
   test(o: { token: string }): Promise<any>;
   cancel(o: { token: string }): Promise<void>;
-  generate(o: { token: string; prompt: string }): Promise<{ text: string; ms: number }>;
+  generate(o: { token: string; prompt: string; task?: string; max_tokens?: number }): Promise<{ text: string; ms: number }>;
 }
 const native = registerPlugin<NativeAI>('LocalAI');
 let composing = false;
@@ -24,6 +24,38 @@ export const localAI = {
       if (!r.ok) throw new Error('تعذر حفظ إعداد النموذج؛ راجعي حالة التشغيل');
     }
     return out;
+  },
+  async consult(body: any, token: string, fetchLocal: typeof fetch) {
+    const headers = { authorization: 'Bearer ' + token, 'content-type': 'application/json' };
+    const post = async (path: string, data: any) => {
+      const response = await fetchLocal(path, { method: 'POST', headers, body: JSON.stringify(data) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? 'تعذرت الاستشارة');
+      return result;
+    };
+    let current = await post('/api/intelligence/start', { message: body.message, ...(body.session_id ? { session_id: body.session_id } : {}) });
+    const cancel = () => { native.cancel({ token }).catch(() => {}); };
+    if (composing) {
+      if (current.kind === 'request_model') current = await post('/api/intelligence/advance', { ticket: current.ticket, raw: '', failure: 'runtime_busy' });
+      return current.answer ?? current;
+    }
+    composing = true;
+    window.addEventListener('hashchange', cancel);
+    const timer = setTimeout(cancel, 150_000);
+    try {
+      for (let i = 0; current.kind === 'request_model' && i < 4; i++) {
+        let raw = '', failure: string | undefined;
+        try {
+          const status = await native.status({ token });
+          if (!status.active || !status.installed || status.error) throw new Error('model_unavailable');
+          const output = await native.generate({ token, prompt: current.prompt, task: current.task, max_tokens: current.max_tokens });
+          raw = output.text;
+        } catch { failure = 'local_runtime_unavailable_or_interrupted'; }
+        current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, ...(failure ? { failure } : {}) });
+      }
+      if (current.kind !== 'final') throw new Error('انتهت ميزانية الاستشارة');
+      return { ...current.answer, intelligence: current.diagnostics };
+    } finally { composing = false; clearTimeout(timer); window.removeEventListener('hashchange', cancel); }
   },
   async compose(result: any, token: string, fetchLocal: typeof fetch) {
     let ctx = result.local_ai_context; delete result.local_ai_context;

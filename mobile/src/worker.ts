@@ -1,3 +1,4 @@
+import '../../server/src/intelligence/routes.ts';
 // CP06 on-device "server": the SAME TypeScript routes as the Node server (server/src/*) run here, in a background worker
 // inside the Android app, over a real SQLite database file in the app's private storage (OPFS, via SQLite WASM).
 // No Node.js, no Render: every local operation is a function call in this worker. The internet is used only by the

@@ -16,5 +16,7 @@ public:
     void load(const std::string &path);
     void unload();
     void reset();
-    std::string generate(const std::string &prompt, int limit, const std::function<void(const std::string&)> &progress);
+    // Tasks select only application-owned grammars, never a caller-supplied grammar.
+    std::string generate(const std::string &prompt, int limit, const std::function<void(const std::string&)> &progress,
+                         const std::string &task = "compose");
 };

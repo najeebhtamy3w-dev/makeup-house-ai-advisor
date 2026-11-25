@@ -1,0 +1,298 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> makeup-house-beauty-advisor@3.1.0-rc.1 test
+> node --no-warnings --import tsx --test tests/*.test.ts
+
+✔ dialect/spelling: جافه / حساسه / ما يهيج / دهنيه match like the standard spellings (8.117761ms)
+✔ follow-up: skin type asked only when missing; contextual, short, with choices (4.762172ms)
+✔ suitability is SEPARATE from availability: documented-but-unavailable outranks undocumented-but-available (0.749944ms)
+✔ advisor never invents: unmatched query returns nothing, only a clarification note (0.72663ms)
+✔ conflicting sources downgrade suitability and are announced (0.4703ms)
+✔ safety: severe symptoms in any spelling => no products; acne/dandruff add referral notes without therapeutic promises (1.012495ms)
+✔ fragrance-free: unknown composition is never claimed fragrance-free; marketing words in the name are ignored (0.928607ms)
+✔ engine honesty flags: llm=false, engine=retrieval (0.399597ms)
+✔ guard: rejects products outside retrieved set, prices/discounts, therapeutic promises; accepts grounded text (0.650437ms)
+✔ provider: failure or missing provider falls back safely; hallucinating provider is rejected (0.809755ms)
+✔ knowledge base: every claim has ≥1 known source, Arabic text, and is honestly marked unreviewed (9.467186ms)
+✔ 32 single-turn consultation scenarios (useful with an EMPTY catalog, sourced, safe) (468.640304ms)
+✔ 50 multi-turn conversations: context kept, corrections replace, references resolved or clarified, reset clears (451.895829ms)
+✔ A: dry+sensitive cleanser — understood as cleanser; dryness does NOT pull moisturisers into the results (196.630975ms)
+✔ D/E/F/G: empty catalog, no network, global source failing, global result shown as NOT available (407.242294ms)
+✔ H: local product without INCI is shown as "cannot assess", never as suitable (193.684035ms)
+✔ K: a follow-up about "the cleanser you recommended" resolves to that product; ambiguity asks instead of guessing (183.78652ms)
+✔ L/M/N/O: AI failure mid-conversation, fabricated citation, prompt injection, and the budget cap all fall back safely (363.255178ms)
+✔ sessions: staff isolation, expiry, reset, size limit; status endpoint is honest about the mode (259.452726ms)
+✔ unit: GTIN check digit, length, Arabic-Indic digits (206.985532ms)
+✔ unit: password hashing and tokens (162.693016ms)
+✔ unit: CSV parser handles quotes, CRLF, BOM (1.648084ms)
+✔ unit: migrations are idempotent (26.55829ms)
+✔ auth: wrong password rejected, no token => 401, bad token => 401 (80.587577ms)
+✔ auth: login throttling after repeated failures (225.651695ms)
+✔ rbac: staff blocked from manager-only endpoints (server-side) (10.093869ms)
+✔ rbac: deactivated user loses access immediately; last manager protected (146.630627ms)
+✔ rbac: weak password rejected on user creation (3.045489ms)
+✔ policy: price / cost / quantity fields are rejected, never stored (11.955283ms)
+✖ policy: schema has no price/cost/quantity columns anywhere (6.030696ms)
+✔ product: create, duplicate barcode blocked, invalid barcode rejected (8.927447ms)
+✔ barcode: unknown product => not found + enrichment honestly NOT configured (no invented data) (1.75816ms)
+✔ barcode: Arabic-Indic digits from a scanner still match existing product (1.459632ms)
+✔ verification: staff cannot approve; manager needs a source; edits revoke approval (16.933458ms)
+✔ product: delete is manager-only (4.555104ms)
+✔ search: by name and barcode, LIKE wildcards neutralised (4.23776ms)
+✔ availability: unconfirmed is never "available"; staleness downgrades; updater recorded (11.654319ms)
+✔ import: CSV and XLSX parse identically; price/quantity columns ignored (names only) (6.463947ms)
+✔ import: preview writes nothing; commit adds once; re-import creates no duplicates (22.085379ms)
+✔ import: no price/qty strings ever stored in DB or import log (0.472755ms)
+✔ import: bad file type / empty file rejected (4.619585ms)
+✔ import: scales to 5000 rows without trouble (359.953064ms)
+✔ advisor: only documented ingredients; unknown composition is "cannot assess", never invented (148.218362ms)
+✔ advisor: severe symptoms => no product recommendation, refer to professional (0.317394ms)
+✔ advisor: stale/unconfirmed availability is flagged, not promised (6.199351ms)
+✔ requests: repeats are counted; personal data rejected; manager-only summary (23.132058ms)
+✔ reports: summary has counts only, no financial fields (8.502641ms)
+✔ security: path traversal on static server blocked; security headers present (5.560836ms)
+✔ security: SQL-injection-like input is treated as data (32.425811ms)
+✔ security: passwords never returned by API (3.32916ms)
+✔ persistence: data survives close/reopen of an on-disk DB (22.175633ms)
+✔ api: duplicate-barcode 409 tells the UI which record to open (3.886884ms)
+✔ backup: VACUUM INTO produces a verifiable, restorable copy (364.158263ms)
+✔ security: XLSX zip-bomb (≈100KB file expanding to >100MB) is rejected with 400, server stays up (41.949442ms)
+✔ identify by barcode: store first, then source drafts with quality notes; nothing auto-approved (467.260138ms)
+✔ identify by name: candidates with reasons; same name in different sizes stays separate; never auto-approved (252.080772ms)
+✔ identify: local possible duplicates by name, but a different size is labelled, not merged (196.399092ms)
+✔ identify: source down => unreachable (not "not found"); rate limit respected (239.24976ms)
+✔ ingredients classifier: marketing text is not an INCI list; translated lists are flagged (3.129115ms)
+✔ import: no images/ingredients needed; leading zeros kept; categories mapped; Excel scientific notation refused (212.785327ms)
+✔ import: completes only EMPTY fields of existing non-verified records; never overwrites; name conflicts reported, not applied (208.119866ms)
+✔ import: row cap is enforced with a clear message (247.346522ms)
+✔ completeness filters: no image / missing info / pending suggestions (249.31633ms)
+✔ upgrade 005 -> 006 keeps every existing row and value, backfills codes, and is idempotent (40.839114ms)
+✔ legacy data stays usable through the API after the upgrade (old candidate review still works) (361.691572ms)
+✔ primary code follows the barcode on create, change, removal and delete (triggers) (334.050683ms)
+✔ optimistic concurrency: a save based on an older copy is refused (409), the newer edit is kept; old clients still work (215.905533ms)
+✔ import drafts and archived records are never recommended by the advisor (still visible in the catalog) (195.003339ms)
+✔ contracts reject malformed objects (a provider or model can never hand over a broken result) (3.750418ms)
+   10,000 rows committed in 850 ms
+✔ P: 10,000-row import — invalid rows reported, in-file duplicates skipped, barcode-only rows become drafts, not recommended (1956.431577ms)
+✔ P/Q: an import that crashes after 3 chunks resumes the SAME batch on re-upload, with no duplicate product (661.136202ms)
+✔ import never erases existing values with empty cells; rollback removes only untouched drafts of that batch (225.820585ms)
+✔ Q: provider results become EVIDENCE only (products untouched), idempotent on re-run, cache prevents a second call (184.498274ms)
+✔ Q: lease expiry recovers a job abandoned by a crashed worker (251.39617ms)
+✔ Q: outages back off with jitter and end in dead/source_unavailable; Retry-After defers without counting an attempt (204.513571ms)
+✔ Q: daily budget and per-minute limit are respected; offline jobs wait for the network; one failing provider does not block another (250.018814ms)
+✔ Q: pause (all / provider / batch) and cancel are switches, not product states; transitions are guarded (275.774666ms)
+✔ T: evidence review — manager only, stale version refused, ambiguous identity needs explicit confirmation, display name never overwritten, audited (190.822295ms)
+✖ migration chain: unique, ordered names; 009 is additive and keeps every original image byte (53.055936ms)
+✔ thumbnails: lists get the original flagged "missing" until a thumb exists; the thumb is set once; originals unchanged; report is manager-only (363.90775ms)
+✖ interrupted migration (process killed mid-way) leaves the database at the previous version, and the next start completes it (34.377342ms)
+✔ dispatch() answers without an HTTP server (the path the Android worker uses), with auth enforced (415.88147ms)
+✔ routine: steps count ALL matching products (no 500 limit), list at most 12, and include unclassified products by name (259.646621ms)
+✔ availability=stale lists only "yes" answers older than the staleness window (home screen count, no client-side cap) (219.073394ms)
+✔ migration 008 is additive: a 007 database with data upgrades without loss; CP06.2 tables untouched (15.833921ms)
+✔ seed: idempotent, every claim has ≥1 known https source, nothing approved, industry ties flagged (368.045439ms)
+✔ state machine: only a manager approves; source + reason rules; history kept; revision supersedes on approval (27.423259ms)
+✔ evidence validation: marketing and incomplete blocked; industry ties weaken; levels classified (2.001515ms)
+✔ connectors: off by default, offline, cache, rate-limit wait, 4xx not retried, breaker opens, injection text neutralised (27.416366ms)
+✔ controlled growth: gap → job → evidence (pending) → manager-written claim → not used until approved (442.082394ms)
+✔ understanding: owner examples (dev set) — request type is never replaced by a supporting topic (29.734995ms)
+✔ mandatory case: "بشرتي جافة وحساسة وأشتي غسول" — cleanser stays the request, grounded, no invention, approved catalogue only (65.446332ms)
+✔ answers: red flag → referral only; price out of scope; unknown subject → "insufficient"; injection in the question changes nothing (51.151936ms)
+✔ retrieval: offline, traceable, FTS5 and JS BM25 agree on the top hits (30.948525ms)
+✔ grounding guard + hybrid modes: grounded rephrase accepted; fabrication / outage fall back to LOCAL_RULES; safety never rephrased (42.036856ms)
+✔ HTTP: CP07 is off by default (404); when enabled, staff chat works, knowledge admin is manager-only, transitions audited (396.324729ms)
+✔ safety: every critical case escalates or refers; negation and plain heat do not raise alarms (71.144486ms)
+✔ understanding: follow-up pronoun, unresolved product, two-ingredient compare, multi-product, constraints remembered, old contexts still parse (32.609033ms)
+✔ fidelity: catches all labelled meaning changes from real model output and the three forbidden transformations (67.488806ms)
+✔ cloud adapter: refuses without key/price; key in header only; redaction; disabled by default; per-sentence fidelity; fallbacks; usage recorded (39.023036ms)
+✔ research: plan from concepts (never free text), off/offline honoured, de-duplicated and ranked, stored as unreviewed only (388.991525ms)
+✔ HTTP: off by default; status never exposes keys; modes work and fall back honestly; settings are manager-only (331.529538ms)
+✔ switch: off by default; only a manager turns it on (stored setting, audited); MH_CP07=1 still forces it on and cannot be switched off from the app (695.869124ms)
+✔ multi-turn safety: after an urgent sign, later turns keep the referral first and recommend no products until a new conversation; stored turns are redacted (277.898647ms)
+✔ device runtime: online from the probe, MedlinePlus excluded (CORS), cloud unavailable with a reason, research still honest offline (582.828601ms)
+✔ CP09 blind safety set as regression (after its one blind scoring): every urgent and referral case is caught (19.841153ms)
+✔ disabled mode: honest "disabled", nothing invented (209.47948ms)
+✔ success: candidates are DRAFTS with source, licence, time; local product untouched (13.084977ms)
+✔ not found in source => not_found (no candidates, no invented data) (4.425021ms)
+✔ offline / source down => unreachable, recorded, not cached as a miss (6.162603ms)
+✔ cache: repeat lookup within 24h makes no external call; manager force bypasses (10.150425ms)
+✔ conflict: differs from local value AND between two sources => flagged for review (5.24162ms)
+✔ review: manager-only; approve applies field, records provenance, caps at "partial" (never auto-verified) (13.244244ms)
+✔ review: manager edit is stored as origin=manual; reject changes nothing; approve without a product is refused (10.098227ms)
+✔ review: approving over a VERIFIED product drops it back to review (7.094136ms)
+✔ mock-sourced approval never writes a source URL (cannot be passed off as sourced) (16.10065ms)
+✔ rate limit: over-limit lookups report rate_limited instead of hammering the source (1.772808ms)
+✔ invalid barcode rejected before any external call (3.437493ms)
+✔ queue: batches, respects limit, retries with backoff, gives up after 5 attempts (11.058324ms)
+✔ queue: rate-limited run stops and leaves jobs queued (no burst) (5.741985ms)
+✔ status endpoint reports mode/connectors/queue honestly (1.641202ms)
+✔ no price/cost/quantity columns in enrichment tables (0.960377ms)
+✔ OBF connector: parses fields, sends identifying User-Agent, restricts requested fields (2.475893ms)
+✔ OBF connector: status 0 / 404 => not found; 5xx / network / bad JSON / timeout => Unreachable (32.754274ms)
+✔ identity: sizes compare by unit-normalised value (200ml == 200 ml == ٢٠٠ مل; 200 ml != 250 ml; oz/ml converted) (1.749895ms)
+✔ identity: name similarity is never proof — variant words give partial/conflict, brand mismatch is a conflict (0.409375ms)
+✔ identity: INCI comparison — same list exact; reordered = partial (order encodes concentration); different list = conflict (0.802291ms)
+✔ additional codes: GTIN check digit, scientific notation refused, one code = one product, lookup by any code, manager-only verify/remove, audited (302.370823ms)
+✔ bulk classification: manager only; sets form + confirmed; never touches scientific fields; skips rows changed meanwhile (241.612118ms)
+✔ queue priority: GTIN rows before name+brand rows before the rest; a product asked about now jumps to the front (279.041719ms)
+✔ manager dashboard: real counts from the database; staff refused (190.009244ms)
+✔ import preview shows how each file header was read (header names only, no cell values) (211.291607ms)
+✔ catalog → advisor: imported drafts are never recommended; a product without ingredients is listed as «needs information», never recommended (298.330752ms)
+✔ images: type is decided by magic bytes and dimensions are read (PNG / JPEG / WebP); others rejected (4.768123ms)
+✔ images: remote fetch is limited to https allow-listed hosts (no SSRF to internal/other hosts) (0.386443ms)
+✔ images API: upload (camera/gallery), list, serve behind login, primary handling, limits, permissions (371.455032ms)
+✔ OBF images: connector proposes the front photo of the SAME record; manager approval stores it with source, licence, attribution (214.34117ms)
+✔ OBF data accuracy: a pack size without a unit (e.g. "177") is not proposed; "177 ml" is (5.47641ms)
+✔ inventory dates: real Gregorian dates, no normalization of invalid calendar days (1.545212ms)
+✔ inventory: no invented stock from legacy yes; only positive unexpired reviewed-active batches establish availability (283.024448ms)
+✔ inventory: manager write permissions, strict inputs, duplicate prevention, optimistic version and audited changes (229.847413ms)
+✔ inventory: corrupt stored dates are never accepted as unexpired stock (242.463083ms)
+[internal] synthetic audit failure
+[internal] synthetic audit failure
+✔ inventory: an audit write failure rolls back the stock mutation (183.605069ms)
+✔ graph resolves Arabic ingredient and carries source and unreviewed labels without mutation (39.317418ms)
+✔ missing context yields no catalogue dump; limit and hostile input bounded (29.537325ms)
+✔ enrichment is explicit idempotent pending review and preserves human edits (28.789856ms)
+✔ closed claims excluded and unlinked scientific relations never marked supported (34.335203ms)
+✔ new manual summaries remain unavailable to advisor until reviewed (23.341079ms)
+✔ local AI: known grounded sentence accepted; unknown source, new facts and stronger claims rejected (7.822178ms)
+✔ local AI: fail closed on missing citations, added product availability, diagnosis and embedded instructions (0.801751ms)
+✔ local AI: removing a negation is rejected even when nearly every word matches the evidence (0.545351ms)
+✔ local AI: only a manager can persist approved model metadata; no paths, weights or arbitrary IDs accepted (301.978509ms)
+✔ local AI: a rejected output gets only one user-bound retry; original ticket cannot be replayed (197.763557ms)
+✔ local AI: context ticket is user-bound, one-use, and cannot supply its own facts; urgent cases get none (199.113102ms)
+   labelled cases: 404 · conflict cases: 231 · same-item cases recognised as strong/exact: 138/151
+✔ ≥ 200 labelled cases (1.647233ms)
+✔ GATE 3: no unsafe strong / exact_gtin match on ANY labelled conflict case (48.736968ms)
+✔ every case lands in an accepted class, and every non-match explains itself (37.036213ms)
+✔ report: match quality on the labelled set (14.50154ms)
+✔ normalisation building blocks (0.716751ms)
+✔ save succeeds with ALL optional details empty (omitted or explicit ""), nothing is invented, status stays "review" (301.098016ms)
+✔ save with ingredients only, and with usage only — only what was entered is stored (207.67171ms)
+✔ missing details are marked incomplete and are never evidence: advisor says "insufficient / unknown", never suitable or fragrance-free (195.158203ms)
+✔ whitespace-only text sent straight to the API is not treated as a documented list (197.026366ms)
+✔ completing the details later updates the SAME record (no duplicate) and still does not verify it (226.420219ms)
+# perf: list=14ms filtered=10ms advisor=242ms
+✔ perf @10,000 products: list/search < 400ms, advisor < 1500ms (measured, budget is generous for mid-range hosting) (715.419835ms)
+✔ perf: advisor response size is bounded (does not dump thousands of products to the client) (282.533635ms)
+✔ perf @10,000 products WITH realistic INCI: advisor stays fast even when thousands of products match (1354.494683ms)
+✔ Open Beauty Facts adapter returns the contract shape; a different code in the reply is NOT the product (7.815256ms)
+✔ UPCitemdb adapter: disabled-by-policy facts, published reply shape, other-EAN items dropped, 429 classified (1.881983ms)
+✔ every failure mode becomes a classified outcome, never a crash; timeouts are enforced (151.61387ms)
+   harness metrics (synthetic fixtures — NOT real coverage): {"provider":"fixture","requests":20,"coverage":0.75,"auto_identified":12,"wrong_auto_identified":0,"ambiguous_for_review":3,"conflicts_caught":3,"identity_precision":1,"inci_complete_share":0.4,"license_known_share":0.5333333333333333,"unreachable":2,"rate_limited":0,"latency_ms":{"p50":1,"p95":2},"cost_usd":0,"est_review_minutes":13,"requires_owner_approval":false}
+✔ feasibility harness: coverage, precision, conflicts, INCI, licence, latency, cost and review time are computed (45.135081ms)
+✔ knowledge model: every record has provenance + review state; seed is NOT expert-reviewed; no invented review dates (1.495539ms)
+✔ documented verified ingredients: explained support, but seed KB is unreviewed => at most "conditional", never "suitable" (1.802754ms)
+✔ with EXPERT-REVIEWED records a clean verified product can be "suitable" (and only then) (1.109927ms)
+✔ missing / unreviewed ingredients => insufficient + FORMULATION NOT VERIFIED; no benefit inferred (0.461715ms)
+✔ fragrance: documented presence => contains (excluded when avoided), even from an unreviewed list (0.431658ms)
+✔ fragrance: ABSENCE only from a VERIFIED list; partial/unreviewed/missing => unknown (never "fragrance-free") (0.664344ms)
+✔ fragrance: a name claim ("Fragrance Free") is a CLAIM, not evidence; "unscented" may hide masking agents (0.249558ms)
+✔ fragrance: benzyl alcohol alone (dual function) does not prove a fragrance; essential oils do; carrier oils do not (0.367528ms)
+✔ precautions are relevant and documented: exfoliating acid, sulfate, sensitive-skin notice; no medical/therapeutic wording (0.391392ms)
+✔ no concentration inference: nothing numeric/percent is invented; the ordering caveat is always stated (0.63011ms)
+✔ sunscreen: UV filters in a verified list are explained as presence only; no filter => insufficient (no SPF is ever inferred) (0.330468ms)
+✔ paraben / sulfate avoidance: excluded only on documented presence; unknown when list is not verified (0.325359ms)
+✔ advisor: explained recommendation carries used info, missing info, precautions, availability and alternatives (3.157779ms)
+✔ advisor: available-but-unsuitable is EXCLUDED with a reason (never silently dropped, never recommended) (0.8388ms)
+✔ advisor: Arabic / Yemeni phrasing — dry, sensitive, oily+sunscreen, hair, "ناشفة" (2.852619ms)
+✔ advisor: "does this product contain fragrance?" answers about the named product from its list; without a product it does not guess (0.545701ms)
+✔ advisor: results never exceed the cap even with many matches + excluded list capped (6.750784ms)
+✔ staging: /api/health and /api/meta are public, data-free, and flag the test copy (261.346892ms)
+✔ production (non-staging): meta says staging=false with no notice (188.940136ms)
+[staging] staff test account created: true; products are never seeded
+[staging] staff test account created: false; products are never seeded
+[staging] staff test account created: false; products are never seeded
+✔ staging: every response is marked noindex; robots.txt disallows all (241.288758ms)
+✔ CP05: the catalog starts EMPTY — fresh database, first start, restart, migrations and staging never create products (268.609516ms)
+✔ CP05: only user actions (create / import) insert products — no other server code path does (6.035656ms)
+✔ staging accounts: optional limited staff test account, idempotent, weak password refused; scope has no financial columns (324.866286ms)
+✔ taxonomy: stable unique ids; one id per synonym across languages; no duplicate labels (1.518462ms)
+✔ taxonomy: name suggestions only when unambiguous; form never inferred from a function word (2.943729ms)
+✔ catalog: filter by type; same form across categories; unclassified never disappears; facets match results (295.58588ms)
+✔ rapid entry: the same submission (double tap / retry) never creates two products; edit keeps the same record (207.180252ms)
+✔ import: old files work; product_type mapped exactly; unknown kept raw for review; name only suggests; ids unchanged (202.384818ms)
+✔ existing data: conservative suggestion run is reported, dry-run writes nothing, confirmed types are never touched (186.781023ms)
+✔ advisor: a requested FORM narrows retrieval only — it is not evidence of suitability (220.853989ms)
+ℹ tests 201
+ℹ suites 0
+ℹ pass 198
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7469.049103
+
+✖ failing tests:
+
+test at tests/api.test.ts:1:4132
+✖ policy: schema has no price/cost/quantity columns anywhere (6.030696ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [Object: null prototype] {
+  +     c: 'quantity',
+  +     t: 'inventory_batches'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/tests/api.test.ts:78:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { t: 'inventory_batches', c: 'quantity' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/cp06-3.test.ts:1:391
+✖ migration chain: unique, ordered names; 009 is additive and keeps every original image byte (53.055936ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      '009_cp06_3_image_thumbs.sql',
+  +   '010_intelligence_state.sql',
+  +   '011_inventory_batches.sql'
+    ]
+  
+      at TestContext.<anonymous> (/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/tests/cp06-3.test.ts:21:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '009_cp06_3_image_thumbs.sql', '010_intelligence_state.sql', '011_inventory_batches.sql' ],
+    expected: [ '009_cp06_3_image_thumbs.sql' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/cp06-3.test.ts:1:3697
+✖ interrupted migration (process killed mid-way) leaves the database at the previous version, and the next start completes it (34.377342ms)
+  AssertionError [ERR_ASSERTION]: completed on the next start
+  + actual - expected
+  
+    [
+      '009_cp06_3_image_thumbs.sql',
+  +   '010_intelligence_state.sql',
+  +   '011_inventory_batches.sql'
+    ]
+  
+      at TestContext.<anonymous> (/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/tests/cp06-3.test.ts:62:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ '009_cp06_3_image_thumbs.sql', '010_intelligence_state.sql', '011_inventory_batches.sql' ],
+    expected: [ '009_cp06_3_image_thumbs.sql' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

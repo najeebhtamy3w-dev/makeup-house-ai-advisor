@@ -1,0 +1,1892 @@
+{
+  "schema_version": 1,
+  "split": "model_selection",
+  "references": [
+    {
+      "id": "family-002-turn-1",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation"
+      ],
+      "required_slots": {
+        "skin": [
+          "oily",
+          "sensitive"
+        ]
+      },
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "oily_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-002-turn-2",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "oily_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-002-turn-3",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "oily_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-002-turn-4",
+      "intent": "availability",
+      "accepted_intents": [
+        "availability"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "check_local_availability",
+          "check_valid_batches"
+        ]
+      ],
+      "reference_topics": [
+        "oily_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-006-turn-1",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {
+        "skin": [
+          "dry"
+        ]
+      },
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-006-turn-2",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-006-turn-3",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-006-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-010-turn-1",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-010-turn-2",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-010-turn-3",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-010-turn-4",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-014-turn-1",
+      "intent": "compatibility",
+      "accepted_intents": [
+        "compatibility"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "analyze_ingredient_compatibility",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_adapalene"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-014-turn-2",
+      "intent": "compatibility",
+      "accepted_intents": [
+        "compatibility"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "analyze_ingredient_compatibility",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_adapalene"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-014-turn-3",
+      "intent": "compatibility",
+      "accepted_intents": [
+        "compatibility"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "analyze_ingredient_compatibility",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_adapalene"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-014-turn-4",
+      "intent": "routine",
+      "accepted_intents": [
+        "routine"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "build_cosmetic_routine",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_adapalene"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-018-turn-1",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "pigmentation"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-018-turn-2",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "pigmentation"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-018-turn-3",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "pigmentation"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-018-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "pigmentation"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-022-turn-1",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {
+        "skin": [
+          "sensitive"
+        ]
+      },
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-022-turn-2",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-022-turn-3",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-022-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-026-turn-1",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation"
+      ],
+      "required_slots": {
+        "skin": [
+          "oily",
+          "sensitive"
+        ]
+      },
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "acne"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-026-turn-2",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "acne"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-026-turn-3",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "acne"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-026-turn-4",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "acne"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-030-turn-1",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {
+        "skin": [
+          "dry"
+        ]
+      },
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "dry_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-030-turn-2",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "dry_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-030-turn-3",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "dry_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-030-turn-4",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "dry_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-034-turn-1",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "niacinamide"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-034-turn-2",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "niacinamide"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-034-turn-3",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "niacinamide"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-034-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "niacinamide"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-038-turn-1",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-038-turn-2",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-038-turn-3",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-038-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-042-turn-1",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-042-turn-2",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-042-turn-3",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-042-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-046-turn-1",
+      "intent": "compatibility",
+      "accepted_intents": [
+        "compatibility"
+      ],
+      "required_slots": {
+        "skin": [
+          "sensitive"
+        ]
+      },
+      "tool_any_of": [
+        [
+          "analyze_ingredient_compatibility",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-046-turn-2",
+      "intent": "compatibility",
+      "accepted_intents": [
+        "compatibility"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "analyze_ingredient_compatibility",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-046-turn-3",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-046-turn-4",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-050-turn-1",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "dandruff"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-050-turn-2",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "dandruff"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-050-turn-3",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "dandruff"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-050-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "dandruff"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-054-turn-1",
+      "intent": "alternative",
+      "accepted_intents": [
+        "alternative"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "find_global_alternatives",
+          "search_local_products",
+          "search_global_products"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-054-turn-2",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-054-turn-3",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-054-turn-4",
+      "intent": "availability",
+      "accepted_intents": [
+        "availability"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "check_local_availability",
+          "check_valid_batches"
+        ]
+      ],
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-058-turn-1",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-058-turn-2",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-058-turn-3",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-058-turn-4",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-062-turn-1",
+      "intent": "routine",
+      "accepted_intents": [
+        "routine"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "build_cosmetic_routine",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-062-turn-2",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-062-turn-3",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-062-turn-4",
+      "intent": "routine",
+      "accepted_intents": [
+        "routine"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "build_cosmetic_routine",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-066-turn-1",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_petrolatum"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-066-turn-2",
+      "intent": "compare",
+      "accepted_intents": [
+        "compare"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "compare_products",
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_petrolatum"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-066-turn-3",
+      "intent": "ingredient",
+      "accepted_intents": [
+        "ingredient"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "ing_petrolatum"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-066-turn-4",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "ing_petrolatum"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-070-turn-1",
+      "intent": "out_of_scope",
+      "accepted_intents": [
+        "out_of_scope"
+      ],
+      "required_slots": {},
+      "tool_any_of": [],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-070-turn-2",
+      "intent": "clarify",
+      "accepted_intents": [
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_conversation_context"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": true,
+      "safety_referral_required": false,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-070-turn-3",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-070-turn-4",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "retrieve_scientific_evidence"
+        ]
+      ],
+      "reference_topics": [
+        "routine"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-074-turn-1",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": true,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-074-turn-2",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": true,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-074-turn-3",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": true,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-074-turn-4",
+      "intent": "consultation",
+      "accepted_intents": [
+        "consultation",
+        "clarify"
+      ],
+      "required_slots": {},
+      "tool_any_of": [],
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": true,
+      "forbid_products": true,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-078-turn-1",
+      "intent": "availability",
+      "accepted_intents": [
+        "availability"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "check_local_availability",
+          "check_valid_batches"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-078-turn-2",
+      "intent": "availability",
+      "accepted_intents": [
+        "availability"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "check_local_availability",
+          "check_valid_batches"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-078-turn-3",
+      "intent": "availability",
+      "accepted_intents": [
+        "availability"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "check_local_availability",
+          "check_valid_batches"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    },
+    {
+      "id": "family-078-turn-4",
+      "intent": "alternative",
+      "accepted_intents": [
+        "alternative"
+      ],
+      "required_slots": {},
+      "tool_any_of": [
+        [
+          "find_global_alternatives",
+          "search_local_products",
+          "search_global_products"
+        ]
+      ],
+      "reference_topics": [
+        "sun"
+      ],
+      "reference_status": "engineering_expectation_not_scientific_certification",
+      "requires_clarification": false,
+      "safety_referral_required": false,
+      "forbid_products": false,
+      "no_financial_fields": true,
+      "context_reset_required": false,
+      "notes": "No exact answer text is required. Stable facts and product IDs must be independently checked against the evidence supplied to the model. Clinical accuracy requires qualified human review."
+    }
+  ]
+}

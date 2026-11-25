@@ -1,3 +1,4 @@
+import './intelligence/routes.ts';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';

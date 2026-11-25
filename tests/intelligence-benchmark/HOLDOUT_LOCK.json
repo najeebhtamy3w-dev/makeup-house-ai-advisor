@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "created_before_inference": true,
+  "policy": "Do not use final held-out outputs for model or prompt selection. If consulted for tuning, retire this split and author a new family-disjoint acceptance set.",
+  "files": {
+    "final_holdout.inputs.json": "18bc401e1c33be2f40109560ecbe07fa218ccfa2cad62dbf0e39d081b1a4c8a5",
+    "final_holdout.references.json": "94828b60058245f3671ce74c06936184922cf420292f90df1ba6f33a297b1c5f"
+  },
+  "heldout_turns": 80,
+  "heldout_families": 20
+}
