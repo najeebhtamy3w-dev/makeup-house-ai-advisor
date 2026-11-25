@@ -1,0 +1,30 @@
+{
+  "zip_integrity": "PASSED",
+  "native_libs": [
+    "lib/arm64-v8a/libmh_local_ai.so"
+  ],
+  "machine": "AArch64",
+  "model_manifest": {
+    "id": "qwen35-2b-q4km",
+    "version": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+    "source": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
+    "original_model": "https://huggingface.co/Qwen/Qwen3.5-2B",
+    "url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/Qwen3.5-2B-Q4_K_M.gguf",
+    "license": "Apache-2.0",
+    "format": "GGUF",
+    "quantization": "Q4_K_M",
+    "size": 1280835840,
+    "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+    "runtime": "llama.cpp-v1.0.0-b1b770d",
+    "requirements": "arm64-v8a; Android 7+; 8 GB device RAM; 2048 context; CPU baseline",
+    "acceptance": "EXPERIMENTAL_UNTIL_DEVICE_AND_ARABIC_GATES_PASS"
+  },
+  "application_id": "com.makeuphouse.advisor",
+  "versionCode": 5,
+  "versionName": "3.1.0-rc.1",
+  "release_debuggable": false,
+  "weights_embedded": false,
+  "signing": "UNSIGNED; owner signing required",
+  "sha256": "75770c8dcf5aa84145f3ed7184dae9a3a5f3cc44c92e308c6ec0da75d1484c53",
+  "source_assets_matched": 31
+}

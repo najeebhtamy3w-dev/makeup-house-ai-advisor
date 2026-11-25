@@ -1,0 +1,14 @@
+{
+  "platform": "Linux x86_64 HOST; NOT SAMSUNG; warm filesystem cache",
+  "runtime_commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "exit": 0,
+  "wall_seconds": 12.619438558000184,
+  "max_rss_kib": 1936204,
+  "native_metrics": {
+    "load_ms": 2990.61,
+    "first_token_ms": 4019.17,
+    "generation_ms": 9486.13,
+    "tokens": 55
+  }
+}

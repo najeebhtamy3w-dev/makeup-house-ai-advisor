@@ -1,9 +1,15 @@
-# MAKEUP HOUSE — مستشار الجمال (V3.0 — CP03 PARTIAL CHECKPOINT)
+# MAKEUP HOUSE — مستشار الجمال (3.1.0-rc.1)
 منصة داخلية للمدير والموظفين. **لا أسعار ولا كميات ولا مبيعات.**
+
+## حالة Android الحالية
+
+مرشح اختبار بمحرك توليدي محلي فعلي: llama.cpp v1.0.0 + Qwen3.5-2B/Q4_K_M، داخل Capacitor وSQLite القائمين. لا أسعار أو مبيعات أو دخول عملاء. بُني Debug وUnsigned Release؛ التوقيع الدائم الجديد وقبول Samsung ما زالا معلقين. الفهم التوليدي المتقدم ليس مكتملًا لكل نطاق V4.0.
+
+ابدأ من [تقرير التنفيذ الحالي](docs/v3.1/FINAL_IMPLEMENTATION_REPORT_AR.md)، ثم [إعادة البناء](docs/v3.1/ENVIRONMENT_SETUP_AND_BUILD_REPRODUCIBILITY.md)، و[استئناف العمل](docs/v3.1/IMPLEMENTATION_CONTINUATION.md). الأوزان تنزل صراحة من إدارة النموذج ولا تدخل APK أو backups. أقسام CP03 وتشغيل الخادم أدناه مراجع تاريخية؛ تطبيق Android يعمل محليًا باستقلال عنها.
 
 ## التشغيل على Windows
 1. ثبّت **Node.js 22.13+** من nodejs.org.
-2. في المجلد: `npm install` (يحتاج إنترنت مرة واحدة).
+2. في المجلد: `npm ci` (يحتاج إنترنت مرة واحدة).
 3. في PowerShell:
 ```powershell
 $env:MH_ADMIN_USER="admin"; $env:MH_ADMIN_PASSWORD="كلمة-مرور-قوية-10+"

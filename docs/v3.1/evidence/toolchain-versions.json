@@ -1,0 +1,30 @@
+{
+  "node": {
+    "exit": 0,
+    "output": "v24.22.3"
+  },
+  "npm": {
+    "exit": 0,
+    "output": "11.19.1"
+  },
+  "jdk": {
+    "exit": 0,
+    "output": "javac 21.0.13.1"
+  },
+  "host_cmake": {
+    "exit": 0,
+    "output": "cmake version 3.31.6\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
+  },
+  "android_ninja": {
+    "exit": 0,
+    "output": "1.10.2"
+  },
+  "ndk_clang": {
+    "exit": 0,
+    "output": "Android (13624864, +pgo, +bolt, +lto, +mlgo, based on r530567e) clang version 19.0.1 (https://android.googlesource.com/toolchain/llvm-project 97a699bf4812a18fb657c2779f5296a4ab2694d2)\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /workspace/scratch/921845f84f0b/toolchain/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin"
+  },
+  "adb": {
+    "exit": 0,
+    "output": "Android Debug Bridge version 1.0.41\nVersion 37.0.3-16887417\nInstalled as /workspace/scratch/921845f84f0b/toolchain/android-sdk/platform-tools/adb\nRunning on Linux 6.18.57 (x86_64)"
+  }
+}

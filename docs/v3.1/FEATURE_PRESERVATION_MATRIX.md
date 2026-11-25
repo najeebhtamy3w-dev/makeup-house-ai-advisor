@@ -10,9 +10,9 @@
 | صلاحيات الموظف والمدير | موجود | PASSED server/local-intel؛ صلاحيات الجسر Android NOT TESTED على جهاز |
 | المستشار العلمي والسلامة متعددة الأدوار | موجود | PASSED server/local-intel/UI-intel؛ لا تعديل لمنطق السلامة المحمي |
 | Android Back والمسودات | موجود | PASSED UI-back Chromium؛ الجهاز NOT TESTED |
-| MHBAK2 وMHBAK1 | موجود | PASSED local-app/local-intel؛ توافق MHBAK1 يحتاج إعادة فحص scale المخصص |
+| MHBAK2 وMHBAK1 | موجود | PASSED local-app/local-intel؛ MHBAK1 وMHBAK2 أعيدا بنجاح عند100 صنف وصور |
 | حفظ الهوية وقاعدة البيانات | موجود | لا حذف جداول ولا migrations تخريبية؛ applicationId محفوظ |
-| استدلال توليدي حقيقي | غير موجود | IMPLEMENTED JNI/C++؛ PASSED host lifecycle؛ Android runtime NOT TESTED |
+| استدلال توليدي حقيقي | غير موجود | IMPLEMENTED JNI/C++؛ PASSED9 host lifecycle؛ Android runtime NOT TESTED |
 | إدارة النموذج | غير موجود | IMPLEMENTED تنزيل/استئناف/بصمة/تثبيت ذري/تفعيل/إزالة/اختبار/تشخيص؛ الجهاز NOT TESTED |
 | سياق المعرفة والتحقق | موجود جزئيًا | IMPLEMENTED سياق محدود وتذكرة مستخدم لمرة واحدة وتحقق قبل العرض |
 | OCR المحلي | مؤجل بحسب OCR_EVALUATION وCP05 | لم يُدّع تنفيذه؛ لا صور معيارية فعلية لتقييمه |

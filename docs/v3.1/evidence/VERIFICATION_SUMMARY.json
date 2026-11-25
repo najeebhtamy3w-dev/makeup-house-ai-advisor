@@ -1,0 +1,69 @@
+{
+  "baseline": {
+    "server": 185,
+    "passed": 185,
+    "failed": 0,
+    "skipped": 0
+  },
+  "final": {
+    "server": 191,
+    "passed": 191,
+    "failed": 0,
+    "skipped": 0
+  },
+  "native_host": {
+    "checks": 9,
+    "passed": 9,
+    "android_execution": "NOT TESTED"
+  },
+  "android_build": "PASSED",
+  "physical_samsung": "NOT TESTED",
+  "permanent_new_signing": "BLOCKED",
+  "npm_vulnerabilities_reported": 0,
+  "selection": {
+    "primary": {
+      "accepted": 4,
+      "total": 6
+    },
+    "bounded_retry": {
+      "accepted": 6,
+      "total": 6
+    },
+    "urgent_or_scope_bypass": 2
+  },
+  "heldout": {
+    "primary": {
+      "accepted": 7,
+      "total": 14
+    },
+    "bounded_retry": {
+      "accepted": 12,
+      "total": 14
+    },
+    "safe_fallback": 2,
+    "urgent_bypass": 2
+  },
+  "ui": [
+    "main",
+    "empty",
+    "nav",
+    "evidence",
+    "advisor",
+    "intel",
+    "back",
+    "images",
+    "final"
+  ],
+  "local": [
+    "app-10000",
+    "intel",
+    "final",
+    "backup-MHBAK1-MHBAK2-100",
+    "update-continuity"
+  ],
+  "limitations": [
+    "No physical Android inference yet",
+    "No human scientific/Arabic certification",
+    "Advanced generative intent/product reasoning remains partial"
+  ]
+}
