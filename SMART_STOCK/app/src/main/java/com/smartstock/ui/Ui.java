@@ -166,6 +166,7 @@ public final class Ui {
     public static TextInputLayout field(Context c, String hint, String value, boolean numeric) {
         TextInputLayout til = new TextInputLayout(c, null, com.google.android.material.R.attr.textInputOutlinedStyle);
         til.setHint(hint);
+        til.setHintAnimationEnabled(false); // label moves above typed/prefilled text immediately
         til.setBoxCornerRadii(dp(c, 12), dp(c, 12), dp(c, 12), dp(c, 12));
         TextInputEditText e = new TextInputEditText(til.getContext());
         

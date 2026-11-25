@@ -57,6 +57,7 @@ public class ReportsActivity extends BaseActivity {
         b1.addView(Ui.kv(this, "غير المجرودة", String.valueOf(st.uncounted), false));
         b1.addView(Ui.kv(this, "مجرودة بكمية صفر", String.valueOf(st.countedZero), false));
         b1.addView(Ui.kv(this, "ذات كمية موجبة", String.valueOf(st.positive), false));
+        if (st.added > 0) b1.addView(Ui.kv(this, "أصناف مُضافة أثناء الجرد", String.valueOf(st.added), false));
         b1.addView(Ui.kv(this, "إجمالي الكميات", Num.qty(st.sumQty), false));
         b1.addView(Ui.kv(this, "نسبة الإنجاز", st.percent() + "%", false));
         b1.addView(Ui.kv(this, "إجمالي القيمة المالية", Num.money(st.sumValue) + cur, true));

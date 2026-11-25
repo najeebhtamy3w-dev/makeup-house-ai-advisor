@@ -60,7 +60,7 @@ public class ItemsActivity extends BaseActivity {
         ChipGroup chips = new ChipGroup(this);
         chips.setSingleSelection(true);
         chips.setSelectionRequired(true);
-        String[] labels = {"الكل", "المجرودة", "غير المجرودة", "كمية صفر", "كمية موجبة"};
+        String[] labels = {"الكل", "المجرودة", "غير المجرودة", "كمية صفر", "كمية موجبة", "المضافة"};
         Models.Filter[] fs = Models.Filter.values();
         for (int i = 0; i < labels.length; i++) {
             Chip ch = new Chip(this);
@@ -207,7 +207,7 @@ public class ItemsActivity extends BaseActivity {
         }
         void bind(Models.Item i) {
             it = i;
-            name.setText(i.name);
+            name.setText(i.added ? "＋ " + i.name + " (مُضاف)" : i.name);
             sub.setText((i.barcode.isEmpty() ? "بدون باركود" : i.barcode) + "  •  " + (i.pack.isEmpty() ? "—" : i.pack) + (i.group.isEmpty() ? "" : "  •  " + i.group));
             int st = i.state();
             stripe.setBackgroundColor(Ui.color(ItemsActivity.this, st == 0 ? R.color.divider : st == 1 ? R.color.gold : R.color.success));

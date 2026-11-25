@@ -54,9 +54,25 @@ public final class XlsxExporter {
         public int totalCol;
         public boolean totalColCreated;
         public Map<Integer, RowValues> values; // sheet row number -> values
+        /** Items added on the phone: written after the last imported item row. */
+        public List<NewRow> appended = new ArrayList<>();
+        /** Highest sheet row number holding an imported item. */
+        public int lastItemRow;
     }
 
-    public static final class Stats { public int rowsUpdated; public int formulasRemoved; }
+    /** A new row: zero-based column -> value (String = text cell, BigDecimal = number, null = blank). */
+    public static final class NewRow {
+        public long key;
+        public final Map<Integer, Object> cells = new java.util.TreeMap<>();
+    }
+
+    public static final class Stats {
+        public int rowsUpdated; public int formulasRemoved; public int rowsAppended;
+        /** NewRow.key -> sheet row number it was written to. */
+        public final Map<Long, Integer> appendedRows = new java.util.HashMap<>();
+    }
+
+    static final Pattern HAS_VALUE = Pattern.compile("<(?:\\w+:)?(?:v|is|f)[\\s>/]");
 
     public static Stats export(File original, Spec spec, OutputStream out) throws IOException {
         Stats stats = new Stats();
@@ -131,6 +147,8 @@ public final class XlsxExporter {
     static void rewriteSheet(Reader in, Writer out, Spec spec, Stats stats) throws IOException {
         XmlTokens t = new XmlTokens(in);
         Set<String> removedSharedMasters = new HashSet<>();
+        final int[] next = {0};                                   // next appended item to write
+        final Map<Integer, String> template = new java.util.HashMap<>(); // col -> style of the last item row
         int lastRow = 0;
         boolean colsCovered = false; int colsMax = -1;
         String tok;
@@ -138,8 +156,8 @@ public final class XlsxExporter {
             if (!t.isTag) { out.write(tok); continue; }
             String local = XmlTokens.localName(tok);
             boolean end = tok.startsWith("</");
-            if (!end && local.equals("dimension") && spec.totalColCreated) {
-                out.write(fixDimension(tok, spec.totalCol));
+            if (!end && local.equals("dimension") && (spec.totalColCreated || !spec.appended.isEmpty())) {
+                out.write(fixDimension(tok, spec.totalColCreated ? spec.totalCol : -1, spec.lastItemRow + spec.appended.size()));
             } else if (!end && local.equals("col")) {
                 int min = intAttr(tok, "min", 0), max = intAttr(tok, "max", 0);
                 if (min - 1 <= spec.totalCol && spec.totalCol <= max - 1) colsCovered = true;
@@ -150,9 +168,19 @@ public final class XlsxExporter {
                 int n = spec.totalCol + 1;
                 out.write("<" + prefix + "col min=\"" + n + "\" max=\"" + n + "\" width=\"18\" customWidth=\"1\"/>");
                 out.write(tok);
+            } else if (end && local.equals("sheetData")) {
+                int r = Math.max(lastRow, spec.lastItemRow);
+                while (next[0] < spec.appended.size()) out.write(newRow(++r, XmlTokens.prefix(tok), spec, next, template, stats));
+                out.write(tok);
             } else if (!end && local.equals("row")) {
                 String rAttr = XmlTokens.attr(tok, "r");
                 int rowNum = rAttr != null ? Integer.parseInt(rAttr.trim()) : lastRow + 1;
+                // rows missing between the last item and this row: create them for pending new items
+                if (next[0] < spec.appended.size()) {
+                    int from = Math.max(lastRow, spec.lastItemRow) + 1;
+                    for (int r = from; r < rowNum && next[0] < spec.appended.size(); r++)
+                        out.write(newRow(r, XmlTokens.prefix(tok), spec, next, template, stats));
+                }
                 lastRow = rowNum;
                 StringBuilder body = new StringBuilder();
                 if (!tok.endsWith("/>")) {
@@ -162,21 +190,29 @@ public final class XlsxExporter {
                         body.append(x);
                     }
                 }
-                out.write(processRow(tok, body.toString(), rowNum, spec, removedSharedMasters, stats));
+                String b = body.toString();
+                if (rowNum > spec.lastItemRow && next[0] < spec.appended.size() && !HAS_VALUE.matcher(b).find()) {
+                    out.write(fillRow(tok, b, rowNum, spec, next, template, removedSharedMasters, stats)); // empty prepared row
+                } else {
+                    if (spec.values.containsKey(rowNum)) captureTemplate(b, template);
+                    out.write(processRow(tok, b, rowNum, spec, removedSharedMasters, stats));
+                }
             } else {
                 out.write(tok);
             }
         }
     }
 
-    static String fixDimension(String tag, int totalCol) {
+    static String fixDimension(String tag, int totalCol, int minLastRow) {
         String ref = XmlTokens.attr(tag, "ref");
         if (ref == null) return tag;
         String[] parts = ref.split(":");
         String last = parts[parts.length - 1];
         int col = ColumnMap.colIndex(last), row = ColumnMap.rowIndex(last);
-        if (col >= totalCol || row < 0) return tag;
-        String newRef = (parts.length == 2 ? parts[0] : "A1") + ":" + ColumnMap.colLetters(totalCol) + row;
+        if (row < 0) return tag;
+        int newCol = Math.max(col, totalCol), newRow = Math.max(row, minLastRow);
+        if (newCol == col && newRow == row) return tag;
+        String newRef = (parts.length == 2 ? parts[0] : "A1") + ":" + ColumnMap.colLetters(newCol) + newRow;
         return tag.replace("ref=\"" + ref + "\"", "ref=\"" + newRef + "\"");
     }
 
@@ -187,6 +223,77 @@ public final class XlsxExporter {
 
     static final class CellChunk {
         int col; String raw; String style;
+    }
+
+    static List<Object> splitRow(String body) throws IOException {
+        List<Object> parts = new ArrayList<>();
+        XmlTokens t = new XmlTokens(new java.io.StringReader(body));
+        String tok; int lastCol = -1;
+        StringBuilder other = new StringBuilder();
+        while ((tok = t.next()) != null) {
+            if (t.isTag && !tok.startsWith("</") && XmlTokens.localName(tok).equals("c")) {
+                if (other.length() > 0) { parts.add(other.toString()); other.setLength(0); }
+                StringBuilder raw = new StringBuilder(tok);
+                if (!tok.endsWith("/>")) {
+                    String x;
+                    while ((x = t.next()) != null) {
+                        raw.append(x);
+                        if (t.isTag && x.startsWith("</") && XmlTokens.localName(x).equals("c")) break;
+                    }
+                }
+                CellChunk c = new CellChunk();
+                String r = XmlTokens.attr(tok, "r");
+                int ci = r != null ? ColumnMap.colIndex(r) : -1;
+                c.col = ci >= 0 ? ci : lastCol + 1;
+                lastCol = c.col;
+                c.style = XmlTokens.attr(tok, "s");
+                c.raw = raw.toString();
+                parts.add(c);
+            } else other.append(tok);
+        }
+        if (other.length() > 0) parts.add(other.toString());
+        return parts;
+    }
+
+    static void captureTemplate(String body, Map<Integer, String> template) throws IOException {
+        template.clear();
+        for (Object o : splitRow(body)) if (o instanceof CellChunk && ((CellChunk) o).style != null) template.put(((CellChunk) o).col, ((CellChunk) o).style);
+    }
+
+    static void putNewCells(List<Object> parts, int rowNum, String prefix, NewRow nr, Map<Integer, String> template, Set<String> removedShared, Stats stats) {
+        for (Map.Entry<Integer, Object> e : nr.cells.entrySet()) {
+            Object v = e.getValue();
+            String style = template.get(e.getKey());
+            if (v instanceof BigDecimal) setCell(parts, e.getKey(), rowNum, prefix, Num.plain((BigDecimal) v), null, style, removedShared, stats);
+            else if (v instanceof String && !((String) v).isEmpty()) setCell(parts, e.getKey(), rowNum, prefix, null, (String) v, style, removedShared, stats);
+        }
+    }
+
+    /** Writes the next appended item into an existing but empty (formatted) row. */
+    static String fillRow(String rowTag, String body, int rowNum, Spec spec, int[] next, Map<Integer, String> template, Set<String> removedShared, Stats stats) throws IOException {
+        NewRow nr = spec.appended.get(next[0]++);
+        List<Object> parts = splitRow(body);
+        String prefix = XmlTokens.prefix(rowTag);
+        putNewCells(parts, rowNum, prefix, nr, template, removedShared, stats);
+        stats.rowsAppended++;
+        stats.appendedRows.put(nr.key, rowNum);
+        String start = rowTag.replaceAll("\\s+spans=\"[^\"]*\"", "");
+        if (start.endsWith("/>")) start = start.substring(0, start.length() - 2).replaceAll("\\s+$", "") + ">";
+        StringBuilder sb = new StringBuilder(start);
+        for (Object o : parts) sb.append(o instanceof CellChunk ? ((CellChunk) o).raw : (String) o);
+        return sb.append("</").append(prefix).append("row>").toString();
+    }
+
+    /** Creates a brand-new row for the next appended item. */
+    static String newRow(int rowNum, String prefix, Spec spec, int[] next, Map<Integer, String> template, Stats stats) {
+        NewRow nr = spec.appended.get(next[0]++);
+        List<Object> parts = new ArrayList<>();
+        putNewCells(parts, rowNum, prefix, nr, template, new HashSet<>(), stats);
+        stats.rowsAppended++;
+        stats.appendedRows.put(nr.key, rowNum);
+        StringBuilder sb = new StringBuilder("<").append(prefix).append("row r=\"").append(rowNum).append("\">");
+        for (Object o : parts) sb.append(((CellChunk) o).raw);
+        return sb.append("</").append(prefix).append("row>").toString();
     }
 
     static final Pattern F_TAG = Pattern.compile("<((?:\\w+:)?)f\\b([^>]*?)(/>|>(.*?)</(?:\\w+:)?f>)", Pattern.DOTALL);

@@ -1,5 +1,20 @@
 # SMART STOCK — Test Report
 
+## Update 1.2.0 (versionCode 10200) — adding items not in the Excel file
+**Feature:** when a scanned barcode is not in the file, *إضافة صنف جديد* opens a form whose fields follow the
+Excel column order and use the file's own column titles (group, name, unit, pack, barcode prefilled, quantity, cost).
+The item is saved with its first count in one transaction (item + ADD log entry), marked «مُضاف», editable/deletable
+(imported items stay read-only), counted, undone and backed up like any item. On export it is written as a new row
+after the last item: first into empty prepared rows (keeping their formatting), else as new rows, copying the cell
+styles of the last item row; barcode written as text; total column filled. Database schema v2 → v3 (`items.added`).
+**Tests added (`AddItemTest`, all pass):** add + cumulative count + stats (557.5) + verified export; exported rows 12–13
+right after the last item in the prepared rows of a multi-sheet file, every field in its column, barcode `0099887766`
+kept, other sheets intact; reordered single-sheet file → new row 22 and form order = column order; validation, double
+save, edit, undo, delete, backup/restore; real count screen: unknown barcode → add form → saved.
+Independent check: the export opened and recalculated in LibreOffice Calc shows the 2 new rows and total column sum 557.5.
+Total: **60 / 60 TEST PASSED**.
+
+
 ## Update 1.1.0 (versionCode 10100) — multi-phone merged printing
 **Feature:** each phone counts its own Excel file and exports it; on one phone, *Print → طباعة مجمّعة لعدة جوالات*
 loads several exported files, merges them into one read-only report session and prints them as one file:
@@ -38,10 +53,10 @@ Status legend: **IMPLEMENTED** · **BUILD PASSED** · **TEST PASSED** (automated
 | Area | Status |
 |---|---|
 | Source recovery, restore point (original prototype kept unmodified in `reference/`) | DONE |
-| Debug APK `com.smartstock.debug` 1.1.0 (10100) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
-| Release APK `com.smartstock` 1.1.0 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
+| Debug APK `com.smartstock.debug` 1.2.0 (10200) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
+| Release APK `com.smartstock` 1.2.0 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
 | RELEASE SIGNED with permanent key | **BLOCKED** — owner must create the key (see signing guide) |
-| Automated tests | **56 / 56 TEST PASSED** (core 30 · data/PDF/merge 18 · UI flows 8) |
+| Automated tests | **60 / 60 TEST PASSED** (core 30 · data/PDF/merge/add 22 · UI flows 8) |
 | Samsung Galaxy S22 Ultra | **NOT DEVICE VERIFIED** — acceptance checklist below |
 | APK permissions | CAMERA, VIBRATE only — no INTERNET (checked with `aapt2 dump permissions`) |
 
@@ -88,7 +103,7 @@ no undo/correction log, no sessions, no backup; printing via WebView screenshot-
 | Counted-zero distinct from not-counted | `zeroCountIsDistinct…` |
 | Search by name (Arabic normalisation أ/ا, ة/ه …) and by barcode; Arabic-Indic digits | `searchByName…`, `duplicateBarcode…` |
 | Duplicate barcode → chooser, no auto-pick | `UiFlowTest.unknownBarcode…AndDuplicateAsksToChoose` |
-| Unknown barcode → message, no item created | same |
+| Unknown barcode → message; an item is created only through the explicit «إضافة صنف جديد» form (1.2.0) | same, `AddItemTest` |
 | Leading-zero-insensitive fallback (UPC-A vs EAN-13) | `duplicateBarcode…` |
 | Keyboard-wedge scanner burst typed into quantity field → treated as barcode, nothing saved | `scannerBurst…` |
 | Negative / decimal (when disabled) quantities rejected | `invalidQuantitiesRejected` |

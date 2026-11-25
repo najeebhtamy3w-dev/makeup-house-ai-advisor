@@ -374,6 +374,9 @@ public final class ReportPdf {
         v.setTextSize(24f);
         text(c, Num.money(full.sumValue) + cur, v, box.left, y + 30, box.width(), Layout.Alignment.ALIGN_CENTER);
         y = box.bottom + 8;
+        if (full.added > 0 && !s.isMerged()) {
+            y += text(c, "يشمل الكشف " + full.added + " صنف مُضاف أثناء الجرد (غير موجود في ملف Excel الأصلي).", small, M, y, w, Layout.Alignment.ALIGN_CENTER) + 4;
+        }
         if (full.invalidCost > 0) {
             y += text(c, "تنبيه: " + full.invalidCost + " صنف بتكلفة غير صالحة في ملف Excel، ولم تُحتسب قيمة " + full.valuedMissing
                     + " منها ضمن الإجمالي المالي لوجود كمية لها.", small, M, y, w, Layout.Alignment.ALIGN_CENTER) + 4;

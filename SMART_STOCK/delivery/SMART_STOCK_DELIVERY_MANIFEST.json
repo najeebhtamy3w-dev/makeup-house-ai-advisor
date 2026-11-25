@@ -2,8 +2,8 @@
   "app": "SMART STOCK — الجرد الذكي",
   "applicationId": "com.smartstock",
   "debugApplicationId": "com.smartstock.debug",
-  "versionName": "1.1.0",
-  "versionCode": 10100,
+  "versionName": "1.2.0",
+  "versionCode": 10200,
   "minSdk": 26,
   "targetSdk": 35,
   "date": "2026-11-25",
@@ -14,10 +14,10 @@
       "releaseApkUnsigned": true
     },
     "TEST_PASSED": {
-      "automatedTests": "56/56",
+      "automatedTests": "60/60",
       "suites": {
         "core": 30,
-        "data_pdf_merge": 18,
+        "data_pdf_merge_add": 22,
         "ui_flows": 8
       }
     },
@@ -34,7 +34,7 @@
   ],
   "notes": [
     "SMART_STOCK_SAMPLE_PRINT*.pdf are raster renders of the app's PDF drawing code (vector PdfDocument runs only on device)",
-    "SMART_STOCK_V1.1.0_RELEASE.apk not delivered: release is unsigned until owner key exists"
+    "SMART_STOCK_V1.2.0_RELEASE.apk not delivered: release is unsigned until owner key exists"
   ],
   "files": {
     "SMART_STOCK_BUILD_GUIDE.md": {
@@ -48,6 +48,10 @@
     "SMART_STOCK_SAMPLE_OUTPUT.xlsx": {
       "sha256": "f9a353a3c1c271441fafcfc42e5ac09e131aa64a0c8ab550065fcc3e6e59bef9",
       "bytes": 10261
+    },
+    "SMART_STOCK_SAMPLE_OUTPUT_WITH_ADDED.xlsx": {
+      "sha256": "b2a6cd68f21b8e84a8d0c01a7d810b762bcf56ae7a3be7f2cb27e2bf09fc647b",
+      "bytes": 10406
     },
     "SMART_STOCK_SAMPLE_PRINT.pdf": {
       "sha256": "85469fb73700d435406c38ff8eea07757fb095b2ea9d7f51a86e540b4c68c846",
@@ -66,32 +70,36 @@
       "bytes": 1735
     },
     "SMART_STOCK_TEST_REPORT.md": {
-      "sha256": "a48c731841cb622e4b4c6036f38fce6de1b79aba94b97ef7d16326e92636950f",
-      "bytes": 12616
+      "sha256": "230fe7eb25c13bfab9231d2438c2163fcf4501693f084f4bd32bc78b1f8ae701",
+      "bytes": 14114
     },
     "SMART_STOCK_USER_GUIDE_AR.pdf": {
-      "sha256": "a55ce5fe61f2f1f297adfd27832806c1cc7e052c471fbb6c60d89d48c5caa5a9",
-      "bytes": 84613
+      "sha256": "40a155f18f6923d5296769205ec316c5230066ca6db8138dc9ffc8a6a312fba5",
+      "bytes": 87060
     },
-    "SMART_STOCK_V1.1.0_DEBUG.apk": {
-      "sha256": "3e85e2377f8b00b4bf1df1389c76cbe67067e7710fb4d5fff2132878238535e3",
-      "bytes": 5824169
+    "SMART_STOCK_V1.2.0_DEBUG.apk": {
+      "sha256": "63721dba36f5ec5dfb2137f5b3d832f81526c1cde3a3a62e34b000705af53aa0",
+      "bytes": 5834489
     },
-    "SMART_STOCK_V1.1.0_RELEASE_UNSIGNED.apk": {
-      "sha256": "d570c881523b4b4fe9f838b5423902e16e26d835227a78d80006e64cc5d20a5a",
-      "bytes": 4676613
+    "SMART_STOCK_V1.2.0_RELEASE_UNSIGNED.apk": {
+      "sha256": "e8f6182145b85d10597a4336268a65512cfb38f7c02a5ef13a39342c9a3cd8fa",
+      "bytes": 4683025
     },
-    "SMART_STOCK_V1.1.0_SOURCE_FINAL.zip": {
-      "sha256": "4108cdff3fcc7549fb6ae2ef4b3a855bb5b5caf294405b3fe6067eefd882cafb",
-      "bytes": 470377
+    "SMART_STOCK_V1.2.0_SOURCE_FINAL.zip": {
+      "sha256": "bbdc64cfceb2dc6f57d6ec9a7b99376af366fb7517a837e9f29c064efa201ac4",
+      "bytes": 482760
     }
   },
   "changes_1_0_1": [
     "Fix: import failed on workbooks whose XML parts start with a byte-order mark (device error 'Unexpected token @1:2')"
   ],
-  "databaseVersion": 2,
+  "databaseVersion": 3,
   "changes_1_1_0": [
     "Multi-phone merged printing: merge several exported Excel files into one report with one grand total and a per-file totals page",
     "Database v1->v2 in-place migration (no data loss)"
+  ],
+  "changes_1_2_0": [
+    "Add items not present in the Excel file from the count screen (form in Excel column order, labelled with the file's headers); exported as new rows after the last item",
+    "Database v2->v3 in-place migration (items.added)"
   ]
 }

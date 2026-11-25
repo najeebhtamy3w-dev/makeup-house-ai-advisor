@@ -67,6 +67,7 @@ public class ExportActivity extends BaseActivity {
         box.addView(Ui.kv(this, "الورقة", session.sheetName, false));
         box.addView(Ui.kv(this, "الأصناف / المجرودة", st.items + " / " + st.counted, false));
         box.addView(Ui.kv(this, "إجمالي الكميات", Num.qty(st.sumQty), false));
+        if (st.added > 0) box.addView(Ui.kv(this, "أصناف مُضافة (صفوف جديدة)", String.valueOf(st.added), false));
         box.addView(Ui.kv(this, "إجمالي القيمة", Num.money(st.sumValue) + cur, true));
         box.addView(Ui.text(this, "يُحدَّث عمود الكمية وعمود إجمالي تكلفة الصف فقط" + (session.totalCreated ? " (سيُنشأ عمود الإجمالي)" : "")
                 + ". تبقى جميع الأعمدة والأوراق الأخرى كما هي، ولا يُعدَّل الملف الأصلي.", 13, R.color.text_muted, false), Ui.matchWrap(this, 8));

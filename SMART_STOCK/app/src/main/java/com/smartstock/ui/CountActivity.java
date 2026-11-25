@@ -250,10 +250,35 @@ public class CountActivity extends BaseActivity {
         feedback(false);
         new MaterialAlertDialogBuilder(this)
                 .setTitle(digits ? "الباركود غير موجود" : "لا توجد نتائج")
-                .setMessage(digits ? "الباركود " + t + " غير موجود في ملف هذه الجلسة.\nلن يتم إنشاء صنف جديد. يمكنك البحث باسم الصنف." : "لم يتم العثور على صنف باسم «" + t + "».")
-                .setPositiveButton("بحث بالاسم", (d, w) -> { code.setText(""); code.setHint("اكتب جزءًا من اسم الصنف"); focus(code); })
+                .setMessage(digits ? "الباركود " + t + " غير موجود في ملف هذه الجلسة.\nيمكنك البحث باسم الصنف، أو إضافته كصنف جديد إن كان غير مسجل في الملف." : "لم يتم العثور على صنف باسم «" + t + "».")
+                .setPositiveButton("إضافة صنف جديد", (d, w) -> addNew(digits ? t : ""))
+                .setNeutralButton("بحث بالاسم", (d, w) -> { code.setText(""); code.setHint("اكتب جزءًا من اسم الصنف"); focus(code); })
                 .setNegativeButton("إغلاق", (d, w) -> { code.selectAll(); focus(code); })
                 .show();
+    }
+
+    /** Item not in the Excel file: form in the file's column order; saves item + first count atomically. */
+    void addNew(String barcode) {
+        if (session == null) return;
+        NewItemDialog.show(this, repo, session, barcode, null, r -> {
+            Toast.makeText(this, "تمت إضافة «" + r.item.name + "» بكمية " + Num.qty(r.item.qty), Toast.LENGTH_LONG).show();
+            nextItem();
+        });
+    }
+
+    void editAdded() {
+        if (current == null || !current.added) return;
+        NewItemDialog.show(this, repo, session, null, current, r -> { show(r.item); refreshStats(); });
+    }
+
+    void deleteAdded() {
+        if (current == null || !current.added) return;
+        Models.Item it = current;
+        Ui.confirm(this, "حذف الصنف المضاف", "سيُحذف «" + it.name + "» وكميته (" + Num.qty(it.qty) + ") من الجلسة. لا يؤثر ذلك على أصناف ملف Excel.", "حذف", () ->
+                Bg.db(this, () -> repo.deleteAddedItem(it.id), r -> {
+                    if (r.kind == Models.SaveResult.Kind.OK) { Toast.makeText(this, "تم حذف الصنف المضاف", Toast.LENGTH_SHORT).show(); nextItem(); }
+                    else Ui.info(this, "الحذف", r.message);
+                }, null));
     }
 
     void choose(List<Models.Item> list, String title) {
@@ -289,6 +314,14 @@ public class CountActivity extends BaseActivity {
         itemBox.addView(Ui.kv(this, "الكمية المحفوظة سابقًا", Num.qty(it.qty), true));
         itemBox.addView(Ui.kv(this, "إجمالي تكلفة الصنف الحالي", it.cost == null ? "—" : Num.money(it.total()) + cur(), false));
         if (it.cost == null) itemBox.addView(Ui.text(this, "⚠ " + (it.costIssue == null ? "التكلفة غير صالحة" : it.costIssue) + " — صحّحها في ملف Excel.", 13, R.color.error, false));
+        if (it.added) {
+            itemBox.addView(Ui.text(this, "صنف مُضاف أثناء الجرد (غير موجود في ملف Excel) — سيُكتب كصف جديد عند التصدير.", 13, R.color.warning, false), Ui.matchWrap(this, 6));
+            LinearLayout ar = Ui.hbox(this);
+            LinearLayout.LayoutParams ap = Ui.weight(1); ap.setMarginEnd(Ui.dp(this, 6));
+            ar.addView(Ui.button(this, "تعديل بياناته", Ui.Style.OUTLINE, R.drawable.ic_edit, v -> editAdded()), ap);
+            ar.addView(Ui.button(this, "حذف الصنف", Ui.Style.OUTLINE, R.drawable.ic_close, v -> deleteAdded()), Ui.weight(1));
+            itemBox.addView(ar, Ui.matchWrap(this, 4));
+        }
         itemCard.setVisibility(View.VISIBLE);
         qtyCard.setVisibility(View.VISIBLE);
         qty.setText("");
@@ -298,6 +331,7 @@ public class CountActivity extends BaseActivity {
     }
 
     TextView chipFor(Models.Item it) {
+        if (it.added && it.counted) return Ui.chip(this, "مُضاف • مجرود", R.color.warning, R.color.card);
         switch (it.state()) {
             case 0: return Ui.chip(this, "لم يُجرد", R.color.divider, R.color.text_muted);
             case 1: return Ui.chip(this, "مجرود بكمية صفر", R.color.gold, R.color.navy);
@@ -483,6 +517,7 @@ public class CountActivity extends BaseActivity {
     @Override public boolean onCreateOptionsMenu(Menu m) {
         toolbar.getMenu().clear();
         toolbar.getMenu().add(0, 1, 0, "تراجع عن آخر عملية").setIcon(R.drawable.ic_undo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        toolbar.getMenu().add(0, 3, 0, "إضافة صنف جديد").setIcon(R.drawable.ic_add).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         toolbar.getMenu().add(0, 2, 0, "كشف الأصناف").setIcon(R.drawable.ic_list).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         for (int i = 0; i < toolbar.getMenu().size(); i++) {
             android.graphics.drawable.Drawable d = toolbar.getMenu().getItem(i).getIcon();
@@ -491,6 +526,7 @@ public class CountActivity extends BaseActivity {
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == 1) undoLast();
             else if (item.getItemId() == 2) startActivity(new Intent(this, ItemsActivity.class));
+            else if (item.getItemId() == 3) addNew(ArabicText.digitsToLatin(code.getText().toString().trim()).matches("[0-9A-Za-z\\-]+") ? code.getText().toString().trim() : "");
             return true;
         });
         return true;
