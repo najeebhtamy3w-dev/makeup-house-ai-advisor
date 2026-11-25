@@ -142,7 +142,9 @@ public final class ReportPdf {
             });
         }
         int listPages = pageStarts.size();
-        int totalPages = listPages + 1;
+        final List<Models.Part> parts = s.isMerged() ? repo.parts(sid) : null;
+        final int dupAcross = s.isMerged() ? repo.crossFileDuplicateBarcodes(sid) : 0;
+        int totalPages = listPages + (parts != null ? 1 : 0) + 1;
         String printed = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date());
 
         Result res = new Result();
@@ -175,6 +177,13 @@ public final class ReportPdf {
                     if (progress != null && idx[0] % 500 == 0) { progress.onProgress(total / 2 + idx[0] / 2, total); if (progress.isCancelled()) throw new IOException("تم الإلغاء"); }
                 });
                 if (page[0] != null) { if (o.pageSubtotals) subtotal(page[0], y[0], pq[0], pv[0]); doc.end(); }
+            }
+            // ---- merged report: one page with the totals of every source file (phone)
+            if (parts != null) {
+                Canvas pc = doc.begin(totalPages - 1, PW, PH);
+                partsPage(pc, s, o, parts, full, dupAcross);
+                footer(pc, totalPages - 1, totalPages, printed);
+                doc.end();
             }
             // ---- final independent report page
             Canvas p = doc.begin(totalPages, PW, PH);
@@ -321,7 +330,7 @@ public final class ReportPdf {
     void summaryPage(Canvas c, Models.Session s, Options o, Models.Stats full, Models.Stats scoped, String printed) {
         float w = PW - 2 * M;
         float y = M;
-        y += text(c, "التقرير النهائي للجرد", big, M, y, w, Layout.Alignment.ALIGN_CENTER) + 10;
+        y += text(c, s.isMerged() ? "التقرير النهائي للجرد المجمّع" : "التقرير النهائي للجرد", big, M, y, w, Layout.Alignment.ALIGN_CENTER) + 10;
         c.drawLine(M + 150, y, PW - M - 150, y, frame);
         y += 12;
         String cur = o.currency == null || o.currency.isEmpty() ? "" : " " + o.currency;
@@ -330,13 +339,20 @@ public final class ReportPdf {
                 {"اسم جلسة الجرد", s.name},
                 {"تاريخ بدء الجرد", s.countDate},
                 {"تاريخ إصدار التقرير", printed},
-                {"ملف المصدر / الورقة", s.fileName + " / " + s.sheetName},
+                s.isMerged() ? new String[]{"مصدر البيانات", s.fileName + " (انظر صفحة تفاصيل الملفات)"} : new String[]{"ملف المصدر / الورقة", s.fileName + " / " + s.sheetName},
         };
         float colW = w / 2 - 10;
         float rightX = PW - M - colW;
         float yInfo = y;
         for (String[] r : info) yInfo = kv(c, r[0], r[1], rightX, yInfo, colW);
-        String[][] nums = {
+        String[][] nums = s.isMerged() ? new String[][]{
+                // a file has no counted/not-counted flag, so merged reports show items by quantity
+                {"عدد الأصناف الإجمالي", String.valueOf(full.items)},
+                {"أصناف لها كمية", String.valueOf(full.positive)},
+                {"أصناف بكمية صفر", String.valueOf(full.items - full.positive)},
+                {"إجمالي الكميات", Num.qty(full.sumQty)},
+                {"عدد الملفات المدمجة", String.valueOf(Math.max(0, s.parts.split("\"label\"", -1).length - 1))},
+        } : new String[][] {
                 {"عدد الأصناف الإجمالي", String.valueOf(full.items)},
                 {"عدد الأصناف المجرودة", String.valueOf(full.counted)},
                 {"عدد الأصناف غير المجرودة", String.valueOf(full.uncounted)},
@@ -374,6 +390,48 @@ public final class ReportPdf {
         float sw = (w - 40) / 2;
         sign(c, "توقيع مسؤول الجرد", PW - M - sw, sy, sw);
         sign(c, "اعتماد الإدارة", M, sy, sw);
+    }
+
+    /** Per-file table for merged reports + grand total identical to the final page. */
+    void partsPage(Canvas c, Models.Session s, Options o, List<Models.Part> parts, Models.Stats full, int dupAcross) {
+        float w = PW - 2 * M, y = M;
+        String cur = o.currency == null || o.currency.isEmpty() ? "" : " " + o.currency;
+        y += text(c, "تفاصيل الملفات المدمجة — " + s.name, title, M, y, w, Layout.Alignment.ALIGN_NORMAL) + 12;
+        float[] cw = {34, 300, 110, 110, 110, 122};
+        String[] hd = {"م", "الملف / الجوال", "عدد الأصناف", "أصناف بكمية", "إجمالي الكميات", "إجمالي القيمة"};
+        float h = 24;
+        float x = PW - M;
+        c.drawRect(M, y, PW - M, y + h, fill);
+        for (int k = 0; k < cw.length; k++) { center(c, hd[k], x - cw[k], cw[k], y, h, bodyBold); c.drawRect(x - cw[k], y, x, y + h, line); x -= cw[k]; }
+        y += h;
+        int i = 1;
+        for (Models.Part pt : parts) {
+            if (y > PH - M - FOOT - 80) break;
+            String[] v = {String.valueOf(i++), pt.label, String.valueOf(pt.items), String.valueOf(pt.positive), Num.qty(pt.qty), Num.money(pt.value) + cur};
+            x = PW - M;
+            for (int k = 0; k < cw.length; k++) {
+                if (k == 1) text(c, v[k], body, x - cw[k] + PAD, y + 4, cw[k] - 2 * PAD, Layout.Alignment.ALIGN_NORMAL);
+                else center(c, v[k], x - cw[k], cw[k], y, h, body);
+                c.drawRect(x - cw[k], y, x, y + h, line);
+                x -= cw[k];
+            }
+            y += h;
+        }
+        // grand total row = exactly the final report figures
+        x = PW - M;
+        c.drawRect(M, y, PW - M, y + h + 4, fill);
+        String[] t = {"", "الإجمالي الكلي (" + parts.size() + " ملفات)", String.valueOf(full.items), String.valueOf(full.positive), Num.qty(full.sumQty), Num.money(full.sumValue) + cur};
+        for (int k = 0; k < cw.length; k++) {
+            if (k == 1) text(c, t[k], bodyBold, x - cw[k] + PAD, y + 5, cw[k] - 2 * PAD, Layout.Alignment.ALIGN_NORMAL);
+            else center(c, t[k], x - cw[k], cw[k], y, h + 4, bodyBold);
+            c.drawRect(x - cw[k], y, x, y + h + 4, frame);
+            x -= cw[k];
+        }
+        y += h + 14;
+        String note = "الأصناف مطبوعة في الكشف بترتيب الملفات ثم ترتيب الصفوف داخل كل ملف، كأنها ملف واحد. "
+                + "الكميات والتكاليف مأخوذة من ملفات Excel المصدَّرة، والإجماليات محسوبة بدقة (الكمية × التكلفة).";
+        if (dupAcross > 0) note += " تنبيه: يوجد " + dupAcross + " باركود يظهر في أكثر من ملف؛ لم تُدمج صفوفه وتظهر كل منها مستقلة.";
+        text(c, note, small, M, y, w, Layout.Alignment.ALIGN_NORMAL);
     }
 
     float kv(Canvas c, String k, String v, float x, float y, float w) {

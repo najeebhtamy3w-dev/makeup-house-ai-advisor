@@ -57,6 +57,7 @@
         <activity android:name=".ui.ReportsActivity" android:exported="false" />
         <activity android:name=".ui.ExportActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.PrintActivity" android:exported="false" />
+        <activity android:name=".ui.MergeActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.SessionsActivity" android:exported="false" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
 

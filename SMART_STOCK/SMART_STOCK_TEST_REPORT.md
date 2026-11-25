@@ -1,5 +1,21 @@
 # SMART STOCK — Test Report
 
+## Update 1.1.0 (versionCode 10100) — multi-phone merged printing
+**Feature:** each phone counts its own Excel file and exports it; on one phone, *Print → طباعة مجمّعة لعدة جوالات*
+loads several exported files, merges them into one read-only report session and prints them as one file:
+item list (file order, then row order) + per-file totals page + final report with one grand total.
+**Database:** schema v1 → v2 (`sessions.kind`, `sessions.parts`, `items.src`) via in-place `ALTER TABLE`; no data loss.
+**Tests added (`MergeTest`, all pass):**
+- 3 phones with different files (incl. one with BOM) → count → verified export → merge: grand total
+  **3,087.1356** = 538.00 + 80.00 + 2,469.1356 = sum of the three phones; per-file totals equal each phone; 38 items; PDF 5 pages.
+- Same file added twice is refused; barcodes present in several files are reported, rows not merged.
+- Merge screen end-to-end (pick files → merge → opens print screen).
+- v1 database (app 1.0.x) upgraded to v2 keeping sessions and counts.
+A merged report shows items by quantity (with quantity / zero quantity) instead of counted / not counted,
+because an exported Excel file does not store that state. Also fixed: hash hex formatting forced to `Locale.US`.
+Total: **56 / 56 TEST PASSED**.
+
+
 ## Update 1.0.1 (versionCode 10001) — first device feedback
 **Bug reported from the phone:** import failed with `Unexpected token (position:TEXT @1:2)`.
 **Cause:** the workbook's XML parts start with a byte-order mark (BOM) before `<?xml`; Android's XML parser
@@ -22,10 +38,10 @@ Status legend: **IMPLEMENTED** · **BUILD PASSED** · **TEST PASSED** (automated
 | Area | Status |
 |---|---|
 | Source recovery, restore point (original prototype kept unmodified in `reference/`) | DONE |
-| Debug APK `com.smartstock.debug` 1.0.1 (10001) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
-| Release APK `com.smartstock` 1.0.1 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
+| Debug APK `com.smartstock.debug` 1.1.0 (10100) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
+| Release APK `com.smartstock` 1.1.0 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
 | RELEASE SIGNED with permanent key | **BLOCKED** — owner must create the key (see signing guide) |
-| Automated tests | **53 / 53 TEST PASSED** (core 30 · data/PDF 15 · UI flows 8) |
+| Automated tests | **56 / 56 TEST PASSED** (core 30 · data/PDF/merge 18 · UI flows 8) |
 | Samsung Galaxy S22 Ultra | **NOT DEVICE VERIFIED** — acceptance checklist below |
 | APK permissions | CAMERA, VIBRATE only — no INTERNET (checked with `aapt2 dump permissions`) |
 

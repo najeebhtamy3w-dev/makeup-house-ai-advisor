@@ -66,15 +66,29 @@ public class PrintActivity extends BaseActivity {
         long sid = getIntent().getLongExtra(EXTRA_SESSION, activeSessionId());
         Bg.db(this, () -> new Object[]{repo.session(sid), repo.groups(sid)}, r -> {
             session = (Models.Session) r[0];
-            if (session == null) { finish(); return; }
+            if (session == null) { noSession(); return; }
             @SuppressWarnings("unchecked") List<String> g = (List<String>) r[1];
             groups = g;
             options();
         }, null);
     }
 
+    void mergeButton() {
+        content.addView(Ui.button(this, "طباعة مجمّعة لعدة جوالات (دمج ملفات)", Ui.Style.GOLD, R.drawable.ic_sessions,
+                v -> startActivity(new android.content.Intent(this, MergeActivity.class))), Ui.matchWrap(this, 12));
+    }
+
+    void noSession() {
+        content.removeAllViews();
+        content.addView(Ui.text(this, "لا توجد جلسة جرد نشطة على هذا الجوال. يمكنك دمج ملفات Excel المصدَّرة من عدة جوالات وطباعتها في تقرير واحد.", 15, R.color.text, false));
+        mergeButton();
+    }
+
     void options() {
         content.removeAllViews();
+        if (session.isMerged()) {
+            content.addView(Ui.chip(this, "تقرير مجمّع: " + session.fileName, R.color.gold, R.color.navy));
+        }
         com.google.android.material.card.MaterialCardView c = Ui.card(this);
         LinearLayout box = Ui.box(c);
         box.addView(Ui.text(this, "محتوى التقرير", 16, R.color.navy, true));
@@ -116,6 +130,7 @@ public class PrintActivity extends BaseActivity {
             o.pageSubtotals = sub.isChecked();
             generate(o);
         }), Ui.matchWrap(this, 12));
+        if (!session.isMerged()) mergeButton();
     }
 
     void generate(ReportPdf.Options o) {

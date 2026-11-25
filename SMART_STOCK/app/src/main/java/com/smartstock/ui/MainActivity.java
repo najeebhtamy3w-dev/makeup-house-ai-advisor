@@ -48,7 +48,7 @@ public class MainActivity extends BaseActivity {
                 {"كشف الأصناف", R.drawable.ic_list, (Runnable) () -> needSession(ItemsActivity.class)},
                 {"التقارير", R.drawable.ic_report, (Runnable) () -> needSession(ReportsActivity.class)},
                 {"تصدير Excel", R.drawable.ic_export, (Runnable) () -> needSession(ExportActivity.class)},
-                {"الطباعة", R.drawable.ic_print, (Runnable) () -> needSession(PrintActivity.class)},
+                {"الطباعة", R.drawable.ic_print, (Runnable) () -> startActivity(new Intent(this, PrintActivity.class))},
                 {"جلسات الجرد", R.drawable.ic_sessions, (Runnable) () -> startActivity(new Intent(this, SessionsActivity.class))},
                 {"الإعدادات والنسخ الاحتياطي", R.drawable.ic_settings, (Runnable) () -> startActivity(new Intent(this, SettingsActivity.class))},
         };

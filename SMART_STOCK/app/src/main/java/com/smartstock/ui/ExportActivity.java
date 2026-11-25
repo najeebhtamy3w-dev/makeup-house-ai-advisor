@@ -48,6 +48,12 @@ public class ExportActivity extends BaseActivity {
         Bg.db(this, () -> new Object[]{repo.session(sid), repo.stats(sid)}, r -> {
             session = (Models.Session) r[0];
             if (session == null) { finish(); return; }
+            if (session.isMerged()) {
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(this).setTitle("تقرير مجمّع")
+                        .setMessage("التقرير المجمّع مخصص للطباعة فقط. ملفات Excel الأصلية موجودة في كل جوال.")
+                        .setCancelable(false).setPositiveButton("حسنًا", (d, w) -> finish()).show();
+                return;
+            }
             render((Models.Stats) r[1]);
         }, null);
     }

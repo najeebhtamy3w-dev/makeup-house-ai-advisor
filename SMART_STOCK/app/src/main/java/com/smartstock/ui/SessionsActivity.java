@@ -51,6 +51,19 @@ public class SessionsActivity extends BaseActivity {
             LinearLayout head = Ui.hbox(this);
             head.addView(Ui.text(this, s.name, 17, R.color.navy, true), Ui.weight(1));
             if (s.id == active) head.addView(Ui.chip(this, "الحالية", R.color.gold, R.color.navy));
+            if (s.isMerged()) {
+                head.addView(Ui.chip(this, "مجمّع", R.color.gold, R.color.navy));
+                box.addView(head);
+                box.addView(Ui.text(this, s.fileName + " • " + st.items + " صنف • تاريخ " + s.countDate, 13, R.color.text_muted, false));
+                box.addView(Ui.kv(this, "الإجمالي الكلي", Num.money(st.sumValue) + (s.currency.isEmpty() ? "" : " " + s.currency), true));
+                LinearLayout ma = Ui.hbox(this);
+                LinearLayout.LayoutParams mp = Ui.weight(1); mp.setMarginEnd(Ui.dp(this, 6));
+                ma.addView(Ui.button(this, "طباعة", Ui.Style.PRIMARY, R.drawable.ic_print, v -> startActivity(new Intent(this, PrintActivity.class).putExtra(PrintActivity.EXTRA_SESSION, s.id))), mp);
+                ma.addView(Ui.button(this, "حذف", Ui.Style.OUTLINE, R.drawable.ic_close, v -> delete(s, st)), Ui.weight(1));
+                box.addView(ma, Ui.matchWrap(this, 8));
+                content.addView(c, Ui.matchWrap(this, 10));
+                continue;
+            }
             head.addView(Ui.chip(this, s.isFinished() ? "منتهية" : "قيد الجرد", s.isFinished() ? R.color.divider : R.color.success, s.isFinished() ? R.color.text_muted : R.color.card));
             box.addView(head);
             box.addView(Ui.text(this, (s.shop.isEmpty() ? "" : s.shop + " • ") + "تاريخ الجرد " + s.countDate + " • " + s.fileName, 13, R.color.text_muted, false));
