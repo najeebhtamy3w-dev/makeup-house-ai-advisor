@@ -1,0 +1,5 @@
+{"finish_reason":"stop","first_token_ms":11878.856124,"generation_ms":2649.803709,"image":"docs/v3.2/vision-probe/fixture-A.png","image_prefill_ms":11877.2918,"image_tokens":234,"input_tokens":352,"output_tokens":37,"projector_load_ms":1477.891205,"text":"الكلمات الكبيرة: TEST ALPHA.\nلون الملصق: أزرق.\nشكل العبوة: مستطيل.\nما لم تقرأه: لا توجد معلومات أخرى.","validated":false}
+{"finish_reason":"stop","first_token_ms":12092.8563,"generation_ms":3323.134217,"image":"docs/v3.2/vision-probe/fixture-B.png","image_prefill_ms":12092.237519,"image_tokens":234,"input_tokens":352,"output_tokens":44,"projector_load_ms":1477.891205,"text":"الكلمات الكبيرة: \"SYNTHETIC TEST ONLY\" و \"TEST BETA\"\nلون الملصق: بني\nشكل العبوة: مربع\nما لم تقرأه: لا توجد معلومات أخرى.","validated":false}
+{"pre_cancel":"PASS","projector_loaded_after_cancel":true}
+{"during_prefill_cancel":"CANCELLED"}
+{"after_cancel_recovery":"PASS","finish_reason":"stop","output_tokens":3,"text":"عبوة اختبار"}

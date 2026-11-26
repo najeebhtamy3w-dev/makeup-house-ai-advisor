@@ -1,0 +1,41 @@
+[
+  {
+    "case": "A",
+    "synthetic_fixture": true,
+    "image_sha256": "8c976cf1a824a4418fa9d08aa22e4630cd87576e07b8b2403d6fb1a477ed93cd",
+    "prompt": "صف العبوة الظاهرة بالعربية: اذكر الاسم والكلمات المقروءة وشكل العبوة واللون الرئيسي للملصق. لا تخمن هوية منتج حقيقي ولا تضف فوائد أو مكونات غير ظاهرة.",
+    "args": [
+      "/workspace/scratch/921845f84f0b/toolchain/native-recovery/vision-host/bin/llama-mtmd-cli",
+      "-m",
+      "/workspace/scratch/921845f84f0b/toolchain/native-recovery/qwen35-2b.gguf",
+      "--mmproj",
+      "/workspace/scratch/921845f84f0b/toolchain/native-recovery/mmproj-F16.gguf",
+      "--image",
+      "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/docs/v3.2/vision-probe/fixture-A.png",
+      "-p",
+      "صف العبوة الظاهرة بالعربية: اذكر الاسم والكلمات المقروءة وشكل العبوة واللون الرئيسي للملصق. لا تخمن هوية منتج حقيقي ولا تضف فوائد أو مكونات غير ظاهرة.",
+      "-n",
+      "160",
+      "-c",
+      "4096",
+      "-t",
+      "2",
+      "--temp",
+      "0",
+      "--seed",
+      "42",
+      "--no-warmup",
+      "--no-mmproj-offload",
+      "--image-max-tokens",
+      "256",
+      "--jinja",
+      "--chat-template-file",
+      "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/docs/v3.2/vision-probe/qwen-no-thinking.jinja"
+    ],
+    "elapsed_seconds": 0.20193540199989002,
+    "exit_code": 1,
+    "timed_out": false,
+    "sampled_peak_rss_kb": 92,
+    "memory_sampling_interval_ms": 200
+  }
+]

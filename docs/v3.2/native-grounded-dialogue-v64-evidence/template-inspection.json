@@ -1,0 +1,10 @@
+{
+  "source": "tokenizer.chat_template extracted from actual SHA-verified qwen35-2b.gguf",
+  "template_sha256": "7f0e529032c25183bcd66c7f238da2d377f43be754a94e2725a58c4e16d2ed67",
+  "tool_call_xml": true,
+  "tool_response_xml": true,
+  "thinking_branch": "enable_thinking is defined and enable_thinking is true -> open <think>; all other cases -> closed think prefix",
+  "production_closed_think_prefix_matches_default": true,
+  "custom_json_planner_is_not_model_native_tool_call_format": true,
+  "acceptance": "Template inspection only, not proof native XML tool calling succeeds"
+}

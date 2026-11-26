@@ -1,9 +1,10 @@
-# Root causes and concrete repairs
+# Root causes and measured repairs
 
-Baseline mainadvisor called legacy/api/advisor/chat andoldproviderstatus, bypassingnative. It now delegates unifiedview,/api/intelligence/consult; nativebridgeintercepts canonicalendpoint. Featureflagno longer disables basiccore. Native status distinguishes installed/active/loaded/hashverification anderrors.
+1. The baseline main advisor called the legacy `/api/advisor/chat` and read an old provider status, bypassing local generation. The main view now uses the unified `/api/intelligence/consult`, intercepted by the Android native bridge. A legacy scientific feature flag no longer disables the basic AI core.
+2. Installed, active and loaded were conflated. Native status now exposes each separately, verification state, actual execution phase and last operation error. A failed operation is displayed even if weights remain loaded. This does not prove generation quality.
+3. Legacy follow-up context was stored but short replies were classified as unclear. Nonurgent referrals were appended after an early return. Context handling and referral ordering were repaired; unified fallback preserves protected referrals.
+4. Actual constrained generation produced hundreds of whitespace tokens until its limit. GBNF whitespace is bounded; failed and corrected raw probes are retained. Work plans require an actual tool, selected by the model. Duplicate idempotent tools are rejected before an unproductive loop consumes the entire budget.
+5. Application capability dialogue had been treated as a scientific/product consultation. It now has application-contract facts, an ordinary dialogue policy and a restricted dialogue decision schema. Clinical evidence guards remain independent and unchanged.
+6. Runtime wiring is not the remaining semantic solution. Actual 2B main-UI and isolated paired planner tests still produce irrelevant clarification. A shorter Arabic prompt reduced latency but did not improve semantic understanding; it was NOT adopted. Phi also failed quality checks, so the baseline model was not replaced for appearances.
 
-Legacyfollowup retainedcontext but classifiedshortreplyunclear; nonurgentreferrals appended afterearlyreturn. Contextfollowup repair andreferralsbeforeearlyreturn tested. Unifiedfallback also preserves protectedreferrals.
-
-ActualnativeGBNF whitespace couldgeneratehundredsoftabsuntiltokenlimit. Boundedwhitespace fixed; realnegativeprobesretainedandrerun. Workintentplans nowrequireatleastone tool structurally; modelchooseswhich. Duplicateidempotenttools rejectedratherthanloopingtofullbudget.
-
-Conversationalapplicationquestions separatedfromclinicalinference policy; modelstillwritesanswerfromapplicationcontractfacts. Scientificclaimguardsnotrelaxed. Qualityisnotassumed:2B actualsemanticfailuresremain; no productionacceptance.
+Evidence is under docs/v3.2/native-execution-evidence, main-ui-2b-dialogue-schema, native-phi-evidence and native-planner-concise-evidence. Host Chromium with actual C++ inference proves the Host main path, not Android/JNI or Samsung acceptance. New APK builds require separate verification and owner testing.

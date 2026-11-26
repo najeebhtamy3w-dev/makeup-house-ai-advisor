@@ -1,0 +1,28 @@
+test_actual_manifest_pins_models_engine_and_licenses (test_ocr_assets.OCRAssetIntegrity.test_actual_manifest_pins_models_engine_and_licenses) ... ok
+test_bad_hash_never_overwrites_existing_destination (test_ocr_assets.OCRAssetIntegrity.test_bad_hash_never_overwrites_existing_destination) ... ok
+test_corrupt_same_length_cache_is_replaced (test_ocr_assets.OCRAssetIntegrity.test_corrupt_same_length_cache_is_replaced) ... ok
+test_oversized_download_never_installed (test_ocr_assets.OCRAssetIntegrity.test_oversized_download_never_installed) ... ok
+test_verified_download_and_cache_reuse (test_ocr_assets.OCRAssetIntegrity.test_verified_download_and_cache_reuse) ... ok
+test_apk_tamper_rejected_even_when_filename_matches (test_owner_signing.SigningBoundaries.test_apk_tamper_rejected_even_when_filename_matches) ... ok
+test_archive_traversal_and_absolute_paths_never_extracted (test_owner_signing.SigningBoundaries.test_archive_traversal_and_absolute_paths_never_extracted) ... ok
+test_artifact_digest_and_unique_source_name_required (test_owner_signing.SigningBoundaries.test_artifact_digest_and_unique_source_name_required) ... ok
+test_certificate_normalization_does_not_accept_file_hash_by_name (test_owner_signing.SigningBoundaries.test_certificate_normalization_does_not_accept_file_hash_by_name) ... ok
+test_debug_or_other_package_cannot_be_signed_as_owner_update (test_owner_signing.SigningBoundaries.test_debug_or_other_package_cannot_be_signed_as_owner_update) ... ok
+test_foreign_repository_event_branch_workflow_or_unsuccessful_run_rejected (test_owner_signing.SigningBoundaries.test_foreign_repository_event_branch_workflow_or_unsuccessful_run_rejected) ... ok
+test_real_temporary_key_is_not_accepted_as_owner_certificate (test_owner_signing.SigningBoundaries.test_real_temporary_key_is_not_accepted_as_owner_certificate) ... ok
+test_secret_upload_preflight_rejects_unprotected_or_wildcard_environment (test_owner_signing.SigningBoundaries.test_secret_upload_preflight_rejects_unprotected_or_wildcard_environment) ... ok
+test_successful_build_identity_and_content_are_bound (test_owner_signing.SigningBoundaries.test_successful_build_identity_and_content_are_bound) ... ok
+test_wrong_manifest_source_run_or_classification_rejected (test_owner_signing.SigningBoundaries.test_wrong_manifest_source_run_or_classification_rejected) ... ok
+test_java_integrity_resume_pins_and_weight_preservation (test_vision_assets.VisionAssetIntegrity.test_java_integrity_resume_pins_and_weight_preservation) ... Note: /workspace/scratch/921845f84f0b/makeup-house-ai-advisor/android/app/src/main/java/com/makeuphouse/advisor/VisionAsset.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 4.270s
+
+OK
+eng.traineddata: SHA256 VERIFIED
+eng.traineddata: SHA256 VERIFIED
+eng.traineddata: SHA256 VERIFIED
+REAL_PINNED_PROJECTOR_HASH_SIZE_GGUF_PASS
+VISION_ASSET_BOUNDARY_CHECKS_PASS=22

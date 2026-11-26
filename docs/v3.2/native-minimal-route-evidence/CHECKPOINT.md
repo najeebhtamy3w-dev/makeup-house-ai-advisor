@@ -1,0 +1,1 @@
+Recovered COMPLETE 4/4 real native requests. Strict JSON4/4; intent/tool only2/4 and scientific route question violates empty-question policy plus fabricated terminology. No capability route succeeded, so no capability answer/tool completion inferred. Do not promote minimal-route prompt or bypass science validation. Production source unchanged.

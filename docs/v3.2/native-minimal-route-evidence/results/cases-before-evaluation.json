@@ -1,0 +1,43 @@
+{
+  "cases": [
+    {
+      "id": "route-capability",
+      "question": "قبل ما أبدأ، إيش تقدر تسوي لي كمساعد في محل للعناية، وأيش حدودك؟",
+      "history": [],
+      "expected_intent": "capabilities",
+      "expected_tool": "get_system_capabilities"
+    },
+    {
+      "id": "route-mixed",
+      "question": "أطراف شعري تتشابك وتنقطع، وفروتي تزيت ثاني يوم. ما أبغى أثقل الجذور، كيف أفكر بروتين مناسب؟",
+      "history": [],
+      "expected_intent": "scientific",
+      "expected_tool": "retrieve_scientific_evidence"
+    },
+    {
+      "id": "route-capability-followup",
+      "question": "اختصر تعريفك السابق في سطرين.",
+      "history": [
+        {
+          "role": "user",
+          "text": "سألت عن دور المساعد وحدوده"
+        },
+        {
+          "role": "assistant",
+          "text": "أساعد في احتياجات البشرة والشعر ضمن المعرفة المتاحة ولا أشخص الأمراض."
+        }
+      ],
+      "expected_intent": "capabilities",
+      "expected_tool": "get_system_capabilities"
+    },
+    {
+      "id": "route-unclear",
+      "question": "أشتي الثاني بدل الأول.",
+      "history": [],
+      "expected_intent": "clarify",
+      "expected_tool": "none"
+    }
+  ],
+  "source": "new development cases, no final holdout",
+  "criteria": "Strict JSON keys/enums; model-owned intent/tool compared to frozen expectations; clarity of clarification reviewed separately. No generated clinical answer acceptance."
+}

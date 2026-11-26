@@ -1,0 +1,118 @@
+{
+  "source": "actual verified GGUF tokenizer.chat_template, no remote/template substitution",
+  "architecture": "qwen35",
+  "template_sha256": "7f0e529032c25183bcd66c7f238da2d377f43be754a94e2725a58c4e16d2ed67",
+  "supports_tool_messages": false,
+  "tool_call_xml": true,
+  "thinking_false_branch": false,
+  "selected_lines": [
+    {
+      "line": 45,
+      "text": "{%- if tools and tools is iterable and tools is not mapping %}"
+    },
+    {
+      "line": 46,
+      "text": "    {{- '<|im_start|>system\\n' }}"
+    },
+    {
+      "line": 47,
+      "text": "    {{- \"# Tools\\n\\nYou have access to the following functions:\\n\\n<tools>\" }}"
+    },
+    {
+      "line": 48,
+      "text": "    {%- for tool in tools %}"
+    },
+    {
+      "line": 52,
+      "text": "    {{- \"\\n</tools>\" }}"
+    },
+    {
+      "line": 53,
+      "text": "    {{- '\\n\\nIf you choose to call a function ONLY reply in the following format with NO suffix:\\n\\n<tool_call>\\n<function=example_function_name>\\n<parameter=example_parameter_1>\\nvalue_1\\n</parameter>\\n<parameter=example_parameter_2>\\nThis is the value for the second parameter\\nthat can span\\nmultiple lines\\n</parameter>\\n</function>\\n</tool_call>\\n\\n<IMPORTANT>\\nReminder:\\n- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags\\n- Required parameters MUST be specified\\n- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after\\n- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls\\n</IMPORTANT>' }}"
+    },
+    {
+      "line": 64,
+      "text": "        {{- '<|im_start|>system\\n' + content + '<|im_end|>\\n' }}"
+    },
+    {
+      "line": 88,
+      "text": "        {{- '<|im_start|>' + message.role + '\\n' + content + '<|im_end|>' + '\\n' }}"
+    },
+    {
+      "line": 95,
+      "text": "                {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}"
+    },
+    {
+      "line": 101,
+      "text": "            {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content + '\\n</think>\\n\\n' + content }}"
+    },
+    {
+      "line": 103,
+      "text": "            {{- '<|im_start|>' + message.role + '\\n' + content }}"
+    },
+    {
+      "line": 105,
+      "text": "        {%- if message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping %}"
+    },
+    {
+      "line": 106,
+      "text": "            {%- for tool_call in message.tool_calls %}"
+    },
+    {
+      "line": 107,
+      "text": "                {%- if tool_call.function is defined %}"
+    },
+    {
+      "line": 108,
+      "text": "                    {%- set tool_call = tool_call.function %}"
+    },
+    {
+      "line": 112,
+      "text": "                        {{- '\\n\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}"
+    },
+    {
+      "line": 114,
+      "text": "                        {{- '<tool_call>\\n<function=' + tool_call.name + '>\\n' }}"
+    },
+    {
+      "line": 117,
+      "text": "                    {{- '\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}"
+    },
+    {
+      "line": 119,
+      "text": "                {%- if tool_call.arguments is mapping %}"
+    },
+    {
+      "line": 120,
+      "text": "                    {%- for args_name in tool_call.arguments %}"
+    },
+    {
+      "line": 121,
+      "text": "                        {%- set args_value = tool_call.arguments[args_name] %}"
+    },
+    {
+      "line": 128,
+      "text": "                {{- '</function>\\n</tool_call>' }}"
+    },
+    {
+      "line": 134,
+      "text": "            {{- '<|im_start|>user' }}"
+    },
+    {
+      "line": 149,
+      "text": "    {{- '<|im_start|>assistant\\n' }}"
+    },
+    {
+      "line": 150,
+      "text": "    {%- if enable_thinking is defined and enable_thinking is true %}"
+    },
+    {
+      "line": 151,
+      "text": "        {{- '<think>\\n' }}"
+    },
+    {
+      "line": 153,
+      "text": "        {{- '<think>\\n\\n</think>\\n\\n' }}"
+    }
+  ]
+}

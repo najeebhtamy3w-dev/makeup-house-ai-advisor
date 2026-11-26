@@ -1,0 +1,82 @@
+{
+  "completed": 4,
+  "rows": [
+    {
+      "id": "route-capability",
+      "structure_valid": true,
+      "intent_correct": false,
+      "tool_correct": false,
+      "parsed": {
+        "intent": "clarify",
+        "tool": "none",
+        "question": "هل تقصد مساعدًا رقميًا أو شخصيًا؟"
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 3339.42779,
+        "generation_ms": 5552.930802,
+        "input_tokens": 198,
+        "model_load_ms": 1628.014431,
+        "tokens": 38
+      }
+    },
+    {
+      "id": "route-mixed",
+      "structure_valid": true,
+      "intent_correct": true,
+      "tool_correct": true,
+      "parsed": {
+        "intent": "scientific",
+        "tool": "retrieve_scientific_evidence",
+        "question": "ما هو البروتين المناسب لمتلازمة التداخل في الشعر (تشابك الأذرع) مع فروة الرأس التي تزيتها مرتين يومياً؟"
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 2961.268274,
+        "generation_ms": 6570.795154,
+        "input_tokens": 210,
+        "model_load_ms": 1628.014431,
+        "tokens": 65
+      }
+    },
+    {
+      "id": "route-capability-followup",
+      "structure_valid": true,
+      "intent_correct": false,
+      "tool_correct": false,
+      "parsed": {
+        "intent": "clarify",
+        "tool": "none",
+        "question": "هل تريد إعادة سؤالك عن حدود مساعدتك؟"
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 3162.085011,
+        "generation_ms": 5152.433873,
+        "input_tokens": 226,
+        "model_load_ms": 1628.014431,
+        "tokens": 37
+      }
+    },
+    {
+      "id": "route-unclear",
+      "structure_valid": true,
+      "intent_correct": true,
+      "tool_correct": true,
+      "parsed": {
+        "intent": "clarify",
+        "tool": "none",
+        "question": "هل تريد تغيير المنتج الحالي؟"
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 2574.022685,
+        "generation_ms": 4222.635026,
+        "input_tokens": 180,
+        "model_load_ms": 1628.014431,
+        "tokens": 33
+      }
+    }
+  ],
+  "acceptance": "ISOLATED_DEVELOPMENT_ONLY_NO_SCIENTIFIC_OR_ANDROID_ACCEPTANCE"
+}

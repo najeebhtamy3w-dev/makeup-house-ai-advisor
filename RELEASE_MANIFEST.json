@@ -1,41 +1,44 @@
 {
-  "updated_at": "2026-11-26T13:38:23.457179+00:00",
+  "updated_at": "2026-11-26T14:13:44.562819+00:00",
   "branch": "work-v32-unified-scientific-core",
   "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
-  "verified_published_head": "8b23bfa61ece37ab1268a4a61d020bf5d282967a",
-  "published_tree": "993c793a0d0ac0817f53b7030e8f7e4a025b3dee",
-  "version_name": "3.2.0-dev.2",
-  "version_code": 7,
+  "verified_published_head": "899df0253dabe0e023ac661386cb80d387973441",
+  "published_tree": "1a258e549d42429d92bfc1b646c7f5fe094b026c",
+  "version_name": "3.2.0-dev.3",
+  "version_code": 8,
   "production_approved": false,
   "gates": {
-    "01_runtime": "PARTIAL — actual Host lifecycle/rawtext passed; Android new source not tested",
+    "01_runtime": "PARTIAL: Host tests and real Android build/ARM64 ELF/ZIP checks PASS; device execution NOT TESTED",
     "02_conversation": "FAIL/PARTIAL — 4B capabilities actual main UI success; 2B latest two turns both chose irrelevant clarification, raw logs preserved; no conversational acceptance",
     "03_scientific": "PARTIAL — typedreadtools,reviewstateandvalidators; no qualifiedreview/independentgenerativeacceptance",
     "04_multimodal_product": "PARTIAL: image storage, barcode, confirmed drafts and OCR wired; actual VLM Host proof in progress; Android vision not integrated"
   },
   "test_evidence": {
-    "full_suite_last": "262/262, 0 failed, 0 skipped (OCR integration and failed-status UI)",
+    "full_suite_last": "263/263 software tests, 0 failed, 0 skipped",
     "focused_after_loop_guard": "21/21 including application dialogue governance",
     "typecheck": "PASS",
     "mobile_assets": "PASS",
     "host_native_lifecycle": "11/11",
     "native_constraints": "13/13",
-    "native_parser": "9/9"
+    "native_parser": "9/9",
+    "python": "16/16 tests PASS: OCR integrity 5, signing 10, VisionAsset integrity suite 1 (22 Java boundary checks)"
   },
   "open_work": [
-    "Finish real mainUI dialogue evaluation and preserve failures",
-    "ComparePhi candidate with correcttemplate; baseline2B remains",
-    "Publish newerlocalchanges viaGitHubconnector; directgitpushunauthenticated",
-    "Fix CIbranchguard and inspect actual Android build",
-    "Complete scientific/retrieval and multimodal gates without fake review",
-    "Permanent signing/updatecompatibility awaiting ownercontrolledkey; do not uninstall/deletedata"
+    "Correct genuine model-owned conversational understanding; prior full/minimal/raw grounding tests failed, XML PoC remains isolated",
+    "Compile and inspect Android integration of optional vision path; test full real product image flow and Samsung",
+    "Owner verifies installed APK certificate + JKS privately, configures protected signing environment, then sign existing verified APK",
+    "Complete qualified scientific/Arabic review, semantic retrieval and held-out acceptance without weakened guards"
   ],
   "build": {
-    "previous_run_id": 45782556340,
-    "previous_status": "FAIL at dedicatedbranchguard; newer branchallowlist fix is local",
-    "new_apk": "NOT BUILT",
-    "current_run_id": 45830308790,
-    "current_status": "IN PROGRESS for preceding core checkpoint, excludes newer OCR"
+    "run_id": 45831293938,
+    "status": "PASS",
+    "source_commit": "899df0253dabe0e023ac661386cb80d387973441",
+    "artifact_id": 15121519592,
+    "archive_sha256": "5ca8b7df94fbbe86df3c86111319e9013c362f9360ee877e7b8430db0556f0c9",
+    "debug_apk_sha256": "510826082059808dbe21dfdf74c29e5b6fa181b3fcbded9b2b2fcb1f8bb17fc9",
+    "unsigned_apk_sha256": "7248c65f0c268d55d9157dc79bca3a42fb2fecad72008f1c5212425e832eed4e",
+    "permanent_signing": "BLOCKED: owner key on phone, certificate not matched yet",
+    "debug_certificate_sha256": "8d511afe34f1a3e7d7b9662432087c90773b51b79ba188aad0029645669a14b9"
   },
   "owner_field_evidence": {
     "device": "SM-S908E",
@@ -60,9 +63,27 @@
     "extra_pack": "explicitmanagerinstallation;pendingreview,notautoapproved"
   },
   "vision": {
-    "current_native_model_integration": "text_only",
-    "ocr": "IMPLEMENTED: pinned Tesseract4Android eng+ara, review pane, Android build/field test pending",
+    "current_native_model_integration": "text + optional mtmd image path implemented, Android build pending",
+    "ocr": "IMPLEMENTED + Android BUILD PASS; Arabic/English actual Host OCR on synthetic fixtures; real product/Samsung OCR NOT TESTED",
     "vlm": "NOT IMPLEMENTED",
-    "image_intake": "storedimagevalidationandoptionalBarcodeDetectoronly"
+    "image_intake": "storedimagevalidationandoptionalBarcodeDetectoronly",
+    "vlm_host": "PASS actual different-image inference, EOS, cancellation during prefill and recovery; PARTIAL content accuracy",
+    "vlm_android": "NOT TESTED; manager-only unvalidated observations, no automatic identity or product saving",
+    "projector_bytes": 668227264,
+    "projector_sha256": "7035e9cb8d7c6a9681d07eef9a364783e86ea4cd73faab2eabb4f43a101830c7"
+  },
+  "signing": {
+    "historical_permanent_certificate_sha256": "b51bf9b042277cf4fd0c36837c5a93d77cb673feb1c6ee9e57bd6026504d6386",
+    "installed_phone_certificate": "NOT VERIFIED",
+    "owner_reported_jks": "makeuphouse-release.jks, two copies on owner phone; file hashes/aliases/certificates NOT VERIFIED",
+    "secrets_access": "Existing source has no secrets-based signing workflow; connector cannot read secret configuration/values; never infer configured secrets",
+    "pipeline": "IMPLEMENTED protected owner-signing workflow + existing-artifact checks + local JKS preflight; actual owner verification/setup/signing BLOCKED"
+  },
+  "delivery": {
+    "debug_apk_library_file_id": "libfile_3198a2873dfc8191ba5eba570c9a2663",
+    "unsigned_apk_library_file_id": "libfile_d9e4f3a47a6881918e1c3718eaf06425",
+    "source_library_file_id": "libfile_cee5b75ae49c8191b703ddf9e50360f8",
+    "evidence_library_file_id": "libfile_355325136590819195d8c5d28a320540",
+    "scope": "Engineering preview, not accepted production or compatible permanent update"
   }
 }

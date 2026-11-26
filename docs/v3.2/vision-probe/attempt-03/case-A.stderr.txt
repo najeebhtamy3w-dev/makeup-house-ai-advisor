@@ -1,0 +1,29 @@
+0.03.989.817 I cmn          init: llama threadpool init, n_threads = 2
+0.04.035.341 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on grounding tasks
+0.04.035.361 W load_hparams: if you encounter problems with accuracy, try adding --image-min-tokens 1024
+0.04.035.362 W load_hparams: more info: https://github.com/ggml-org/llama.cpp/issues/16842
+
+0.07.118.020 I mtmd_cli_context: chat template example:
+<|im_start|>system
+You are a helpful assistant<|im_end|>
+<|im_start|>user
+Hello<|im_end|>
+<|im_start|>assistant
+Hi there<|im_end|>
+<|im_start|>user
+How are you?<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+0.07.118.029 I main: loading model: /workspace/scratch/921845f84f0b/toolchain/native-recovery/qwen35-2b.gguf
+0.07.118.332 W WARN: This is an experimental CLI for testing multimodal capability.
+0.07.118.332 W       For normal use cases, please use the standard llama-cli
+0.07.365.212 I encoding mtmd batch, n_chunks = 1 (done = 1, total = 3)
+0.14.716.596 I mtmd batch encoding done in 7351 ms
+0.14.730.656 W find_slot: non-consecutive token position 4 after 3 for sequence 0 with 234 new tokens
+0.14.730.960 W find_slot: non-consecutive token position 4 after 3 for sequence 0 with 234 new tokens
+0.20.911.749 W find_slot: non-consecutive token position 77 after 4 for sequence 0 with 56 new tokens
+0.20.911.978 W find_slot: non-consecutive token position 77 after 4 for sequence 0 with 56 new tokens

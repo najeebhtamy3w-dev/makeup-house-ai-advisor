@@ -1,0 +1,14 @@
+{
+  "experimental": true,
+  "not_integrated_android": true,
+  "source": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
+  "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+  "file": "mmproj-F16.gguf",
+  "size": 668227264,
+  "sha256": "7035e9cb8d7c6a9681d07eef9a364783e86ea4cd73faab2eabb4f43a101830c7",
+  "license": "Apache-2.0",
+  "original_model": "https://huggingface.co/Qwen/Qwen3.5-2B",
+  "runtime_commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+  "provenance": "Pinned HF repository tree lfs.oid; full downloaded bytes and SHA independently verified",
+  "verified_download": true
+}

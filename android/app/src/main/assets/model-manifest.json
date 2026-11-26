@@ -10,6 +10,6 @@
   "size": 1280835840,
   "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
   "runtime": "llama.cpp-v1.0.0-b1b770d",
-  "requirements": "arm64-v8a; Android 7+; 8 GB device RAM; 2048 context; CPU baseline",
+  "requirements": "arm64-v8a; Android 7+; 8 GB device RAM; 4096 context; plan/decision input limited to3072tokens; CPU baseline",
   "acceptance": "EXPERIMENTAL_UNTIL_DEVICE_AND_ARABIC_GATES_PASS"
 }

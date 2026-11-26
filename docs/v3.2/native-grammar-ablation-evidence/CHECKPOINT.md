@@ -1,0 +1,1 @@
+Completed 6/6 actual Host requests. No rerun on V6.4 recovery. Same full plan prompt without grammar still fails semantics/schema; direct raw meta response shows some language ability but scientific sample unsupported. No production change or acceptance. Next isolated experiment may reduce semantic output shape; never bypass independent science validation.

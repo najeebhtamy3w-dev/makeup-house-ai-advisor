@@ -1,0 +1,28 @@
+[
+  {
+    "file": "fixture-A.png",
+    "sha256": "8c976cf1a824a4418fa9d08aa22e4630cd87576e07b8b2403d6fb1a477ed93cd",
+    "synthetic": true,
+    "expected_visible_words": [
+      "SYNTHETIC TEST ONLY",
+      "TEST ALPHA",
+      "WATER",
+      "GLYCERIN"
+    ],
+    "expected_shape": "bottle",
+    "expected_color": "#365eab"
+  },
+  {
+    "file": "fixture-B.png",
+    "sha256": "a7b94dbcd0f913e6c37892e068270d452645966a0a5b856e37e1629a3025fe22",
+    "synthetic": true,
+    "expected_visible_words": [
+      "SYNTHETIC TEST ONLY",
+      "TEST BETA",
+      "WATER",
+      "PANTHENOL"
+    ],
+    "expected_shape": "jar",
+    "expected_color": "#b55b2d"
+  }
+]

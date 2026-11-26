@@ -36,6 +36,7 @@ export async function openChatProductAttachment({ onContext = () => {}, onStored
   const confirmed = h('input', { type: 'checkbox', id: 'chat-draft-confirm' });
   const ocrText = h('textarea', { id:'chat-ocr-text', rows:6, maxlength:16000, 'aria-label':'نص OCR غير مراجع' });
   const ocrOutput = h('div', { id:'chat-ocr-output' });
+  const visionOutput=h('div',{id:'chat-vision-output'});
   const fields = [name,brand,barcode,size,ingredients,sourceUrl];
   const invalidate = () => { prepared = undefined; requestRef = undefined; confirmed.checked = false; fill(draftSummary); };
   for (const f of fields) f.addEventListener('input', invalidate);
@@ -78,7 +79,7 @@ export async function openChatProductAttachment({ onContext = () => {}, onStored
     const inspection = await api('POST', '/api/intelligence/attachments/inspect-image', processed.blob, { raw: true });
     if (closed) return;
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    selected = processed; origin = from; invalidate(); fill(matches); fill(stored); fill(ocrOutput); previewUrl = URL.createObjectURL(processed.blob);
+    selected = processed; origin = from; invalidate(); fill(matches); fill(stored); fill(ocrOutput); fill(visionOutput); previewUrl = URL.createObjectURL(processed.blob);
     fill(photo, h('img', { src: previewUrl, alt: 'معاينة محلية للصورة المختارة', style: 'max-width:100%;max-height:220px;object-fit:contain' }), h('p', { class: 'tiny muted' }, `${inspection.width ?? '?'}×${inspection.height ?? '?'} · ${Math.round(inspection.size / 1024)} ك.ب — فحص ملف فقط؛ لم يُستخرج اسم أو INCI من الصورة.`));
     const decoded = await detectAttachmentBarcodes(processed.blob);
     if (closed) return;
@@ -86,6 +87,16 @@ export async function openChatProductAttachment({ onContext = () => {}, onStored
     else fill(note, decoded.codes.length > 1 ? 'ظهر أكثر من كود؛ أدخل الكود المقصود يدويًا للبحث.' : decoded.supported ? 'لم يُقرأ كود من الصورة. أدخل الاسم أو الكود والمكونات يدويًا.' : 'فك الباركود من الصورة غير مدعوم هنا. أدخل الكود يدويًا؛ يمكن نقل البيانات يدويًا، أو قراءة النص محليًا إذا ظهر زر OCR.');
   };
   const extractOCR = async () => { if (!selected) throw new Error('اختر صورة أولًا.'); fill(note,'جار قراءة نص العبوة محليًا…'); const result = await window.MHProductOCR.recognize(selected.blob,getToken()); if (closed) return; ocrText.value = result.text; fill(ocrOutput, h('p',{class:'notice warn'},'نص OCR غير مُراجع؛ صحح الأخطاء قبل النقل. الثقة الآلية ليست اعتمادًا علميًا.'),ocrText,h('button',{type:'button',class:'btn sm out',onclick:()=>{ if(ocrText.value.length>5000){fill(note,'النص أطول من حقل INCI؛ اختر قائمة المكونات فقط.');return;} ingredients.value=ocrText.value; dataOrigin.value='package_transcription';invalidate();}},'راجعت النص: نقله إلى حقل INCI')); fill(note,result.text.trim()?'اكتملت قراءة النص؛ لا تثبت هوية المنتج أو أصالته.':'لم يُقرأ نص واضح. جرّب صورة أوضح للجهة الخلفية.'); };
+  const describeVisual = async () => {
+    if(!isManager || !window.MHLocalAI?.describeImage) throw Error('الوصف البصري التجريبي للمدير داخل Android فقط.');
+    if(!selected) throw Error('اختر صورة أولًا.');
+    fill(note,'جارٍ تحميل ملحق الرؤية وتحليل الصورة محليًا؛ يمكن إلغاء العملية.');
+    const result=await window.MHLocalAI.describeImage(selected.blob,getToken());
+    if(closed)return;
+    if(result.vision!==true || !(result.image_tokens>0))throw Error('لم يثبت تنفيذ مسار الصورة الأصلي.');
+    fill(visionOutput,h('p',{class:'notice warn'},'ملاحظات بصرية تجريبية غير متحققة؛ قد تخطئ في الاسم أو الشكل أو المكونات. ليست استشارة علمية أو إثباتًا للهوية أو الأصالة.'),h('p',{id:'chat-vision-text'},result.text),result.finish_reason==='length'?h('p',{class:'notice warn'},'بلغ الوصف حد الرموز وقد يكون غير مكتمل؛ لا تعتمد البيانات الناقصة.'):null,h('p',{class:'tiny muted'},'لا يُنقل هذا الوصف إلى بطاقة المنتج أو الاستشارة تلقائيًا. راجع العبوة وانقل البيانات المؤكدة فقط.'));
+    fill(note,'اكتمل استدعاء الرؤية؛ راجع الملاحظات قبل استخدام أي معلومة.');
+  };
   const camera = h('input', { type: 'file', accept: 'image/jpeg,image/png', capture: 'environment', class: 'hide', 'aria-label': 'تصوير منتج', onchange: e => run(() => choose(e.target.files?.[0], 'camera')) });
   const gallery = h('input', { type: 'file', accept: 'image/jpeg,image/png', class: 'hide', 'aria-label': 'اختيار صورة منتج', onchange: e => run(() => choose(e.target.files?.[0], 'upload')) });
   const previewDraft = async () => {
@@ -106,9 +117,10 @@ export async function openChatProductAttachment({ onContext = () => {}, onStored
   };
   const useContext = () => { if (!name.value.trim() && !ingredients.value.trim()) { fill(note, 'أدخل اسمًا أو قائمة مكونات مقروءة قبل استخدام المعلومات.'); return; } const context = attachmentConsultationText(readDraft()); if (context.length > 1000) { fill(note, 'المعلومات أطول من حد رسالة الاستشارة (1000 حرف). لم تُختصر أو تُرسل خفية؛ راجع الحقول واستخدم سؤالًا أقصر، ويمكن للمدير حفظ المسودة الكاملة للمراجعة.'); return; } onContext(context); close(); };
   const sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'صورة منتج ومعلومات العبوة' }, h('div', {},
-    h('h3', { class: 't' }, 'صورة منتج ومعلومات العبوة'), h('p', { class: 'notice info' }, window.MHProductOCR?.available ? 'قراءة النص OCR بالعربية والإنجليزية محليًا متاحة للتجربة وتحتاج مراجعتك. ليست فهمًا بصريًا توليديًا أو تحققًا لهوية المنتج. لا تُرسل الصورة إلى خدمة خارجية.' : 'الصورة للمعاينة والتخزين المحلي وفك الباركود إذا دعمه الجهاز. لا يوجد OCR أو نموذج فهم صور مفعّل في هذه البيئة؛ انقل الاسم وINCI يدويًا. لا تُرسل الصورة إلى خدمة خارجية.'),
+    h('h3', { class: 't' }, 'صورة منتج ومعلومات العبوة'), h('p', { class: 'notice info' }, window.MHProductOCR?.available ? 'قراءة النص OCR بالعربية والإنجليزية محليًا متاحة للتجربة وتحتاج مراجعتك. OCR ليس فهمًا بصريًا توليديًا أو تحققًا لهوية المنتج. الوصف البصري التجريبي منفصل للمدير إذا ثُبّت ملحقه. لا تُرسل الصورة إلى خدمة خارجية.' : 'الصورة للمعاينة والتخزين المحلي وفك الباركود إذا دعمه الجهاز. لا يوجد OCR أو نموذج فهم صور مفعّل في هذه البيئة؛ انقل الاسم وINCI يدويًا. لا تُرسل الصورة إلى خدمة خارجية.'),
     camera, gallery, h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn sm', onclick: () => camera.click() }, 'تصوير العبوة'), h('button', { type: 'button', class: 'btn sm out', onclick: () => gallery.click() }, 'اختيار صورة')), photo, field('نوع الصورة', kind),
     window.MHProductOCR?.available ? h('div', {class:'row'}, h('button',{type:'button',class:'btn sm out',onclick:()=>run(extractOCR)},'قراءة نص العبوة محليًا'),h('button',{type:'button',class:'btn sm out',onclick:()=>window.MHProductOCR.cancel(getToken()).catch(e=>fill(note,e.message))},'إلغاء قراءة النص')) : null, ocrOutput,
+    isManager && window.MHLocalAI?.describeImage ? h('div',{class:'row'},h('button',{type:'button',class:'btn sm out',onclick:()=>run(describeVisual)},'وصف بصري تجريبي محلي'),h('button',{type:'button',class:'btn sm out',onclick:()=>window.MHLocalAI.call('cancel',getToken()).catch(e=>fill(note,e.message))},'إلغاء الوصف البصري'),h('a',{href:'#/local-ai'},'إدارة ملحق الرؤية')):null,visionOutput,
     field('الباركود أو الكود', barcode), h('button', { type: 'button', class: 'btn sm out', onclick: () => run(lookup) }, 'بحث الكود محليًا'), matches,
     field('اسم المنتج المنقول من العبوة', name), field('العلامة', brand), field('الحجم', size), field('المكونات INCI كما نُقلت', ingredients), field('رابط مصدر اختياري', sourceUrl), field('مصدر البيانات الذي تؤكده', dataOrigin),
     h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn sm out', onclick: () => run(previewDraft) }, 'معاينة مسودة المعلومات'), h('button', { type: 'button', class: 'btn sm', onclick: useContext }, 'استخدام المعلومات في السؤال')), draftSummary,

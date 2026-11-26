@@ -1,0 +1,133 @@
+{
+  "completed": 6,
+  "rows": [
+    {
+      "case": "new-role-help",
+      "mode": "constrained_plan",
+      "json_valid": true,
+      "initial_intent": "clarify",
+      "initial_slots": {
+        "skin": [],
+        "hair": [],
+        "concerns": [],
+        "constraints": [],
+        "missing": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 8175.570858,
+        "generation_ms": 19233.749232,
+        "input_tokens": 651,
+        "model_load_ms": 3070.150697,
+        "tokens": 128
+      }
+    },
+    {
+      "case": "new-role-help",
+      "mode": "unconstrained_same_plan_prompt",
+      "json_valid": false,
+      "initial_intent": "clarify",
+      "initial_slots": {
+        "skin": [],
+        "hair": [],
+        "concerns": [],
+        "constraints": [],
+        "missing": [
+          "skin",
+          "hair",
+          "product",
+          "goal",
+          "usage",
+          "pregnancy",
+          "reaction"
+        ]
+      },
+      "metrics": {
+        "finish_reason": "length",
+        "first_token_ms": 9310.457389,
+        "generation_ms": 26303.608947,
+        "input_tokens": 651,
+        "model_load_ms": 3070.150697,
+        "tokens": 256
+      }
+    },
+    {
+      "case": "new-role-help",
+      "mode": "direct_raw_arabic",
+      "json_valid": false,
+      "initial_intent": null,
+      "initial_slots": null,
+      "metrics": {
+        "finish_reason": "length",
+        "first_token_ms": 1648.7444,
+        "generation_ms": 18298.651367,
+        "input_tokens": 93,
+        "model_load_ms": 3070.150697,
+        "tokens": 256
+      }
+    },
+    {
+      "case": "new-mixed-skin",
+      "mode": "constrained_plan",
+      "json_valid": true,
+      "initial_intent": "clarify",
+      "initial_slots": {
+        "skin": [],
+        "hair": [],
+        "concerns": [],
+        "constraints": [],
+        "missing": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 11042.046507,
+        "generation_ms": 25725.821102,
+        "input_tokens": 662,
+        "model_load_ms": 3070.150697,
+        "tokens": 142
+      }
+    },
+    {
+      "case": "new-mixed-skin",
+      "mode": "unconstrained_same_plan_prompt",
+      "json_valid": false,
+      "initial_intent": "clarify",
+      "initial_slots": {
+        "missing": [
+          "skin",
+          "hair",
+          "product",
+          "ingredients",
+          "goal",
+          "usage",
+          "pregnancy",
+          "reaction"
+        ]
+      },
+      "metrics": {
+        "finish_reason": "length",
+        "first_token_ms": 8087.511548,
+        "generation_ms": 22453.647766,
+        "input_tokens": 662,
+        "model_load_ms": 3070.150697,
+        "tokens": 256
+      }
+    },
+    {
+      "case": "new-mixed-skin",
+      "mode": "direct_raw_arabic",
+      "json_valid": false,
+      "initial_intent": null,
+      "initial_slots": null,
+      "metrics": {
+        "finish_reason": "length",
+        "first_token_ms": 1356.383189,
+        "generation_ms": 15529.395625,
+        "input_tokens": 105,
+        "model_load_ms": 3070.150697,
+        "tokens": 256
+      }
+    }
+  ],
+  "interpretation": "No successful consultation inferred. Truncated/invalidJSON is never accepted. This isolates grammar under greedy, not greedy itself."
+}

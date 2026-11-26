@@ -3,6 +3,9 @@ interface NativeAI {
   addListener(event: string, callback: (data: any) => void): Promise<PluginListenerHandle>;
   status(o: { token: string; diagnostics?: boolean }): Promise<any>;
   install(o: { token: string }): Promise<any>;
+  installVision(o:{token:string}):Promise<any>;
+  removeVision(o:{token:string}):Promise<any>;
+  describeImage(o:{token:string;image_base64:string;question:string}):Promise<any>;
   activate(o: { token: string }): Promise<any>;
   deactivate(o: { token: string }): Promise<any>;
   remove(o: { token: string }): Promise<any>;
@@ -23,7 +26,7 @@ export const localAI = {
   },
   async call(action: keyof NativeAI, token: string) {
     if (!Capacitor.isNativePlatform()) throw new Error('يتطلب تطبيق Android');
-    if (!['status', 'install', 'activate', 'deactivate', 'remove', 'reset', 'cancel', 'test'].includes(action)) throw new Error('عملية غير مسموحة');
+    if (!['status', 'install', 'activate', 'deactivate', 'remove', 'reset', 'cancel', 'test','installVision','removeVision'].includes(action)) throw new Error('عملية غير مسموحة');
     if(action==='cancel')cancellationEpoch++;
     const out = await (native[action] as (o: { token: string }) => Promise<any>)({ token });
     if (['activate', 'deactivate', 'remove', 'install'].includes(action)) {
@@ -33,6 +36,18 @@ export const localAI = {
     return out;
   },
   async diagnose(token:string,prompt:string){if(!Capacitor.isNativePlatform())throw new Error('يتطلب تطبيق Android');return (native as any).diagnose({token,prompt,max_tokens:256});},
+  async describeImage(blob:Blob,token:string,question='صف النص والألوان والشكل الظاهر فقط، واذكر غير المقروء دون تخمين.'){
+    if(!Capacitor.isNativePlatform())throw Error('VISION_ANDROID_ONLY');
+    if(composing)throw Error('BUSY');if(!blob.size||blob.size>2097152)throw Error('VISION_IMAGE_SIZE');
+    composing=true;const epoch=cancellationEpoch;
+    const cancel=()=>{cancellationEpoch++;native.cancel({token}).catch(()=>{});};
+    const timer=setTimeout(cancel,180000);window.addEventListener('hashchange',cancel);
+    try{
+      const image_base64=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('VISION_IMAGE_READ'));reader.onload=()=>resolve(String(reader.result).split(',')[1]??'');reader.readAsDataURL(blob);});
+      const result=await native.describeImage({token,image_base64,question});
+      if(epoch!==cancellationEpoch)throw Error('CANCELLED');return result;
+    }finally{clearTimeout(timer);window.removeEventListener('hashchange',cancel);composing=false;}
+  },
   async consult(body: any, token: string, fetchLocal: typeof fetch) {
     const headers = { authorization: 'Bearer ' + token, 'content-type': 'application/json' };
     const post = async (path: string, data: any) => {
@@ -60,11 +75,11 @@ export const localAI = {
           phase(status.loaded?'understanding':'loading',status.loaded?'جار فهم السؤال والتخطيط':'جار تحميل النموذج المحلي');
           if (!status.active || !status.installed || status.error) throw new Error('model_unavailable');
           phase(current.task,current.task==='plan'?'جار فهم السؤال والتخطيط':'جار تحليل الأدلة وتوليد الإجابة');
-          model_started=true;
           const output = await native.generate({ token, prompt: current.prompt, task: current.task, max_tokens: current.max_tokens, allowed_product_ids: current.allowed_product_ids ?? [], allowed_claim_ids: current.allowed_claim_ids ?? [] });
+          model_started=true;
           if(epoch!==cancellationEpoch||Date.now()>deadline)throw new Error('consultation_cancelled');
           raw = output.text;phase('validating','جار التحقق من الادعاءات واسترجاع الأدوات');
-        } catch(e) { failure = epoch!==cancellationEpoch?'cancelled':Date.now()>deadline?'deadline':e instanceof Error?e.message.slice(0,80):'local_runtime_unavailable_or_interrupted'; }
+        } catch(e) { model_started ||= Boolean((e as any)?.data?.model_started === true); failure = epoch!==cancellationEpoch?'cancelled':Date.now()>deadline?'deadline':e instanceof Error?e.message.slice(0,80):'local_runtime_unavailable_or_interrupted'; }
         current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, model_started, ...(failure ? { failure } : {}) });
       }
       if (current.kind !== 'final') throw new Error('انتهت ميزانية الاستشارة');

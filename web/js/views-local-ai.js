@@ -10,6 +10,8 @@ export async function localAISettings(root) {
   const invoke = async action => {
     if (running && action !== 'cancel') return;
     if (action === 'install' && !confirm('سيتم تنزيل نحو 1.28 GB إلى الهاتف. قد تترتب تكلفة بيانات من شركة الاتصال. متابعة؟')) return;
+    if (action === 'installVision' && !confirm('تنزيل ملحق رؤية اختياري نحو 668 MB؟ يبقى النموذج الحالي محفوظًا؛ هذه ميزة تجريبية غير مقبولة على Samsung بعد.')) return;
+    if (action === 'removeVision' && !confirm('إزالة ملحق الرؤية فقط؟ يبقى ملف النموذج والمنتجات والصور محفوظًا.')) return;
     if (action === 'remove' && !confirm('إزالة النموذج من الهاتف؟ ستبقى المنتجات والمعرفة كما هي.')) return;
     running = action !== 'cancel'; fill(note, 'جارٍ التنفيذ…');
     try { const r = await window.MHLocalAI.call(action, getToken()); fill(note, action === 'test' ? `اختبار استدلال فعلي: ${r.generated_bytes} بايت مولّدة خلال ${r.ms} ms. لا يُعرض نص الاختبار كاستشارة.` : 'تمت العملية.'); }
@@ -27,6 +29,8 @@ export async function localAISettings(root) {
         h('p', { class: 'tiny' }, `الرخصة: ${m?.license || '—'} · الجهاز: ${s.device} · المحرك: ${s.runtime}`),
         h('p', { class: 'notice warn' }, 'لم يكتمل قبول Samsung وجودة العربية بعد. عند تعذر النموذج أو رفض مخرجاته يستمر المستشار العلمي بالقواعد. أوزان النموذج لا تدخل النسخ الاحتياطية.'),
         h('div', { class: 'row' }, [['install', 'تنزيل / استئناف'], ['activate', 'تحقق وتفعيل'], ['test', 'اختبار النموذج'], ['deactivate', 'إيقاف'], ['remove', 'إزالة'], ['cancel', 'إلغاء العملية'], ['reset', 'تصفير سياق المحرك']].map(([id, label]) => h('button', { class: 'btn sm out', onclick: () => invoke(id) }, label))),
+        h('p',{class:'tiny'}, 'ملحق الرؤية الاختياري: ' + (s.vision_projector?.installed ? s.vision_loaded ? 'محمّل؛ المخرجات غير متحققة وتحتاج مراجعة.' : 'مثبت وغير محمّل؛ التثبيت وحده لا يثبت قبول الرؤية.' : 'غير مثبت؛ النص وOCR لا يحتاجان تنزيله.')),
+        h('div',{class:'row'},[['installVision','تنزيل / استئناف ملحق الرؤية'],['removeVision','إزالة ملحق الرؤية فقط']].map(([id,label])=>h('button',{class:'btn sm out',onclick:()=>invoke(id)},label))),
         h('button', { class: 'btn sm out', onclick: () => navigator.clipboard.writeText(JSON.stringify(s, null, 2)).then(() => fill(note, 'نُسخ التشخيص.')).catch(() => fill(note, 'تعذر النسخ؛ يمكن قراءة التشخيص أدناه.')) }, 'نسخ التشخيص'),
         h('details', {}, h('summary', {}, 'التشخيص'), h('pre', { dir: 'ltr', style: 'white-space:pre-wrap;overflow-wrap:anywhere' }, JSON.stringify(s, null, 2))));
     } catch (e) { fill(content, messages[e.message] || e.message); }

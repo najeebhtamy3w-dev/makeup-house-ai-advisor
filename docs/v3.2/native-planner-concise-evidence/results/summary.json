@@ -1,0 +1,134 @@
+{
+  "completed": 6,
+  "paired_results": [
+    {
+      "case": "role-scope",
+      "variant": "baseline",
+      "observations": {
+        "json_valid": true,
+        "intent_expected": false,
+        "has_relevant_tool": false,
+        "missing_empty": true,
+        "question_empty": false,
+        "concerns": [],
+        "selected_tools": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 9699.74816,
+        "generation_ms": 41746.030732,
+        "input_tokens": 644,
+        "model_load_ms": 3132.196877,
+        "tokens": 164
+      }
+    },
+    {
+      "case": "role-scope",
+      "variant": "concise",
+      "observations": {
+        "json_valid": true,
+        "intent_expected": false,
+        "has_relevant_tool": false,
+        "missing_empty": true,
+        "question_empty": false,
+        "concerns": [],
+        "selected_tools": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 5202.810096,
+        "generation_ms": 19782.264272,
+        "input_tokens": 361,
+        "model_load_ms": 3132.196877,
+        "tokens": 136
+      }
+    },
+    {
+      "case": "conditional-inci-help",
+      "variant": "baseline",
+      "observations": {
+        "json_valid": true,
+        "intent_expected": false,
+        "has_relevant_tool": false,
+        "missing_empty": true,
+        "question_empty": false,
+        "concerns": [],
+        "selected_tools": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 8836.497917,
+        "generation_ms": 18933.508886,
+        "input_tokens": 644,
+        "model_load_ms": 3132.196877,
+        "tokens": 114
+      }
+    },
+    {
+      "case": "conditional-inci-help",
+      "variant": "concise",
+      "observations": {
+        "json_valid": true,
+        "intent_expected": false,
+        "has_relevant_tool": false,
+        "missing_empty": true,
+        "question_empty": false,
+        "concerns": [],
+        "selected_tools": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 5550.708837,
+        "generation_ms": 18067.245447,
+        "input_tokens": 361,
+        "model_load_ms": 3132.196877,
+        "tokens": 125
+      }
+    },
+    {
+      "case": "mixed-concerns",
+      "variant": "baseline",
+      "observations": {
+        "json_valid": true,
+        "intent_expected": true,
+        "has_relevant_tool": false,
+        "missing_empty": true,
+        "question_empty": false,
+        "concerns": [],
+        "selected_tools": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 9381.081005,
+        "generation_ms": 23908.026131,
+        "input_tokens": 660,
+        "model_load_ms": 3132.196877,
+        "tokens": 153
+      }
+    },
+    {
+      "case": "mixed-concerns",
+      "variant": "concise",
+      "observations": {
+        "json_valid": true,
+        "intent_expected": true,
+        "has_relevant_tool": false,
+        "missing_empty": true,
+        "question_empty": false,
+        "concerns": [],
+        "selected_tools": []
+      },
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 5693.083933,
+        "generation_ms": 21952.787239,
+        "input_tokens": 377,
+        "model_load_ms": 3132.196877,
+        "tokens": 172
+      }
+    }
+  ],
+  "scientific_acceptance": "NOT TESTED",
+  "qualified_Arabic_review": "NOT TESTED",
+  "meaning": "Planner development comparison only; no broad accuracy rate"
+}

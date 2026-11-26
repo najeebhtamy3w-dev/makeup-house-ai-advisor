@@ -1,0 +1,55 @@
+{
+  "tool": "get_system_capabilities",
+  "actual_tool": true,
+  "observation": {
+    "name": "get_system_capabilities",
+    "query": "",
+    "product_ids": [],
+    "status": "ok",
+    "facts": [
+      {
+        "id": "sys_scope",
+        "text": "أساعد في فهم احتياجات البشرة والشعر والمكونات ومقارنة المنتجات وبناء روتين ضمن المعرفة المتاحة.",
+        "source_ids": [],
+        "review_level": "application_contract",
+        "topic": "system",
+        "kind": "capability"
+      },
+      {
+        "id": "sys_limits",
+        "text": "لا أشخص الأمراض ولا أصف الأدوية ولا أختلق المكونات أو التركيز أو الدراسات، وعند نقص الدليل أو الغموض أطلب توضيحًا.",
+        "source_ids": [],
+        "review_level": "application_contract",
+        "topic": "system",
+        "kind": "capability"
+      },
+      {
+        "id": "sys_inventory",
+        "text": "الكتالوج العالمي مستقل عن مخزون المحل؛ لا أقول إن المنتج متوفر محليًا إلا وفق الدفعات الصالحة المسجلة.",
+        "source_ids": [],
+        "review_level": "application_contract",
+        "topic": "system",
+        "kind": "capability"
+      },
+      {
+        "id": "sys_evidence",
+        "text": "المعرفة المحلية محدودة، وبعض المراجع لم يراجعها مختص مؤهل. لا أجري بحثًا على الإنترنت إلا في الوضع المتصل المصرح به.",
+        "source_ids": [],
+        "review_level": "application_contract",
+        "topic": "system",
+        "kind": "capability"
+      },
+      {
+        "id": "sys_memory",
+        "text": "أتذكر سياق الاستشارة الحالية، ويمكن بدء محادثة جديدة لحذف سياقها. لا أدعي تذكر محادثة غير متاحة.",
+        "source_ids": [],
+        "review_level": "application_contract",
+        "topic": "system",
+        "kind": "capability"
+      }
+    ],
+    "products": [],
+    "notes": [],
+    "ms": 0.08253399999989597
+  }
+}

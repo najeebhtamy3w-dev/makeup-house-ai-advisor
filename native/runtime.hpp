@@ -1,6 +1,7 @@
 #pragma once
 #include "llama.h"
 #include "constraints.hpp"
+#include "vision.hpp"
 #include <atomic>
 #include <functional>
 #include <string>
@@ -9,6 +10,7 @@
 class LocalRuntime {
     llama_model *model = nullptr;
     llama_context *context = nullptr;
+    LocalVision vision;
 public:
     std::atomic<bool> cancelled{false};
     double load_ms=0, first_token_ms=0, generation_ms=0;
@@ -17,6 +19,8 @@ public:
     void load(const std::string &path);
     void unload();
     void reset();
+    void loadVision(const std::string &path);
+    VisionResult describeImage(const unsigned char *bytes,size_t size,const std::string &question,int limit,const std::function<void(int)> &progress={});
     // Tasks select only application-owned grammars, never a caller-supplied grammar.
     std::string generate(const std::string &prompt, int limit, const std::function<void(const std::string&)> &progress,
                          const std::string &task = "compose", const GenerationConstraints &constraints = {});

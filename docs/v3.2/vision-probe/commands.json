@@ -1,0 +1,30 @@
+{
+  "recorded_utc": "2026-11-26T13:40:32.447711+00:00",
+  "configure": [
+    "cmake",
+    "-S",
+    "../toolchain/native-recovery/llama",
+    "-B",
+    "../toolchain/native-recovery/vision-host",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DLLAMA_BUILD_TESTS=OFF",
+    "-DLLAMA_BUILD_EXAMPLES=OFF",
+    "-DLLAMA_BUILD_SERVER=OFF",
+    "-DLLAMA_BUILD_TOOLS=ON",
+    "-DLLAMA_CURL=OFF",
+    "-DGGML_NATIVE=OFF",
+    "-DGGML_OPENMP=OFF",
+    "-DMTMD_VIDEO=OFF"
+  ],
+  "build": [
+    "cmake",
+    "--build",
+    "../toolchain/native-recovery/vision-host",
+    "--target",
+    "llama-mtmd-cli",
+    "-j2"
+  ],
+  "download": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/mmproj-F16.gguf",
+  "network_images_transmitted": false,
+  "reused_text_weights": true
+}

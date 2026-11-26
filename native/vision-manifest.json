@@ -1,0 +1,14 @@
+{
+  "id": "qwen35-2b-vision-projector-f16",
+  "version": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+  "model_id": "qwen35-2b-q4km",
+  "source": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
+  "original_model": "https://huggingface.co/Qwen/Qwen3.5-2B",
+  "url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/mmproj-F16.gguf",
+  "license": "Apache-2.0",
+  "format": "GGUF",
+  "size": 668227264,
+  "sha256": "7035e9cb8d7c6a9681d07eef9a364783e86ea4cd73faab2eabb4f43a101830c7",
+  "optional": true,
+  "acceptance": "PROJECTOR_INSTALLATION_IS_NOT_VISION_ACCEPTANCE"
+}

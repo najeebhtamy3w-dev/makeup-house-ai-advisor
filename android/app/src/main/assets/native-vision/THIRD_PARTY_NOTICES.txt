@@ -1,0 +1,354 @@
+Native mtmd vendor notices
+Pinned llama.cpp b1b770d90d94cad9e9ea5b993bdbc383a522fb28
+Original ownership and license terms retained below.
+
+
+SOURCE: vendor/miniaudio/miniaudio.h
+SHA256: 6b376c7fbb1352ba1e0e432ab66069b335ea9405e45cb6c30b97ef0f3c9c3e0e
+/*
+Audio playback and capture library. Choice of public domain or MIT-0. See license statements at the end of this file.
+miniaudio - v0.11.26 - 2026-10-31
+
+David Reid - mackron@gmail.com
+
+Website:       https://miniaud.io
+Documentation: https://miniaud.io/docs
+GitHub:        https://github.com/mackron/miniaudio
+*/
+/*
+Core Audio
+
+So far, Core Audio has been the worst backend to work with due to being both unintuitive and having almost no documentation
+apart from comments in the headers (which admittedly are quite good). For my own purposes, and for anybody out there whose
+needing to figure out how this darn thing works, I'm going to outline a few things here.
+
+Since miniaudio is a fairly low-level API, one of the things it needs is control over specific devices, and it needs to be
+able to identify whether or not it can be used as playback and/or capture. The AudioObject API is the only one I've seen
+that supports this level of detail. There was some public domain sample code I stumbled across that used the AudioComponent
+and AudioUnit APIs, but I couldn't see anything that gave low-level control over device selection and capabilities (the
+distinction between playback and capture in particular). Therefore, miniaudio is using the AudioObject API.
+
+Most (all?) functions in the AudioObject API take a AudioObjectID as its input. This is the device identifier. When
+retrieving global information, such as the device list, you use kAudioObjectSystemObject. When retrieving device-specific
+data, you pass in the ID for that device. In order to retrieve device-specific IDs you need to enumerate over each of the
+devices. This is done using the AudioObjectGetPropertyDataSize() and AudioObjectGetPropertyData() APIs which seem to be
+the central APIs for retrieving information about the system and specific devices.
+
+To use the AudioObjectGetPropertyData() API you need to use the notion of a property address. A property address is a
+structure with three variables and is used to identify which property you are getting or setting. The first is the "selector"
+which is basically the specific property that you're wanting to retrieve or set. The second is the "scope", which is
+typically set to kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput for input-specific properties and
+kAudioObjectPropertyScopeOutput for output-specific properties. The last is the "element" which is always set to
+kAudioObjectPropertyElementMain in miniaudio's case. I don't know of any cases where this would be set to anything different.
+
+Back to the earlier issue of device retrieval, you first use the AudioObjectGetPropertyDataSize() API to retrieve the size
+of the raw data which is just a list of AudioDeviceID's. You use the kAudioObjectSystemObject AudioObjectID, and a property
+address with the kAudioHardwarePropertyDevices selector and the kAudioObjectPropertyScopeGlobal scope. Once you have the
+size, allocate a block of memory of that size and then call AudioObjectGetPropertyData(). The data is just a list of
+AudioDeviceID's so just do "dataSize/sizeof(AudioDeviceID)" to know the device count.
+*/
+/*
+Pink noise generation based on Tonic (public domain) with modifications. https://github.com/TonicAudio/Tonic/blob/master/src/Tonic/Noise.h
+
+This is basically _the_ reference for pink noise from what I've found: http://www.firstpr.com.au/dsp/pink-noise/
+*/
+/* MurmurHash3. Based on code from https://github.com/PeterScott/murmur3/blob/master/murmur3.c (public domain). */
+/*
+This software is available as a choice of the following licenses. Choose
+whichever you prefer.
+
+===============================================================================
+ALTERNATIVE 1 - Public Domain (www.unlicense.org)
+===============================================================================
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
+software, either in source code form or as a compiled binary, for any purpose,
+commercial or non-commercial, and by any means.
+
+In jurisdictions that recognize copyright laws, the author or authors of this
+software dedicate any and all copyright interest in the software to the public
+domain. We make this dedication for the benefit of the public at large and to
+the detriment of our heirs and successors. We intend this dedication to be an
+overt act of relinquishment in perpetuity of all present and future rights to
+this software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+
+===============================================================================
+ALTERNATIVE 2 - MIT No Attribution
+===============================================================================
+Copyright 2026 David Reid
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+SOURCE: vendor/stb/stb_image.h
+SHA256: 594c2fe35d49488b4382dbfaec8f98366defca819d916ac95becf3e75f4200b3
+/* stb_image - v2.30 - public domain image loader - http://nothings.org/stb
+                                  no warranty implied; use at your own risk
+
+   Do this:
+      #define STB_IMAGE_IMPLEMENTATION
+   before you include this file in *one* C or C++ file to create the implementation.
+
+   // i.e. it should look like this:
+   #include ...
+   #include ...
+   #include ...
+   #define STB_IMAGE_IMPLEMENTATION
+   #include "stb_image.h"
+
+   You can #define STBI_ASSERT(x) before the #include to avoid using assert.h.
+   And #define STBI_MALLOC, STBI_REALLOC, and STBI_FREE to avoid using malloc,realloc,free
+
+
+   QUICK NOTES:
+      Primarily of interest to game developers and other people who can
+          avoid problematic images and only need the trivial interface
+
+      JPEG baseline & progressive (12 bpc/arithmetic not supported, same as stock IJG lib)
+      PNG 1/2/4/8/16-bit-per-channel
+
+      TGA (not sure what subset, if a subset)
+      BMP non-1bpp, non-RLE
+      PSD (composited view only, no extra channels, 8/16 bit-per-channel)
+
+      GIF (*comp always reports as 4-channel)
+      HDR (radiance rgbE format)
+      PIC (Softimage PIC)
+      PNM (PPM and PGM binary only)
+
+      Animated GIF still needs a proper API, but here's one way to do it:
+          http://gist.github.com/urraka/685d9a6340b26b830d49
+
+      - decode from memory or through FILE (define STBI_NO_STDIO to remove code)
+      - decode from arbitrary I/O callbacks
+      - SIMD acceleration on x86/x64 (SSE2) and ARM (NEON)
+
+   Full documentation under "DOCUMENTATION" below.
+
+
+LICENSE
+
+  See end of file for license information.
+
+RECENT REVISION HISTORY:
+
+      2.30  (2024-05-31) avoid erroneous gcc warning
+      2.29  (2023-05-xx) optimizations
+      2.28  (2023-01-29) many error fixes, security errors, just tons of stuff
+      2.27  (2021-07-11) document stbi_info better, 16-bit PNM support, bug fixes
+      2.26  (2020-07-13) many minor fixes
+      2.25  (2020-02-02) fix warnings
+      2.24  (2020-02-02) fix warnings; thread-local failure_reason and flip_vertically
+      2.23  (2019-08-11) fix clang static analysis warning
+      2.22  (2019-03-04) gif fixes, fix warnings
+      2.21  (2019-02-25) fix typo in comment
+      2.20  (2019-02-07) support utf8 filenames in Windows; fix warnings and platform ifdefs
+      2.19  (2018-02-11) fix warning
+      2.18  (2018-01-30) fix warnings
+      2.17  (2018-01-29) bugfix, 1-bit BMP, 16-bitness query, fix warnings
+      2.16  (2017-07-23) all functions have 16-bit variants; optimizations; bugfixes
+      2.15  (2017-03-18) fix png-1,2,4; all Imagenet JPGs; no runtime SSE detection on GCC
+      2.14  (2017-03-03) remove deprecated STBI_JPEG_OLD; fixes for Imagenet JPGs
+      2.13  (2016-12-04) experimental 16-bit API, only for PNG so far; fixes
+      2.12  (2016-04-02) fix typo in 2.11 PSD fix that caused crashes
+      2.11  (2016-04-02) 16-bit PNGS; enable SSE2 in non-gcc x64
+                         RGB-format JPEG; remove white matting in PSD;
+                         allocate large structures on the stack;
+                         correct channel count for PNG & BMP
+      2.10  (2016-01-22) avoid warning introduced in 2.09
+      2.09  (2016-01-16) 16-bit TGA; comments in PNM files; STBI_REALLOC_SIZED
+
+   See end of file for full revision history.
+
+
+ ============================    Contributors    =========================
+
+ Image formats                          Extensions, features
+    Sean Barrett (jpeg, png, bmp)          Jetro Lauha (stbi_info)
+    Nicolas Schulz (hdr, psd)              Martin "SpartanJ" Golini (stbi_info)
+    Jonathan Dummer (tga)                  James "moose2000" Brown (iPhone PNG)
+    Jean-Marc Lienher (gif)                Ben "Disch" Wenger (io callbacks)
+    Tom Seddon (pic)                       Omar Cornut (1/2/4-bit PNG)
+    Thatcher Ulrich (psd)                  Nicolas Guillemot (vertical flip)
+    Ken Miller (pgm, ppm)                  Richard Mitton (16-bit PSD)
+    github:urraka (animated gif)           Junggon Kim (PNM comments)
+    Christopher Forseth (animated gif)     Daniel Gibson (16-bit TGA)
+                                           socks-the-fox (16-bit PNG)
+                                           Jeremy Sawicki (handle all ImageNet JPGs)
+ Optimizations & bugfixes                  Mikhail Morozov (1-bit BMP)
+    Fabian "ryg" Giesen                    Anael Seghezzi (is-16-bit query)
+    Arseny Kapoulkine                      Simon Breuss (16-bit PNM)
+    John-Mark Allen
+    Carmelo J Fdez-Aguera
+
+ Bug & warning fixes
+    Marc LeBlanc            David Woo          Guillaume George     Martins Mozeiko
+    Christpher Lloyd        Jerry Jansson      Joseph Thomson       Blazej Dariusz Roszkowski
+    Phil Jordan                                Dave Moore           Roy Eltham
+    Hayaki Saito            Nathan Reed        Won Chun
+    Luke Graham             Johan Duparc       Nick Verigakis       the Horde3D community
+    Thomas Ruf              Ronny Chevalier                         github:rlyeh
+    Janez Zemva             John Bartholomew   Michal Cichon        github:romigrou
+    Jonathan Blow           Ken Hamada         Tero Hanninen        github:svdijk
+    Eugene Golushkov        Laurent Gomila     Cort Stratton        github:snagar
+    Aruelien Pocheville     Sergio Gonzalez    Thibault Reuille     github:Zelex
+    Cass Everitt            Ryamond Barbiero                        github:grim210
+    Paul Du Bois            Engin Manap        Aldo Culquicondor    github:sammyhw
+    Philipp Wiesemann       Dale Weiler        Oriol Ferrer Mesia   github:phprus
+    Josh Tobin              Neil Bickford      Matthew Gregan       github:poppolopoppo
+    Julian Raschke          Gregory Mullen     Christian Floisand   github:darealshinji
+    Baldur Karlsson         Kevin Schmidt      JR Smith             github:Michaelangel007
+                            Brad Weinberger    Matvey Cherevko      github:mosra
+    Luca Sas                Alexander Veselov  Zack Middleton       [reserved]
+    Ryan C. Gordon          [reserved]                              [reserved]
+                     DO NOT ADD YOUR NAME HERE
+
+                     Jacko Dirks
+
+  To add your name to the credits, pick a random blank space in the middle and fill it.
+  80% of merge conflicts on stb PRs are due to people adding their name at the end
+  of the credits.
+*/
+/*
+------------------------------------------------------------------------------
+This software is available under 2 licenses -- choose whichever you prefer.
+------------------------------------------------------------------------------
+ALTERNATIVE A - MIT License
+Copyright (c) 2017 Sean Barrett
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+------------------------------------------------------------------------------
+ALTERNATIVE B - Public Domain (www.unlicense.org)
+This is free and unencumbered software released into the public domain.
+Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
+software, either in source code form or as a compiled binary, for any purpose,
+commercial or non-commercial, and by any means.
+In jurisdictions that recognize copyright laws, the author or authors of this
+software dedicate any and all copyright interest in the software to the public
+domain. We make this dedication for the benefit of the public at large and to
+the detriment of our heirs and successors. We intend this dedication to be an
+overt act of relinquishment in perpetuity of all present and future rights to
+this software under copyright law.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+------------------------------------------------------------------------------
+*/
+
+SOURCE: vendor/sheredom/subprocess.h
+SHA256: ddec448cb93c2a5096f914a5b796f707dcf0a9e91591ca13000d210200160cb1
+/*
+   This is free and unencumbered software released into the public domain.
+
+   Anyone is free to copy, modify, publish, use, compile, sell, or
+   distribute this software, either in source code form or as a compiled
+   binary, for any purpose, commercial or non-commercial, and by any
+   means.
+
+   In jurisdictions that recognize copyright laws, the author or authors
+   of this software dedicate any and all copyright interest in the
+   software to the public domain. We make this dedication for the benefit
+   of the public at large and to the detriment of our heirs and
+   successors. We intend this dedication to be an overt act of
+   relinquishment in perpetuity of all present and future rights to this
+   software under copyright law.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   OTHER DEALINGS IN THE SOFTWARE.
+
+   For more information, please refer to <http://unlicense.org/>
+*/
+
+SOURCE: vendor/hash/xxhash/xxhash.h
+SHA256: 1d5a18c925f71a9c2d8424742df47492f846f9890e3e8c55d201e4729d9e3d6d
+/*
+ * xxHash - Extremely Fast Hash algorithm
+ * Header File
+ * Copyright (C) 2012-2023 Yann Collet
+ *
+ * BSD 2-Clause License (https://www.opensource.org/licenses/bsd-license.php)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following disclaimer
+ *      in the documentation and/or other materials provided with the
+ *      distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * You can contact the author at:
+ *   - xxHash homepage: https://www.xxhash.com
+ *   - xxHash source repository: https://github.com/Cyan4973/xxHash
+ */
+
+SOURCE: vendor/hash/sha1/sha1.h
+SHA256: aded220220587c5a409dfa04f4bc2e760bd5bc81ac74af830aceb5bde7bc43e6
+/*
+   SHA-1 in C
+   By Steve Reid <steve@edmweb.com>
+   100% Public Domain
+ */
+
+SOURCE: vendor/hash/sha256/sha256.h
+SHA256: 6086b0330eafe9ddef74072738290bc268b2dcccae16bc6d6cde84dc7585ca07
+/* Sha256.h -- SHA-256 Hash
+2010-06-11 : Igor Pavlov : Public domain */

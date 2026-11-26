@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {
+      "id": "role-scope",
+      "question": "قبل ما نبدأ، عرّفني بدورك وحدود مساعدتك داخل هذا البرنامج.",
+      "intent": [
+        "capabilities"
+      ],
+      "tools": [
+        "get_system_capabilities"
+      ],
+      "missing_should_be_empty": true
+    },
+    {
+      "id": "conditional-inci-help",
+      "question": "لو أعطيتك أسماء مكونات على العبوة، إيش تقدر تسوي بها؟",
+      "intent": [
+        "capabilities"
+      ],
+      "tools": [
+        "get_system_capabilities"
+      ],
+      "missing_should_be_empty": true
+    },
+    {
+      "id": "mixed-concerns",
+      "question": "عندي لمعان بالجبهة وتقشر حول الفم، والعطر يهيجني؛ أبغى تفسيرًا تجميليًا وخطوة آمنة أولى.",
+      "intent": [
+        "consultation",
+        "clarify"
+      ],
+      "tools": [
+        "retrieve_scientific_evidence",
+        "scientific_specialist"
+      ],
+      "missing_should_be_empty": false
+    }
+  ],
+  "final_holdout": false,
+  "references_frozen_before_generation": true,
+  "case3_note": "Clarify can be defensible; tool/slot observations are diagnostic, not a qualified scientific score."
+}

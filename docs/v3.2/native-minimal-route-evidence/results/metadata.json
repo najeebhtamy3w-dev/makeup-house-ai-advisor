@@ -1,0 +1,10 @@
+{
+  "utc": "2026-11-26T14:03:23.071625+00:00",
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "binary_sha256": "22d6ad4046a941a7417eb5ba4bcd0d3307bdb0ee2b0a53f4686f54351d869f38",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "production_files_changed": false,
+  "sampler": "existing greedy",
+  "task": "diagnostic(no grammar)",
+  "output_cap": 256
+}

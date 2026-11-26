@@ -11,3 +11,19 @@
 Latest verification: 260/260 software tests and 21/21 focused checks passed. Real main-UI 2B evaluation failed semantic intent on two novel dialogue turns (irrelevant clarification); this is NOT conversational acceptance. Raw evidence: docs/v3.2/main-ui-2b-dialogue-schema. CI branch guard corrected, Android build pending publication.
 
 OCR integrated into product attachment review: explicit employee transfer of extracted text, no automatic identity/INCI approval or saving. Added visible last-operation failure despite loaded weights. 262/262 software tests, typecheck and mobile assets PASS. Android OCR build remains pending. Phi third candidate did not demonstrate superiority; production model unchanged.
+
+## V6.4 recovery — verified build retained
+
+Recovered completed OCR CI run 45831293938, source 899df0253dabe0e023ac661386cb80d387973441. No rebuild needed. Artifact archive SHA verified; APK/source hashes match its manifest. ARM64-only native libraries, 16KiB ELF/ZIP alignment and embedded pinned OCR assets/licenses passed CI. 262 software tests and five OCR integrity tests passed in that run. APK/source/evidence delivered as an engineering preview; permanent signing and phone acceptance remain blocked/not tested.
+
+Owner reports two JKS files and a password text on their phone. Neither file nor installed APK certificate has been verified; do not treat historical public certificate as current installation proof. Secure existing-artifact signing workflow is being prepared. No key/private password is requested in chat.
+
+Uncommitted native attempt accounting now distinguishes a rejected bridge call from an actual native invocation. Manager diagnostics include public package/version/signing certificate identity for future field reports; this does not retroactively identify the old installed APK.
+
+## Optional vision path and secure signing — implemented, not accepted
+
+Integrated mtmd with the SAME existing 2B model, a separately verified optional projector and the existing serial native executor. Image bytes stay local. Native header bounds precede decoding; model/vision cleanup, cancellation and actual Host recovery tested. UI shows raw visual observations only to manager, never auto-fills product facts or approves scientific advice. OCR and VLM remain distinct. New version dev.3/code8 is awaiting Android build and Samsung tests.
+
+Protected owner signing workflow reuses an existing successful engineering artifact rather than rebuilding it. Fixed historical certificate, source/run/artifact/hash/package/version/ELF verification and owner local preflight are implemented; actual key and installed reference still unavailable. Ten signing tests passed with an ephemeral test key, not the owner's private key.
+
+Software263/263, Python16/16 and native vision bounds8/8 passed. Actual real-image product/INCI accuracy, model conversation acceptance and qualified review remain NOT TESTED or FAIL/PARTIAL as recorded. No production approval.

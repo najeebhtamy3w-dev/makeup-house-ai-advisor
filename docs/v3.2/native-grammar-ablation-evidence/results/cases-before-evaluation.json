@@ -1,0 +1,20 @@
+{
+  "cases": [
+    {
+      "id": "new-role-help",
+      "question": "أريد أفهم دورك هنا: بأي أمور تخص العناية تقدر تساعدني، ومتى تقول إنك ما تعرف؟",
+      "expected_intent": "capabilities"
+    },
+    {
+      "id": "new-mixed-skin",
+      "question": "جبهتي تلمع بسرعة، لكن حول فمي جفاف وتقشر، وبعض الغسولات تلسعني. أبغى عناية بسيطة ما تزيد التهيج.",
+      "expected_intent": "consultation_or_relevant_clarification",
+      "semantic_slots": [
+        "oil",
+        "dryness",
+        "sensitivity_or_irritation"
+      ]
+    }
+  ],
+  "notes": "Initial semantics only. Clarification may be defensible if relevant; no answer acceptance from invalid/truncated JSON. Same questions in all3modes. No holdout."
+}

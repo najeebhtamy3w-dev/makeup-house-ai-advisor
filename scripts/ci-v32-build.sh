@@ -34,7 +34,7 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 node --version; npm --version; java -version
 npm ci
 npm test 2>&1 | tee "$OUTPUT/logs/tests.log"
-python3 -m unittest discover -s tests -p test_ocr_assets.py -v 2>&1 | tee "$OUTPUT/logs/ocr-integrity-tests.log"
+python3 -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee "$OUTPUT/logs/ocr-integrity-tests.log"
 npm run typecheck 2>&1 | tee "$OUTPUT/logs/typecheck.log"
 npm run android:sync 2>&1 | tee "$OUTPUT/logs/android-sync.log"
 python3 scripts/prepare-ocr-assets.py 2>&1 | tee "$OUTPUT/logs/ocr-assets.log"
@@ -59,12 +59,12 @@ def run(args):
  return {'exit_code':r.returncode,'output':r.stdout}
 results={}
 for kind,relative,identity,version,debug in [
- ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.2',False),
- ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.2-test',True)]:
+ ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.3',False),
+ ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.3-test',True)]:
  f=repo/'android/app/build/outputs/apk'/relative
  assert f.is_file(),str(f)
  a=run([bt/'aapt','dump','badging',f]);assert a['exit_code']==0
- assert f"name='{identity}'" in a['output'] and "versionCode='7'" in a['output'] and f"versionName='{version}'" in a['output']
+ assert f"name='{identity}'" in a['output'] and "versionCode='8'" in a['output'] and f"versionName='{version}'" in a['output']
  assert ('application-debuggable' in a['output'])==debug
  alignment=run([bt/'zipalign','-c','-P','16','4',f]);assert alignment['exit_code']==0
  signature=run([bt/'apksigner','verify','--verbose','--print-certs',f]);assert (signature['exit_code']==0)==debug
@@ -91,7 +91,7 @@ for kind,relative,identity,version,debug in [
  readelf=run([sdk/'ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf','-lW',elf]);assert readelf['exit_code']==0
  loads=[s for s in readelf['output'].splitlines() if s.strip().startswith('LOAD')];assert loads and all(int(s.split()[-1],16)>=16384 for s in loads)
  elf.unlink()
- dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV2_{kind}.apk';shutil.copy2(f,dest)
+ dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV3_{kind}.apk';shutil.copy2(f,dest)
  results[kind]={'file':dest.name,'bytes':dest.stat().st_size,'sha256':hashlib.file_digest(dest.open('rb'),'sha256').hexdigest(),'aapt':a,'signature':signature,'zip_alignment':alignment,'elf_headers':readelf,'all_elf_headers':all_elf_headers,'embedded_assets':embedded}
 sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
 manifest={'git_sha':sha,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'acceptance':'ENGINEERING_ONLY_NOT_PRODUCTION_APPROVED','physical_samsung':'NOT TESTED','permanent_signing':'BLOCKED_OWNER_KEY_REQUIRED','actual_artifacts':results}

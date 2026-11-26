@@ -1,0 +1,36 @@
+-- llama.cpp version: 1.0.0-dev
+CMAKE_BUILD_TYPE=Release
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+-- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+-- CMAKE_SYSTEM_PROCESSOR: x86_64
+-- GGML_SYSTEM_ARCH: x86
+-- Including CPU backend
+-- x86 detected
+-- Adding CPU backend variant ggml-cpu: -msse4.2;-mf16c;-mfma;-mbmi2;-mavx;-mavx2 GGML_SSE42;GGML_F16C;GGML_FMA;GGML_BMI2;GGML_AVX;GGML_AVX2
+-- ggml version: 1.0.0
+-- ggml commit:  unknown
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /workspace/scratch/921845f84f0b/toolchain/native-recovery/host
+[  5%] Built target vendor-hash
+[ 15%] Built target ggml-base
+[ 17%] Built target mh-ai-constraints-test
+[ 33%] Built target ggml-cpu
+[ 35%] Built target ggml
+[ 77%] Built target llama
+[ 89%] Built target mtmd
+[ 90%] Building CXX object CMakeFiles/mh_runtime.dir/vision.cpp.o
+[ 91%] Linking CXX static library libmh_runtime.a
+[ 92%] Built target mh_runtime
+[ 94%] Linking CXX executable mh-ai-session
+[ 94%] Linking CXX executable mh-ai-poc
+[ 96%] Built target mh-ai-session
+[ 96%] Built target mh-ai-poc
+[ 97%] Building CXX object CMakeFiles/mh-ai-vision-bounds.dir/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/scripts/vision-probe-boundaries.cpp.o
+[ 98%] Linking CXX executable mh-ai-test
+[ 99%] Built target mh-ai-test
+[100%] Linking CXX executable mh-ai-vision-bounds
+[100%] Built target mh-ai-vision-bounds

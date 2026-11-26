@@ -33,4 +33,7 @@ await build({ entryPoints: [join(root, 'mobile/src/worker.ts')], outfile: join(o
 await build({ entryPoints: [join(root, 'mobile/src/client.ts')], outfile: join(out, 'local/client.js'), bundle: true, format: 'iife', platform: 'browser', target: 'es2020', minify: true, logLevel: 'warning' });
 const wasmDir = join(root, 'node_modules/@sqlite.org/sqlite-wasm/dist');
 copyFileSync(join(wasmDir, 'sqlite3.wasm'), join(out, 'local/sqlite3.wasm'));
+const visionNotices=join(root,'android/app/src/main/assets/native-vision');mkdirSync(visionNotices,{recursive:true});
+for(const name of ['THIRD_PARTY_NOTICES.txt','LLAMA-LICENSE.txt','MODEL-LICENSE.txt'])copyFileSync(join(root,'docs/v3.2/vision-probe',name),join(visionNotices,name));
+for (const manifest of ['model-manifest.json','vision-manifest.json']) copyFileSync(join(root,'native',manifest),join(root,'android/app/src/main/assets',manifest));
 console.log('dist-mobile ready:', readdirSync(join(out, 'local')).join(', '));

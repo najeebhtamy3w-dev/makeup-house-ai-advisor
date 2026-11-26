@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "sampled_peak_rss_kb": 92,
+  "memory_sampling_interval_ms": 200
+}

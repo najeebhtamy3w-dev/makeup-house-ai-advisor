@@ -1,0 +1,13 @@
+{
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "source_request": "../unified-core-evidence/main-ui-2b-dialogue-schema/native-requests.jsonl",
+  "binary_sha256": "22d6ad4046a941a7417eb5ba4bcd0d3307bdb0ee2b0a53f4686f54351d869f38",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "same_full_planner_prompt": true,
+  "same_greedy_sampler": true,
+  "output_cap_each_mode": 256,
+  "test_question_absent_from_system": true,
+  "runtime_or_production_changes": false,
+  "utc": "2026-11-26T13:43:02.160126+00:00",
+  "final_holdout_used": false
+}

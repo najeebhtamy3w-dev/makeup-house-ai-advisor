@@ -1,0 +1,67 @@
+name: V3.2 owner-controlled signing of verified engineering artifact
+on:
+  push:
+    branches: [work-v32-unified-scientific-core]
+    paths: ['.github/owner-signing-request.json']
+  workflow_dispatch:
+    inputs:
+      engineering_run_id:
+        description: Completed successful V3.2 engineering workflow run ID
+        required: true
+        type: string
+      expected_source_sha:
+        description: Full source commit SHA of that engineering artifact
+        required: true
+        type: string
+      installed_certificate_sha256:
+        description: Public signing certificate SHA256 verified from installed reference APK
+        required: true
+        type: string
+      installed_version_code:
+        description: Version code verified from installed reference APK
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: v32-owner-signing
+  cancel-in-progress: false
+jobs:
+  sign:
+    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/work-v32-unified-scientific-core' && github.repository == 'najeebhtamy3w-dev/makeup-house-ai-advisor'
+    environment: owner-signing
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Test artifact and credential boundaries without owner secrets
+        run: python3 -m unittest discover -s tests -p test_owner_signing.py -v
+      - name: Verify owner key and sign existing engineering APK
+        env:
+          OWNER_SIGNING_ENABLED: ${{ vars.OWNER_SIGNING_ENABLED }}
+          GITHUB_TOKEN: ${{ github.token }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ENGINEERING_RUN_ID: ${{ inputs.engineering_run_id }}
+          EXPECTED_SOURCE_SHA: ${{ inputs.expected_source_sha }}
+          INSTALLED_CERTIFICATE_SHA256: ${{ inputs.installed_certificate_sha256 }}
+          INSTALLED_VERSION_CODE: ${{ inputs.installed_version_code }}
+        run: python3 scripts/ci-owner-sign.py
+      - name: Remove temporary owner keystore even after signing failure
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          find "$RUNNER_TEMP" -maxdepth 1 -type d -name 'mh-owner-sign-*' -exec rm -rf -- {} +
+      - name: Deliver signed engineering APK and public verification only
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: makeup-house-v32-owner-signed-${{ github.run_id }}
+          path: artifacts/v3.2-owner-signed/
+          if-no-files-found: error
+          retention-days: 30

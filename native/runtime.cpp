@@ -9,11 +9,16 @@ static double elapsed(Clock::time_point start){return std::chrono::duration<doub
 struct GenerationTimer { double &value; Clock::time_point start; ~GenerationTimer(){value=elapsed(start);} };
 
 void LocalRuntime::unload() {
+    vision.unload();
     if (context) llama_free(context);
     if (model) llama_model_free(model);
     context=nullptr; model=nullptr;
 }
 void LocalRuntime::reset() { if(context) llama_memory_clear(llama_get_memory(context), true); }
+void LocalRuntime::loadVision(const std::string &path) { vision.load(path,model,cancelled); }
+VisionResult LocalRuntime::describeImage(const unsigned char *bytes,size_t size,const std::string &question,int limit,const std::function<void(int)> &progress) {
+    return vision.generate(context,model,bytes,size,question,limit,cancelled,progress);
+}
 void LocalRuntime::load(const std::string &path) {
     auto start=Clock::now();
     unload(); cancelled=false;

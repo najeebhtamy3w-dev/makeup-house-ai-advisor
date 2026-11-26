@@ -1,0 +1,5 @@
+3d1231cd7af043b5b6160364fc0f8c47e84d22721d3398504f9f8bf47daff311  native/vision-manifest.json
+b01b10aa79635123cf8323cd0145ef5e4d1bf754cede21a66a5acf3436236161  android/app/src/main/java/com/makeuphouse/advisor/VisionAsset.java
+1c68887d83814340d0505cbfea86df7b2d970e9acc2482ed60ca1d9f4d40825c  tests/test_vision_assets.py
+149be75ec5d0d4217bd620d56bfefcdcd61390b87b95a91251ff38297d311cea  docs/v3.2/vision-assets/integrity-tests.log
+a18ce47a7afc4f473124ea0739531755db778661221ccc3cc6c16b8219b7087c  docs/v3.2/vision-assets/CHECKPOINT.md

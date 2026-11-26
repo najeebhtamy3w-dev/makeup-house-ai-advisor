@@ -1,0 +1,32 @@
+[
+  {
+    "source": "vendor/miniaudio/miniaudio.h",
+    "sha256": "6b376c7fbb1352ba1e0e432ab66069b335ea9405e45cb6c30b97ef0f3c9c3e0e",
+    "notice_blocks": 5
+  },
+  {
+    "source": "vendor/stb/stb_image.h",
+    "sha256": "594c2fe35d49488b4382dbfaec8f98366defca819d916ac95becf3e75f4200b3",
+    "notice_blocks": 2
+  },
+  {
+    "source": "vendor/sheredom/subprocess.h",
+    "sha256": "ddec448cb93c2a5096f914a5b796f707dcf0a9e91591ca13000d210200160cb1",
+    "notice_blocks": 1
+  },
+  {
+    "source": "vendor/hash/xxhash/xxhash.h",
+    "sha256": "1d5a18c925f71a9c2d8424742df47492f846f9890e3e8c55d201e4729d9e3d6d",
+    "notice_blocks": 1
+  },
+  {
+    "source": "vendor/hash/sha1/sha1.h",
+    "sha256": "aded220220587c5a409dfa04f4bc2e760bd5bc81ac74af830aceb5bde7bc43e6",
+    "notice_blocks": 1
+  },
+  {
+    "source": "vendor/hash/sha256/sha256.h",
+    "sha256": "6086b0330eafe9ddef74072738290bc268b2dcccae16bc6d6cde84dc7585ca07",
+    "notice_blocks": 1
+  }
+]
