@@ -11,3 +11,5 @@ Current source HEAD is obtained with `git rev-parse HEAD`; manifest commit field
 Latest verified published code checkpoint:917d85c96488512681c1100c8af4eb78133e8391; exact local tree61f5854f2abec088cf954b68382212716fdd412c. Android run45881131718 builds this correction. OCR dev.2 remains latest previously verified delivered APK until this new run is inspected.
 
 Android dev.3 correction build45881131718 PASS, compiled source917d85c96488512681c1100c8af4eb78133e8391; artifact15147271806 recovered and hash-verified. Both native/OCR assets and licenses inspected. This is engineering build acceptance, NOT conversation/science/Samsung or owner-signing acceptance. See RELEASE_MANIFEST.json for hashes.
+
+V6.8 supersedes signing priorities: production signing is DEFERRED BY OWNER, not a current blocker. Main work: measured generative quality, semantic retrieval, specialized functional intelligence and image/product integration. Debug-first delivery. See SIGNING_RECOVERY_STATUS.md; do not request JKS actions.

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-26T19:12:28.599016+00:00",
+  "updated_at": "2026-11-26T20:16:36.400590+00:00",
   "branch": "work-v32-unified-scientific-core",
   "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
   "verified_published_head": "790462202de7f19e3ae3842f9be902d8c24becd6",
@@ -24,9 +24,9 @@
     "python": "16/16 tests PASS: OCR integrity 5, signing 10, VisionAsset integrity suite 1 (22 Java boundary checks)"
   },
   "open_work": [
+    "V6.8: core sampling/native parity experiment, actual semantic embeddings and bounded multi-source research in independent tracks",
     "Correct genuine model-owned conversational understanding; prior full/minimal/raw grounding tests failed, XML PoC remains isolated",
     "Test Android runtime and full real product image flow on Samsung; build and APK inspection now PASS",
-    "Owner verifies installed APK certificate + JKS privately, configures protected signing environment, then sign existing verified APK",
     "Complete qualified scientific/Arabic review, semantic retrieval and held-out acceptance without weakened guards"
   ],
   "build": {
@@ -105,7 +105,8 @@
     "installed_phone_certificate": "NOT VERIFIED",
     "owner_reported_jks": "makeuphouse-release.jks, two copies on owner phone; file hashes/aliases/certificates NOT VERIFIED",
     "secrets_access": "Existing source has no secrets-based signing workflow; connector cannot read secret configuration/values; never infer configured secrets",
-    "pipeline": "IMPLEMENTED protected owner-signing workflow + existing-artifact checks + local JKS preflight; actual owner verification/setup/signing BLOCKED"
+    "pipeline": "IMPLEMENTED protected owner-signing workflow + existing-artifact checks + local JKS preflight; actual owner verification/setup/signing BLOCKED",
+    "production_status": "DEFERRED BY OWNER — NOT A CURRENT DEVELOPMENT BLOCKER"
   },
   "delivery": {
     "debug_apk_library_file_id": "libfile_3198a2873dfc8191ba5eba570c9a2663",
@@ -113,5 +114,6 @@
     "source_library_file_id": "libfile_cee5b75ae49c8191b703ddf9e50360f8",
     "evidence_library_file_id": "libfile_355325136590819195d8c5d28a320540",
     "scope": "Engineering preview, not accepted production or compatible permanent update"
-  }
+  },
+  "authorization": "V6.8 — INTELLIGENCE FIRST / DEBUG FIRST"
 }

@@ -1,6 +1,6 @@
 # Open blockers — active V6.4 checkpoint
 
-- **BLOCKED:** Owner JKS files remain on the owner phone; private key access is not available here. Installed APK public certificate/package/version must be verified, not inferred from historical APK. Safe instructions and preflight are ready; no key/password should be sent in chat.
+- **DEFERRED BY OWNER:** Production signing and owner JKS verification are not current development blockers under V6.8. Preserve prior tools; no signing actions requested.
 - **FAIL:** Current 2B conversational planning and grounded final completion have not met acceptance. Real failed Host outputs are retained. Failed isolated routes were not adopted and support thresholds were not lowered.
 - **PARTIAL:** Scientific independent checks, tools and knowledge exist, but qualified review is absent. Narrow negation inversion is now guarded, not full semantic entailment. Final held-out scientific acceptance has not passed.
 - **PARTIAL / NOT TESTED:** Optional VLM is real on Host and integrated in Android source, but product accuracy and complete real product onboarding on Samsung remain untested. OCR synthetic Host success is not real packaging acceptance.
