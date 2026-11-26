@@ -1,0 +1,34 @@
+{
+  "original_model": "microsoft/Phi-4-mini-instruct",
+  "quantized_repository": "unsloth/Phi-4-mini-instruct-GGUF",
+  "quantized_revision": "78eb92a46fc37e6b524df991ed9aca9bc6aa7b80",
+  "artifact": {
+    "rfilename": "Phi-4-mini-instruct-Q4_K_M.gguf",
+    "blobId": "c00cff5034a6ea8c0625af7b108bb7253c966937",
+    "size": 2491874272,
+    "lfs": {
+      "sha256": "88c00229914083cd112853aab84ed51b87bdf6b9ce42f532d8c85c7c63b1730a",
+      "size": 2491874272,
+      "pointerSize": 135
+    }
+  },
+  "license": "mit",
+  "conversion": "Unsloth community conversion; NOT an official Microsoft GGUF",
+  "conversion_reproduced": false,
+  "status": "HOST_REAL_INFERENCE_COMPLETED_3_CASES_NOT_ACCEPTED",
+  "production_manifest_change": false,
+  "original_license_sha256": "fa8235e5b48faca34e3ca98cf4f694ef08bd216d28b58071a1f85b1d50cb814d",
+  "original_tokenizer_config_sha256": "9c9b6bc0c94d95f69f826c41069a3e8b387ac3ced89601d201886e99240ac9db",
+  "original_card_revision_inspected": "cfbefacb99257ffa30c83adab238a50856ac3083",
+  "conversion_base_weight_revision": "NOT DECLARED IN METADATA; no independent conversion reproduction",
+  "artifact_integrity_before_execution": "REQUIRED full SHA/size check",
+  "downloaded_bytes_checkpoint": 1763016704,
+  "local_download_path": "/workspace/scratch/921845f84f0b/toolchain/native-recovery/phi4-mini.gguf.part",
+  "original_tokenizer_template_verified": true,
+  "expected_runtime_architecture": "phi3",
+  "actual_size": 2491874272,
+  "actual_sha256": "88c00229914083cd112853aab84ed51b87bdf6b9ce42f532d8c85c7c63b1730a",
+  "verified_at": "2026-11-26T13:29:58.599039+00:00",
+  "gguf_architecture": "phi3",
+  "chat_template_verified_for_generation_prompt_true": true
+}

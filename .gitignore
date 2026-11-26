@@ -8,6 +8,8 @@ dist-mobile/
 *.apk
 release-out/
 *.gguf
+android/app/libs/*.aar
+android/app/src/main/assets/ocr/
 experiments/**/models/
 
 # CP06.3: signing material must never enter the repository

@@ -1,0 +1,9 @@
+{
+  "general.architecture": "phi3",
+  "general.name": "Phi 4 Mini Instruct",
+  "tokenizer.ggml.model": "gpt2",
+  "tokenizer.ggml.pre": "gpt-4o",
+  "tokenizer.chat_template": "{% for message in messages %}{% if message['role'] == 'system' and 'tools' in message and message['tools'] is not none %}{{ '<|' + message['role'] + '|>' + message['content'] + '<|tool|>' + message['tools'] + '<|/tool|>' + '<|end|>' }}{% else %}{{ '<|' + message['role'] + '|>' + message['content'] + '<|end|>' }}{% endif %}{% endfor %}{% if add_generation_prompt %}{{ '<|assistant|>' }}{% endif %}",
+  "tensor_count": 196,
+  "metadata_count": 35
+}

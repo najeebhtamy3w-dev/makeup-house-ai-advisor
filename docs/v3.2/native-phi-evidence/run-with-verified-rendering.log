@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/docs/v3.2/native-phi-evidence/probe_phi.py", line 6, in <module>
+    from jinja2.sandbox import SandboxedEnvironment
+ModuleNotFoundError: No module named 'jinja2'

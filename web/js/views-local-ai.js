@@ -23,6 +23,7 @@ export async function localAISettings(root) {
         h('p', {}, m?.id || 'غير معروف'), h('p', { class: 'tiny' }, `الإصدار: ${m?.version || '—'} · ${m?.format || '—'} · ${m?.quantization || '—'}`),
         h('p', {}, `الحجم: ${((m?.size || 0) / 1e9).toFixed(2)} GB · المساحة المتاحة: ${(s.free_bytes / 1e9).toFixed(2)} GB`),
         h('p', {}, s.installed ? s.active ? s.loaded ? 'مثبّت ومفعّل ومحمّل في الذاكرة' : 'مثبّت ومفعّل — غير محمّل في الذاكرة حاليًا' : 'مثبّت وغير مفعّل' : `غير مثبّت — تم تنزيل ${(s.downloaded / 1e6).toFixed(0)} MB`),
+        s.last_operation_error ? h('p', {class:'notice warn'}, 'فشلت آخر عملية: ' + s.last_operation_error + '؛ راجع التشخيص وأعد المحاولة.') : null,
         h('p', { class: 'tiny' }, `الرخصة: ${m?.license || '—'} · الجهاز: ${s.device} · المحرك: ${s.runtime}`),
         h('p', { class: 'notice warn' }, 'لم يكتمل قبول Samsung وجودة العربية بعد. عند تعذر النموذج أو رفض مخرجاته يستمر المستشار العلمي بالقواعد. أوزان النموذج لا تدخل النسخ الاحتياطية.'),
         h('div', { class: 'row' }, [['install', 'تنزيل / استئناف'], ['activate', 'تحقق وتفعيل'], ['test', 'اختبار النموذج'], ['deactivate', 'إيقاف'], ['remove', 'إزالة'], ['cancel', 'إلغاء العملية'], ['reset', 'تصفير سياق المحرك']].map(([id, label]) => h('button', { class: 'btn sm out', onclick: () => invoke(id) }, label))),

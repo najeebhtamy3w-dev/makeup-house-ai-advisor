@@ -56,3 +56,5 @@ test('recommendations use actual stored local thumbnail IDs and never invent glo
   const h=harness();const nodes=h.context.render(fixture({answer:{sections:[],sources:[],products:{items:[{id:1,name:'Local fixture',primary_image_id:9},{id:-2,name:'Global fixture',primary_image_id:7},{id:3,name:'No image fixture'}]},evidence_status:'none'}}));
   const imgs=nodes.flatMap(h.walk).filter((x:Element)=>x.tag==='img');assert.equal(imgs.length,1);assert.equal(imgs[0].props.src,'/api/images/9?size=thumb');assert.match(h.text(nodes),/التوفر المحلي غير مؤكد/);
 });
+
+test('last operation failure cannot be presented as ready despite loaded weights',async()=>{const h=harness({native:true,nativeStatus:{installed:true,active:true,loaded:true,last_operation_error:"DECODE_FAILED"}});await h.context.show(h.root);const status=h.text(h.walk(h.root).find(x=>x.props.id==="advisor-mode"));assert.match(status,/فشلت آخر عملية/);assert.match(status,/DECODE_FAILED/);assert.doesNotMatch(status,/مثبت ومفعّل ومحمّل/);});

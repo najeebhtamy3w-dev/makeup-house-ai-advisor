@@ -1,0 +1,14 @@
+{
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "model": "Phi-4-mini-instruct Unsloth Q4_K_M",
+  "model_sha256": "88c00229914083cd112853aab84ed51b87bdf6b9ce42f532d8c85c7c63b1730a",
+  "binary_sha256": "22d6ad4046a941a7417eb5ba4bcd0d3307bdb0ee2b0a53f4686f54351d869f38",
+  "utc": "2026-11-26T13:31:03.580879+00:00",
+  "chat_template": "official Phi system/user/end/assistant; GGUF and original tokenizer verified",
+  "question_facts_and_contract_unchanged": true,
+  "thinking_control": "Qwen /no_think directive and assistant think prefix removed for Phi",
+  "final_holdout_used": false,
+  "scientific_acceptance": false,
+  "qualified_Arabic_review": false,
+  "production_manifest_change": false
+}

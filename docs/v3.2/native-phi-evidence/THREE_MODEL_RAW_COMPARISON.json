@@ -1,0 +1,136 @@
+{
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "evaluation": "2developmentrawdiagnosticcases_per_candidate; noholdout or qualifiedreview",
+  "questions_and_nonmodel_specific_safety_equivalent": true,
+  "sampling": "current greedy operational baseline, no per-model optimization",
+  "grammar": "none for raw task",
+  "production_model_changed": false,
+  "rows": [
+    {
+      "model": "qwen35-2b",
+      "case": "raw-evidence",
+      "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+      "binary_sha256": "cef2d660bcc0d12ca5d162a8ef2437279b8a4193c08f192c89c4e96e745f2ad3",
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 1286.82271,
+        "generation_ms": 11893.164847,
+        "input_tokens": 96,
+        "model_load_ms": 1847.095389,
+        "tokens": 173
+      },
+      "host_process_status": {
+        "VmHWM": "1916728 kB",
+        "VmRSS": "1916728 kB"
+      },
+      "text": "تختلف الفروقات بين وصف الشركة ودليل علمي مستقل على النحو التالي:\n\n1.  **الوصف التجاري**: يركز على **المكونات** (ما هو الموجود في المنتج) و**التسويق** (كيف يتم استخدامه)، وقد لا يغطي جميع الآليات الفسيولوجية المعقدة.\n2.  **الدليل العلمي**: يركز على **الآليات الفسيولوجية** (كيف يعمل المنتج في الجسم)، **الدراسات السريرية** (النتائج التجريبية)، و**السلامة** (التأثيرات الجانبية المحتملة)، مما يجعله أكثر شمولاً وموثوقية.\n\n**ملاحظة**: لا يمكنني تقديم توصيات علاجية أو تشخيصية، ولا يمكنني تقييم دقة أي دليل علمي معين دون مراجعة مصدره الأصلي.",
+      "accepted_scientific_response": false,
+      "provenance": "docs/v3.2/native-execution-evidence/2b-raw-20261126/raw-responses.jsonl"
+    },
+    {
+      "model": "qwen35-2b",
+      "case": "raw-hair-mixed",
+      "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+      "binary_sha256": "cef2d660bcc0d12ca5d162a8ef2437279b8a4193c08f192c89c4e96e745f2ad3",
+      "metrics": {
+        "finish_reason": "length",
+        "first_token_ms": 1614.678296,
+        "generation_ms": 13041.69834,
+        "input_tokens": 110,
+        "model_load_ms": 1847.095389,
+        "tokens": 192
+      },
+      "host_process_status": {
+        "VmHWM": "1917628 kB",
+        "VmRSS": "1917628 kB"
+      },
+      "text": "أهلاً بك. بصفتي مساعدك في علوم التجميل، يجب أن أبدأ بتوضيح نقطة هامة جداً: **هذا ليس تشخيصاً طبياً أو توصية دوائية**، بل هو تحليل بناءً على ملاحظاتك العامة. لا يمكنني تحديد \"العطر\" المحدد الذي يسبب هذه المشكلة بدقة، لأن العطور تتفاعل مع كل شخص بشكل مختلف، ولا توجد قاعدة عالمية واحدة تفسر هذا السلوك.\n\n**ما هي المعلومات التي تحتاجها قبل اختيار منتج جديد؟**\n\n1.  **نوع الشعر:** هل هو شعر طويل، قصير، شعر خشن، شعر ناعم، شعر مصبوغ، أم شعر مصبوغ؟ (هذا يؤثر على نوع الزيت المستخدم).\n2.  **نوع البشرة:** هل هي بشرية حساسة، حساسة جداً، أم عادية؟ (الزيوت الثقيلة قد تسبب تهيجاً في البشرة الحساسة).\n3.",
+      "accepted_scientific_response": false,
+      "provenance": "docs/v3.2/native-execution-evidence/2b-raw-20261126/raw-responses.jsonl"
+    },
+    {
+      "model": "qwen35-4b",
+      "case": "raw-evidence",
+      "model_sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+      "binary_sha256": "fc060440d44f8be6b00303c4b0c64efc63428d573a0e35433a5d5f08c69caf6c",
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 3733.481949,
+        "generation_ms": 22348.484209,
+        "input_tokens": 96,
+        "model_load_ms": 3773.184914,
+        "tokens": 162
+      },
+      "host_process_status": {
+        "VmHWM": "4288688 kB",
+        "VmRSS": "4288688 kB"
+      },
+      "text": "الفرق الرئيسي يكمن في **من قام بالدراسة** و**كيف تم إجراء التجربة**:\n\n1.  **تقرير الشركة**: غالبًا ما يتم تمويله من قبل الشركة المصنعة، مما قد يخلق تحيزًا غير واعٍ في اختيار المواد أو تفسير النتائج لصالح المنتج.\n2.  **الدليل العلمي المستقل**: يتم تمويله من جهات محايدة (مثل جامعات أو هيئات بحثية)، ويخضع لمعايير صارمة في التصميم التجريبي، ويتم مراجعته من قبل خبراء مستقلين قبل النشر.\n\n**نصيحة**: ابحث عن دراسات منشورة في مجلات علمية محكمة (Peer-reviewed journals) تحتوي على تفاصيل منهجية واضحة، بدلاً من الاعتماد فقط على الصور أو العبارات التسويقية في الموقع الرسمي للشركة.",
+      "accepted_scientific_response": false,
+      "provenance": "docs/v3.2/native-execution-evidence/4b-raw-20261126/raw-responses.jsonl"
+    },
+    {
+      "model": "qwen35-4b",
+      "case": "raw-hair-mixed",
+      "model_sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+      "binary_sha256": "fc060440d44f8be6b00303c4b0c64efc63428d573a0e35433a5d5f08c69caf6c",
+      "metrics": {
+        "finish_reason": "length",
+        "first_token_ms": 4240.528705,
+        "generation_ms": 30058.069872,
+        "input_tokens": 110,
+        "model_load_ms": 3773.184914,
+        "tokens": 192
+      },
+      "host_process_status": {
+        "VmHWM": "4290080 kB",
+        "VmRSS": "4290080 kB"
+      },
+      "text": "أهلاً بك، وفهمي تماماً الإحباط الذي تشعر به؛ فالساقط السريع مع الأطراف المتشابكة والمتكسرة هو علامة واضحة على أن الشعر قد يعاني من \"إجهاد\" مزدوج: جفاف في الساق (بسبب السقوط) وضعف في البنية (بسبب التشابك والتكسر).\n\nقبل أن أقترح أي منتج أو نصيحة محددة، أحتاج إلى معرفة بعض التفاصيل الدقيقة لأن كل حالة تختلف عن الأخرى:\n\n1.  **نوع شعرك:** هل هو سميك، رفيع، أو متوسط؟ وما هو لون الشعر (مكسور أم طبيعي)؟\n2.  **نمط الشعر:** هل هو مشعر (موجات)، أو مستقيم، أو متصنع (مكروم)؟\n3.  **التاريخ:** هل حدث هذا التغير فجأة، أم أنه تراكم تدريجي؟",
+      "accepted_scientific_response": false,
+      "provenance": "docs/v3.2/native-execution-evidence/4b-raw-20261126/raw-responses.jsonl"
+    },
+    {
+      "model": "phi4-mini",
+      "case": "raw-evidence",
+      "model_sha256": "88c00229914083cd112853aab84ed51b87bdf6b9ce42f532d8c85c7c63b1730a",
+      "binary_sha256": "22d6ad4046a941a7417eb5ba4bcd0d3307bdb0ee2b0a53f4686f54351d869f38",
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 2538.913515,
+        "generation_ms": 12279.374679,
+        "input_tokens": 81,
+        "model_load_ms": 6182.671646,
+        "tokens": 107
+      },
+      "host_process_status": {
+        "VmHWM": "4280000 kB",
+        "VmRSS": "4280000 kB"
+      },
+      "text": "صف الشركة لفائدة كريم: \"تحسن البشرة بشكل كبير، تجعلك تبدو أكثر شبابًا، وتزيل التعرق.\"\n\nدليل علمي مستقل على فائدته: \"تم إجراء تجارب علمية موثوقة تظهر أن هذا الفاخر يحتوي على مكونات تساعد في تحسين ملمس البشرة وتقليل التعرق.\"\n\nالتباين بينهما يكمن في أن وصف الشركة غالبًا ما يكون مزعجًا أو غير علمي، بينما دليل علمي مستقل يعتمد على نتائج تجارب موثوقة.",
+      "accepted_scientific_response": false,
+      "provenance": "docs/v3.2/native-phi-evidence/results/raw-responses.jsonl"
+    },
+    {
+      "model": "phi4-mini",
+      "case": "raw-hair-mixed",
+      "model_sha256": "88c00229914083cd112853aab84ed51b87bdf6b9ce42f532d8c85c7c63b1730a",
+      "binary_sha256": "22d6ad4046a941a7417eb5ba4bcd0d3307bdb0ee2b0a53f4686f54351d869f38",
+      "metrics": {
+        "finish_reason": "length",
+        "first_token_ms": 2605.562955,
+        "generation_ms": 20259.716484,
+        "input_tokens": 97,
+        "model_load_ms": 6182.671646,
+        "tokens": 192
+      },
+      "host_process_status": {
+        "VmHWM": "4282492 kB",
+        "VmRSS": "4282492 kB"
+      },
+      "text": "بالطبع، إليك بعض المعلومات التي قد تحتاجها لتقديم توصيات أكثر دقة:\n\n1. نوع العطر: هل هو عطر مائي، عطر جوي، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزيح، عطر مزي",
+      "accepted_scientific_response": false,
+      "provenance": "docs/v3.2/native-phi-evidence/results/raw-responses.jsonl"
+    }
+  ]
+}

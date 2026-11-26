@@ -34,8 +34,10 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 node --version; npm --version; java -version
 npm ci
 npm test 2>&1 | tee "$OUTPUT/logs/tests.log"
+python3 -m unittest discover -s tests -p test_ocr_assets.py -v 2>&1 | tee "$OUTPUT/logs/ocr-integrity-tests.log"
 npm run typecheck 2>&1 | tee "$OUTPUT/logs/typecheck.log"
 npm run android:sync 2>&1 | tee "$OUTPUT/logs/android-sync.log"
+python3 scripts/prepare-ocr-assets.py 2>&1 | tee "$OUTPUT/logs/ocr-assets.log"
 "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' 2>&1 | tee "$OUTPUT/logs/sdk-packages.log"
 export CMAKE_BUILD_PARALLEL_LEVEL=2
 TASK_TEMP="${RUNNER_TEMP:?Runner temp missing}/makeuphouse-v32"
@@ -71,6 +73,15 @@ for kind,relative,identity,version,debug in [
   libs=[n for n in z.namelist() if n.startswith('lib/') and n.endswith('.so')]
   assert 'lib/arm64-v8a/libmh_local_ai.so' in libs and all(n.startswith('lib/arm64-v8a/') for n in libs)
   elf=out/'logs'/f'{kind}.so';elf.write_bytes(z.read('lib/arm64-v8a/libmh_local_ai.so'))
+  all_elf_headers={}
+  for lib in libs:
+   probe=out/'logs'/'alignment-probe.so';probe.write_bytes(z.read(lib))
+   checked=run([sdk/'ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf','-lW',probe]);assert checked['exit_code']==0
+   segments=[line for line in checked['output'].splitlines() if line.strip().startswith('LOAD')]
+   assert segments and all(int(line.split()[-1],16)>=16384 for line in segments),lib
+   all_elf_headers[lib]=checked['output'];probe.unlink()
+  assert 'assets/ocr/tessdata/eng.traineddata' in z.namelist() and 'assets/ocr/tessdata/ara.traineddata' in z.namelist()
+  assert 'assets/ocr/engine-LICENSE.txt' in z.namelist() and 'assets/ocr/models-LICENSE.txt' in z.namelist()
   embedded={}
   for asset in (repo/'android/app/src/main/assets').rglob('*'):
    if asset.is_file():
@@ -81,7 +92,7 @@ for kind,relative,identity,version,debug in [
  loads=[s for s in readelf['output'].splitlines() if s.strip().startswith('LOAD')];assert loads and all(int(s.split()[-1],16)>=16384 for s in loads)
  elf.unlink()
  dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV2_{kind}.apk';shutil.copy2(f,dest)
- results[kind]={'file':dest.name,'bytes':dest.stat().st_size,'sha256':hashlib.file_digest(dest.open('rb'),'sha256').hexdigest(),'aapt':a,'signature':signature,'zip_alignment':alignment,'elf_headers':readelf,'embedded_assets':embedded}
+ results[kind]={'file':dest.name,'bytes':dest.stat().st_size,'sha256':hashlib.file_digest(dest.open('rb'),'sha256').hexdigest(),'aapt':a,'signature':signature,'zip_alignment':alignment,'elf_headers':readelf,'all_elf_headers':all_elf_headers,'embedded_assets':embedded}
 sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
 manifest={'git_sha':sha,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'acceptance':'ENGINEERING_ONLY_NOT_PRODUCTION_APPROVED','physical_samsung':'NOT TESTED','permanent_signing':'BLOCKED_OWNER_KEY_REQUIRED','actual_artifacts':results}
 (out/'DELIVERY_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
@@ -92,19 +103,21 @@ source=out/'MAKEUP_HOUSE_V32_SOURCE.zip'
 manifest={'source_commit':commit,'status':'ENGINEERING_TEST_ONLY','production_approved':False,'model_reasoning_after_template_fix':'PARTIAL: Host real inference evidence retained; intelligence and Samsung acceptance not passed','physical_samsung':'NOT TESTED','permanent_signing':'BLOCKED — owner key required','apks':results,'source_zip':{'file':source.name,'sha256':hashlib.file_digest(source.open('rb'),'sha256').hexdigest()},'ci_run':os.environ.get('GITHUB_RUN_ID')}
 (out/'DELIVERY_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
 with (out/'SHA256SUMS.txt').open('a') as checks:checks.write(manifest['source_zip']['sha256']+'  '+source.name+'\n')
-(out/'FINAL_REPORT_AR.md').write_text(f'''# تسليم هندسي V3.2
+(out/'FINAL_REPORT_AR.md').write_text(f'''# تسليم هندسي V3.2 — Unified Core
 
-المصدر: `{commit}`.
+المصدر: `{commit}`. هذا Engineering Preview، وليس إصدارًا مقبولًا إنتاجيًا.
 
-**PASSED:** اختبارات npm وTypecheck وبناء Android وفحوص APK في هذا التشغيل. راجع السجلات للأعداد الفعلية.
+**PASS:** اختبارات البرمجيات وTypecheck وبناء Android وفحوص APK نجحت في هذا التشغيل؛ الأعداد والتفاصيل في السجلات.
 
-**IMPLEMENTED:** إصلاح المثال الوهمي في قالب الاستدلال، وأُدرج المصدر في APK بعد Android sync.
+**IMPLEMENTED:** نواة المستشار الرئيسية الموحدة، الربط بمحرك Native، تشخيص خام للمدير، سياق محدود، إظهار المسار الاحتياطي وأسباب الفشل، أدوات معرفة ومنتجات ومخزون وصور ومسودات مع تأكيد الحفظ. OCR عربي/إنجليزي محلي إن كان ضمن هذا Commit؛ راجع OCR_CHECKPOINT وبصمات الأصول في APK. OCR ليس VLM.
 
-**NOT TESTED:** جودة الاستدلال بالنموذج الحقيقي بعد هذا الإصلاح، وتشغيل Samsung، والبطارية والحرارة، والمراجعة العلمية واللغوية المؤهلة. اختبارات البرمجيات لا تُثبت نجاح الاستدلال.
+**PARTIAL/FAIL:** وُلّد نص فعلي على Host ومن الواجهة الرئيسية باستخدام Adapter حقيقي، لكن اختبار Qwen2B أظهر فشل فهم وتكرارًا/استيضاحًا غير مناسب. نجاح البرمجيات والبناء لا يثبت جودة الحوار أو الاستدلال العلمي. راجع ACCEPTANCE_MATRIX ونتائج النموذج الخام في المصدر. لم يُعتمد بديل للنموذج.
 
-**BLOCKED:** توقيع Release بالمفتاح الدائم غير متاح في CI. APK غير الموقع لا يُثبت مباشرة؛ نسخة Debug تحمل هوية `com.makeuphouse.advisor.engineering` ويمكن اختبارها بصورة مستقلة دون حذف التطبيق الدائم.
+**NOT TESTED:** تشغيل هذا APK على Samsung، الأداء والذاكرة والبطارية والحرارة، العمل في وضع الطيران، قبول OCR على Android، المراجعة العلمية واللغوية المؤهلة. لا توجد شهادة تكافؤ مع ChatGPT.
 
-الملفات الهندسية الحالية وبصماتها في DELIVERY_MANIFEST.json وSHA256SUMS.txt. بصمات APK السابقة قبل إصلاح القالب أدلة تاريخية فقط. لا يوجد نشر إنتاجي أو أوزان نموذج مضمنة.
+**BLOCKED:** توقيع Release بالمفتاح الدائم غير متاح في CI. APK غير الموقع لا يثبت مباشرة. Debug يحمل `com.makeuphouse.advisor.engineering` للتجربة المنفصلة؛ لا يحدّث التطبيق الدائم. مفتاح Debug المؤقت قد لا يطابق نسخة اختبار سابقة. عند تعارض التوقيع لا تحذف التطبيق أو البيانات؛ استخدم المفتاح الصحيح. لا يتضمن التسليم أوزان النموذج.
+
+يحافظ التطبيق الدائم عند توقيعه بالمفتاح الصحيح على هويته ومسار الأوزان والبيانات؛ لم يُختبر التحديث الفعلي على الهاتف. راجع DELIVERY_MANIFEST.json وSHA256SUMS.txt للتحقق من الملفات والتوقيع.
 ''')
 print(json.dumps({k:{'file':v['file'],'sha256':v['sha256']} for k,v in results.items()},indent=2))
 PY

@@ -1,0 +1,6 @@
+{
+  "exact_template_text_match": false,
+  "inspected_difference": "Official has else eos_token for add_generation_prompt=False; GGUF omits that branch",
+  "tested_mode": "add_generation_prompt=True",
+  "renderer": "Manual rendering of inspected system/user branches; the only template difference is proven to be unused eos branch; no model Python/remote code executed"
+}

@@ -1,5 +1,5 @@
 // Local image intake and human-confirmed product memory. File validation/barcode decoding is NOT OCR or visual reasoning.
-import { api } from './api.js';
+import { api, getToken } from './api.js';
 import { h, fill, field, select } from './util.js';
 import { processImage, uploadImage, authImg } from './images.js';
 
@@ -34,6 +34,8 @@ export async function openChatProductAttachment({ onContext = () => {}, onStored
   const dataOrigin = select([['employee_input','إدخال الموظف'],['package_transcription','نقل يدوي من العبوة'],['manufacturer_information','معلومات الشركة']], 'employee_input', { id: 'chat-data-origin' });
   const kind = select([['front','واجهة المنتج'],['ingredients','قائمة المكونات'],['package','العبوة'],['other','أخرى']], 'front', { id: 'chat-image-kind' });
   const confirmed = h('input', { type: 'checkbox', id: 'chat-draft-confirm' });
+  const ocrText = h('textarea', { id:'chat-ocr-text', rows:6, maxlength:16000, 'aria-label':'نص OCR غير مراجع' });
+  const ocrOutput = h('div', { id:'chat-ocr-output' });
   const fields = [name,brand,barcode,size,ingredients,sourceUrl];
   const invalidate = () => { prepared = undefined; requestRef = undefined; confirmed.checked = false; fill(draftSummary); };
   for (const f of fields) f.addEventListener('input', invalidate);
@@ -76,13 +78,14 @@ export async function openChatProductAttachment({ onContext = () => {}, onStored
     const inspection = await api('POST', '/api/intelligence/attachments/inspect-image', processed.blob, { raw: true });
     if (closed) return;
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    selected = processed; origin = from; invalidate(); fill(matches); fill(stored); previewUrl = URL.createObjectURL(processed.blob);
+    selected = processed; origin = from; invalidate(); fill(matches); fill(stored); fill(ocrOutput); previewUrl = URL.createObjectURL(processed.blob);
     fill(photo, h('img', { src: previewUrl, alt: 'معاينة محلية للصورة المختارة', style: 'max-width:100%;max-height:220px;object-fit:contain' }), h('p', { class: 'tiny muted' }, `${inspection.width ?? '?'}×${inspection.height ?? '?'} · ${Math.round(inspection.size / 1024)} ك.ب — فحص ملف فقط؛ لم يُستخرج اسم أو INCI من الصورة.`));
     const decoded = await detectAttachmentBarcodes(processed.blob);
     if (closed) return;
     if (decoded.codes.length === 1) { barcode.value = decoded.codes[0]; await lookup(); fill(note, 'فُك كود من الصورة وبُحث عنه محليًا. لم يُنفذ OCR أو فهم بصري للمكونات.'); }
-    else fill(note, decoded.codes.length > 1 ? 'ظهر أكثر من كود؛ أدخل الكود المقصود يدويًا للبحث.' : decoded.supported ? 'لم يُقرأ كود من الصورة. أدخل الاسم أو الكود والمكونات يدويًا.' : 'فك الباركود من الصورة غير مدعوم هنا. أدخل الكود يدويًا؛ OCR والفهم البصري غير متاحين.');
+    else fill(note, decoded.codes.length > 1 ? 'ظهر أكثر من كود؛ أدخل الكود المقصود يدويًا للبحث.' : decoded.supported ? 'لم يُقرأ كود من الصورة. أدخل الاسم أو الكود والمكونات يدويًا.' : 'فك الباركود من الصورة غير مدعوم هنا. أدخل الكود يدويًا؛ يمكن نقل البيانات يدويًا، أو قراءة النص محليًا إذا ظهر زر OCR.');
   };
+  const extractOCR = async () => { if (!selected) throw new Error('اختر صورة أولًا.'); fill(note,'جار قراءة نص العبوة محليًا…'); const result = await window.MHProductOCR.recognize(selected.blob,getToken()); if (closed) return; ocrText.value = result.text; fill(ocrOutput, h('p',{class:'notice warn'},'نص OCR غير مُراجع؛ صحح الأخطاء قبل النقل. الثقة الآلية ليست اعتمادًا علميًا.'),ocrText,h('button',{type:'button',class:'btn sm out',onclick:()=>{ if(ocrText.value.length>5000){fill(note,'النص أطول من حقل INCI؛ اختر قائمة المكونات فقط.');return;} ingredients.value=ocrText.value; dataOrigin.value='package_transcription';invalidate();}},'راجعت النص: نقله إلى حقل INCI')); fill(note,result.text.trim()?'اكتملت قراءة النص؛ لا تثبت هوية المنتج أو أصالته.':'لم يُقرأ نص واضح. جرّب صورة أوضح للجهة الخلفية.'); };
   const camera = h('input', { type: 'file', accept: 'image/jpeg,image/png', capture: 'environment', class: 'hide', 'aria-label': 'تصوير منتج', onchange: e => run(() => choose(e.target.files?.[0], 'camera')) });
   const gallery = h('input', { type: 'file', accept: 'image/jpeg,image/png', class: 'hide', 'aria-label': 'اختيار صورة منتج', onchange: e => run(() => choose(e.target.files?.[0], 'upload')) });
   const previewDraft = async () => {
@@ -103,8 +106,9 @@ export async function openChatProductAttachment({ onContext = () => {}, onStored
   };
   const useContext = () => { if (!name.value.trim() && !ingredients.value.trim()) { fill(note, 'أدخل اسمًا أو قائمة مكونات مقروءة قبل استخدام المعلومات.'); return; } const context = attachmentConsultationText(readDraft()); if (context.length > 1000) { fill(note, 'المعلومات أطول من حد رسالة الاستشارة (1000 حرف). لم تُختصر أو تُرسل خفية؛ راجع الحقول واستخدم سؤالًا أقصر، ويمكن للمدير حفظ المسودة الكاملة للمراجعة.'); return; } onContext(context); close(); };
   const sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'صورة منتج ومعلومات العبوة' }, h('div', {},
-    h('h3', { class: 't' }, 'صورة منتج ومعلومات العبوة'), h('p', { class: 'notice info' }, 'الصورة للمعاينة والتخزين المحلي وفك الباركود إذا دعمه الجهاز. لا يوجد OCR أو نموذج فهم صور مفعّل؛ انقل الاسم وINCI يدويًا. لا تُرسل الصورة إلى خدمة خارجية.'),
+    h('h3', { class: 't' }, 'صورة منتج ومعلومات العبوة'), h('p', { class: 'notice info' }, window.MHProductOCR?.available ? 'قراءة النص OCR بالعربية والإنجليزية محليًا متاحة للتجربة وتحتاج مراجعتك. ليست فهمًا بصريًا توليديًا أو تحققًا لهوية المنتج. لا تُرسل الصورة إلى خدمة خارجية.' : 'الصورة للمعاينة والتخزين المحلي وفك الباركود إذا دعمه الجهاز. لا يوجد OCR أو نموذج فهم صور مفعّل في هذه البيئة؛ انقل الاسم وINCI يدويًا. لا تُرسل الصورة إلى خدمة خارجية.'),
     camera, gallery, h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn sm', onclick: () => camera.click() }, 'تصوير العبوة'), h('button', { type: 'button', class: 'btn sm out', onclick: () => gallery.click() }, 'اختيار صورة')), photo, field('نوع الصورة', kind),
+    window.MHProductOCR?.available ? h('div', {class:'row'}, h('button',{type:'button',class:'btn sm out',onclick:()=>run(extractOCR)},'قراءة نص العبوة محليًا'),h('button',{type:'button',class:'btn sm out',onclick:()=>window.MHProductOCR.cancel(getToken()).catch(e=>fill(note,e.message))},'إلغاء قراءة النص')) : null, ocrOutput,
     field('الباركود أو الكود', barcode), h('button', { type: 'button', class: 'btn sm out', onclick: () => run(lookup) }, 'بحث الكود محليًا'), matches,
     field('اسم المنتج المنقول من العبوة', name), field('العلامة', brand), field('الحجم', size), field('المكونات INCI كما نُقلت', ingredients), field('رابط مصدر اختياري', sourceUrl), field('مصدر البيانات الذي تؤكده', dataOrigin),
     h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn sm out', onclick: () => run(previewDraft) }, 'معاينة مسودة المعلومات'), h('button', { type: 'button', class: 'btn sm', onclick: useContext }, 'استخدام المعلومات في السؤال')), draftSummary,

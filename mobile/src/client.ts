@@ -6,6 +6,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { App } from '@capacitor/app';
 import { localAI } from './local-ai.ts';
+import './product-ocr.ts';
 
 declare global { interface Window { MH_onBack?: () => Promise<'handled' | 'exit'>; MH_LOCAL?: boolean; MH_READY?: Promise<void>; MHNative?: { saveFile(name: string, blob: Blob): Promise<string>; isNative: boolean; backup?: typeof backupStream; restore?: typeof restoreStream } } }
 

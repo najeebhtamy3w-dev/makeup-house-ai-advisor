@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-11-26T13:33:07.978275+00:00",
+  "updated_at": "2026-11-26T13:38:23.457179+00:00",
   "branch": "work-v32-unified-scientific-core",
   "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
-  "verified_published_head": "8cf051b354ac322f8bafbb7c2fb208d782cf62aa",
-  "published_tree": "7b7b77799f6837a5b69b57942e98ae60282d0d63",
+  "verified_published_head": "8b23bfa61ece37ab1268a4a61d020bf5d282967a",
+  "published_tree": "993c793a0d0ac0817f53b7030e8f7e4a025b3dee",
   "version_name": "3.2.0-dev.2",
   "version_code": 7,
   "production_approved": false,
@@ -11,10 +11,10 @@
     "01_runtime": "PARTIAL — actual Host lifecycle/rawtext passed; Android new source not tested",
     "02_conversation": "FAIL/PARTIAL — 4B capabilities actual main UI success; 2B latest two turns both chose irrelevant clarification, raw logs preserved; no conversational acceptance",
     "03_scientific": "PARTIAL — typedreadtools,reviewstateandvalidators; no qualifiedreview/independentgenerativeacceptance",
-    "04_multimodal_product": "PARTIAL — realimageBLOBmemory/barcode/drafts; OCRandVLMNOTIMPLEMENTED"
+    "04_multimodal_product": "PARTIAL: image storage, barcode, confirmed drafts and OCR wired; actual VLM Host proof in progress; Android vision not integrated"
   },
   "test_evidence": {
-    "full_suite_last": "260/260, 0 failed, 0 skipped",
+    "full_suite_last": "262/262, 0 failed, 0 skipped (OCR integration and failed-status UI)",
     "focused_after_loop_guard": "21/21 including application dialogue governance",
     "typecheck": "PASS",
     "mobile_assets": "PASS",
@@ -33,7 +33,9 @@
   "build": {
     "previous_run_id": 45782556340,
     "previous_status": "FAIL at dedicatedbranchguard; newer branchallowlist fix is local",
-    "new_apk": "NOT BUILT"
+    "new_apk": "NOT BUILT",
+    "current_run_id": 45830308790,
+    "current_status": "IN PROGRESS for preceding core checkpoint, excludes newer OCR"
   },
   "owner_field_evidence": {
     "device": "SM-S908E",
@@ -59,7 +61,7 @@
   },
   "vision": {
     "current_native_model_integration": "text_only",
-    "ocr": "NOT IMPLEMENTED",
+    "ocr": "IMPLEMENTED: pinned Tesseract4Android eng+ara, review pane, Android build/field test pending",
     "vlm": "NOT IMPLEMENTED",
     "image_intake": "storedimagevalidationandoptionalBarcodeDetectoronly"
   }

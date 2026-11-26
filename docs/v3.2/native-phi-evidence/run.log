@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/docs/v3.2/native-phi-evidence/probe_phi.py", line 46, in <module>
+    if gguf.get('tokenizer.chat_template')!=original_tokenizer.get('chat_template'):raise ValueError('PHI_TEMPLATE_DIFF_REQUIRES_INSPECTION')
+                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: PHI_TEMPLATE_DIFF_REQUIRES_INSPECTION

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "engine": {
+    "id": "tesseract4android",
+    "version": "4.9.0",
+    "license": "Apache-2.0",
+    "source": "https://github.com/adaptech-cz/Tesseract4Android/tree/4.9.0",
+    "url": "https://jitpack.io/cz/adaptech/tesseract4android/tesseract4android/4.9.0/tesseract4android-4.9.0.aar",
+    "size": 12848454,
+    "sha256": "bce5d6413a1a5ae3d7240033fbbc851ba3217d0a08d9769400e17a077f42cb2a",
+    "arm64_elf_load_alignment": "0x4000"
+  },
+  "models": [
+    {
+      "id": "eng",
+      "revision": "87416418657359cb625c412a48b6e1d6d41c29bd",
+      "size": 4113088,
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/eng.traineddata"
+    },
+    {
+      "id": "ara",
+      "revision": "87416418657359cb625c412a48b6e1d6d41c29bd",
+      "size": 1432056,
+      "sha256": "e3206d3dc87fd50c24a0fb9f01838615911d25168f4e64415244b67d2bb3e729",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/ara.traineddata"
+    }
+  ],
+  "ocr": true,
+  "vision": false,
+  "licenses": [
+    {
+      "id": "engine",
+      "url": "https://raw.githubusercontent.com/adaptech-cz/Tesseract4Android/4.9.0/LICENSE",
+      "size": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "id": "models",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/LICENSE",
+      "size": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    }
+  ]
+}
