@@ -1,0 +1,8 @@
+PASS manager menu exposes independent global catalogue and batch inventory
+PASS synthetic product API fixture
+PASS manager creates real batch fields through UI; verified stock reads independently
+PASS global catalogue draft is independent from local stock and supports RTL mobile layout
+PASS staff menu excludes manager controls; direct routes deny editing
+PASS unauthenticated routes expose login, API denies writes
+PASS no uncaught browser errors
+{"passed":7,"failed":0,"platform":"Host browser mobile viewport; NOT ANDROID","browser":"131.0.6778.204"}

@@ -1,0 +1,14 @@
+PASS manager menu exposes independent global catalogue and batch inventory
+PASS synthetic product API fixture
+PASS manager creates real batch fields through UI; verified stock reads independently
+PASS global catalogue draft is independent from local stock and supports RTL mobile layout
+PASS staff menu excludes manager controls; direct routes deny editing
+FAIL unauthenticated routes expose login, API denies writes page.waitForSelector: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[autocomplete=username]') to be visible[22m
+
+    at /workspace/scratch/921845f84f0b/makeup-house-ai-advisor/tests/ui-intelligence-v32.mjs:27:175
+    at async step (/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/tests/ui-intelligence-v32.mjs:13:33)
+    at async file:///workspace/scratch/921845f84f0b/makeup-house-ai-advisor/tests/ui-intelligence-v32.mjs:27:1
+PASS no uncaught browser errors
+{"passed":6,"failed":1,"platform":"Host browser mobile viewport; NOT ANDROID","browser":"131.0.6778.204"}

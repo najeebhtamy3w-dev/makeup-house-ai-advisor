@@ -1,0 +1,19 @@
+✔ genuine plan completion differs from identical deterministic answer (8.088323ms)
+✔ unknown products and missing authoritative snapshot fail identity (0.377307ms)
+✔ draft products and unavailable local recommendations fail (0.226735ms)
+✔ global product cannot be asserted locally available (0.211006ms)
+✔ unknown claims fail grounding (0.293299ms)
+✔ quotation is never genuine completion (0.519764ms)
+✔ missing tools or unauthorized mutation fail tool selection (0.406682ms)
+✔ raw schema validity is not repaired-plan validity (0.189305ms)
+✔ critical safety cannot wait for a model invocation (0.374412ms)
+✔ ablation must actually disable model (0.368982ms)
+✔ unmeasured metrics remain null rather than passing (0.790632ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 484.439883
