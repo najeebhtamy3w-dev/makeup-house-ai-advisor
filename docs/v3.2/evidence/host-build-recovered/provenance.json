@@ -1,0 +1,13 @@
+{
+  "status": "VERIFIED",
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "source_archive_sha256": "ae8556670b17c25931cd39eb7c95617650eaf6091bbcff206750583ddde1acb4",
+  "llama_commit": "b1b770d90d94cad9e9ea5b993bdbc383a522fb28",
+  "binary_sha256": "caf8d19c8103f595bcf2355c7c32ca6814387b70b81a6f397b58844a20c6f07f",
+  "tools": {
+    "cmake": "cmake version 3.31.6",
+    "ninja": "1.11.1.git.kitware.jobserver-1",
+    "g++": "g++ (Debian 14.2.0-19) 14.2.0",
+    "node": "v24.22.3"
+  }
+}
