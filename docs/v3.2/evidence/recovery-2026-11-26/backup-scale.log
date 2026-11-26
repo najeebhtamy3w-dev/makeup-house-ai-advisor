@@ -1,0 +1,12 @@
+V32_BACKUP_METRIC {"kind":"MHBAK1_host_legacy","synthetic_products":10000,"sqlite_bytes":9609216,"encrypted_bytes":9609819,"elapsed_ms":1979,"migrations":["010","011"],"android":false}
+✔ 10,000 synthetic rows: baseline009 additive migration and MHBAK1 legacy decrypt/restore preserve exact content (1982.52357ms)
+V32_BACKUP_METRIC {"kind":"MHBAK2_host_stream","synthetic_products":10000,"synthetic_global_products":10000,"synthetic_batches":10000,"sqlite_bytes":12382208,"encrypted_bytes":12383257,"data_frames":12,"max_plain_chunk_bytes":1048576,"encryption_ms":209,"decryption_ms":142,"elapsed_ms":3263,"android":false,"peak_memory":"NOT_MEASURED"}
+✔ 10,000 synthetic local/global/batch records: actual MHBAK2 file stream authenticates and restores complete V3.2 state (3268.395293ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5736.440383
