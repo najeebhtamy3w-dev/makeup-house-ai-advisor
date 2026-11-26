@@ -1,0 +1,28 @@
+// Synthetic isolated UI fixtures only; not evidence of real catalogue or stock quality.
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdirSync} from 'node:fs';
+const require=createRequire(import.meta.url);
+const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright');
+const base=process.argv[2]??'http://localhost:8096';
+const out=process.env.SHOTS??'/tmp/mh-v32-ui-shots';mkdirSync(out,{recursive:true});
+const browser=await chromium.launch({executablePath:process.env.CHROME_PATH,args:['--no-sandbox']});
+const context=await browser.newContext({viewport:{width:390,height:844},locale:'ar'});
+const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));let failed=0,passed=0;
+const step=async(name,fn)=>{try{await fn();passed++;console.log('PASS',name);}catch(e){failed++;console.error('FAIL',name,e.stack);}};
+const login=async(u,p)=>{await page.goto(base);await page.evaluate(()=>{sessionStorage.clear();location.hash='';});await page.reload();await page.fill('input[autocomplete=username]',u);await page.fill('input[type=password]',p);await page.click('button[type=submit]');await page.waitForSelector('nav.nav');};
+const api=async(method,path,body)=>page.evaluate(async({method,path,body})=>{const r=await fetch(path,{method,headers:{authorization:'Bearer '+sessionStorage.getItem('mh_token'),'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});return {status:r.status,data:await r.json()};},{method,path,body});
+const navigate=async(route,selector)=>{await page.evaluate(r=>location.hash='#/'+r,route);await page.waitForSelector(selector);};
+const layout=async()=>{assert.equal(await page.getAttribute('html','dir'),'rtl');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal overflow');};
+try{
+await login('admin','admin-password-1');
+let id;
+await step('manager menu exposes independent global catalogue and batch inventory',async()=>{await page.click('nav button:last-child');assert.ok(await page.locator('.sheet button').filter({hasText:'الكتالوج العالمي'}).isVisible());assert.ok(await page.locator('.sheet button').filter({hasText:'الدفعات والمخزون'}).isVisible());await page.locator('.sheet').click({position:{x:1,y:1}});});
+await step('synthetic product API fixture',async()=>{const r=await api('POST','/api/products',{name:'اصطناعي لاختبار واجهة الدفعات',verification:'verified',source_url:'https://example.test/synthetic-ui',ingredients:'Aqua, Glycerin'});assert.equal(r.status,200);id=r.data.id;});
+await step('manager creates real batch fields through UI; verified stock reads independently',async()=>{await navigate('inventory','#batch-code');await page.fill('input[type=search]','اصطناعي لاختبار');await page.getByRole('button',{name:'بحث',exact:true}).click();await page.waitForSelector(`#batch-product option[value="${id}"]`,{state:'attached'});await page.selectOption('#batch-product',String(id));await page.fill('#batch-code','SYNTHETIC-UI-ONLY');await page.fill('#batch-quantity','3');await page.fill('#batch-expiry','2029-12-31');await page.click('#batch-save');await page.waitForSelector('text=حُفظت الدفعة.');const r=await api('GET','/api/inventory/availability/'+id);assert.equal(r.data.availability,'yes');assert.equal(r.data.valid_quantity,3);await layout();await page.screenshot({path:out+'/inventory-mobile.png',fullPage:true});});
+await step('global catalogue draft is independent from local stock and supports RTL mobile layout',async()=>{await navigate('global-products','form textarea');await page.locator('form input').nth(0).fill('منتج عالمي اصطناعي لاختبار الواجهة');await page.locator('form input').nth(1).fill('SYNTHETIC');await page.locator('form input').nth(2).fill('moisturizer');await page.locator('form textarea').fill('Aqua, Glycerin');await page.locator('form input[type=url]').fill('https://example.test/synthetic-global');await page.getByRole('button',{name:'حفظ معلومات المنتج العالمي'}).click();await page.waitForSelector('strong:has-text("منتج عالمي اصطناعي")');const r=await api('GET','/api/intelligence/global-products');const p=r.data.items.find(x=>x.name==='منتج عالمي اصطناعي لاختبار الواجهة');assert.equal(p.review_status,'draft');await layout();await page.screenshot({path:out+'/global-mobile.png',fullPage:true});});
+await login('sara','staff-password-1');
+await step('staff menu excludes manager controls; direct routes deny editing',async()=>{await page.click('nav button:last-child');assert.equal(await page.locator('.sheet button').filter({hasText:'الكتالوج العالمي'}).count(),0);assert.equal(await page.locator('.sheet button').filter({hasText:'الدفعات والمخزون'}).count(),0);await page.locator('.sheet').click({position:{x:1,y:1}});for(const r of ['inventory','global-products']){await navigate(r,'main .notice.err');assert.match(await page.textContent('main'),/للمدير فقط/);assert.equal(await page.locator('main form').count(),0);}await layout();});
+await step('unauthenticated routes expose login, API denies writes',async()=>{await page.evaluate(()=>sessionStorage.clear());await page.goto(base+'/#/inventory');await page.waitForSelector('input[autocomplete=username]');const r=await context.request.post(base+'/api/inventory/batches',{data:{product_id:id,batch_code:'DENIED',quantity:1,expires_on:'2029-12-31'}});assert.equal(r.status(),401);});
+await step('no uncaught browser errors',async()=>assert.deepEqual(errors,[]));
+}finally{await browser.close();}console.log(JSON.stringify({passed,failed,platform:'Host browser mobile viewport; NOT ANDROID',browser:await browser.version()}));process.exitCode=failed?1:0;

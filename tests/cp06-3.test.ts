@@ -18,7 +18,7 @@ test('migration chain: unique, ordered names; 009 is additive and keeps every or
   for (const f of files.filter((f) => f < '009')) { db.exec(readFileSync(new URL(`../server/migrations/${f}`, import.meta.url), 'utf8')); db.prepare('INSERT INTO schema_migrations VALUES (?, ?)').run(f, 'x'); }
   db.prepare("INSERT INTO products(name, created_at, updated_at) VALUES ('P', 'x', 'x')").run();
   db.prepare("INSERT INTO product_images(product_id, mime, bytes, size, origin, created_at) VALUES (1, 'image/png', ?, ?, 'upload', 'x')").run(PNG, PNG.length);
-  assert.deepEqual(migrate(db as never), ['009_cp06_3_image_thumbs.sql']);
+  assert.deepEqual(migrate(db as never), files.filter(f => f >= '009'));
   const r = db.prepare('SELECT bytes, thumb FROM product_images').get() as { bytes: Uint8Array; thumb: null };
   assert.deepEqual(Buffer.from(r.bytes), PNG); assert.equal(r.thumb, null);
   assert.deepEqual(migrate(db as never), [], 'idempotent');

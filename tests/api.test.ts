@@ -69,11 +69,12 @@ test('policy: price / cost / quantity fields are rejected, never stored', async 
     assert.equal(r.status, 400, JSON.stringify(extra));
   }
 });
-test('policy: schema has no price/cost/quantity columns anywhere', () => {
+test('policy: no financial columns; quantity only in authorized inventory batches', () => {
   const cols = (t.db.prepare("SELECT m.name t, p.name c FROM sqlite_master m, pragma_table_info(m.name) p WHERE m.type='table'").all() as { t: string; c: string }[]);
   // The ONE allowed exception: the advisor's own AI-provider spend estimate (CP06.2 §22 budget limit). It is not shop
   // finance (no product prices, costs, sales or stock) and is listed explicitly so any other money column still fails.
-  const AI_SPEND = new Set(['ai_usage.est_cost_usd']);
+  // V6 authorizes stock batches, never product financial fields.
+  const AI_SPEND = new Set(['ai_usage.est_cost_usd', 'inventory_batches.quantity']);
   const bad = cols.filter((x) => /price|cost|qty|quantity|profit|discount|balance|amount|سعر/i.test(x.c) && !AI_SPEND.has(`${x.t}.${x.c}`));
   assert.deepEqual(bad, []);
 });

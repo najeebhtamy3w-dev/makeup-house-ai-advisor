@@ -23,7 +23,7 @@ import '../../server/src/cp08/routes.ts';
 import { setRuntime } from '../../server/src/cp08/features.ts';
 setRuntime('device', () => navigator.onLine);
 
-export const LOCAL_VERSION = '3.1.0-rc.1-local';
+export const LOCAL_VERSION = '3.2.0-dev.1-local';
 // CP06.3 — two database slots + a tiny pointer database. A restore is written into the INACTIVE slot, verified there, and
 // only then does the pointer switch; the active database is never copied into memory and never touched before that.
 // Existing installs: no pointer yet → slot A = the original file name, so nothing moves on upgrade.

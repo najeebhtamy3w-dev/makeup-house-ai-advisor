@@ -37,7 +37,7 @@ export const localAI = {
     const cancel = () => { native.cancel({ token }).catch(() => {}); };
     if (composing) {
       if (current.kind === 'request_model') current = await post('/api/intelligence/advance', { ticket: current.ticket, raw: '', failure: 'runtime_busy' });
-      return current.answer ?? current;
+      return current;
     }
     composing = true;
     window.addEventListener('hashchange', cancel);
@@ -54,7 +54,7 @@ export const localAI = {
         current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, ...(failure ? { failure } : {}) });
       }
       if (current.kind !== 'final') throw new Error('انتهت ميزانية الاستشارة');
-      return { ...current.answer, intelligence: current.diagnostics };
+      return current;
     } finally { composing = false; clearTimeout(timer); window.removeEventListener('hashchange', cancel); }
   },
   async compose(result: any, token: string, fetchLocal: typeof fetch) {

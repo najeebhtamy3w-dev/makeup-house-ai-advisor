@@ -62,7 +62,7 @@ export async function intel(root) {
     statusEl, ctxEl, log,
     h('form', { class: 'composer', onsubmit: (e) => { e.preventDefault(); send(); } }, input, h('button', { class: 'btn', type: 'submit' }, 'إرسال')),
     window.MHLocalAI?.available ? h('button', { class: 'btn sm out', onclick: async () => { const { getToken } = await import('./api.js'); await window.MHLocalAI.call('cancel', getToken()).catch(() => {}); } }, 'إلغاء التوليد') : null,
-    h('button', { class: 'btn sm out', type: 'button', id: 'intel-reset', onclick: () => { epoch++; window.MHLocalAI?.call('cancel', getToken()).catch(() => {}); sessionId = undefined; fill(log); fill(ctxEl); log.append(h('div', { class: 'notice info' }, 'محادثة جديدة: لا يُستخدم أي سياق سابق.')); } }, 'محادثة جديدة'));
+    h('button', { class: 'btn sm out', type: 'button', id: 'intel-reset', onclick: async () => { epoch++; window.MHLocalAI?.call('cancel', getToken()).catch(() => {}); const previous = sessionId; sessionId = undefined; if (previous) { try { await api('DELETE', '/api/intelligence/session/' + previous); } catch {} } fill(log); fill(ctxEl); log.append(h('div', { class: 'notice info' }, 'محادثة جديدة: لا يُستخدم أي سياق سابق.')); } }, 'محادثة جديدة'));
   try {
     status = await api('GET', '/api/cp08/status'); drawStatus();
     if (window.MHLocalAI?.available) {
@@ -75,6 +75,7 @@ export async function intel(root) {
 function renderAnswer(r, send) {
   const a = r.answer; const [label, cls] = USED_BADGE[r.mode_used] ?? USED_BADGE.offline;
   const out = [h('div', {}, h('span', { class: `badge ${cls}`, id: 'answer-mode' }, label), r.mode_requested !== r.mode_used ? h('span', { class: 'tiny muted' }, ` (طُلب: ${MODE_AR[r.mode_requested]})`) : null)];
+  if (r.intelligence) out.push(h('div', { class: 'notice info' }, r.intelligence.generative_completion ? 'استشارة خططها النموذج المحلي واجتازت التحقق البرمجي؛ ليست مراجعة علمية بشرية.' : r.intelligence.provenance === 'clarification' ? 'سؤال استيضاحي من النموذج المحلي.' : r.intelligence.provenance === 'evidence_selection' ? 'اختيار معرفي من النموذج؛ لم يُثبت استدلال توليدي متكامل.' : 'المسار العلمي البديل: ' + (r.intelligence.fallback_reason ?? r.intelligence.provenance)));
   if (r.local_ai) out.push(h('div', { class: 'notice info' }, r.local_ai.note), r.local_ai.ok ? h('div', { class: 'card', id: 'local-ai-answer' }, r.local_ai.text.split('\n').map(t => h('p', {}, t))) : null);
   if (r.cloud?.mode_used === 'cloud_assisted') out.push(h('div', { class: 'card cloud-text' }, r.cloud.text.split('\n').slice(1).filter((l) => !l.startsWith('【') && !l.startsWith('- ') && !l.startsWith('حالة')).map((l) => h('p', {}, l))));
   for (const s of a.sections) {
