@@ -37,7 +37,9 @@ const why = (sv) => h('details', { class: 'why' }, h('summary', {}, 'لماذا 
   sv.missing?.length ? h('div', { class: 'tiny' }, h('b', {}, 'معلومات ناقصة'), ul(sv.missing)) : null,
   sv.precautions?.length ? h('div', { class: 'tiny' }, h('b', {}, 'احتياطات'), ul(sv.precautions)) : null,
   sv.limitations?.length ? h('div', { class: 'tiny muted' }, h('b', {}, 'حدود المعلومة'), ul(sv.limitations)) : null);
-export function advisor(root) {
+// One consultation surface: the legacy implementation remains only for compatibility testing.
+export function advisor(root) { return import('./views-intel.js').then(m => m.intel(root)); }
+export function legacyAdvisor(root) {
   const msgs = h('div', { class: 'msgs', 'aria-live': 'polite' }, h('div', { class: 'bub' }, 'صِفي البشرة أو الشعر والمشكلة أو المنتج المطلوب بكلماتك (فصحى أو لهجة). أشرح وأرشد من معرفة منظمة بمصادرها، ثم أبحث في منتجات المحل المسجلة. لا تشخيص طبي.'));
   const input = h('input', { placeholder: 'مثال: زبونة بشرتها جافة وحساسة وتريد مرطب ما يهيج', enterkeyhint: 'send', 'aria-label': 'نص الاستشارة' });
   const chips = h('div', { class: 'sugg' }); let last = '';

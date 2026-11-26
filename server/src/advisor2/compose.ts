@@ -112,6 +112,8 @@ export async function consult(db: DB, userId: number, sessionId: string | undefi
       return finish(lg.follow_up);
     }
   }
+  // Referrals must survive every early clarification branch.
+  if (safety.referrals.length) sec('safety_warnings', 'متى تراجعين مختصًا', safety.referrals.map(text => ({text})));
   if (u.intent === 'unclear' || u.intent === 'greeting') {
     sec('clarifying_questions', 'كيف أساعدك؟', [{ text: 'صِفي البشرة أو الشعر والمشكلة أو المنتج المطلوب، مثل: «بشرتي جافة وحساسة وأريد غسولًا» أو «شعري دهني وفيه قشرة».' }]);
     return finish({ question: 'عن ماذا تسألين؟', choices: ['البشرة', 'الشعر وفروة الرأس', 'مكوّن معيّن', 'ترتيب روتين'] });
@@ -147,7 +149,7 @@ export async function consult(db: DB, userId: number, sessionId: string | undefi
       } catch { sec('global_alternatives', 'ثانيًا: بدائل عالمية غير مسجلة', [{ text: 'تعذر الوصول إلى المصدر العالمي الآن؛ الإرشادات أعلاه لا تتأثر.' }]); }
     }
   }
-  const warnings = [...safety.referrals, ...referral.map((x) => { x.sources.forEach((id) => used.add(id)); return x.text_ar; })];
+  const warnings = [...referral.map((x) => { x.sources.forEach((id) => used.add(id)); return x.text_ar; })];
   if (warnings.length) sec('safety_warnings', 'متى تراجعين مختصًا', warnings.map((w) => ({ text: w })));
   const follow = pickFollowUp(u, topics);
   if (follow) { ctx.asked = [...new Set([...ctx.asked, followKey(follow, topics)])]; sec('clarifying_questions', 'سؤال يساعدني أدقّق الإجابة', [{ text: follow.question }]); }

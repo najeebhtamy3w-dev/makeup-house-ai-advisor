@@ -36,7 +36,7 @@ window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const src = init?.body ?? (req && method !== 'GET' ? await req.arrayBuffer() : null);
   const body = src == null ? null : await new Response(src as BodyInit).arrayBuffer();
   await window.MH_READY;
-  if (url.pathname === '/api/cp08/advisor/chat' && method === 'POST' && Capacitor.isNativePlatform() && body) {
+  if (['/api/intelligence/consult','/api/cp08/advisor/chat'].includes(url.pathname) && method === 'POST' && Capacitor.isNativePlatform() && body) {
     const input = JSON.parse(new TextDecoder().decode(body));
     if ((input.mode ?? 'offline') === 'offline') {
       const result = await localAI.consult(input, (headers.get('authorization') ?? '').replace(/^Bearer /, ''), window.fetch);

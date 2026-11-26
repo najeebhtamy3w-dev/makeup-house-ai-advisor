@@ -9,10 +9,12 @@ interface NativeAI {
   reset(o: { token: string }): Promise<any>;
   test(o: { token: string }): Promise<any>;
   cancel(o: { token: string }): Promise<void>;
-  generate(o: { token: string; prompt: string; task?: string; max_tokens?: number }): Promise<{ text: string; ms: number }>;
+  generate(o: { token: string; prompt: string; task?: string; max_tokens?: number; allowed_product_ids?: number[]; allowed_claim_ids?: string[] }): Promise<{ text: string; ms: number }>;
 }
 const native = registerPlugin<NativeAI>('LocalAI');
 let composing = false;
+let cancellationEpoch = 0;
+const phase = (state:string,detail:string) => window.dispatchEvent(new CustomEvent('mh-ai-progress',{detail}));
 export const localAI = {
   available: Capacitor.isNativePlatform(),
   async diagnostics(token: string) {
@@ -22,6 +24,7 @@ export const localAI = {
   async call(action: keyof NativeAI, token: string) {
     if (!Capacitor.isNativePlatform()) throw new Error('يتطلب تطبيق Android');
     if (!['status', 'install', 'activate', 'deactivate', 'remove', 'reset', 'cancel', 'test'].includes(action)) throw new Error('عملية غير مسموحة');
+    if(action==='cancel')cancellationEpoch++;
     const out = await (native[action] as (o: { token: string }) => Promise<any>)({ token });
     if (['activate', 'deactivate', 'remove', 'install'].includes(action)) {
       const r = await fetch('/api/local-ai/config', { method: 'POST', headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' }, body: JSON.stringify({ model_id: 'qwen35-2b-q4km', desired_active: Boolean(out?.active) }) });
@@ -29,6 +32,7 @@ export const localAI = {
     }
     return out;
   },
+  async diagnose(token:string,prompt:string){if(!Capacitor.isNativePlatform())throw new Error('يتطلب تطبيق Android');return (native as any).diagnose({token,prompt,max_tokens:256});},
   async consult(body: any, token: string, fetchLocal: typeof fetch) {
     const headers = { authorization: 'Bearer ' + token, 'content-type': 'application/json' };
     const post = async (path: string, data: any) => {
@@ -38,7 +42,8 @@ export const localAI = {
       return result;
     };
     let current = await post('/api/intelligence/start', { message: body.message, ...(body.session_id ? { session_id: body.session_id } : {}) });
-    const cancel = () => { native.cancel({ token }).catch(() => {}); };
+    const epoch=cancellationEpoch;const deadline=Date.now()+150_000;
+    const cancel = () => { cancellationEpoch++; native.cancel({ token }).catch(() => {}); };
     if (composing) {
       if (current.kind === 'request_model') current = await post('/api/intelligence/advance', { ticket: current.ticket, raw: '', failure: 'runtime_busy' });
       return current;
@@ -48,17 +53,22 @@ export const localAI = {
     const timer = setTimeout(cancel, 150_000);
     try {
       for (let i = 0; current.kind === 'request_model' && i < 4; i++) {
-        let raw = '', failure: string | undefined;
+        let raw = '', failure: string | undefined, model_started=false;
         try {
+          if(epoch!==cancellationEpoch||Date.now()>deadline)throw new Error('consultation_cancelled');
           const status = await native.status({ token });
+          phase(status.loaded?'understanding':'loading',status.loaded?'جار فهم السؤال والتخطيط':'جار تحميل النموذج المحلي');
           if (!status.active || !status.installed || status.error) throw new Error('model_unavailable');
-          const output = await native.generate({ token, prompt: current.prompt, task: current.task, max_tokens: current.max_tokens });
-          raw = output.text;
-        } catch { failure = 'local_runtime_unavailable_or_interrupted'; }
-        current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, ...(failure ? { failure } : {}) });
+          phase(current.task,current.task==='plan'?'جار فهم السؤال والتخطيط':'جار تحليل الأدلة وتوليد الإجابة');
+          model_started=true;
+          const output = await native.generate({ token, prompt: current.prompt, task: current.task, max_tokens: current.max_tokens, allowed_product_ids: current.allowed_product_ids ?? [], allowed_claim_ids: current.allowed_claim_ids ?? [] });
+          if(epoch!==cancellationEpoch||Date.now()>deadline)throw new Error('consultation_cancelled');
+          raw = output.text;phase('validating','جار التحقق من الادعاءات واسترجاع الأدوات');
+        } catch(e) { failure = epoch!==cancellationEpoch?'cancelled':Date.now()>deadline?'deadline':e instanceof Error?e.message.slice(0,80):'local_runtime_unavailable_or_interrupted'; }
+        current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, model_started, ...(failure ? { failure } : {}) });
       }
       if (current.kind !== 'final') throw new Error('انتهت ميزانية الاستشارة');
-      return current;
+      phase('completed','اكتملت الإجابة');return current;
     } finally { composing = false; clearTimeout(timer); window.removeEventListener('hashchange', cancel); }
   },
   async compose(result: any, token: string, fetchLocal: typeof fetch) {

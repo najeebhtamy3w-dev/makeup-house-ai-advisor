@@ -81,6 +81,7 @@ export function understand(text: string, prev: TAdvisorContext = AdvisorContext.
   else if (EXPLAIN.test(q) || concerns.length || skinSaid.length || hairSaid.length) intent = 'explain';
   else if (/^(السلام|مرحبا|اهلا|هلا|صباح الخير|مساء الخير)/.test(q)) intent = 'greeting';
   else if (facts.includes('using')) intent = 'explain';
+  else if (ctx.asked.length && ctx.concerns.length && q.split(/\s+/).length <= 5 && !/(امكاني|قدرات|اسمك|شكرا|موضوع اخر)/.test(q)) intent = 'explain';
   else intent = 'unclear';
   return { ctx, intent, asked_product_type: asked, new_facts: facts, refers_to_previous_product: refers, corrected };
 }

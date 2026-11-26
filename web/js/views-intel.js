@@ -1,4 +1,4 @@
-// CP08 — staff screens for the unified advisor (shown only when the server answers /api/cp08/status, i.e. MH_CP07=1).
+// Unified primary advisor plus manager knowledge administration; no separate experimental consultation path.
 //   intel     : consultation with an explicit operating mode (local / scientific research / cloud), context, sources,
 //               an UNREVIEWED research panel, and a clear badge saying how each answer was produced.
 //   knowledge : manager-only knowledge review — gaps, pending claims (approve / reject / record a qualified review),
@@ -6,96 +6,119 @@
 // No prices, no stock quantities, no customer data. Arabic RTL, mobile-first (360 px).
 import { api, getToken } from './api.js';
 import { h, fill, toast, busy, skeleton, errorBox, emptyState } from './util.js';
+import { thumb } from './images.js';
+import { openChatProductAttachment } from './chat-product-attachment.js';
 
 const MODE_AR = { offline: 'محلي (دون إنترنت)', research: 'بحث علمي على الإنترنت', cloud: 'نموذج سحابي' };
-const USED_BADGE = { offline: ['إجابة محلية', 'ok'], research: ['محلية + أدلة مكتشفة غير مراجعة', 'warn'], cloud: ['صياغة بمساعدة نموذج سحابي', 'warn'] };
 const SKIN = { dry: 'جافة', oily: 'دهنية', combination: 'مختلطة', sensitive: 'حساسة', normal: 'عادية' };
 const HAIR = { dry: 'جاف', oily: 'دهني', colored: 'مصبوغ', curly: 'مجعد', damaged: 'متقصف' };
-const TYPE = { cleanser: 'غسول', moisturizer: 'مرطب', sunscreen: 'واقي شمس', serum: 'سيروم', toner: 'تونر', shampoo: 'شامبو', conditioner: 'بلسم', hair_oil: 'زيت شعر', mask: 'ماسك', exfoliant: 'مقشر' };
-const ING = { glycerin: 'الجليسرين', urea: 'اليوريا', petrolatum: 'الفازلين', 'ceramide np': 'السيراميدات', 'sodium hyaluronate': 'الهيالورونيك', niacinamide: 'النياسيناميد', 'salicylic acid': 'الساليسيليك', retinol: 'الريتينول', adapalene: 'الأدابالين', 'benzoyl peroxide': 'البنزويل بيروكسايد', dimethicone: 'الدايميثيكون', panthenol: 'البانثينول', 'vitamin c': 'فيتامين C' };
-const CONS = { lightweight: 'خفيف', non_comedogenic: 'لا يسد المسام', fragrance_free: 'بدون عطر', for_sensitive: 'لطيف', oil_free: 'بدون زيوت', alcohol_free: 'بدون كحول', sulfate_free: 'بدون سلفات' };
-const SECTION_CLASS = { referral: 'notice err', warnings: 'notice warn', insufficient: 'notice info', scope: 'notice info' };
+const CONCERN = { oil: 'دهون', dryness: 'جفاف', sensitivity: 'حساسية', acne: 'حبوب', pigmentation: 'تصبغات', dandruff: 'قشرة', hair_loss: 'تساقط الشعر', breakage: 'تكسر', sun: 'حماية من الشمس', hydration: 'ترطيب', irritation: 'تهيج', unknown: 'حاجة للتوضيح' };
 
+/** Main consultation UI. Every message enters the same orchestrator; model absence/failure is explicit. */
 export async function intel(root) {
-  let sessionId; let mode = 'offline'; let status = null;
-  let sending = false;
-  let epoch = 0;
-  const statusEl = h('div', { class: 'card', id: 'intel-status' }, skeleton(1));
-  const ctxEl = h('div', { class: 'tiny', id: 'intel-context', 'aria-live': 'polite' });
-  const log = h('div', { class: 'chat', id: 'intel-log' });
-  const input = h('input', { placeholder: 'اكتب سؤال العميلة… مثل: بشرتي جافة وأشتي غسول', 'aria-label': 'السؤال', maxlength: 1000 });
-  const send = async (text) => {
-    const q = (text ?? input.value).trim(); if (!q || sending) return; input.value = ''; sending = true;
-    const turnEpoch = epoch;
-    log.append(h('div', { class: 'bub me' }, q)); const wait = h('div', { class: 'bub res ibub' }, skeleton(2)); log.append(wait); wait.scrollIntoView({ block: 'end' });
-    const showScientific = e => { if (turnEpoch === epoch && wait.isConnected) { sessionId = e.detail.session_id; fill(wait, renderAnswer(e.detail, send)); drawContext(e.detail.answer.understanding); } };
-    window.addEventListener('mh-ai-scientific-result', showScientific);
-    try {
-      const r = await api('POST', '/api/cp08/advisor/chat', { message: q, session_id: sessionId, mode });
-      if (turnEpoch !== epoch) return;
-      sessionId = r.session_id; fill(wait, renderAnswer(r, send)); drawContext(r.answer.understanding);
-    } catch (e) { fill(wait, errorBox(e.message)); }
-    finally { window.removeEventListener('mh-ai-scientific-result', showScientific); sending = false; }
-  };
+  let sessionId, mode = 'offline', status, isManager = false, nativeStatus;
+  let sending = false, epoch = 0;
+  const statusEl = h('div', { class: 'tiny muted', id: 'advisor-mode', 'aria-live': 'polite' }, 'جارٍ التحقق من محرك الاستشارة…');
+  const ctxEl = h('details', { class: 'tiny', id: 'intel-context' });
+  const log = h('div', { class: 'chat', id: 'intel-log', 'aria-live': 'polite' });
+  const progress = h('div', { class: 'tiny muted', id: 'advisor-progress', role: 'status' });
+  const input = h('input', { placeholder: 'تحدث عن البشرة أو الشعر أو المنتج الذي تريد فهمه…', 'aria-label': 'نص الاستشارة', maxlength: 1000, enterkeyhint: 'send' });
+  const sendButton = h('button', { class: 'btn', type: 'submit' }, 'إرسال');
+  const cancel = async () => { if (window.MHLocalAI?.available) await window.MHLocalAI.call('cancel', getToken()).catch(() => {}); };
   const drawContext = (u) => {
-    const c = u.conversation_context ?? {}; const chips = [];
-    if (c.skin?.length) chips.push(`البشرة: ${c.skin.map((s) => SKIN[s] ?? s).join('، ')}`);
-    if (c.hair?.length) chips.push(`الشعر: ${c.hair.map((s) => HAIR[s] ?? s).join('، ')}`);
-    if (c.product_type) chips.push(`المطلوب: ${TYPE[c.product_type] ?? c.product_type}`);
-    if (c.ingredients_discussed?.length) chips.push(`المكوّن: ${c.ingredients_discussed.map((x) => ING[x] ?? x).join('، ')}`);
-    if (c.avoid?.length) chips.push(`الشروط: ${c.avoid.map((x) => CONS[x] ?? x).join('، ')}`);
-    fill(ctxEl, chips.length ? [h('b', {}, 'سياق المحادثة: '), chips.map((x) => h('span', { class: 'badge', style: 'margin:2px' }, x))] : null);
+    const c = u?.conversation_context ?? {}, lines = [];
+    if (c.skin?.length) lines.push('البشرة: ' + c.skin.map(s => SKIN[s] ?? s).join('، '));
+    if (c.hair?.length) lines.push('الشعر: ' + c.hair.map(s => HAIR[s] ?? s).join('، '));
+    if (c.concerns?.length) lines.push('احتياجات محفوظة: ' + c.concerns.map(x => CONCERN[x] ?? x).join('، '));
+    if (c.product_refs?.length) lines.push('المنتجات المرجعية: ' + c.product_refs.map(p => p.name).join('، '));
+    fill(ctxEl, lines.length ? [h('summary', {}, 'سياق الاستشارة — قابل للتصحيح'), lines.map(line => h('p', {}, line))] : null);
   };
+  const send = async (text) => {
+    const q = String(text ?? input.value).trim(); if (!q || sending) return;
+    input.value = ''; sending = true; sendButton.disabled = true;
+    const turnEpoch = epoch;
+    log.append(h('div', { class: 'bub me' }, q));
+    const wait = h('div', { class: 'bub res ibub' }, skeleton(1)); log.append(wait); wait.scrollIntoView({ block: 'end' });
+    fill(progress, 'جارٍ فهم السؤال والتحقق من المعرفة…');
+    try {
+      const r = await api('POST', '/api/intelligence/consult', { message: q, ...(sessionId ? { session_id: sessionId } : {}), mode });
+      if (turnEpoch !== epoch || !wait.isConnected) return;
+      if (!r?.answer) throw new Error('لم تكتمل الاستشارة. لم تُعرض إجابة بديلة على أنها ذكاء توليدي.');
+      sessionId = r.session_id; fill(wait, renderAnswer(r, send)); drawContext(r.answer.understanding);
+    } catch (e) { if (turnEpoch === epoch) fill(wait, errorBox('تعذرت الاستشارة: ' + e.message, () => { input.value = q; send(); })); }
+    finally { if (turnEpoch === epoch) { sending = false; sendButton.disabled = false; fill(progress); } }
+  };
+  const reset = async () => {
+    epoch++; await cancel(); const previous = sessionId; sessionId = undefined; sending = false; sendButton.disabled = false;
+    if (previous) try { await api('DELETE', '/api/intelligence/session/' + previous); } catch { /* new local session will be used */ }
+    fill(log); fill(ctxEl); fill(progress); input.value = ''; log.append(h('div', { class: 'tiny muted' }, 'محادثة جديدة؛ لا يُستخدم سياق العميل السابق.'));
+  };
+  const modeControls = h('details', { class: 'tiny' }, h('summary', {}, 'خيارات الاتصال وحالة المحرك'));
   const drawStatus = () => {
-    const m = status.modes;
-    const opt = (id, ok, why) => h('label', { class: 'item', style: `display:flex;gap:6px;align-items:center;opacity:${ok ? 1 : 0.55}` },
-      h('input', { type: 'radio', name: 'mode', id: 'mode-' + id, value: id, checked: mode === id, disabled: !ok, onchange: () => { mode = id; } }), MODE_AR[id], why ? h('span', { class: 'tiny muted' }, ` — ${why}`) : null);
-    fill(statusEl, h('h3', { class: 'fsec-t' }, 'وضع التشغيل'),
-      opt('offline', true, 'يعمل دائمًا'),
-      opt('research', m.research.available, !m.research.enabled ? 'معطّل من المدير' : !m.research.online ? 'لا اتصال' : 'النتائج غير مراجعة'),
-      opt('cloud', m.cloud.enabled, m.cloud.enabled ? `${m.cloud.provider}` : m.cloud.reason),
-      (m.research.sources ?? []).filter((x) => !x.available).map((x) => h('p', { class: 'tiny muted', id: 'research-source-note' }, x.reason_ar)),
-      h('p', { class: 'tiny muted' }, status.note_ar));
+    const research = status?.modes?.research ?? {}, cloud = status?.modes?.cloud ?? {};
+    const opt = (id, ok, why) => h('label', { class: 'item' }, h('input', { type: 'radio', name: 'mode', id: 'mode-' + id, value: id, checked: mode === id, disabled: !ok, onchange: () => { mode = id; } }), ' ', MODE_AR[id], why ? h('span', { class: 'tiny muted' }, ' — ' + why) : null);
+    const localReady = !!(nativeStatus?.installed && nativeStatus?.active && nativeStatus?.loaded && !nativeStatus?.error);
+    let text;
+    if (window.MHLocalAI?.available) text = localReady ? 'النموذج المحلي مثبت ومفعّل ومحمّل في الذاكرة؛ يُبيّن كل رد هل استُخدم فعليًا.' : nativeStatus ? (!nativeStatus.installed ? 'النموذج المحلي غير مثبت؛ الاستشارات التوليدية تحتاج تنزيله وتفعيله.' : nativeStatus.error ? 'تعذر تشغيل النموذج المحلي: ' + nativeStatus.error : !nativeStatus.active ? 'النموذج مثبت وغير مفعّل؛ فعّله من إدارة الذكاء المحلي.' : 'النموذج مثبت ومفعّل لكنه غير محمّل في الذاكرة الآن؛ سيُحمّل عند الاستدلال. هذا لا يعني فقد ملف النموذج.') : 'تعذر التحقق من حالة النموذج المحلي؛ لا يُفترض أنه يعمل.';
+    else text = status?.host_model?.available ? 'محرك توليدي متصل ببيئة الاختبار؛ ليس تشغيل Samsung.' : 'لا يوجد محرك توليدي متاح في هذه البيئة؛ سيظهر أي مسار معرفي بديل بوضوح.';
+    fill(statusEl, text, isManager && window.MHLocalAI?.available && (!nativeStatus?.installed || !nativeStatus?.active || nativeStatus?.error) ? [' ', h('a', { href: '#/local-ai' }, 'إدارة الذكاء المحلي')] : null);
+    fill(modeControls, h('summary', {}, 'خيارات الاتصال وحالة المحرك'), opt('offline', true, 'المعرفة والأدوات المحلية'), opt('research', !!research.available, !research.enabled ? 'معطّل من المدير' : !research.online ? 'لا اتصال' : 'نتائج البحث تحتاج مراجعة'), opt('cloud', !!cloud.enabled, cloud.reason ?? 'اختياري'), (research.sources ?? []).filter(x => !x.available).map(x => h('p', { class: 'tiny muted', id: 'research-source-note' }, x.reason_ar)), status?.note_ar ? h('p', { class: 'tiny muted' }, status.note_ar) : null,
+      h('button', { type: 'button', class: 'btn sm out', onclick: refreshStatus }, 'تحديث حالة المحرك'));
   };
-  root.append(h('h2', { class: 't' }, 'المستشار العلمي (تجريبي)'),
-    h('p', { class: 'tiny muted' }, 'كل جملة مرتبطة بمصدر. المعرفة لم يراجعها مختص مؤهل بعد، والإجابة تقول ذلك. ليس تشخيصًا.'),
-    statusEl, ctxEl, log,
-    h('form', { class: 'composer', onsubmit: (e) => { e.preventDefault(); send(); } }, input, h('button', { class: 'btn', type: 'submit' }, 'إرسال')),
-    window.MHLocalAI?.available ? h('button', { class: 'btn sm out', onclick: async () => { const { getToken } = await import('./api.js'); await window.MHLocalAI.call('cancel', getToken()).catch(() => {}); } }, 'إلغاء التوليد') : null,
-    h('button', { class: 'btn sm out', type: 'button', id: 'intel-reset', onclick: async () => { epoch++; window.MHLocalAI?.call('cancel', getToken()).catch(() => {}); const previous = sessionId; sessionId = undefined; if (previous) { try { await api('DELETE', '/api/intelligence/session/' + previous); } catch {} } fill(log); fill(ctxEl); log.append(h('div', { class: 'notice info' }, 'محادثة جديدة: لا يُستخدم أي سياق سابق.')); } }, 'محادثة جديدة'));
-  try {
-    status = await api('GET', '/api/cp08/status'); drawStatus();
-    if (window.MHLocalAI?.available) {
-      try { const s = await window.MHLocalAI.call('status', getToken()); statusEl.append(h('p', { class: 'tiny' }, s.active && s.installed && !s.error ? 'الذكاء التوليدي المحلي متاح؛ كل صياغة تمر بالتحقق العلمي.' : 'الذكاء التوليدي المحلي غير متاح؛ المستشار العلمي بالقواعد يعمل.')); }
-      catch { statusEl.append(h('p', { class: 'tiny' }, 'تعذر التحقق من النموذج المحلي؛ المستشار العلمي بالقواعد يعمل.')); }
-    }
-  } catch (e) { fill(statusEl, errorBox(e.message)); }
+  async function refreshStatus() {
+    try { status = await api('GET', '/api/intelligence/status'); } catch (e) { fill(statusEl, errorBox('تعذر التحقق من المحرك: ' + e.message)); return; }
+    if (window.MHLocalAI?.available) { try { nativeStatus = await window.MHLocalAI.call('status', getToken()); } catch { nativeStatus = undefined; } }
+    drawStatus();
+  }
+  root.append(statusEl, modeControls, ctxEl, log, progress,
+    h('form', { class: 'composer', onsubmit: e => { e.preventDefault(); send(); } }, input, sendButton),
+    h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn sm out', id: 'chat-product-attachment', onclick: async () => { try { await openChatProductAttachment({ onContext: text => { input.value = text; input.focus?.(); }, onStored: product => { if (root.isConnected) log.append(h('div', { class: 'tiny muted' }, `حُفظ سجل المنتج «${product.name}»؛ الحفظ لا يعني اعتمادًا علميًا أو توفرًا.`)); } }); } catch (e) { fill(progress, e.message); } } }, 'صورة منتج / باركود'), window.MHLocalAI?.available ? h('button', { type: 'button', class: 'btn sm out', onclick: cancel }, 'إلغاء التوليد') : null,
+      h('button', { type: 'button', class: 'btn sm out', id: 'intel-reset', onclick: reset }, 'محادثة جديدة')));
+  const onProgress = e => { if (!root.isConnected) { window.removeEventListener('mh-ai-progress', onProgress); return; } if (sending) fill(progress, String(e.detail ?? 'جارٍ التوليد والتحقق…')); };
+  window.addEventListener('mh-ai-progress', onProgress);
+  window.addEventListener('hashchange', () => { epoch++; window.removeEventListener('mh-ai-progress', onProgress); cancel(); }, { once: true });
+  try { const me = await api('GET', '/api/auth/me'); isManager = me?.user?.role === 'manager'; } catch { /* status still readable for current session */ }
+  await refreshStatus();
 }
 
+/** Only a validated final response may reach this renderer. No raw native tokens are displayed. */
+export function renderUnifiedAnswer(r, send = () => {}) { return renderAnswer(r, send); }
 function renderAnswer(r, send) {
-  const a = r.answer; const [label, cls] = USED_BADGE[r.mode_used] ?? USED_BADGE.offline;
-  const out = [h('div', {}, h('span', { class: `badge ${cls}`, id: 'answer-mode' }, label), r.mode_requested !== r.mode_used ? h('span', { class: 'tiny muted' }, ` (طُلب: ${MODE_AR[r.mode_requested]})`) : null)];
-  if (r.intelligence) out.push(h('div', { class: 'notice info' }, r.intelligence.generative_completion ? 'استشارة خططها النموذج المحلي واجتازت التحقق البرمجي؛ ليست مراجعة علمية بشرية.' : r.intelligence.provenance === 'clarification' ? 'سؤال استيضاحي من النموذج المحلي.' : r.intelligence.provenance === 'evidence_selection' ? 'اختيار معرفي من النموذج؛ لم يُثبت استدلال توليدي متكامل.' : 'المسار العلمي البديل: ' + (r.intelligence.fallback_reason ?? r.intelligence.provenance)));
-  if (r.local_ai) out.push(h('div', { class: 'notice info' }, r.local_ai.note), r.local_ai.ok ? h('div', { class: 'card', id: 'local-ai-answer' }, r.local_ai.text.split('\n').map(t => h('p', {}, t))) : null);
-  if (r.cloud?.mode_used === 'cloud_assisted') out.push(h('div', { class: 'card cloud-text' }, r.cloud.text.split('\n').slice(1).filter((l) => !l.startsWith('【') && !l.startsWith('- ') && !l.startsWith('حالة')).map((l) => h('p', {}, l))));
-  for (const s of a.sections) {
-    const box = h('div', { class: SECTION_CLASS[s.kind] ?? 'isec', role: s.kind === 'referral' ? 'alert' : null }, h('b', {}, s.title));
-    for (const i of s.items) box.append(h('p', {}, i.text, i.source_ids.length ? h('span', { class: 'tiny muted' }, ` [${i.source_ids.join('، ')}]`) : null));
-    out.push(box);
+  const a = r.answer ?? {}, diag = r.intelligence ?? {}, out = [];
+  const invoked = diag.generative_invoked === true || Number(diag.model_invocations ?? 0) > 0;
+  const fallback = diag.provenance === 'deterministic_fallback' || !!diag.fallback_reason;
+  const emergency = diag.provenance === 'safety_referral';
+  let label = emergency ? 'إحالة سلامة مستقلة — دون انتظار النموذج' : fallback ? 'إرشاد معرفي بديل — لم تكتمل الاستشارة التوليدية' : invoked ? 'استُخدم النموذج التوليدي؛ الرد مرّ بالتحقق البرمجي' : 'لم يُثبت تشغيل النموذج في هذا الرد';
+  const statusClass = emergency ? 'warn' : fallback || !invoked ? 'info' : 'ok';
+  out.push(h('div', { class: 'tiny muted', id: 'answer-mode' }, h('span', { class: 'badge ' + statusClass }, label)));
+  if (fallback) out.push(h('div', { class: 'notice warn', id: 'advisor-fallback', role: 'status' }, 'سبب المسار البديل: ' + fallbackReason(diag.fallback_reason ?? diag.provenance), invoked ? ' جُرّب النموذج ولم تُقبل النتيجة؛ النص التالي ليس نجاحًا توليديًا.' : ' لم يُنتج النموذج هذه الإجابة.'));
+  const sections = Array.isArray(a.sections) ? a.sections : [];
+  const warnings = sections.filter(s => ['referral','warnings','safety_warnings'].includes(s.kind));
+  for (const s of warnings) out.push(h('div', { class: s.kind === 'referral' ? 'notice err' : 'notice warn', role: 'alert' }, (s.items ?? []).map(i => h('p', {}, i.text))));
+  const conversational = typeof a.conversation_text === 'string' && a.conversation_text.trim();
+  if (conversational) out.push(h('div', { class: 'advisor-conversation', id: 'advisor-conversation' }, conversational.split(/\n+/).filter(Boolean).map(t => h('p', {}, t))));
+  else {
+    const content = sections.filter(s => !['referral','warnings','safety_warnings','understanding'].includes(s.kind));
+    out.push(h('div', { class: 'advisor-conversation', id: 'advisor-conversation' }, content.flatMap(s => (s.items ?? []).map(i => h('p', {}, i.text)))));
   }
-  if (a.follow_up) out.push(h('div', { class: 'sugg' }, a.follow_up.choices.map((c) => h('button', { type: 'button', onclick: () => send(c) }, c))));
-  if (a.sources.length) out.push(h('details', { class: 'srcs' }, h('summary', {}, `المصادر (${a.sources.length})`),
-    a.sources.map((s) => h('div', { class: 'tiny' }, h('a', { href: s.url, target: '_blank', rel: 'noopener' }, s.title), ` — ${s.publisher}`, s.industry_affiliation ? h('span', { class: 'badge warn' }, 'ارتباط بشركة') : null))));
-  if (a.evidence_status !== 'none') out.push(h('div', { class: 'tiny muted' }, { unreviewed: 'حالة المعلومة: مرجع منظم لم يراجعه مختص مؤهل بعد.', administrative: 'حالة المعلومة: معتمدة إداريًا، لم يراجعها مختص مؤهل.', scientific: 'حالة المعلومة: راجعها مختص مؤهل.' }[a.evidence_status]));
-  if (r.research) {
-    const res = r.research;
-    out.push(h('details', { class: 'research', open: res.items.length > 0 }, h('summary', {}, `أدلة مكتشفة من الإنترنت — غير مراجعة (${res.items.length})`),
-      res.notes_ar.map((n) => h('div', { class: 'tiny muted' }, n)),
-      res.items.map((i) => h('div', { class: 'tiny', style: 'margin:4px 0' }, h('span', { class: 'badge warn' }, 'غير مراجع'), ' ', h('a', { href: i.url, target: '_blank', rel: 'noopener' }, i.title), ` — ${i.publisher}${i.year ? ' · ' + i.year : ''} · صلة ${Math.round(i.relevance * 100)}%`)),
-      h('div', { class: 'tiny muted' }, 'هذه الأدلة لا تُعتمد كحقائق ولم تُستخدم في الإجابة أعلاه؛ تُراجع من المدير في «مراجعة المعرفة العلمية».')));
-  }
-  if (r.cloud && r.cloud.mode_used !== 'cloud_assisted') out.push(h('div', { class: 'tiny muted', id: 'cloud-status' }, r.cloud.status_ar));
+  if (conversational && sections.some(s => !warnings.includes(s))) out.push(h('details', { class: 'tiny srcs' }, h('summary', {}, 'المعلومات والأدلة المستخدمة'), sections.filter(s => !warnings.includes(s) && s.kind !== 'understanding').map(s => h('div', {}, h('b', {}, s.title), (s.items ?? []).map(i => h('p', {}, i.text, i.source_ids?.length ? ' [' + i.source_ids.join('، ') + ']' : ''))))));
+  if (a.products?.items?.length) out.push(h('div', { class: 'advisor-products' }, a.products.items.map(p => h('div', { class: 'prod' }, p.id > 0 && p.primary_image_id ? thumb(p, 'sm') : null, h('div', {}, h('b', {}, p.name), p.brand ? h('p', { class: 'tiny' }, p.brand) : null, h('p', { class: 'tiny muted' }, p.id < 0 ? 'منتج عالمي؛ التوفر المحلي غير مؤكد.' : p.availability_note ?? 'التوفر يحتاج تحققًا مستقلًا.'), p.id > 0 ? h('a', { href: '#/product/' + p.id }, 'تفاصيل المنتج وصوره') : null)))));
+  if (a.follow_up?.choices?.length) out.push(h('div', { class: 'sugg' }, a.follow_up.choices.map(c => h('button', { type: 'button', onclick: () => send(c) }, c))));
+  if (a.sources?.length) out.push(h('details', { class: 'srcs' }, h('summary', {}, `المصادر (${a.sources.length})`), a.sources.map(s => h('div', { class: 'tiny' }, h('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer' }, s.title), s.publisher ? ' — ' + s.publisher : '', s.industry_affiliation ? h('span', { class: 'badge warn' }, 'ارتباط بشركة') : null))));
+  const evidenceLabels = { unreviewed: 'المعرفة المستخدمة لم يراجعها مختص مؤهل بعد.', administrative: 'المعرفة معتمدة إداريًا؛ ليست مراجعة علمية مؤهلة.', scientific: 'المعرفة المشار إليها تحمل مراجعة علمية مسجلة.' };
+  if (evidenceLabels[a.evidence_status]) out.push(h('p', { class: 'tiny muted' }, evidenceLabels[a.evidence_status]));
+  if (r.research) { const research = r.research; out.push(h('details', { class: 'research', open: false }, h('summary', {}, `نتائج بحث متصل غير مراجعة (${research.items?.length ?? 0})`), (research.notes_ar ?? []).map(n => h('p', { class: 'tiny muted' }, n)), (research.items ?? []).map(i => h('p', {}, h('a', { href: i.url, target: '_blank', rel: 'noopener noreferrer' }, i.title), ' — غير مراجع')), h('p', { class: 'tiny muted' }, 'نتائج اكتشاف؛ لا يُفترض اعتمادها أو استخدامها كدليل في الاستشارة.'))); }
+  if (r.cloud?.mode_used === 'cloud_assisted' && r.cloud.text) out.push(h('div', { class: 'cloud-text' }, h('span', { class: 'badge warn' }, 'صياغة بمساعدة نموذج متصل'), r.cloud.text.split('\n').map(t => h('p', {}, t))));
+  else if (r.cloud?.status_ar) out.push(h('p', { class: 'tiny muted', id: 'cloud-status' }, r.cloud.status_ar));
+  if (diag.tool_calls?.length || invoked) out.push(h('details', { class: 'tiny' }, h('summary', {}, 'كيف أُنتج هذا الرد؟'), h('p', {}, invoked ? 'استدعاءات النموذج الفعلية: ' + Number(diag.model_invocations ?? 0) : 'لم يُستدعَ النموذج.'), h('p', {}, 'الأدوات: ' + (diag.tool_calls ?? []).map(t => typeof t === 'string' ? t : t.name ?? '').filter(Boolean).join('، ')), h('p', {}, diag.validated || diag.decision_validated ? 'النتيجة اجتازت التحقق البرمجي المستقل؛ لا يغني ذلك عن المراجعة العلمية.' : 'لم تُسجل نتيجة توليدية مقبولة.')));
   return out;
+}
+function fallbackReason(reason) {
+  if (/unavailable|disabled|not_installed|model_absent|host_model/i.test(reason ?? '')) return 'النموذج غير متاح أو غير مفعّل في هذه البيئة.';
+  if (/cancel|interrupt/i.test(reason ?? '')) return 'أُلغي التوليد أو انقطع تشغيل النموذج.';
+  if (/timeout|budget|expired/i.test(reason ?? '')) return 'انتهى الوقت أو حد تنفيذ الاستشارة.';
+  if (/unsafe|unsupported|unknown|unobserved|invalid|schema|fidelity/i.test(reason ?? '')) return 'رفض التحقق نتيجة النموذج أو لم يجد لها إسنادًا كافيًا.';
+  return String(reason ?? 'سبب غير مسجل');
 }
 
 export async function knowledge(root) {
@@ -113,7 +136,7 @@ export async function knowledge(root) {
         st.source === 'env' ? h('div', { class: 'tiny muted' }, 'المستشار العلمي مفعّل من إعدادات الخادم.')
           : h('label', { class: 'item', style: 'display:flex;gap:8px;align-items:center' }, h('input', { type: 'checkbox', id: 'k-feature', checked: true, onchange: async (e) => { if (!confirm('إيقاف المستشار العلمي لكل الموظفين على هذا الجهاز/الخادم؟')) { e.target.checked = true; return; } try { await api('POST', '/api/features/scientific-advisor', { enabled: false }); window.MH_refreshFeatures?.(); location.hash = '#/home'; } catch (x) { toast(x.message); e.target.checked = true; } } }), 'المستشار العلمي مفعّل'),
         toggle('k-research', 'البحث العلمي عبر الإنترنت (MedlinePlus، PubMed)', d.external_search_enabled, 'external_search_enabled', 'استعلامات مفاهيم عامة فقط'),
-        st.modes.cloud.configured ? toggle('k-cloud', `النموذج السحابي (${st.modes.cloud.provider})`, st.modes.cloud.enabled, 'cloud_llm_enabled', `إنفاق هذا الشهر $${(st.modes.cloud.month_usd ?? 0).toFixed(2)} من $${st.modes.cloud.monthly_budget_usd}`)
+        st.modes.cloud.configured ? toggle('k-cloud', `النموذج السحابي (${st.modes.cloud.provider})`, st.modes.cloud.enabled, 'cloud_llm_enabled', 'اختياري؛ لا يغيّر توفر الاستشارة المحلية')
           : h('div', { class: 'tiny muted', id: 'k-cloud-off' }, `النموذج السحابي: غير مضبوط — ${st.modes.cloud.reason}. المفتاح يُضبط في بيئة الخادم فقط، لا في التطبيق.`)),
       h('div', { class: 'card' }, h('h3', { class: 'fsec-t' }, 'الحالة'),
         h('div', { class: 'tiny' }, `ادعاءات: ${Object.entries(s.claims_by_state).map(([k, v]) => `${k} ${v}`).join(' · ')} — مراجعة: ${Object.entries(s.claims_by_review).map(([k, v]) => `${k} ${v}`).join(' · ')} — مصادر مرتبطة بشركات: ${s.industry_affiliated_sources}`),

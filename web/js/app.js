@@ -26,8 +26,8 @@ const MORE = [['compare', '⚖', 'مقارنة المنتجات'], ['routine', '
 // CP06: backup / restore exists only where the data lives on the device
 MORE.push(['global-products', '◎', 'الكتالوج العالمي', true]);
 MORE.push(['inventory', '▦', 'الدفعات والمخزون', true]);
-if (window.MH_LOCAL) MORE.push(['backup', '⛁', 'النسخ الاحتياطي والاستعادة', true], ['local-ai', '✧', 'إدارة الذكاء المحلي', true]);
-const TITLES = { dashboard: 'لوحة المدير', 'bulk-classify': 'تصنيف جماعي', 'intel-enable': 'المستشار العلمي', intel: 'المستشار العلمي', knowledge: 'مراجعة المعرفة', backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
+if (window.MH_LOCAL) MORE.push(['backup', '⛁', 'النسخ الاحتياطي والاستعادة', true], ['local-ai', '✧', 'إدارة الذكاء المحلي', true], ['ai-lab', '⚗', 'مختبر النموذج الخام', true]);
+const TITLES = { 'ai-lab': 'مختبر النموذج الخام', dashboard: 'لوحة المدير', 'bulk-classify': 'تصنيف جماعي', 'intel-enable': 'المستشار العلمي', intel: 'المستشار', knowledge: 'مراجعة المعرفة', backup: 'النسخ الاحتياطي', home: 'الرئيسية', advisor: 'المستشار', scan: 'مسح منتج', products: 'المنتجات', product: 'المنتج', 'product-new': 'منتج جديد', compare: 'المقارنة', routine: 'روتين العناية', request: 'طلب غير ملبّى', academy: 'الأكاديمية', feedback: 'ملاحظات التجربة', checklist: 'اختبار Samsung', review: 'مراجعة المعلومات', evidence: 'أدلة المصادر', import: 'الاستيراد', reports: 'التقارير', users: 'الموظفون' };
 
 setUnauthorizedHandler(() => { me = null; render(); });
 
@@ -71,14 +71,13 @@ function openMore() {
   document.body.append(sheet);
 }
 
-// CP08: the scientific advisor screens appear only when the server offers them (MH_CP07=1). The Android worker and
-// a server without the flag answer 404, so nothing changes there.
+// The main advisor is always available. This feature probe exposes manager knowledge/research administration only.
 let cp08Probed = false;
 // CP09: re-read after the manager switches the feature on/off — no page reload (a reload is not needed and fails offline in a browser)
 window.MH_refreshFeatures = () => { for (const id of ['intel', 'knowledge', 'intel-enable']) { const i = MORE.findIndex((m) => m[0] === id); if (i >= 0) MORE.splice(i, 1); } cp08Probed = false; probeCp08(); };
 function probeCp08() {
   if (cp08Probed) return; cp08Probed = true;
-  api('GET', '/api/cp08/status').then((st) => { if (!st?.enabled) { if (st?.can_enable) MORE.push(['intel-enable', '✧', 'تفعيل المستشار العلمي', true]); return; } MORE.unshift(['intel', '✧', 'المستشار العلمي (تجريبي)']); MORE.push(['knowledge', '⚗', 'مراجعة المعرفة العلمية', true]); }).catch(() => {});
+  api('GET', '/api/cp08/status').then((st) => { if (!st?.enabled) { if (st?.can_enable) MORE.push(['intel-enable', '✧', 'تفعيل المستشار العلمي', true]); return; } MORE.push(['knowledge', '⚗', 'مراجعة المعرفة العلمية', true]); }).catch(() => {});
 }
 async function render() {
   await metaReady;
@@ -108,13 +107,14 @@ async function render() {
     : h('header', { class: 'top' }, h('h1', {}, TITLES[route] ?? 'MAKEUP HOUSE'), h('div', { class: 'who' }, me.display_name, h('span', { class: 'badge' }, me.role === 'manager' ? 'مدير' : 'موظف')));
   app.replaceChildren(...(focus ? [header, main] : [header, main, nav]));
   if (meta?.staging) main.append(focus ? h('div', { class: 'stagingline staging-banner', role: 'note', title: meta.notice }, 'ⓘ نسخة تجريبية — البيانات قد تُحذف عند إعادة التشغيل') : stagingBanner());
-  const managerOnly = ['global-products', 'inventory', 'local-ai', 'dashboard', 'bulk-classify', 'import', 'reports', 'users', 'review', 'backup', 'evidence', 'knowledge', 'intel-enable'];
+  const managerOnly = ['global-products', 'inventory', 'local-ai', 'ai-lab', 'dashboard', 'bulk-classify', 'import', 'reports', 'users', 'review', 'backup', 'evidence', 'knowledge', 'intel-enable'];
   if (managerOnly.includes(route) && me.role !== 'manager') { main.append(h('div', { class: 'notice err' }, 'هذه الصفحة للمدير فقط.')); return; }
   switch (route) {
     case 'home': return home(main, me);
     case 'global-products': return import('./views-global-products.js').then(m => m.globalProductsView(main));
     case 'inventory': return import('./views-inventory.js').then(m => m.inventoryView(main, me));
     case 'local-ai': return import('./views-local-ai.js').then(m => m.localAISettings(main));
+    case 'ai-lab': return import('./views-ai-lab.js').then(m => m.aiLab(main));
     case 'advisor': return advisor(main);
     case 'scan': return scan(main, me);
     case 'products': return products(main, params, me);
@@ -132,7 +132,7 @@ async function render() {
     case 'backup': return localViews().then((m) => m.backupView(main, me));
     case 'review': return review(main);
     case 'evidence': return import('./views-evidence.js').then((m) => m.evidenceReview(main));
-    case 'intel': return import('./views-intel.js').then((m) => m.intel(main));
+    case 'intel': return advisor(main); // compatibility alias, same unified core
     case 'knowledge': return import('./views-intel.js').then((m) => m.knowledge(main));
     case 'dashboard': return import('./views-final.js').then((m) => m.dashboard(main));
     case 'bulk-classify': return import('./views-final.js').then((m) => m.bulkClassify(main));

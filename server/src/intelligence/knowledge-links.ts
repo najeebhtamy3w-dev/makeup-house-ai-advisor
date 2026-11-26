@@ -3,8 +3,9 @@ import type { DB } from '../db.ts';
 import { bm25 } from '../cp07/retrieve.ts';
 import { claimSources, trustLabel, USABLE_SQL, type ClaimRow } from '../cp07/store.ts';
 import { normAr } from '../advisor2/understand.ts';
+import { KB } from '../science/knowledge.ts';
 
-export interface KnowledgeQuery { query?: string; ingredient?: string; topic_id?: string; limit?: number }
+export interface KnowledgeQuery { query?: string; ingredient?: string; ingredients?: string[]; topic_id?: string; topic_ids?: string[]; limit?: number }
 interface Ingredient { inci: string; names_ar: string; synonyms: string; functions: string; topic_id: string }
 export interface KnowledgeNode { id: string; type: 'ingredient'|'function'|'topic'|'claim'|'source'; label: string }
 export interface KnowledgeEdge { from: string; to: string; relation: string; supported: boolean; claim_ids: string[]; source_ids: string[]; provenance: string }
@@ -17,13 +18,25 @@ export function retrieveKnowledgeGraph(db: DB, input: KnowledgeQuery = {}) {
   const nodes = new Map<string, KnowledgeNode>(), edges: KnowledgeEdge[] = [];
   const add = (id: string, type: KnowledgeNode['type'], label: string) => { if(nodes.size < 150) nodes.set(id, {id,type,label}); };
   const ingredients = db.prepare('SELECT inci,names_ar,synonyms,functions,topic_id FROM ingredient_knowledge ORDER BY inci').all() as unknown as Ingredient[];
-  const matched = ingredients.filter(i => ingredient && [i.inci, ...list(i.names_ar), ...list(i.synonyms)].some(n => normAr(n) === ingredient));
-  const topics = new Set([...(topic ? [topic] : []), ...matched.map(i => i.topic_id)]);
-  const scores = query ? bm25(db, query) : new Map<string, number>();
-  const claims = (db.prepare(`SELECT * FROM knowledge_claims WHERE ${USABLE_SQL}`).all() as unknown as ClaimRow[])
-    .filter(c => topics.has(c.topic_id) || (scores.get(c.id) ?? 0) > 0)
-    .sort((a,b) => (Number(topics.has(b.topic_id))*100+(scores.get(b.id)??0))-(Number(topics.has(a.topic_id))*100+(scores.get(a.id)??0)) || a.id.localeCompare(b.id))
-    .slice(0,limit).map(c => ({...c, score:scores.get(c.id)??0, trust:trustLabel(c), sources:claimSources(db,c.id)}));
+  // Match only exact documented names/aliases, including Arabic spellings, before lexical ranking.
+  const requestedIngredients=[ingredient,...(input.ingredients??[]).slice(0,8).map(i=>normAr(String(i).slice(0,120)))].filter(Boolean);
+  const normalizedQuery=normAr(query);
+  const phraseHit=(name:string)=>{const n=normAr(name);return n.length>=3&&(' '+normalizedQuery+' ').includes(' '+n+' ');};
+  const registryMatches=KB.filter(i=>[i.inci,...i.synonyms].some(n=>requestedIngredients.includes(normAr(n))||phraseHit(n))).slice(0,12);
+  const registryNames=new Set(registryMatches.flatMap(i=>[i.inci,...i.synonyms]).map(normAr));
+  const matched = ingredients.filter(i => [i.inci, ...list(i.names_ar), ...list(i.synonyms)].some(n => requestedIngredients.includes(normAr(n))||registryNames.has(normAr(n))||phraseHit(n)));
+  const topics = new Set([...(topic ? [topic] : []),...(input.topic_ids??[]).slice(0,8).map(t=>String(t).slice(0,100)), ...matched.map(i => i.topic_id)]);
+  const expandedQuery=[query,...matched.flatMap(i=>[i.inci,...list(i.names_ar).slice(0,2)]),...registryMatches.map(i=>i.inci)].join(' ').slice(0,1000);
+  const scores = query||matched.length ? bm25(db, expandedQuery) : new Map<string, number>();
+  const usable = db.prepare(`SELECT * FROM knowledge_claims WHERE ${USABLE_SQL}`).all() as unknown as ClaimRow[];
+  const rankings:string[][]=[];
+  const lexical=usable.filter(c=>(scores.get(c.id)??0)>0).sort((a,b)=>(scores.get(b.id)??0)-(scores.get(a.id)??0)||a.id.localeCompare(b.id));
+  if(lexical.length)rankings.push(lexical.map(c=>c.id));
+  // One structured list per need prevents a broad need's many matches from starving a second concern.
+  for(const t of topics){const rows=usable.filter(c=>c.topic_id===t).sort((a,b)=>(scores.get(b.id)??0)-(scores.get(a.id)??0)||a.id.localeCompare(b.id));if(rows.length)rankings.push(rows.map(c=>c.id));}
+  const fused=new Map<string,number>();for(const ranking of rankings)ranking.forEach((id,rank)=>fused.set(id,(fused.get(id)??0)+1/(60+rank+1)));
+  const claims = usable.filter(c=>fused.has(c.id)).sort((a,b)=>(fused.get(b.id)??0)-(fused.get(a.id)??0)||a.id.localeCompare(b.id)).slice(0,limit)
+    .map(c=>({...c,score:fused.get(c.id)??0,lexical_score:scores.get(c.id)??0,trust:trustLabel(c),sources:claimSources(db,c.id)}));
   for(const c of claims) {
     topics.add(c.topic_id); add(`claim:${c.id}`,'claim',c.text_ar);
     add(`topic:${c.topic_id}`,'topic',c.topic_id);
@@ -45,7 +58,7 @@ export function retrieveKnowledgeGraph(db: DB, input: KnowledgeQuery = {}) {
     add(from,from.startsWith('ingredient:')?'ingredient':'topic',r.from_id); add(to,to.startsWith('ingredient:')?'ingredient':'topic',r.to_id);
     edges.push({from,to,relation:r.rel,supported:!!c && c.review_level==='qualified_scientific' && ['approved','published'].includes(c.state) && c.sources.length>0,claim_ids:c?[c.id]:[],source_ids:c?.sources.map(s=>s.id)??[],provenance:c?'linked_claim':'unsourced_relationship_not_evidence'});
   }
-  return {claims,nodes:[...nodes.values()],edges:edges.filter(e=>nodes.has(e.from)&&nodes.has(e.to)).slice(0,200),warnings:['الربط البنيوي أو ذكر المصدر لا يثبت السلامة أو الملاءمة؛ راجع حالة كل ادعاء.'],retrieval:{method:'structured_graph_bm25',query,ingredient,topic_id:topic,limit,semantic_embeddings:false}};
+  return {claims,nodes:[...nodes.values()],edges:edges.filter(e=>nodes.has(e.from)&&nodes.has(e.to)).slice(0,200),warnings:['الربط البنيوي أو ذكر المصدر لا يثبت السلامة أو الملاءمة؛ راجع حالة كل ادعاء.'],retrieval:{method:'hybrid_alias_structured_bm25_rrf',query,ingredient,topic_id:topic,topic_ids:[...topics].slice(0,12),matched_ingredients:matched.map(i=>i.inci),registry_matches:registryMatches.map(i=>i.inci),ranking_lists:rankings.length,limit,semantic_embeddings:false}};
 }
 
 /** Explicit opt-in ingestion only. No approval, no overwrite and no synthetic science. */

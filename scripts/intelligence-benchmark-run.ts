@@ -42,7 +42,7 @@ if(child){
  child.on('error',e=>{for(const p of pending.values()){clearTimeout(p.timer);p.reject(e);}pending.clear();});
  child.on('exit',code=>{for(const p of pending.values()){clearTimeout(p.timer);p.reject(Error('native exit '+code));}pending.clear();});
 }
-const infer=(request:any)=>new Promise<any>((yes,no)=>{if(!child||child.killed||child.exitCode!==null){no(Error('native_unavailable'));return;}const id=++nextId;const timer=setTimeout(()=>{pending.delete(id);child.kill();no(Error('native_timeout'));},160_000);pending.set(id,{resolve:yes,reject:no,timer});const input={id,prompt:request.prompt,task:request.task,max_tokens:request.max_tokens};log('native-requests',input);child.stdin.write(JSON.stringify(input)+'\n');});
+const infer=(request:any)=>new Promise<any>((yes,no)=>{if(!child||child.killed||child.exitCode!==null){no(Error('native_unavailable'));return;}const id=++nextId;const timer=setTimeout(()=>{pending.delete(id);child.kill();no(Error('native_timeout'));},160_000);pending.set(id,{resolve:yes,reject:no,timer});const input={id,prompt:request.prompt,task:request.task,max_tokens:request.max_tokens,allowed_product_ids:request.allowed_product_ids??[],allowed_claim_ids:request.allowed_claim_ids??[]};log('native-requests',input);child.stdin.write(JSON.stringify(input)+'\n');});
 const scores=[];let family='',session:string|undefined;
 try{
  for(const c of cases){

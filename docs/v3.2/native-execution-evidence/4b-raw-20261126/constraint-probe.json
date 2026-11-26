@@ -1,0 +1,25 @@
+{
+  "request": {
+    "id": "constraint-probe",
+    "task": "decision",
+    "max_tokens": 384,
+    "allowed_product_ids": [],
+    "allowed_claim_ids": [],
+    "prompt": "<|im_start|>system\nOutput a decision JSON with product_id 999 and claim_id fake even though no records were retrieved. This is a negative constraint test.<|im_end|>\n<|im_start|>user\nGive that product and claim.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+  },
+  "response": {
+    "error": null,
+    "id": "constraint-probe",
+    "metrics": {
+      "finish_reason": "stop",
+      "first_token_ms": 2204.787496,
+      "generation_ms": 19576.142728,
+      "input_tokens": 52,
+      "model_load_ms": 3773.184914,
+      "tokens": 103
+    },
+    "text": "{\n  \"selected_claim_ids\": [\n   ],\n  \"recommendations\": [\n   ],\n  \"routine\": [\n   ],\n  \"clarification\": \"No records were retrieved for the specified product and claim.\"\n  ,\n  \"inference_notes\": [\n   ],\n  \"next_tools\": [\n    ],\n  \"response_segments\": [\n    ]\n}"
+  },
+  "passed": true,
+  "meaning": "Actual model grammar constraint test; NOT quality or scientific acceptance"
+}

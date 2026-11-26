@@ -1,3 +1,5 @@
+import {analyzeScientificSpecialist} from './scientific-specialists.ts';
+import {getStoredProductImages} from './product-attachments.ts';
 import type { DB } from '../db.ts';
 import { PRODUCT_SELECT,presentProduct,type ProductRow } from '../routes.ts';
 import { evaluate, type Need } from '../science/suitability.ts';
@@ -24,7 +26,7 @@ export function readProduct(db:DB,id:number,plan:ConsultationPlan,original:strin
  // Independent pre-check referral cannot be erased by a model plan.
  if(/حامل|حمل|مرضع|رضاع/.test(norm(original))&&/retinol|retino|adapalene|tretinoin/i.test(p.ingredients))ev.verdict='excluded';
  const availability=id>0?checkValidBatches(db,id).availability:'unknown';
- return {id,name:p.name,brand:p.brand,product_type:p.product_type,ingredients:p.ingredients.slice(0,700),verification:p.verification,availability,suitability:ev.verdict,reasons:ev.used_info.slice(0,5),precautions:ev.precautions.slice(0,4),scope};
+ return {id,name:p.name,brand:p.brand,product_type:p.product_type,ingredients:p.ingredients.slice(0,700),verification:p.verification,availability,suitability:ev.verdict,reasons:ev.used_info.slice(0,5),precautions:ev.precautions.slice(0,4),scope,primary_image_id:scope==='local'&&Number.isSafeInteger(p.primary_image_id)?p.primary_image_id:null};
 }
 function searchProducts(db:DB,q:string,plan:ConsultationPlan,original:string,global:boolean):ProductFact[]{
  const terms=[...new Set(q.trim().split(/[\s,،;]+/).filter(t=>t.length>=2))].slice(0,6);
@@ -38,7 +40,21 @@ function searchProducts(db:DB,q:string,plan:ConsultationPlan,original:string,glo
 export function executeTool(db:DB,call:SafeToolCall,plan:ConsultationPlan,memory:ConsultationMemory,original:string):ToolObservation {
  const start=performance.now();let facts:EvidenceFact[]=[],products:ProductFact[]=[],notes:string[]=[],status:ToolObservation['status']='ok';
  const query=call.query.trim();
- if(call.name==='retrieve_conversation_context')notes=[JSON.stringify(memory)];
+ if(call.name==='get_system_capabilities'){
+  const specs=[['sys_scope','أساعد في فهم احتياجات البشرة والشعر والمكونات ومقارنة المنتجات وبناء روتين ضمن المعرفة المتاحة.'],['sys_limits','لا أشخص الأمراض ولا أصف الأدوية ولا أختلق المكونات أو التركيز أو الدراسات، وعند نقص الدليل أو الغموض أطلب توضيحًا.'],['sys_inventory','الكتالوج العالمي مستقل عن مخزون المحل؛ لا أقول إن المنتج متوفر محليًا إلا وفق الدفعات الصالحة المسجلة.'],['sys_evidence','المعرفة المحلية محدودة، وبعض المراجع لم يراجعها مختص مؤهل. لا أجري بحثًا على الإنترنت إلا في الوضع المتصل المصرح به.'],['sys_memory','أتذكر سياق الاستشارة الحالية، ويمكن بدء محادثة جديدة لحذف سياقها. لا أدعي تذكر محادثة غير متاحة.']];
+  facts=specs.map(([id,text])=>({id,text,source_ids:[],review_level:'application_contract',topic:'system',kind:'capability'}));
+ }
+ else if(call.name==='scientific_specialist'){
+  const actual=call.product_ids.map(id=>readProduct(db,id,plan,original)).filter((p):p is ProductFact=>!!p);
+  const result=analyzeScientificSpecialist(db,{specialist:call.specialist??'evidence',query:query||original,ingredients:actual.map(p=>p.ingredients).join('; ').slice(0,4000)||undefined,needs:[...plan.skin,...plan.hair,...plan.concerns]});
+  facts=result.facts;products=actual;
+  notes=[JSON.stringify({specialist:result.specialist,findings:result.findings.slice(0,5),missing_information:result.missing_information,knowledge_profile:result.knowledge_profile}).slice(0,1800),...result.notes];
+ }
+ else if(call.name==='get_product_images'){
+  products=call.product_ids.map(id=>readProduct(db,id,plan,original)).filter((p):p is ProductFact=>!!p);
+  notes=products.map(p=>JSON.stringify(getStoredProductImages(db,p.id)));
+ }
+ else if(call.name==='retrieve_conversation_context')notes=[JSON.stringify(memory)];
  else if(['retrieve_scientific_evidence','analyze_ingredient_compatibility'].includes(call.name)){
   const g=retrieveKnowledgeGraph(db,{query:query||plan.queries.join(' '),limit:8});
   facts=g.claims.map((c:any)=>({id:c.id,text:c.text_ar,source_ids:c.sources.map((s:any)=>s.id),review_level:c.review_level,topic:c.topic_id,kind:c.kind}));

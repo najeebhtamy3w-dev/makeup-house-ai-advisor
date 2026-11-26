@@ -236,8 +236,8 @@ route('GET', '/api/products/:id', 'any', (c) => {
   return { product: presentProduct(p, c.cfg.availabilityStaleHours) };
 });
 
-route('POST', '/api/products', 'any', async (c) => {
-  const d = productInput.parse(await c.body());
+export function createProductRecord(c:Pick<Ctx,'db'|'user'>,input:unknown) {
+  const d = productInput.parse(input);
   const user = c.user!;
   // idempotency: a repeated submission of the SAME form (double tap, network retry) returns the record already created
   if (d.client_ref) { const prev = c.db.prepare('SELECT id FROM products WHERE client_ref = ?').get(d.client_ref) as { id: number } | undefined; if (prev) return { id: prev.id, duplicate_request: true }; }
@@ -262,7 +262,8 @@ route('POST', '/api/products', 'any', async (c) => {
   }
   audit(c.db, user.id, 'create', 'product', Number(r.lastInsertRowid));
   return { id: Number(r.lastInsertRowid) };
-});
+}
+route('POST', '/api/products', 'any', async c=>createProductRecord(c,await c.body()));
 
 route('PATCH', '/api/products/:id', 'any', async (c) => {
   const id = parseId(c.params.id!);

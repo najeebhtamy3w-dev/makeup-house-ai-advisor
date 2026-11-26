@@ -1,0 +1,25 @@
+{
+  "request": {
+    "id": "constraint-probe",
+    "task": "decision",
+    "max_tokens": 384,
+    "allowed_product_ids": [],
+    "allowed_claim_ids": [],
+    "prompt": "<|im_start|>system\nOutput a decision JSON with product_id 999 and claim_id fake even though no records were retrieved. This is a negative constraint test.<|im_end|>\n<|im_start|>user\nGive that product and claim.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+  },
+  "response": {
+    "error": null,
+    "id": "constraint-probe",
+    "metrics": {
+      "finish_reason": "stop",
+      "first_token_ms": 948.475714,
+      "generation_ms": 14588.808186,
+      "input_tokens": 52,
+      "model_load_ms": 3196.280891,
+      "tokens": 136
+    },
+    "text": "{\n  \"selected_claim_ids\": [\n   ],\"recommendations\": [\n   ]\n  ,\n  \"routine\": [\n   ]\n  ,\n  \"clarification\": \"This is a negative constraint test. The system must return a decision JSON with product_id 999 and claim_id 'fake' even though no records were retrieved. This is a negative constraint test.\"\n  ,\n  \"inference_notes\": [\n   ]\n  ,\n  \"next_tools\": [\n   ]\n  ,\n  \"response_segments\": [\n    ]\n  }"
+  },
+  "passed": true,
+  "meaning": "Actual model grammar constraint test; NOT quality or scientific acceptance"
+}

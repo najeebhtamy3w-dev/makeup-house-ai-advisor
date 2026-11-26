@@ -26,11 +26,14 @@ public class LocalAIPlugin extends Plugin {
     private JSONObject manifest;
     private File directory, model, partial;
     private String runtimeError=null;
+    private volatile String phase="idle", lastOperationError=null;
+    private volatile long verifiedLength=-1, verifiedModified=-1;
+    private volatile String verifiedHash=null;
     private static native void nativeLoad(String path);
     private static native void nativeUnload();
     private static native void nativeReset();
     private static native void nativeCancel();
-    private native byte[] nativeGenerate(String prompt,int limit,String task);
+    private native byte[] nativeGenerate(String prompt,int limit,String task,long[] allowedProducts,String[] allowedClaims);
     private static native double[] nativeMetrics();
     @Override public void load() {
         directory=new File(getContext().getNoBackupFilesDir(),"local-ai");directory.mkdirs();
@@ -57,14 +60,16 @@ public class LocalAIPlugin extends Plugin {
     private void run(PluginCall call,boolean manager,Callable<JSObject> work){authorized(call,manager,()->{
         if(!busy.compareAndSet(false,true)){call.reject("BUSY");return;}
         managerOperation=manager;
-        executor.execute(()->{try{if(runtimeError!=null)throw new IOException(runtimeError);call.resolve(work.call());}catch(Throwable e){call.reject(e.getMessage()==null?"RUNTIME_FAILED":e.getMessage());}finally{managerOperation=false;busy.set(false);}});
+        executor.execute(()->{try{lastOperationError=null;if(runtimeError!=null)throw new IOException(runtimeError);call.resolve(work.call());}catch(Throwable e){lastOperationError=e.getMessage()==null?"RUNTIME_FAILED":e.getMessage();phase="error";call.reject(lastOperationError);}finally{managerOperation=false;busy.set(false);if(!phase.equals("error"))phase="idle";}});
     });}
     private JSObject statusObject() throws Exception {return statusObject(false);}
     private JSObject statusObject(boolean diagnostics) throws Exception {
         JSObject out=new JSObject();out.put("runtime",manifest==null?"unavailable":manifest.getString("runtime"));out.put("manifest",manifest);
         out.put("installed",model.isFile());out.put("active",getContext().getSharedPreferences("local-ai",0).getBoolean("active",false));
         out.put("loaded",loaded);out.put("busy",busy.get());out.put("free_bytes",directory.getUsableSpace());out.put("downloaded",partial.length());out.put("error",runtimeError);
-        out.put("abis",android.os.Build.SUPPORTED_ABIS);out.put("device",android.os.Build.MODEL);out.put("hardware",android.os.Build.HARDWARE);
+        out.put("abis",new JSArray(Arrays.asList(android.os.Build.SUPPORTED_ABIS)));
+        boolean verified=model.isFile()&&verifiedHash!=null&&model.length()==verifiedLength&&model.lastModified()==verifiedModified;out.put("verified",verified);out.put("verified_sha256",verified?verifiedHash:JSONObject.NULL);out.put("phase",runtimeError!=null?"unavailable":busy.get()?phase:loaded?"ready":model.isFile()?"installed_unloaded":"not_installed");out.put("last_operation_error",lastOperationError);out.put("device",android.os.Build.MODEL);out.put("hardware",android.os.Build.HARDWARE);
+        JSObject capabilities=new JSObject();capabilities.put("text",true);capabilities.put("vision",false);capabilities.put("raw_manager_diagnostic",true);capabilities.put("typed_id_constraints",true);out.put("capabilities",capabilities);out.put("context_tokens",4096);out.put("native_api_version",2);
         if(diagnostics){
             JSObject metrics=new JSObject();metrics.put("process_pss_kb",android.os.Debug.getPss());
             metrics.put("native_heap_bytes",android.os.Debug.getNativeHeapAllocatedSize());
@@ -78,15 +83,18 @@ public class LocalAIPlugin extends Plugin {
     }
     @PluginMethod public void status(PluginCall c){boolean diagnostics=c.getBoolean("diagnostics",false);authorized(c,diagnostics,()->{try{c.resolve(statusObject(diagnostics));}catch(Exception e){c.reject("STATUS_FAILED");}});}
     private void verify(File f) throws Exception {
+        phase="verifying";
         if(f.length()!=manifest.getLong("size"))throw new IOException("MODEL_SIZE_MISMATCH");
         MessageDigest md=MessageDigest.getInstance("SHA-256");byte[] buf=new byte[1024*1024];
         try(InputStream in=new FileInputStream(f)){int n;while((n=in.read(buf))!=-1){if(cancelDownload.get())throw new IOException("CANCELLED");md.update(buf,0,n);}}
         StringBuilder hex=new StringBuilder();for(byte b:md.digest())hex.append(String.format("%02x",b));
         if(!hex.toString().equals(manifest.getString("sha256")))throw new IOException("MODEL_HASH_MISMATCH");
         try(RandomAccessFile in=new RandomAccessFile(f,"r")){if(in.readInt()!=0x47475546)throw new IOException("MODEL_FORMAT_INVALID");}
+        if(f.equals(model)){verifiedLength=f.length();verifiedModified=f.lastModified();verifiedHash=hex.toString();}
     }
     @PluginMethod public void install(PluginCall c){run(c,true,()->{
-        cancelDownload.set(false);long expected=manifest.getLong("size"),offset=partial.length();
+        cancelDownload.set(false);if(model.isFile()){verify(model);return statusObject();}
+        phase="downloading";cancelDownload.set(false);long expected=manifest.getLong("size"),offset=partial.length();
         if(offset>expected){partial.delete();offset=0;}
         if(directory.getUsableSpace()<expected-offset+256L*1024*1024)throw new IOException("INSUFFICIENT_STORAGE");
         if(offset<expected){
@@ -109,10 +117,10 @@ public class LocalAIPlugin extends Plugin {
             }finally{if(con!=null)con.disconnect();downloadConnection=null;}
         }
         verify(partial);nativeUnload();loaded=false;
-        android.system.Os.rename(partial.getAbsolutePath(),model.getAbsolutePath());
+        android.system.Os.rename(partial.getAbsolutePath(),model.getAbsolutePath());verifiedLength=model.length();verifiedModified=model.lastModified();verifiedHash=manifest.getString("sha256");
         return statusObject();
     });}
-    @PluginMethod public void activate(PluginCall c){run(c,true,()->{cancelDownload.set(false);verify(model);nativeLoad(model.getAbsolutePath());loaded=true;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",true).apply();return statusObject();});}
+    @PluginMethod public void activate(PluginCall c){run(c,true,()->{cancelDownload.set(false);verify(model);phase="loading";loaded=false;nativeLoad(model.getAbsolutePath());loaded=true;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",true).apply();return statusObject();});}
     @PluginMethod public void deactivate(PluginCall c){run(c,true,()->{nativeUnload();loaded=false;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",false).apply();return statusObject();});}
     @PluginMethod public void remove(PluginCall c){run(c,true,()->{nativeUnload();loaded=false;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",false).apply();if(model.exists()&&!model.delete())throw new IOException("REMOVE_FAILED");if(partial.exists()&&!partial.delete())throw new IOException("REMOVE_FAILED");return statusObject();});}
     @PluginMethod public void generate(PluginCall c){run(c,false,()->{
@@ -121,22 +129,39 @@ public class LocalAIPlugin extends Plugin {
         int cap=task.equals("compose")?384:768,limit=c.getInt("max_tokens",cap);
         if(limit<1||limit>cap)throw new IOException("OUTPUT_LIMIT");
         String prompt=c.getString("prompt","");if(prompt.isEmpty()||prompt.length()>(task.equals("compose")?12000:24000))throw new IOException("CONTEXT_LIMIT");
+        JSArray productInput=c.getArray("allowed_product_ids",new JSArray()),claimInput=c.getArray("allowed_claim_ids",new JSArray());
+        if(productInput.length()>50||claimInput.length()>50)throw new IOException("CONSTRAINT_LIMIT");
+        long[] allowedProducts=new long[productInput.length()];String[] allowedClaims=new String[claimInput.length()];
+        for(int i=0;i<productInput.length();i++){Object id=productInput.get(i);if(!(id instanceof Number))throw new IOException("PRODUCT_ID_INVALID");double value=((Number)id).doubleValue();if(!Double.isFinite(value)||value!=Math.rint(value)||value==0||Math.abs(value)>999999999999999L)throw new IOException("PRODUCT_ID_INVALID");allowedProducts[i]=((Number)id).longValue();}
+        for(int i=0;i<claimInput.length();i++){Object id=claimInput.get(i);if(!(id instanceof String)||((String)id).isEmpty()||((String)id).getBytes(StandardCharsets.UTF_8).length>100||((String)id).chars().anyMatch(x->x<32||x==127))throw new IOException("CLAIM_ID_INVALID");allowedClaims[i]=(String)id;}
         generationCancelled.set(false);nativeReset();
         if(!foreground)throw new IOException("BACKGROUND");
         if(!getContext().getSharedPreferences("local-ai",0).getBoolean("active",false))throw new IOException("MODEL_DISABLED");
-        if(!loaded){cancelDownload.set(false);verify(model);nativeLoad(model.getAbsolutePath());loaded=true;}
+        if(!loaded){cancelDownload.set(false);verify(model);phase="loading";loaded=false;nativeLoad(model.getAbsolutePath());loaded=true;}
         if(generationCancelled.get()||!foreground)throw new IOException("CANCELLED");
-        long t=System.nanoTime();String text=new String(nativeGenerate(prompt,limit,task),StandardCharsets.UTF_8);
-        double[] m=nativeMetrics();JSObject metrics=new JSObject();metrics.put("model_load_ms",m[0]);metrics.put("first_token_ms",m[1]);metrics.put("generation_ms",m[2]);metrics.put("tokens",(int)m[3]);
+        phase="generating";long t=System.nanoTime();String text=new String(nativeGenerate(prompt,limit,task,allowedProducts,allowedClaims),StandardCharsets.UTF_8);
+        double[] m=nativeMetrics();JSObject metrics=new JSObject();metrics.put("model_load_ms",m[0]);metrics.put("first_token_ms",m[1]);metrics.put("generation_ms",m[2]);metrics.put("tokens",(int)m[3]);metrics.put("input_tokens",(int)m[4]);metrics.put("finish_reason",finishReason((int)m[5]));
         JSObject out=new JSObject();out.put("text",text);out.put("ms",(System.nanoTime()-t)/1000000);out.put("metrics",metrics);return out;
+    });}
+    private static String finishReason(int code){return code==1?"stop":code==2?"length":code==3?"cancelled":code==4?"error":"none";}
+    /** Manager-only RAW test. Never used by the consultation route or recorded as scientific evidence. */
+    @PluginMethod public void diagnose(PluginCall c){run(c,true,()->{
+        String question=c.getString("prompt","").trim();int limit=c.getInt("max_tokens",256);
+        if(question.isEmpty()||question.length()>4000)throw new IOException("CONTEXT_LIMIT");if(limit<1||limit>256)throw new IOException("OUTPUT_LIMIT");
+        if(!foreground)throw new IOException("BACKGROUND");generationCancelled.set(false);cancelDownload.set(false);nativeReset();
+        // This diagnostic deliberately tests the local model without plan/schema/retrieval/validator/fallback.
+        if(!loaded){verify(model);phase="loading";loaded=false;nativeLoad(model.getAbsolutePath());loaded=true;}
+        String prompt="<|im_start|>system\nYou are a beauty and cosmetic science assistant. Answer naturally in Arabic. This is a raw manager diagnostic, not approved advice. Do not reveal hidden reasoning. Do not diagnose, prescribe drugs, invent evidence or provide prices. State uncertainty. /no_think<|im_end|>\n<|im_start|>user\n"+question+"<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
+        phase="generating";long started=System.nanoTime();String text=new String(nativeGenerate(prompt,limit,"diagnostic",new long[0],new String[0]),StandardCharsets.UTF_8);double[] m=nativeMetrics();
+        JSObject out=new JSObject();out.put("text",text);out.put("test","RAW_NATIVE_DIAGNOSTIC_NOT_CONSULTATION");out.put("validated",false);out.put("model_id",manifest.getString("id"));out.put("model_version",manifest.getString("version"));out.put("input_tokens",(int)m[4]);out.put("output_tokens",(int)m[3]);out.put("first_token_ms",m[1]);out.put("generation_ms",m[2]);out.put("model_load_ms",m[0]);out.put("elapsed_ms",(System.nanoTime()-started)/1000000);out.put("finish_reason",finishReason((int)m[5]));out.put("loaded",loaded);return out;
     });}
     @PluginMethod public void cancel(PluginCall c){authorized(c,managerOperation,()->{generationCancelled.set(true);if(runtimeError==null)nativeCancel();cancelDownload.set(true);HttpURLConnection con=downloadConnection;if(con!=null)con.disconnect();c.resolve();});}
     @PluginMethod public void reset(PluginCall c){run(c,false,()->{nativeReset();return new JSObject();});}
     @PluginMethod public void test(PluginCall c){run(c,true,()->{
         cancelDownload.set(false);verify(model);boolean wasActive=getContext().getSharedPreferences("local-ai",0).getBoolean("active",false);
-        if(!loaded){nativeLoad(model.getAbsolutePath());loaded=true;}nativeReset();
+        if(!loaded){phase="loading";nativeLoad(model.getAbsolutePath());loaded=true;}nativeReset();
         String prompt="<|im_start|>system\nReturn JSON only: {\"sentences\":[{\"text\":\"test complete\",\"claim_ids\":[\"test\"]}]}<|im_end|>\n<|im_start|>user\nRun the test. /no_think<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n";
-        long started=System.nanoTime();byte[] result=nativeGenerate(prompt,128,"compose");JSObject out=new JSObject();out.put("generated_bytes",result.length);out.put("ms",(System.nanoTime()-started)/1000000);out.put("test","REAL_NATIVE_INFERENCE");
+        long started=System.nanoTime();byte[] result=nativeGenerate(prompt,128,"compose",new long[0],new String[0]);JSObject out=new JSObject();out.put("generated_bytes",result.length);out.put("ms",(System.nanoTime()-started)/1000000);out.put("test","REAL_NATIVE_INFERENCE");
         if(!wasActive){nativeUnload();loaded=false;}return out;
     });}
     public void onProgress(int tokens){JSObject p=new JSObject();p.put("tokens",tokens);notifyListeners("generationProgress",p);}

@@ -1,7 +1,7 @@
 name: V3.2 engineering Android artifacts
 on:
   push:
-    branches: [work-v32-generative-orchestrator]
+    branches: [work-v32-generative-orchestrator, work-v32-unified-scientific-core]
     paths:
       - 'android/**'
       - 'native/**'
@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   engineering:
-    if: github.ref == 'refs/heads/work-v32-generative-orchestrator'
+    if: github.ref == 'refs/heads/work-v32-generative-orchestrator' || github.ref == 'refs/heads/work-v32-unified-scientific-core'
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     steps:

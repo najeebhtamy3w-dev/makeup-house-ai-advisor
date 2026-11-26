@@ -1,0 +1,13 @@
+{
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "mode": "RAW_MANAGER_DIAGNOSTIC_NOT_CONSULTATION",
+  "validated": false,
+  "model_id": "qwen35-2b-q4km",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "model_bytes": 1280835840,
+  "binary_sha256": "cef2d660bcc0d12ca5d162a8ef2437279b8a4193c08f192c89c4e96e745f2ad3",
+  "started_at": "2026-11-26T08:11:27.536861+00:00",
+  "network_inference": false,
+  "holdout_used": false,
+  "note": "Raw Arabic text is unvalidated; metrics are Host only; no independent scientific or linguistic acceptance claimed."
+}

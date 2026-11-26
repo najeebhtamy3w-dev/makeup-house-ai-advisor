@@ -1,0 +1,228 @@
+{
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "probes": [
+    {
+      "name": "zero_product",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "decision",
+        "max_tokens": 32,
+        "allowed_product_ids": [
+          0
+        ],
+        "id": "zero_product"
+      },
+      "response": {
+        "error": "PRODUCT_ID_INVALID",
+        "id": "zero_product",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "PRODUCT_ID_INVALID",
+      "passed": true
+    },
+    {
+      "name": "fractional_product",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "decision",
+        "max_tokens": 32,
+        "allowed_product_ids": [
+          1.5
+        ],
+        "id": "fractional_product"
+      },
+      "response": {
+        "error": "PRODUCT_ID_INVALID",
+        "id": "fractional_product",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "PRODUCT_ID_INVALID",
+      "passed": true
+    },
+    {
+      "name": "oversized_ids",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "decision",
+        "max_tokens": 32,
+        "allowed_product_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51
+        ],
+        "id": "oversized_ids"
+      },
+      "response": {
+        "error": "CONSTRAINT_LIMIT",
+        "id": "oversized_ids",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "CONSTRAINT_LIMIT",
+      "passed": true
+    },
+    {
+      "name": "invalid_array",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "decision",
+        "max_tokens": 32,
+        "allowed_product_ids": "1",
+        "id": "invalid_array"
+      },
+      "response": {
+        "error": "CONSTRAINT_LIMIT",
+        "id": "invalid_array",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "CONSTRAINT_LIMIT",
+      "passed": true
+    },
+    {
+      "name": "empty_claim",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "decision",
+        "max_tokens": 32,
+        "allowed_claim_ids": [
+          ""
+        ],
+        "id": "empty_claim"
+      },
+      "response": {
+        "error": "CLAIM_ID_INVALID",
+        "id": "empty_claim",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "CLAIM_ID_INVALID",
+      "passed": true
+    },
+    {
+      "name": "newline_claim",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "decision",
+        "max_tokens": 32,
+        "allowed_claim_ids": [
+          "x\nroot ::= bad"
+        ],
+        "id": "newline_claim"
+      },
+      "response": {
+        "error": "CLAIM_ID_INVALID",
+        "id": "newline_claim",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "CLAIM_ID_INVALID",
+      "passed": true
+    },
+    {
+      "name": "diagnostic_limit",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "diagnostic",
+        "max_tokens": 257,
+        "id": "diagnostic_limit"
+      },
+      "response": {
+        "error": "OUTPUT_LIMIT",
+        "id": "diagnostic_limit",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "OUTPUT_LIMIT",
+      "passed": true
+    },
+    {
+      "name": "unknown_task",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "shell",
+        "max_tokens": 32,
+        "id": "unknown_task"
+      },
+      "response": {
+        "error": "TASK_INVALID",
+        "id": "unknown_task",
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "TASK_INVALID",
+      "passed": true
+    },
+    {
+      "name": "extra_field",
+      "request": {
+        "prompt": "Parser guard only",
+        "task": "decision",
+        "max_tokens": 32,
+        "extra": true,
+        "id": "extra_field"
+      },
+      "response": {
+        "error": "REQUEST_FIELD",
+        "id": null,
+        "metrics": null,
+        "text": null
+      },
+      "expected_error": "REQUEST_FIELD",
+      "passed": true
+    }
+  ],
+  "passed": 9,
+  "failed": 0,
+  "inference_invocations": 0
+}

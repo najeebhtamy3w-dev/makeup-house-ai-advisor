@@ -1,0 +1,15 @@
+[  6%] Built target vendor-hash
+[  7%] Built target mh-ai-constraints-test
+[ 18%] Built target ggml-base
+[ 37%] Built target ggml-cpu
+[ 41%] Built target ggml
+[ 91%] Built target llama
+[ 92%] Building CXX object CMakeFiles/mh_runtime.dir/runtime.cpp.o
+[ 93%] Linking CXX static library libmh_runtime.a
+[ 93%] Built target mh_runtime
+[ 94%] Linking CXX executable mh-ai-poc
+[ 95%] Linking CXX executable mh-ai-session
+[ 96%] Linking CXX executable mh-ai-test
+[ 97%] Built target mh-ai-test
+[ 98%] Built target mh-ai-session
+[100%] Built target mh-ai-poc
