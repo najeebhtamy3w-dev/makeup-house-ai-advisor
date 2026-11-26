@@ -1,0 +1,66 @@
+{
+  "updated_at": "2026-11-26T13:33:07.978275+00:00",
+  "branch": "work-v32-unified-scientific-core",
+  "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
+  "verified_published_head": "8cf051b354ac322f8bafbb7c2fb208d782cf62aa",
+  "published_tree": "7b7b77799f6837a5b69b57942e98ae60282d0d63",
+  "version_name": "3.2.0-dev.2",
+  "version_code": 7,
+  "production_approved": false,
+  "gates": {
+    "01_runtime": "PARTIAL — actual Host lifecycle/rawtext passed; Android new source not tested",
+    "02_conversation": "FAIL/PARTIAL — 4B capabilities actual main UI success; 2B latest two turns both chose irrelevant clarification, raw logs preserved; no conversational acceptance",
+    "03_scientific": "PARTIAL — typedreadtools,reviewstateandvalidators; no qualifiedreview/independentgenerativeacceptance",
+    "04_multimodal_product": "PARTIAL — realimageBLOBmemory/barcode/drafts; OCRandVLMNOTIMPLEMENTED"
+  },
+  "test_evidence": {
+    "full_suite_last": "260/260, 0 failed, 0 skipped",
+    "focused_after_loop_guard": "21/21 including application dialogue governance",
+    "typecheck": "PASS",
+    "mobile_assets": "PASS",
+    "host_native_lifecycle": "11/11",
+    "native_constraints": "13/13",
+    "native_parser": "9/9"
+  },
+  "open_work": [
+    "Finish real mainUI dialogue evaluation and preserve failures",
+    "ComparePhi candidate with correcttemplate; baseline2B remains",
+    "Publish newerlocalchanges viaGitHubconnector; directgitpushunauthenticated",
+    "Fix CIbranchguard and inspect actual Android build",
+    "Complete scientific/retrieval and multimodal gates without fake review",
+    "Permanent signing/updatecompatibility awaiting ownercontrolledkey; do not uninstall/deletedata"
+  ],
+  "build": {
+    "previous_run_id": 45782556340,
+    "previous_status": "FAIL at dedicatedbranchguard; newer branchallowlist fix is local",
+    "new_apk": "NOT BUILT"
+  },
+  "owner_field_evidence": {
+    "device": "SM-S908E",
+    "soc": "SM8450",
+    "hardware": "qcom",
+    "installed": true,
+    "active": true,
+    "loaded": false,
+    "reported_generation": "61bytes/6236ms/15tokens",
+    "system_total_memory_bytes": 11749158912,
+    "design_ram_target_gb": 8,
+    "note": "Ownerprovidedbaselineevidence,NOTcontrolledacceptanceofnewsource"
+  },
+  "knowledge": {
+    "sql_ingredients": 12,
+    "seed_claims": 74,
+    "seed_sources": 32,
+    "ingredient_function_registry": 73,
+    "qualified_reviews": 0,
+    "extra_primary_source_drafts": 13,
+    "extra_sources": 4,
+    "extra_pack": "explicitmanagerinstallation;pendingreview,notautoapproved"
+  },
+  "vision": {
+    "current_native_model_integration": "text_only",
+    "ocr": "NOT IMPLEMENTED",
+    "vlm": "NOT IMPLEMENTED",
+    "image_intake": "storedimagevalidationandoptionalBarcodeDetectoronly"
+  }
+}

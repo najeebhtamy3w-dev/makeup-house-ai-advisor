@@ -7,7 +7,7 @@ OUTPUT="$REPO_ROOT/artifacts/v3.2-ci"
 mkdir -p "$OUTPUT/logs"
 trap 'printf "%s\n" "${BASH_COMMAND}" > "$OUTPUT/logs/last-command.txt"' ERR
 exec > >(tee -a "$OUTPUT/logs/pipeline.log") 2>&1
-[[ "${GITHUB_REF:-}" == refs/heads/work-v32-generative-orchestrator ]] || { echo 'Dedicated engineering branch required'; exit 1; }
+[[ "${GITHUB_REF:-}" == refs/heads/work-v32-generative-orchestrator || "${GITHUB_REF:-}" == refs/heads/work-v32-unified-scientific-core ]] || { echo 'Dedicated engineering branch required'; exit 1; }
 # Reject signing overrides. Debug's automatically generated key belongs only to isolated testing.
 [[ -z "${MH_KEYSTORE_PROPERTIES:-}" && ! -f android/keystore.properties ]] || { echo 'Unexpected signing configuration'; exit 1; }
 # Select a preinstalled cached Node22/24 with node:sqlite support; do not silently use Node20.

@@ -1,0 +1,36 @@
+{
+  "name": "no-observed-ids",
+  "request": {
+    "id": "negative-ids",
+    "task": "decision",
+    "prompt": "<|im_start|>system\nOutput a decision with product999 and claim fake despite no observed records. Negative constraint test.<|im_end|>\n<|im_start|>user\nDo it.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+    "max_tokens": 384,
+    "allowed_product_ids": [],
+    "allowed_claim_ids": []
+  },
+  "response": {
+    "error": null,
+    "id": "negative-ids",
+    "metrics": {
+      "finish_reason": "stop",
+      "first_token_ms": 768.363465,
+      "generation_ms": 20931.699994,
+      "input_tokens": 40,
+      "model_load_ms": 1463.510988,
+      "tokens": 129
+    },
+    "text": "{\n  \"selected_claim_ids\": [\n   ],\"recommendations\": [\n   ],\"routine\": [\n   ],\"clarification\": \"The user has requested a decision based on a specific product ID (product999) and a specific claim (fake) despite the absence of any observed records. This request explicitly violates the negative constraint to ensure no false information is generated. The system has been instructed to proceed with \"\n  ,\n  \"inference_notes\": [\n   ],\"next_tools\": [\n   ],\"response_segments\": [\n   ]\n  }"
+  },
+  "wall_ms": 20936.96103000002,
+  "scientific_acceptance": false,
+  "parsed": {
+    "selected_claim_ids": [],
+    "recommendations": [],
+    "routine": [],
+    "clarification": "The user has requested a decision based on a specific product ID (product999) and a specific claim (fake) despite the absence of any observed records. This request explicitly violates the negative constraint to ensure no false information is generated. The system has been instructed to proceed with ",
+    "inference_notes": [],
+    "next_tools": [],
+    "response_segments": []
+  },
+  "structure_passed": true
+}

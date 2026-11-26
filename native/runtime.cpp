@@ -29,7 +29,7 @@ void LocalRuntime::load(const std::string &path) {
     load_ms=elapsed(start);
 }
 std::string LocalRuntime::generate(const std::string &prompt,int limit,const std::function<void(const std::string&)> &progress,const std::string &task,const GenerationConstraints &constraints) {
-    if(task!="compose" && task!="plan" && task!="decision" && task!="diagnostic") throw std::runtime_error("TASK_INVALID");
+    if(task!="compose" && task!="plan" && task!="decision" && task!="dialogue" && task!="diagnostic") throw std::runtime_error("TASK_INVALID");
     validate_constraints(constraints);
     const int output_cap=task=="diagnostic"?256:task=="compose"?384:768;
     if(limit<1 || limit>output_cap) throw std::runtime_error("OUTPUT_LIMIT");
@@ -84,7 +84,15 @@ constraints ::= "[" ws (constraint (ws "," ws constraint){0,7})? ws "]"
 missingitem ::= "\"skin\"" | "\"hair\"" | "\"product\"" | "\"ingredients\"" | "\"goal\"" | "\"usage\"" | "\"pregnancy\"" | "\"reaction\""
 missing ::= "[" ws (missingitem (ws "," ws missingitem){0,7})? ws "]"
 queries ::= "[" ws (s200 (ws "," ws s200){0,3})? ws "]"
-plan ::= "{" ws "\"intent\"" ws ":" ws intent ws "," ws "\"skin\"" ws ":" ws skin ws "," ws "\"hair\"" ws ":" ws hair ws "," ws "\"concerns\"" ws ":" ws concerns ws "," ws "\"ingredients\"" ws ":" ws ingredients ws "," ws "\"product_refs\"" ws ":" ws ids ws "," ws "\"constraints\"" ws ":" ws constraints ws "," ws "\"missing\"" ws ":" ws missing ws "," ws "\"question\"" ws ":" ws s300 ws "," ws "\"queries\"" ws ":" ws queries ws "," ws "\"tools\"" ws ":" ws tools4 ws "," ws "\"correction\"" ws ":" ws ("true" | "false") ws "}"
+# Application schema requires a real tool for work intents; do not pick a specific tool for the model.
+workintent ::= "\"capabilities\"" | "\"consultation\"" | "\"ingredient\"" | "\"compatibility\"" | "\"compare\"" | "\"routine\"" | "\"alternative\"" | "\"availability\""
+freeintent ::= "\"clarify\"" | "\"out_of_scope\""
+toolsrequired ::= "[" ws tool (ws "," ws tool){0,3} ws "]"
+plan ::= "{" ws "\"intent\"" ws ":" ws (workintent planwork | freeintent planfree)
+planwork ::= planbody toolsrequired planend
+planfree ::= planbody tools4 planend
+planbody ::= ws "," ws "\"skin\"" ws ":" ws skin ws "," ws "\"hair\"" ws ":" ws hair ws "," ws "\"concerns\"" ws ":" ws concerns ws "," ws "\"ingredients\"" ws ":" ws ingredients ws "," ws "\"product_refs\"" ws ":" ws ids ws "," ws "\"constraints\"" ws ":" ws constraints ws "," ws "\"missing\"" ws ":" ws missing ws "," ws "\"question\"" ws ":" ws s300 ws "," ws "\"queries\"" ws ":" ws queries ws "," ws "\"tools\"" ws ":" ws
+planend ::= ws "," ws "\"correction\"" ws ":" ws ("true" | "false") ws "}"
 claims6 ::= "[" ws (s100 (ws "," ws s100){0,5})? ws "]"
 claims4 ::= "[" ws s100 (ws "," ws s100){0,3} ws "]"
 premises ::= "[" ws s100 (ws "," ws s100){0,2} ws "]"
@@ -126,6 +134,15 @@ decision ::= "{" ws "\"selected_claim_ids\"" ws ":" ws claims6 ws "," ws "\"reco
             constrained_replace_rule(structured_grammar,"routine",R"GBNF("[" ws "]")GBNF");
             constrained_replace_rule(structured_grammar,"notes",R"GBNF("[" ws "]")GBNF");
         }
+    }
+    // Application conversation is not a scientific recommendation. Its schema cannot
+    // ask for product/routine analysis or loop over tools, and still cites observed app facts.
+    if(task=="dialogue") {
+        for(const auto *rule:{"recommendations","routine","notes","tools2"})
+            constrained_replace_rule(structured_grammar,rule,R"GBNF("[" ws "]")GBNF");
+        constrained_replace_rule(structured_grammar,"segmentkind",R"GBNF("\"capability\"" | "\"limitation\"" | "\"clarification\"")GBNF");
+        constrained_replace_rule(structured_grammar,"segments",R"GBNF("[" ws segment (ws "," ws segment){0,2} ws "]")GBNF");
+        constrained_replace_rule(structured_grammar,"decision",R"GBNF("{" ws "\"selected_claim_ids\"" ws ":" ws claims6 ws "," ws "\"recommendations\"" ws ":" ws recommendations ws "," ws "\"routine\"" ws ":" ws routine ws "," ws "\"clarification\"" ws ":" ws "null" ws "," ws "\"inference_notes\"" ws ":" ws notes ws "," ws "\"next_tools\"" ws ":" ws tools2 ws "," ws "\"response_segments\"" ws ":" ws segments ws "}")GBNF");
     }
     auto sampler=llama_sampler_chain_init(llama_sampler_chain_default_params());
     if(task!="diagnostic") {

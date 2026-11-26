@@ -1,0 +1,9 @@
+# Root causes and concrete repairs
+
+Baseline mainadvisor called legacy/api/advisor/chat andoldproviderstatus, bypassingnative. It now delegates unifiedview,/api/intelligence/consult; nativebridgeintercepts canonicalendpoint. Featureflagno longer disables basiccore. Native status distinguishes installed/active/loaded/hashverification anderrors.
+
+Legacyfollowup retainedcontext but classifiedshortreplyunclear; nonurgentreferrals appended afterearlyreturn. Contextfollowup repair andreferralsbeforeearlyreturn tested. Unifiedfallback also preserves protectedreferrals.
+
+ActualnativeGBNF whitespace couldgeneratehundredsoftabsuntiltokenlimit. Boundedwhitespace fixed; realnegativeprobesretainedandrerun. Workintentplans nowrequireatleastone tool structurally; modelchooseswhich. Duplicateidempotenttools rejectedratherthanloopingtofullbudget.
+
+Conversationalapplicationquestions separatedfromclinicalinference policy; modelstillwritesanswerfromapplicationcontractfacts. Scientificclaimguardsnotrelaxed. Qualityisnotassumed:2B actualsemanticfailuresremain; no productionacceptance.

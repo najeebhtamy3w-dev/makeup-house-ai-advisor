@@ -125,7 +125,7 @@ public class LocalAIPlugin extends Plugin {
     @PluginMethod public void remove(PluginCall c){run(c,true,()->{nativeUnload();loaded=false;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",false).apply();if(model.exists()&&!model.delete())throw new IOException("REMOVE_FAILED");if(partial.exists()&&!partial.delete())throw new IOException("REMOVE_FAILED");return statusObject();});}
     @PluginMethod public void generate(PluginCall c){run(c,false,()->{
         String task=c.getString("task","compose");
-        if(!task.equals("compose")&&!task.equals("plan")&&!task.equals("decision"))throw new IOException("TASK_INVALID");
+        if(!task.equals("compose")&&!task.equals("plan")&&!task.equals("decision")&&!task.equals("dialogue"))throw new IOException("TASK_INVALID");
         int cap=task.equals("compose")?384:768,limit=c.getInt("max_tokens",cap);
         if(limit<1||limit>cap)throw new IOException("OUTPUT_LIMIT");
         String prompt=c.getString("prompt","");if(prompt.isEmpty()||prompt.length()>(task.equals("compose")?12000:24000))throw new IOException("CONTEXT_LIMIT");

@@ -1,0 +1,3 @@
+# Model results — not final acceptance
+
+Real2B/4B raw Arabic outputs preserved; both show semantic/language defects andlengthtruncation. HostVmHWM~1.83GiB2B/~4.09GiB4B. Samequestion exploratoryprobes do not establish qualifiedscience/Yemenicomprehension or controlledphoneperformance.2BmainUIcapabilities failureplan_has_no_tools; requiredtoolgrammar fixesstructure; laterdecisionloop retained.4BmainUIapplication-capabilityresponse accepted grounded_conversation,2nativecalls,114830ms (onecase,Host,notgenuinescientificcompletion). No finalwinner or80/100score. Phi candidateprovenanceverified/downloadisolatedinprogress. No approvedmodelmanifestchange.

@@ -42,7 +42,7 @@ int main(int argc,char **argv) {
             const auto prompt=req["prompt"].get<std::string>();
             if(prompt.empty()||prompt.size()>65536)throw std::runtime_error("PROMPT_INVALID");
             const auto task=req.value("task",std::string("compose"));
-            if(task!="compose"&&task!="plan"&&task!="decision"&&task!="diagnostic")throw std::runtime_error("TASK_INVALID");
+            if(task!="compose"&&task!="plan"&&task!="decision"&&task!="dialogue"&&task!="diagnostic")throw std::runtime_error("TASK_INVALID");
             if(req.contains("max_tokens")&&!req["max_tokens"].is_number_integer())throw std::runtime_error("OUTPUT_LIMIT");
             const int cap=task=="diagnostic"?256:task=="compose"?384:768,limit=req.value("max_tokens",cap);
             if(limit<1||limit>cap)throw std::runtime_error("OUTPUT_LIMIT");

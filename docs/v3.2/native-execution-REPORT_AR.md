@@ -62,3 +62,13 @@
 ## الخطوة التالية
 
 يشغّل الوكيل الرئيسي الواجهة الموحدة مع Host binary الحقيقي، ويمرر request allowlists إلى Native، ويقيس التخطيط والقرار والتحقق في الاستشارة الفعلية. تثبيت Runtime ونص عربي خام لا يكفيان لقبول المتطلبات. تحفظ واجهة المدير الفرق بين RAW diagnostic وبين الاستشارة المتحققة، وتبقى رؤية الصور/المسح خارج قدرات runtime الحالي حتى تنفيذ مسارها الحقيقي.
+
+## متابعة: مطابقة شرط أدوات الخطة مع العقد البرمجي
+
+اختبار الواجهة الرئيسية الحقيقي اللاحق لدى المنسق كشف أن2B اختار intent=capabilities لكنه أعاد tools=[] مرتين، فرفض العقد الخطة (`plan_has_no_tools`). هذا فشل توليدي حقيقي، لا نجاح يُحتسب بسبب Fallback.
+
+حُدّث Grammar ليمثل شرط العقد نفسه: نيات العمل capabilities/consultation/ingredient/compatibility/compare/routine/alternative/availability تستلزم1–4 أدوات؛ clarify/out_of_scope فقط تسمح بقائمة فارغة. لم يُحدد Grammar الأداة المناسبة للنية، ولم يُحشَ جواب محفوظ أو ID خاص. يبقى اختيار الأداة فعل النموذج، ويظل الاختيار الخاطئ فشلًا دلاليًا.
+
+أُعيد أول طلب Main UI الفاشل نفسه بوصفه **Development replay**، لا حالة مستقلة جديدة أو Holdout: اختار2B بنفسه get_system_capabilities مع intent capabilities،128رمزًا خلال24.874s وTTFT9.897s (Input633،Load1.464s)، stop. هذا نجاح لخطوة التخطيط واختيار أداة هذه العينة فقط، لا استشارة نهائية مكتملة أو قبول علمي. أُعيد Negative allowlist بعد تعديل Grammar؛ الحقول المقيدة ظلت فارغة،129رمزًا خلال20.932s،stop. النص الحر في الاختبار العدائي يظل غير مقبول للعرض دون تحقق مستقل.
+
+الأدلة: `native-execution-evidence/2b-required-tools-replay/{metadata,capabilities-plan,no-observed-ids}.json`. Script إعادة التنفيذ: `scripts/native-required-tools-probe.py`. لا تغيير لاختيار النموذج المعتمد أو حدود السلامة.

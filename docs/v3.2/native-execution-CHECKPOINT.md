@@ -30,3 +30,11 @@ Check real raw output and constraint-probe JSON; then parent runs the main-advis
 ## Final component checkpoint
 
 See `native-execution-REPORT_AR.md`: actual raw Arabic2B/4B evidence, baseline2B lifecycle11/11, pure guards13/13, failed whitespace-loop Raw preserved and bounded-whitespace correction verified against both models. No model upgrade authorized by measurement; no qualified Arabic/scientific acceptance or Samsung measurements claimed. Parent integrates UI/worker and Android build.
+
+## Required-tools schema follow-up
+
+- Root actual main UI2B failed plan_has_no_tools twice; failure retained by parent.
+- Native grammar now mirrors existing Zod plan invariant: work intents>=1tool, clarify/out_of_scope0allowed. Toolchoice remains model-owned.
+- Exact development failure replay selected get_system_capabilities correctly; raw metadata saved under native-execution-evidence/2b-required-tools-replay. This does not claim final decision/UI completion.
+- Empty-ID structured-field negative regression passed again; free text requires independentvalidation.
+- Rebuilt Host successfully. Android JNI additionally guards failed typed-array allocation. No commit/push by this agent.

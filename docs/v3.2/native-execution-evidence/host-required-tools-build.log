@@ -1,0 +1,10 @@
+[  7%] Built target mh-ai-constraints-test
+[  7%] Built target vendor-hash
+[ 18%] Built target ggml-base
+[ 37%] Built target ggml-cpu
+[ 41%] Built target ggml
+[ 91%] Built target llama
+[ 93%] Built target mh_runtime
+[ 97%] Built target mh-ai-poc
+[ 97%] Built target mh-ai-session
+[100%] Built target mh-ai-test

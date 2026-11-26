@@ -1,0 +1,8 @@
+{
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "request_origin": "../unified-core-evidence/main-ui-2b-final/native-requests.jsonl",
+  "kind": "development failure replay, not unseen acceptance",
+  "binary_sha256": "aa88b6eb7f18a06500d06dec8b4f6ad51e019053782e72a13531710559b85ba9",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "utc": "2026-11-26T08:24:09.923738+00:00"
+}

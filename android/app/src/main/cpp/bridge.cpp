@@ -21,7 +21,7 @@ extern "C" JNIEXPORT jdoubleArray JNICALL Java_com_makeuphouse_advisor_LocalAIPl
 extern "C" JNIEXPORT jbyteArray JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeGenerate(JNIEnv* e,jobject self,jstring p,jint limit,jstring task,jlongArray products,jobjectArray claims){
     try{
         GenerationConstraints constraints;
-        if(products){const auto n=e->GetArrayLength(products);if(n>50)throw std::runtime_error("CONSTRAINT_LIMIT");auto values=e->GetLongArrayElements(products,nullptr);for(jsize i=0;i<n;i++)constraints.product_ids.push_back(values[i]);e->ReleaseLongArrayElements(products,values,JNI_ABORT);}
+        if(products){const auto n=e->GetArrayLength(products);if(n>50)throw std::runtime_error("CONSTRAINT_LIMIT");auto values=e->GetLongArrayElements(products,nullptr);if(!values&&n>0)throw std::runtime_error("CONSTRAINT_MEMORY");for(jsize i=0;i<n;i++)constraints.product_ids.push_back(values[i]);if(values)e->ReleaseLongArrayElements(products,values,JNI_ABORT);}
         if(claims){const auto n=e->GetArrayLength(claims);if(n>50)throw std::runtime_error("CONSTRAINT_LIMIT");for(jsize i=0;i<n;i++){auto value=(jstring)e->GetObjectArrayElement(claims,i);if(!value)throw std::runtime_error("CLAIM_ID_INVALID");constraints.claim_ids.push_back(utf8(e,value));e->DeleteLocalRef(value);}}
         validate_constraints(constraints);
         auto method=e->GetMethodID(e->GetObjectClass(self),"onProgress","(I)V");
