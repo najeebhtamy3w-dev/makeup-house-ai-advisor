@@ -39,6 +39,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            // Isolated engineering install; never replaces owner-signed production data.
+            applicationIdSuffix ".engineering"
+            versionNameSuffix "-test"
+        }
         release {
             if (ksProps['storeFile']) { signingConfig signingConfigs.release }
             debuggable false

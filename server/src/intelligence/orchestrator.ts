@@ -65,7 +65,10 @@ function fallback(db:DB,r:Run,reason:string,provenance:Provenance='deterministic
  const answer=answerCp07(db,r.question,r.session.ctx,{products});
  // Legacy fallback may display products, but must never assert local availability without valid batches.
  if(answer.products)for(const p of answer.products.items){const fresh=readProduct(db,p.id,r.plan??Plan.parse({intent:'consultation'}),r.question);p.availability=fresh?.availability??'unknown';p.availability_note='التوفر المحلي وفق الدفعات الصالحة فقط';}
- answer.text=renderText(answer);
+ // Preserve the existing advisor's multi-turn state when the model is unavailable or rejected.
+ const legacy=answer.understanding.conversation_context;
+ r.session.ctx=legacy;
+ r.memory={...r.memory,skin:legacy.skin,hair:legacy.hair,concerns:legacy.concerns,ingredients:legacy.using,constraints:legacy.avoid,product_refs:legacy.product_refs,protected_referrals:r.protected};
  answer.text=renderText(answer);
  const d=diagnostics(r,provenance,reason);persist(db,r,r.memory,provenance,d);
  return {kind:'final',session_id:r.session.id,answer,mode_requested:'offline',mode_used:'offline',research:null,cloud:null,intelligence:d};
@@ -130,7 +133,6 @@ function render(db:DB,r:Run,d:ConsultationDecision,checked:ReturnType<typeof val
 export function advanceConsultation(db:DB,userId:number,input:{ticket:string;raw:string;failure?:string}):any{
  const map=runs.get(db),r=map?.get(input.ticket);if(!r||r.session.user_id!==userId||r.expires<Date.now())throw new HttpError(403,'انتهى الطلب أو غير مصرح');map!.delete(input.ticket);
  const revision=(db.prepare('SELECT revision FROM intelligence_memory WHERE session_id=?').get(r.session.id) as {revision:number}|undefined)?.revision;if(revision!==r.revision)throw new HttpError(409,'تغير سياق الاستشارة');
- if(!input.failure)r.modelInvocations++;
  if(!input.failure)r.modelInvocations++;
  if(input.failure)return fallback(db,r,'runtime_'+input.failure.slice(0,40));
  try{

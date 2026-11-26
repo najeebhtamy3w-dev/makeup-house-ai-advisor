@@ -1,7 +1,7 @@
 import { registerPlugin, Capacitor, type PluginListenerHandle } from '@capacitor/core';
 interface NativeAI {
   addListener(event: string, callback: (data: any) => void): Promise<PluginListenerHandle>;
-  status(o: { token: string }): Promise<any>;
+  status(o: { token: string; diagnostics?: boolean }): Promise<any>;
   install(o: { token: string }): Promise<any>;
   activate(o: { token: string }): Promise<any>;
   deactivate(o: { token: string }): Promise<any>;
@@ -15,6 +15,10 @@ const native = registerPlugin<NativeAI>('LocalAI');
 let composing = false;
 export const localAI = {
   available: Capacitor.isNativePlatform(),
+  async diagnostics(token: string) {
+    if (!Capacitor.isNativePlatform()) throw new Error('يتطلب تطبيق Android');
+    return native.status({ token, diagnostics: true });
+  },
   async call(action: keyof NativeAI, token: string) {
     if (!Capacitor.isNativePlatform()) throw new Error('يتطلب تطبيق Android');
     if (!['status', 'install', 'activate', 'deactivate', 'remove', 'reset', 'cancel', 'test'].includes(action)) throw new Error('عملية غير مسموحة');

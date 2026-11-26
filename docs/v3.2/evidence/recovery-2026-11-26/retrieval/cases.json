@@ -1,0 +1,162 @@
+[
+  [
+    "mixed-face",
+    "وجهي يزيت بسرعة بس حول خشمي يتقشر",
+    [
+      "oily_skin",
+      "dry_skin",
+      "combination_skin"
+    ]
+  ],
+  [
+    "wash-tight",
+    "بعد ما أغسل وجهي أحس جلدي يشد",
+    [
+      "dry_skin",
+      "moisturizer_basics"
+    ]
+  ],
+  [
+    "niacinamide-ar",
+    "إيش فايدة النياسيناميد",
+    [
+      "niacinamide"
+    ]
+  ],
+  [
+    "niacinamide-en",
+    "what does niacinamide do",
+    [
+      "niacinamide"
+    ]
+  ],
+  [
+    "niacinamide-variant",
+    "أشتي أعرف عن نيا سيناميد",
+    [
+      "niacinamide"
+    ]
+  ],
+  [
+    "hair-mixed",
+    "شعري من فوق دهني ومن تحت ناشف ويتكسر",
+    [
+      "oily_hair",
+      "dry_damaged_hair"
+    ]
+  ],
+  [
+    "hair-roots",
+    "الجذور تزيت والأطراف قش",
+    [
+      "oily_hair",
+      "dry_damaged_hair"
+    ]
+  ],
+  [
+    "sun",
+    "أشتي واقي يحمي وجهي من الشمس",
+    [
+      "sun"
+    ]
+  ],
+  [
+    "sun-english",
+    "sunscreen SPF protection",
+    [
+      "sun"
+    ]
+  ],
+  [
+    "glycerol",
+    "glycerol glycerine",
+    [
+      "ing_glycerin"
+    ]
+  ],
+  [
+    "glycerin-ar",
+    "الغليسرين والجلسرين نفس الشي",
+    [
+      "ing_glycerin"
+    ]
+  ],
+  [
+    "petroleum",
+    "petroleum jelly",
+    [
+      "ing_petrolatum"
+    ]
+  ],
+  [
+    "petrolatum-ar",
+    "فازلينا للترطيب",
+    [
+      "ing_petrolatum"
+    ]
+  ],
+  [
+    "ceramide",
+    "ceramide AP ceramides",
+    [
+      "ing_ceramides"
+    ]
+  ],
+  [
+    "b5",
+    "provitamin b5",
+    [
+      "ing_panthenol"
+    ]
+  ],
+  [
+    "hyaluronic",
+    "حمض الهيالورونك",
+    [
+      "ing_hyaluronic"
+    ]
+  ],
+  [
+    "sensitive",
+    "بشرتها حساسة وتتأثر بسرعة",
+    [
+      "sensitive_skin"
+    ]
+  ],
+  [
+    "acne-marks",
+    "معها آثار حبوب وبقع غامقة",
+    [
+      "pigmentation",
+      "acne"
+    ]
+  ],
+  [
+    "flakes",
+    "راسي يحكني وفيه قشور",
+    [
+      "dandruff"
+    ]
+  ],
+  [
+    "hair-fall",
+    "شعري يطيح كثير",
+    [
+      "hair_loss"
+    ]
+  ],
+  [
+    "routine",
+    "كيف أرتب صباح ومساء",
+    [
+      "routine"
+    ]
+  ],
+  [
+    "urea",
+    "carbamide",
+    [
+      "ing_urea"
+    ]
+  ]
+]

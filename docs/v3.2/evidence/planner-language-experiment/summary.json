@@ -1,0 +1,415 @@
+{
+  "runs": 6,
+  "results": [
+    {
+      "case_id": "family-001-turn-1",
+      "arm": "current_english",
+      "response": {
+        "error": null,
+        "id": 1,
+        "metrics": {
+          "first_token_ms": 6680.971498,
+          "generation_ms": 40092.73388,
+          "model_load_ms": 3145.617872,
+          "tokens": 270
+        },
+        "text": "{\n  \"intent\": \"consultation\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [],\n  \"question\": \"وجهي مشدود بعد الغسل وأشتي عناية بسيطة\",\n  \"queries\": [\n    \"أين تتوفر منتجات العناية بالوجه في اليمن؟\",\n    \"ما هي المكونات الآمنة للوجه في اليمن؟\",\n    \"هل هناك منتجات محلية خفيفة ومطهرة؟\"\n  ],\n  \"tools\": [\n    {\n      \"name\": \"search_local_products\",\n      \"query\": \"منتجات العناية بالوجه في اليمن\"\n    ,\n    \"product_ids\": []\n    },\n    {\n      \"name\": \"retrieve_scientific_evidence\",\n      \"query\": \"مكونات العناية بالوجه الآمنة في اليمن\"\n    ,\n    \"product_ids\": []\n    },\n    {\n      \"name\": \"search_local_products\",\n      \"query\": \"منتجات خفيفة ومطهرة للوجه\"\n    ,\n    \"product_ids\": []\n    }\n  ],\n  \"correction\": false\n}"
+      },
+      "plan": {
+        "intent": "consultation",
+        "skin": [],
+        "hair": [],
+        "concerns": [],
+        "ingredients": [],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [],
+        "question": "وجهي مشدود بعد الغسل وأشتي عناية بسيطة",
+        "queries": [
+          "أين تتوفر منتجات العناية بالوجه في اليمن؟",
+          "ما هي المكونات الآمنة للوجه في اليمن؟",
+          "هل هناك منتجات محلية خفيفة ومطهرة؟"
+        ],
+        "tools": [
+          {
+            "name": "search_local_products",
+            "query": "منتجات العناية بالوجه في اليمن",
+            "product_ids": []
+          },
+          {
+            "name": "retrieve_scientific_evidence",
+            "query": "مكونات العناية بالوجه الآمنة في اليمن",
+            "product_ids": []
+          },
+          {
+            "name": "search_local_products",
+            "query": "منتجات خفيفة ومطهرة للوجه",
+            "product_ids": []
+          }
+        ],
+        "correction": false
+      },
+      "validation_errors": null,
+      "metrics": {
+        "schema": true,
+        "intent": true,
+        "no_unstated_skin": true,
+        "required_hair": true,
+        "no_unstated_hair": true,
+        "required_ingredient": true,
+        "no_geographic_drift": false,
+        "question_only_clarification": false,
+        "relevant_tool": true,
+        "no_invented_product_ids": true
+      },
+      "elapsed_ms": 43246
+    },
+    {
+      "case_id": "family-001-turn-1",
+      "arm": "arabic_candidate",
+      "response": {
+        "error": null,
+        "id": 2,
+        "metrics": {
+          "first_token_ms": 8577.0675,
+          "generation_ms": 43752.280209,
+          "model_load_ms": 3145.617872,
+          "tokens": 311
+        },
+        "text": "{\n  \"intent\": \"consultation\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [\n    \"oil\",\n    \"dryness\"\n  ],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \"skin\",\n    \"hair\",\n    \"product\",\n    \"ingredients\",\n    \"goal\",\n    \"usage\",\n    \"pregnancy\",\n    \"reaction\"\n  ],\n  \"question\": \"\",\n  \"queries\": [\n    \"oil control\",\n    \"dryness relief\"\n  ],\n  \"tools\": [\n    {\n      \"name\": \"retrieve_scientific_evidence\",\n      \"query\": \"oil control and dryness relief ingredients\",\n      \"product_ids\": []\n    },\n    {\n      \"name\": \"search_local_products\",\n      \"query\": \"oil control and dryness relief products\",\n      \"product_ids\": []\n    },\n    {\n      \"name\": \"search_global_products\",\n      \"query\": \"oil control and dryness relief products\",\n      \"product_ids\": []\n    },\n    {\n      \"name\": \"get_product_details\",\n      \"query\": \"oil control and dryness relief products\",\n      \"product_ids\": []\n    }\n  ],\n  \"correction\": false\n}"
+      },
+      "plan": {
+        "intent": "consultation",
+        "skin": [],
+        "hair": [],
+        "concerns": [
+          "oil",
+          "dryness"
+        ],
+        "ingredients": [],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [
+          "skin",
+          "hair",
+          "product",
+          "ingredients",
+          "goal",
+          "usage",
+          "pregnancy",
+          "reaction"
+        ],
+        "question": "",
+        "queries": [
+          "oil control",
+          "dryness relief"
+        ],
+        "tools": [
+          {
+            "name": "retrieve_scientific_evidence",
+            "query": "oil control and dryness relief ingredients",
+            "product_ids": []
+          },
+          {
+            "name": "search_local_products",
+            "query": "oil control and dryness relief products",
+            "product_ids": []
+          },
+          {
+            "name": "search_global_products",
+            "query": "oil control and dryness relief products",
+            "product_ids": []
+          },
+          {
+            "name": "get_product_details",
+            "query": "oil control and dryness relief products",
+            "product_ids": []
+          }
+        ],
+        "correction": false
+      },
+      "validation_errors": null,
+      "metrics": {
+        "schema": true,
+        "intent": true,
+        "no_unstated_skin": true,
+        "required_hair": true,
+        "no_unstated_hair": true,
+        "required_ingredient": true,
+        "no_geographic_drift": true,
+        "question_only_clarification": true,
+        "relevant_tool": true,
+        "no_invented_product_ids": true
+      },
+      "elapsed_ms": 43767
+    },
+    {
+      "case_id": "family-005-turn-1",
+      "arm": "current_english",
+      "response": {
+        "error": null,
+        "id": 3,
+        "metrics": {
+          "first_token_ms": 6640.177659,
+          "generation_ms": 37533.25579,
+          "model_load_ms": 3145.617872,
+          "tokens": 319
+        },
+        "text": "{\n  \"intent\": \"ingredient\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [],\n  \"ingredients\": [\n    \"glycerin\"\n  ],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \"skin\",\n    \"hair\",\n    \"product\",\n    \"goal\",\n    \"usage\",\n    \"pregnancy\",\n    \"reaction\"\n  ],\n  \"question\": \"ما وظيفة glycerin في كريم الوجه؟\",\n  \"queries\": [\n    \"retrieve_scientific_evidence\",\n    \"search_local_products\",\n    \"search_global_products\",\n    \"get_product_details\"\n  ],\n  \"tools\": [\n    {\n      \"name\": \"retrieve_scientific_evidence\",\n      \"query\": \"glycerin function in face cream Arabic\",\n      \"product_ids\": []\n    },\n    {\n      \"name\": \"search_local_products\",\n      \"query\": \"glycerin face cream Yemen\",\n      \"product_ids\": []\n    },\n    {\n      \"name\": \"search_global_products\",\n      \"query\": \"glycerin face cream\",\n      \"product_ids\": []\n    },\n    {\n      \"name\": \"get_product_details\",\n      \"query\": \"glycerin face cream\",\n      \"product_ids\": []\n    }\n  ],\n  \"correction\": false\n}"
+      },
+      "plan": {
+        "intent": "ingredient",
+        "skin": [],
+        "hair": [],
+        "concerns": [],
+        "ingredients": [
+          "glycerin"
+        ],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [
+          "skin",
+          "hair",
+          "product",
+          "goal",
+          "usage",
+          "pregnancy",
+          "reaction"
+        ],
+        "question": "ما وظيفة glycerin في كريم الوجه؟",
+        "queries": [
+          "retrieve_scientific_evidence",
+          "search_local_products",
+          "search_global_products",
+          "get_product_details"
+        ],
+        "tools": [
+          {
+            "name": "retrieve_scientific_evidence",
+            "query": "glycerin function in face cream Arabic",
+            "product_ids": []
+          },
+          {
+            "name": "search_local_products",
+            "query": "glycerin face cream Yemen",
+            "product_ids": []
+          },
+          {
+            "name": "search_global_products",
+            "query": "glycerin face cream",
+            "product_ids": []
+          },
+          {
+            "name": "get_product_details",
+            "query": "glycerin face cream",
+            "product_ids": []
+          }
+        ],
+        "correction": false
+      },
+      "validation_errors": null,
+      "metrics": {
+        "schema": true,
+        "intent": true,
+        "no_unstated_skin": true,
+        "required_hair": true,
+        "no_unstated_hair": true,
+        "required_ingredient": true,
+        "no_geographic_drift": false,
+        "question_only_clarification": false,
+        "relevant_tool": true,
+        "no_invented_product_ids": true
+      },
+      "elapsed_ms": 37541
+    },
+    {
+      "case_id": "family-005-turn-1",
+      "arm": "arabic_candidate",
+      "response": {
+        "error": null,
+        "id": 4,
+        "metrics": {
+          "first_token_ms": 6727.477627,
+          "generation_ms": 20622.833078,
+          "model_load_ms": 3145.617872,
+          "tokens": 152
+        },
+        "text": "{\n  \"intent\": \"consultation\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [\n    \"hydration\"\n  ],\n  \"ingredients\": [\n    \"glycerin\"\n  ],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [],\n  \"question\": \"\",\n  \"queries\": [\n    \"glycerin moisturizing properties\"\n  ],\n  \"tools\": [\n    {\n      \"name\": \"retrieve_scientific_evidence\",\n      \"query\": \"glycerin moisturizing properties\",\n      \"product_ids\": []\n    }\n  ],\n  \"correction\": false\n}"
+      },
+      "plan": {
+        "intent": "consultation",
+        "skin": [],
+        "hair": [],
+        "concerns": [
+          "hydration"
+        ],
+        "ingredients": [
+          "glycerin"
+        ],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [],
+        "question": "",
+        "queries": [
+          "glycerin moisturizing properties"
+        ],
+        "tools": [
+          {
+            "name": "retrieve_scientific_evidence",
+            "query": "glycerin moisturizing properties",
+            "product_ids": []
+          }
+        ],
+        "correction": false
+      },
+      "validation_errors": null,
+      "metrics": {
+        "schema": true,
+        "intent": false,
+        "no_unstated_skin": true,
+        "required_hair": true,
+        "no_unstated_hair": true,
+        "required_ingredient": true,
+        "no_geographic_drift": true,
+        "question_only_clarification": true,
+        "relevant_tool": true,
+        "no_invented_product_ids": true
+      },
+      "elapsed_ms": 20630
+    },
+    {
+      "case_id": "family-021-turn-1",
+      "arm": "current_english",
+      "response": {
+        "error": null,
+        "id": 5,
+        "metrics": {
+          "first_token_ms": 6199.954889,
+          "generation_ms": 26679.572135,
+          "model_load_ms": 3145.617872,
+          "tokens": 231
+        },
+        "text": "{\n  \"intent\": \"consultation\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [\n    \"oil\",\n    \"dryness\"\n  ],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \"skin\",\n    \"hair\",\n    \"product\",\n    \"ingredients\",\n    \"goal\",\n    \"usage\",\n    \"pregnancy\",\n    \"reaction\"\n  ],\n  \"question\": \"ما هو نوع الشعر الذي تعاني منه؟\",\n  \"queries\": [\n    \"Arabic search: What type of hair do you have?\",\n    \"Arabic search: What is your hair type?\"\n  ],\n  \"tools\": [\n    {\n      \"name\": \"retrieve_scientific_evidence\",\n      \"query\": \"Arabic search: What type of hair do you have?\"\n    ,\n    \"product_ids\": []\n    }\n  ],\n  \"correction\": false\n}"
+      },
+      "plan": {
+        "intent": "consultation",
+        "skin": [],
+        "hair": [],
+        "concerns": [
+          "oil",
+          "dryness"
+        ],
+        "ingredients": [],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [
+          "skin",
+          "hair",
+          "product",
+          "ingredients",
+          "goal",
+          "usage",
+          "pregnancy",
+          "reaction"
+        ],
+        "question": "ما هو نوع الشعر الذي تعاني منه؟",
+        "queries": [
+          "Arabic search: What type of hair do you have?",
+          "Arabic search: What is your hair type?"
+        ],
+        "tools": [
+          {
+            "name": "retrieve_scientific_evidence",
+            "query": "Arabic search: What type of hair do you have?",
+            "product_ids": []
+          }
+        ],
+        "correction": false
+      },
+      "validation_errors": null,
+      "metrics": {
+        "schema": true,
+        "intent": true,
+        "no_unstated_skin": true,
+        "required_hair": false,
+        "no_unstated_hair": true,
+        "required_ingredient": true,
+        "no_geographic_drift": true,
+        "question_only_clarification": true,
+        "relevant_tool": true,
+        "no_invented_product_ids": true
+      },
+      "elapsed_ms": 26686
+    },
+    {
+      "case_id": "family-021-turn-1",
+      "arm": "arabic_candidate",
+      "response": {
+        "error": null,
+        "id": 6,
+        "metrics": {
+          "first_token_ms": 6728.011134,
+          "generation_ms": 27152.138129,
+          "model_load_ms": 3145.617872,
+          "tokens": 221
+        },
+        "text": "{\n  \"intent\": \"consultation\",\n  \"skin\": [],\n  \"hair\": [\n    \"oily\",\n    \"dry\"\n  ],\n  \"concerns\": [\n    \"oil\",\n    \"dryness\"\n  ],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \"skin\",\n    \"hair\",\n    \"product\",\n    \"ingredients\",\n    \"goal\",\n    \"usage\",\n    \"pregnancy\",\n    \"reaction\"\n  ],\n  \"question\": \"\",\n  \"queries\": [\n    \"oil control\",\n    \"dryness treatment\",\n    \"scalp care\"\n  ],\n  \"tools\": [\n    {\n      \"name\": \"retrieve_scientific_evidence\",\n      \"query\": \"oil control dryness treatment scalp care\",\n      \"product_ids\": []\n    }\n  ],\n  \"correction\": false\n}"
+      },
+      "plan": {
+        "intent": "consultation",
+        "skin": [],
+        "hair": [
+          "oily",
+          "dry"
+        ],
+        "concerns": [
+          "oil",
+          "dryness"
+        ],
+        "ingredients": [],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [
+          "skin",
+          "hair",
+          "product",
+          "ingredients",
+          "goal",
+          "usage",
+          "pregnancy",
+          "reaction"
+        ],
+        "question": "",
+        "queries": [
+          "oil control",
+          "dryness treatment",
+          "scalp care"
+        ],
+        "tools": [
+          {
+            "name": "retrieve_scientific_evidence",
+            "query": "oil control dryness treatment scalp care",
+            "product_ids": []
+          }
+        ],
+        "correction": false
+      },
+      "validation_errors": null,
+      "metrics": {
+        "schema": true,
+        "intent": true,
+        "no_unstated_skin": true,
+        "required_hair": true,
+        "no_unstated_hair": true,
+        "required_ingredient": true,
+        "no_geographic_drift": true,
+        "question_only_clarification": true,
+        "relevant_tool": true,
+        "no_invented_product_ids": true
+      },
+      "elapsed_ms": 27165
+    }
+  ],
+  "scientific_reasoning": "NOT TESTED",
+  "human_arabic_review": "NOT TESTED"
+}

@@ -1,0 +1,2173 @@
+{
+  "kind": "development_retrieval_experiment",
+  "generated_at": "2026-11-26T04:32:01.738Z",
+  "method": "current retrieveKnowledgeGraph JS BM25; query only; limit6; no explicit topic/ingredient routing",
+  "dataset_sha256": "7ad67d73f383fdd5db59c480bd9b9de8b2bfe055fdc43b0dbd425b4c92697196",
+  "seeded": {
+    "sources": 32,
+    "topics": 26,
+    "claims": 74,
+    "ingredients": 12
+  },
+  "usable_claims": 74,
+  "qualified_scientific_claims": 0,
+  "topics": 26,
+  "metrics": {
+    "definition": "Macro topic recall@6 = mean per query of reference topics represented in top6 claims / reference topics count. Any/all topic hit rates are query-level. Not claim relevance, clinical validity or generative intelligence."
+  },
+  "baseline": {
+    "cases": 22,
+    "macro_topic_recall_at6": 0.8409090909090909,
+    "any_topic_hit_at6": 0.9090909090909091,
+    "all_reference_topics_at6": 0.7727272727272727,
+    "empty_results": 2
+  },
+  "expanded": {
+    "cases": 22,
+    "macro_topic_recall_at6": 0.9242424242424242,
+    "any_topic_hit_at6": 0.9545454545454546,
+    "all_reference_topics_at6": 0.9090909090909091,
+    "empty_results": 0
+  },
+  "improved_cases": [
+    "mixed-face",
+    "niacinamide-variant",
+    "hair-roots",
+    "acne-marks"
+  ],
+  "regressed_cases": [
+    "wash-tight"
+  ],
+  "rules": [
+    {
+      "id": "face-oil",
+      "pattern": "يزيت|تزيت|دهني|دهنه|يلمع",
+      "append": "دهني oily"
+    },
+    {
+      "id": "dry-skin",
+      "pattern": "يتقشر|يشد|ناشف|قش(?:\\s|$)",
+      "append": "جاف dry ترطيب"
+    },
+    {
+      "id": "mixed-regions",
+      "pattern": "(حول خشمي|من فوق.*من تحت|الجذور.*الاطراف)",
+      "append": "مختلط combination"
+    },
+    {
+      "id": "dry-hair",
+      "pattern": "(شعر|الجذور|الاطراف).*(ناشف|يتكسر|قش)|الاطراف",
+      "append": "شعر جاف تالف damaged hair"
+    },
+    {
+      "id": "oily-hair",
+      "pattern": "(شعر|الجذور).*(دهني|تزيت)",
+      "append": "شعر دهني oily hair"
+    },
+    {
+      "id": "niacinamide-spelling",
+      "pattern": "نيا\\s+سيناميد|نياسيناميد",
+      "append": "niacinamide"
+    },
+    {
+      "id": "glycerin-alias",
+      "pattern": "غليسرين|جلسرين|جليسرين|glycerol|glycerine",
+      "append": "glycerin"
+    },
+    {
+      "id": "petrolatum-alias",
+      "pattern": "فازلينا|فازلين|petroleum jelly",
+      "append": "petrolatum"
+    },
+    {
+      "id": "panthenol-alias",
+      "pattern": "provitamin b5|pro-vitamin b5",
+      "append": "panthenol"
+    },
+    {
+      "id": "ceramide-alias",
+      "pattern": "ceramide ap|ceramides|سيراميد",
+      "append": "ceramide np"
+    },
+    {
+      "id": "hyaluronic-alias",
+      "pattern": "هيالورونك|هيالورونيك",
+      "append": "sodium hyaluronate"
+    },
+    {
+      "id": "urea-alias",
+      "pattern": "carbamide",
+      "append": "urea"
+    },
+    {
+      "id": "sensitivity",
+      "pattern": "حساسه|تتاثر",
+      "append": "حساسة sensitive"
+    },
+    {
+      "id": "pigmentation",
+      "pattern": "اثار حبوب|بقع غامقه",
+      "append": "تصبغات pigmentation"
+    },
+    {
+      "id": "scalp-flakes",
+      "pattern": "راسي يحكني|قشور",
+      "append": "قشرة فروة dandruff"
+    },
+    {
+      "id": "hair-shedding",
+      "pattern": "يطيح",
+      "append": "تساقط hair loss"
+    },
+    {
+      "id": "routine-sequence",
+      "pattern": "ارتب صباح|صباح ومساء",
+      "append": "روتين routine"
+    }
+  ],
+  "rows": [
+    {
+      "id": "mixed-face",
+      "query": "وجهي يزيت بسرعة بس حول خشمي يتقشر",
+      "reference_topics": [
+        "oily_skin",
+        "dry_skin",
+        "combination_skin"
+      ],
+      "expanded_query": "وجهي يزيت بسرعة بس حول خشمي يتقشر دهني oily جاف dry ترطيب مختلط combination",
+      "applied_rules": [
+        "face-oil",
+        "dry-skin",
+        "mixed-regions"
+      ],
+      "baseline": {
+        "claim_ids": [],
+        "topics": [],
+        "scores": [],
+        "topic_recall": 0,
+        "any_hit": false,
+        "all_topics": false,
+        "ms": 13.404628000000002
+      },
+      "expanded": {
+        "claim_ids": [
+          "oily_hair-36",
+          "dry_damaged_hair-38",
+          "acne-20",
+          "combination_skin-17",
+          "dry_damaged_hair-37",
+          "oily_hair-34"
+        ],
+        "topics": [
+          "oily_hair",
+          "dry_damaged_hair",
+          "acne",
+          "combination_skin"
+        ],
+        "scores": [
+          {
+            "id": "oily_hair-36",
+            "topic": "oily_hair",
+            "score": 6.937434742605934,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-38",
+            "topic": "dry_damaged_hair",
+            "score": 3.5790611017406846,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "acne-20",
+            "topic": "acne",
+            "score": 3.359950104444309,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "combination_skin-17",
+            "topic": "combination_skin",
+            "score": 3.359950104444309,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-37",
+            "topic": "dry_damaged_hair",
+            "score": 3.2879188141887843,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-34",
+            "topic": "oily_hair",
+            "score": 3.1925714850026052,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 0.3333333333333333,
+        "any_hit": true,
+        "all_topics": false,
+        "ms": 12.921292999999991
+      }
+    },
+    {
+      "id": "wash-tight",
+      "query": "بعد ما أغسل وجهي أحس جلدي يشد",
+      "reference_topics": [
+        "dry_skin",
+        "moisturizer_basics"
+      ],
+      "expanded_query": "بعد ما أغسل وجهي أحس جلدي يشد جاف dry ترطيب",
+      "applied_rules": [
+        "dry-skin"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "sun-24",
+          "hair_loss-39",
+          "dry_skin-3",
+          "oily_skin-12",
+          "dry_damaged_hair-37",
+          "niacinamide-46"
+        ],
+        "topics": [
+          "sun",
+          "hair_loss",
+          "dry_skin",
+          "oily_skin",
+          "dry_damaged_hair",
+          "niacinamide"
+        ],
+        "scores": [
+          {
+            "id": "sun-24",
+            "topic": "sun",
+            "score": 2.8803013727793223,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "hair_loss-39",
+            "topic": "hair_loss",
+            "score": 2.749890365316728,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_skin-3",
+            "topic": "dry_skin",
+            "score": 2.689015278619007,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_skin-12",
+            "topic": "oily_skin",
+            "score": 2.521554239231145,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-37",
+            "topic": "dry_damaged_hair",
+            "score": 2.470274654409381,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "niacinamide-46",
+            "topic": "niacinamide",
+            "score": 2.088093969420355,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 0.5,
+        "any_hit": true,
+        "all_topics": false,
+        "ms": 2.760825999999952
+      },
+      "expanded": {
+        "claim_ids": [
+          "dry_damaged_hair-37",
+          "oily_hair-36",
+          "dry_damaged_hair-38",
+          "acne-20",
+          "combination_skin-17",
+          "sun-24"
+        ],
+        "topics": [
+          "dry_damaged_hair",
+          "oily_hair",
+          "acne",
+          "combination_skin",
+          "sun"
+        ],
+        "scores": [
+          {
+            "id": "dry_damaged_hair-37",
+            "topic": "dry_damaged_hair",
+            "score": 5.758193468598165,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-36",
+            "topic": "oily_hair",
+            "score": 3.744863257603328,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-38",
+            "topic": "dry_damaged_hair",
+            "score": 3.5790611017406846,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "acne-20",
+            "topic": "acne",
+            "score": 3.359950104444309,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "combination_skin-17",
+            "topic": "combination_skin",
+            "score": 3.359950104444309,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-24",
+            "topic": "sun",
+            "score": 2.8803013727793223,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 0,
+        "any_hit": false,
+        "all_topics": false,
+        "ms": 2.3893490000000384
+      }
+    },
+    {
+      "id": "niacinamide-ar",
+      "query": "إيش فايدة النياسيناميد",
+      "reference_topics": [
+        "niacinamide"
+      ],
+      "expanded_query": "إيش فايدة النياسيناميد niacinamide",
+      "applied_rules": [
+        "niacinamide-spelling"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "niacinamide-45",
+          "niacinamide-46"
+        ],
+        "topics": [
+          "niacinamide"
+        ],
+        "scores": [
+          {
+            "id": "niacinamide-45",
+            "topic": "niacinamide",
+            "score": 3.2520797062816214,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "niacinamide-46",
+            "topic": "niacinamide",
+            "score": 3.0843679840827547,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.0897730000000365
+      },
+      "expanded": {
+        "claim_ids": [
+          "niacinamide-45",
+          "niacinamide-46"
+        ],
+        "topics": [
+          "niacinamide"
+        ],
+        "scores": [
+          {
+            "id": "niacinamide-45",
+            "topic": "niacinamide",
+            "score": 6.504159412563243,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "niacinamide-46",
+            "topic": "niacinamide",
+            "score": 6.168735968165509,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.2928830000000744
+      }
+    },
+    {
+      "id": "niacinamide-en",
+      "query": "what does niacinamide do",
+      "reference_topics": [
+        "niacinamide"
+      ],
+      "expanded_query": "what does niacinamide do",
+      "applied_rules": [],
+      "baseline": {
+        "claim_ids": [
+          "niacinamide-45",
+          "niacinamide-46",
+          "cp07-dandruff-9",
+          "cp07-ing_salicylic-22",
+          "cp07-ing_salicylic-21"
+        ],
+        "topics": [
+          "niacinamide",
+          "dandruff",
+          "ing_salicylic"
+        ],
+        "scores": [
+          {
+            "id": "niacinamide-45",
+            "topic": "niacinamide",
+            "score": 3.2520797062816214,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "niacinamide-46",
+            "topic": "niacinamide",
+            "score": 3.0843679840827547,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-dandruff-9",
+            "topic": "dandruff",
+            "score": 2.709290498368108,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-22",
+            "topic": "ing_salicylic",
+            "score": 2.452089319502558,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-21",
+            "topic": "ing_salicylic",
+            "score": 2.3249930697767995,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.6432399999999916
+      },
+      "expanded": {
+        "claim_ids": [
+          "niacinamide-45",
+          "niacinamide-46",
+          "cp07-dandruff-9",
+          "cp07-ing_salicylic-22",
+          "cp07-ing_salicylic-21"
+        ],
+        "topics": [
+          "niacinamide",
+          "dandruff",
+          "ing_salicylic"
+        ],
+        "scores": [
+          {
+            "id": "niacinamide-45",
+            "topic": "niacinamide",
+            "score": 3.2520797062816214,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "niacinamide-46",
+            "topic": "niacinamide",
+            "score": 3.0843679840827547,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-dandruff-9",
+            "topic": "dandruff",
+            "score": 2.709290498368108,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-22",
+            "topic": "ing_salicylic",
+            "score": 2.452089319502558,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-21",
+            "topic": "ing_salicylic",
+            "score": 2.3249930697767995,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.482479000000012
+      }
+    },
+    {
+      "id": "niacinamide-variant",
+      "query": "أشتي أعرف عن نيا سيناميد",
+      "reference_topics": [
+        "niacinamide"
+      ],
+      "expanded_query": "أشتي أعرف عن نيا سيناميد niacinamide",
+      "applied_rules": [
+        "niacinamide-spelling"
+      ],
+      "baseline": {
+        "claim_ids": [],
+        "topics": [],
+        "scores": [],
+        "topic_recall": 0,
+        "any_hit": false,
+        "all_topics": false,
+        "ms": 1.021443999999974
+      },
+      "expanded": {
+        "claim_ids": [
+          "niacinamide-45",
+          "niacinamide-46"
+        ],
+        "topics": [
+          "niacinamide"
+        ],
+        "scores": [
+          {
+            "id": "niacinamide-45",
+            "topic": "niacinamide",
+            "score": 3.2520797062816214,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "niacinamide-46",
+            "topic": "niacinamide",
+            "score": 3.0843679840827547,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.2641889999999876
+      }
+    },
+    {
+      "id": "hair-mixed",
+      "query": "شعري من فوق دهني ومن تحت ناشف ويتكسر",
+      "reference_topics": [
+        "oily_hair",
+        "dry_damaged_hair"
+      ],
+      "expanded_query": "شعري من فوق دهني ومن تحت ناشف ويتكسر دهني oily جاف dry ترطيب مختلط combination شعر جاف تالف damaged hair شعر دهني oily hair",
+      "applied_rules": [
+        "face-oil",
+        "dry-skin",
+        "mixed-regions",
+        "dry-hair",
+        "oily-hair"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "oily_hair-36",
+          "cp07-ing_urea-12",
+          "dry_damaged_hair-38",
+          "dry_damaged_hair-37",
+          "oily_hair-34",
+          "oily_hair-35"
+        ],
+        "topics": [
+          "oily_hair",
+          "ing_urea",
+          "dry_damaged_hair"
+        ],
+        "scores": [
+          {
+            "id": "oily_hair-36",
+            "topic": "oily_hair",
+            "score": 6.937434742605934,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_urea-12",
+            "topic": "ing_urea",
+            "score": 3.8095572569281986,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-38",
+            "topic": "dry_damaged_hair",
+            "score": 3.5790611017406846,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-37",
+            "topic": "dry_damaged_hair",
+            "score": 3.2879188141887843,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-34",
+            "topic": "oily_hair",
+            "score": 3.1925714850026052,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-35",
+            "topic": "oily_hair",
+            "score": 3.0512218018374573,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.9251189999999951
+      },
+      "expanded": {
+        "claim_ids": [
+          "dry_damaged_hair-38",
+          "oily_hair-36",
+          "dry_damaged_hair-37",
+          "cp07-ing_urea-12",
+          "oily_hair-34",
+          "cp07-ing_bpo-24"
+        ],
+        "topics": [
+          "dry_damaged_hair",
+          "oily_hair",
+          "ing_urea",
+          "ing_bpo"
+        ],
+        "scores": [
+          {
+            "id": "dry_damaged_hair-38",
+            "topic": "dry_damaged_hair",
+            "score": 9.964017396773503,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-36",
+            "topic": "oily_hair",
+            "score": 9.462170990258148,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-37",
+            "topic": "dry_damaged_hair",
+            "score": 9.153484484470695,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_urea-12",
+            "topic": "ing_urea",
+            "score": 6.549277651691,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-34",
+            "topic": "oily_hair",
+            "score": 5.71730773265482,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_bpo-24",
+            "topic": "ing_bpo",
+            "score": 5.528287625868775,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.732217999999989
+      }
+    },
+    {
+      "id": "hair-roots",
+      "query": "الجذور تزيت والأطراف قش",
+      "reference_topics": [
+        "oily_hair",
+        "dry_damaged_hair"
+      ],
+      "expanded_query": "الجذور تزيت والأطراف قش دهني oily جاف dry ترطيب مختلط combination شعر جاف تالف damaged hair شعر دهني oily hair",
+      "applied_rules": [
+        "face-oil",
+        "dry-skin",
+        "mixed-regions",
+        "dry-hair",
+        "oily-hair"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "oily_hair-35"
+        ],
+        "topics": [
+          "oily_hair"
+        ],
+        "scores": [
+          {
+            "id": "oily_hair-35",
+            "topic": "oily_hair",
+            "score": 4.568556299574954,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 0.5,
+        "any_hit": true,
+        "all_topics": false,
+        "ms": 3.914068000000043
+      },
+      "expanded": {
+        "claim_ids": [
+          "oily_hair-35",
+          "dry_damaged_hair-38",
+          "oily_hair-36",
+          "dry_damaged_hair-37",
+          "oily_hair-34",
+          "cp07-ing_bpo-24"
+        ],
+        "topics": [
+          "oily_hair",
+          "dry_damaged_hair",
+          "ing_bpo"
+        ],
+        "scores": [
+          {
+            "id": "oily_hair-35",
+            "topic": "oily_hair",
+            "score": 10.03273277413118,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-38",
+            "topic": "dry_damaged_hair",
+            "score": 9.964017396773503,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-36",
+            "topic": "oily_hair",
+            "score": 9.462170990258148,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dry_damaged_hair-37",
+            "topic": "dry_damaged_hair",
+            "score": 9.153484484470695,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_hair-34",
+            "topic": "oily_hair",
+            "score": 5.71730773265482,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_bpo-24",
+            "topic": "ing_bpo",
+            "score": 5.528287625868775,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.723231999999939
+      }
+    },
+    {
+      "id": "sun",
+      "query": "أشتي واقي يحمي وجهي من الشمس",
+      "reference_topics": [
+        "sun"
+      ],
+      "expanded_query": "أشتي واقي يحمي وجهي من الشمس",
+      "applied_rules": [],
+      "baseline": {
+        "claim_ids": [
+          "routine-47",
+          "cp07-ing_adapalene-25",
+          "sun-25",
+          "sun-24",
+          "pigmentation-26",
+          "sun-23"
+        ],
+        "topics": [
+          "routine",
+          "ing_adapalene",
+          "sun",
+          "pigmentation"
+        ],
+        "scores": [
+          {
+            "id": "routine-47",
+            "topic": "routine",
+            "score": 6.119169851432746,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_adapalene-25",
+            "topic": "ing_adapalene",
+            "score": 4.413732428794815,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-25",
+            "topic": "sun",
+            "score": 3.182119523944964,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-24",
+            "topic": "sun",
+            "score": 2.8803013727793223,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "pigmentation-26",
+            "topic": "pigmentation",
+            "score": 2.749890365316728,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-23",
+            "topic": "sun",
+            "score": 2.521554239231145,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.1991179999999986
+      },
+      "expanded": {
+        "claim_ids": [
+          "routine-47",
+          "cp07-ing_adapalene-25",
+          "sun-25",
+          "sun-24",
+          "pigmentation-26",
+          "sun-23"
+        ],
+        "topics": [
+          "routine",
+          "ing_adapalene",
+          "sun",
+          "pigmentation"
+        ],
+        "scores": [
+          {
+            "id": "routine-47",
+            "topic": "routine",
+            "score": 6.119169851432746,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_adapalene-25",
+            "topic": "ing_adapalene",
+            "score": 4.413732428794815,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-25",
+            "topic": "sun",
+            "score": 3.182119523944964,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-24",
+            "topic": "sun",
+            "score": 2.8803013727793223,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "pigmentation-26",
+            "topic": "pigmentation",
+            "score": 2.749890365316728,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-23",
+            "topic": "sun",
+            "score": 2.521554239231145,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.274548999999979
+      }
+    },
+    {
+      "id": "sun-english",
+      "query": "sunscreen SPF protection",
+      "reference_topics": [
+        "sun"
+      ],
+      "expanded_query": "sunscreen SPF protection",
+      "applied_rules": [],
+      "baseline": {
+        "claim_ids": [
+          "oily_skin-14",
+          "pigmentation-27",
+          "sun-23",
+          "routine-47"
+        ],
+        "topics": [
+          "oily_skin",
+          "pigmentation",
+          "sun",
+          "routine"
+        ],
+        "scores": [
+          {
+            "id": "oily_skin-14",
+            "topic": "oily_skin",
+            "score": 3.1462702397634126,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "pigmentation-27",
+            "topic": "pigmentation",
+            "score": 3.0809578942943974,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-23",
+            "topic": "sun",
+            "score": 3.0809578942943974,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "routine-47",
+            "topic": "routine",
+            "score": 3.018301997699079,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.4519820000000436
+      },
+      "expanded": {
+        "claim_ids": [
+          "oily_skin-14",
+          "pigmentation-27",
+          "sun-23",
+          "routine-47"
+        ],
+        "topics": [
+          "oily_skin",
+          "pigmentation",
+          "sun",
+          "routine"
+        ],
+        "scores": [
+          {
+            "id": "oily_skin-14",
+            "topic": "oily_skin",
+            "score": 3.1462702397634126,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "pigmentation-27",
+            "topic": "pigmentation",
+            "score": 3.0809578942943974,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sun-23",
+            "topic": "sun",
+            "score": 3.0809578942943974,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "routine-47",
+            "topic": "routine",
+            "score": 3.018301997699079,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.739610999999968
+      }
+    },
+    {
+      "id": "glycerol",
+      "query": "glycerol glycerine",
+      "reference_topics": [
+        "ing_glycerin"
+      ],
+      "expanded_query": "glycerol glycerine glycerin",
+      "applied_rules": [
+        "glycerin-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_glycerin-11",
+          "cp07-moisturizer_basics-3"
+        ],
+        "topics": [
+          "ing_glycerin",
+          "moisturizer_basics"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_glycerin-11",
+            "topic": "ing_glycerin",
+            "score": 6.011902128735597,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-3",
+            "topic": "moisturizer_basics",
+            "score": 2.5938845819817704,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.5418600000000424
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_glycerin-11",
+          "cp07-moisturizer_basics-3"
+        ],
+        "topics": [
+          "ing_glycerin",
+          "moisturizer_basics"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_glycerin-11",
+            "topic": "ing_glycerin",
+            "score": 9.227817715733714,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-3",
+            "topic": "moisturizer_basics",
+            "score": 2.5938845819817704,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.4943309999999883
+      }
+    },
+    {
+      "id": "glycerin-ar",
+      "query": "الغليسرين والجلسرين نفس الشي",
+      "reference_topics": [
+        "ing_glycerin"
+      ],
+      "expanded_query": "الغليسرين والجلسرين نفس الشي glycerin",
+      "applied_rules": [
+        "glycerin-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_glycerin-11"
+        ],
+        "topics": [
+          "ing_glycerin"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_glycerin-11",
+            "topic": "ing_glycerin",
+            "score": 6.431831173996232,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.0539560000000847
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_glycerin-11"
+        ],
+        "topics": [
+          "ing_glycerin"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_glycerin-11",
+            "topic": "ing_glycerin",
+            "score": 9.647746760994348,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.3640869999999268
+      }
+    },
+    {
+      "id": "petroleum",
+      "query": "petroleum jelly",
+      "reference_topics": [
+        "ing_petrolatum"
+      ],
+      "expanded_query": "petroleum jelly petrolatum",
+      "applied_rules": [
+        "petrolatum-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_petrolatum-15",
+          "cp07-ing_petrolatum-14"
+        ],
+        "topics": [
+          "ing_petrolatum"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_petrolatum-15",
+            "topic": "ing_petrolatum",
+            "score": 6.504159412563243,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_petrolatum-14",
+            "topic": "ing_petrolatum",
+            "score": 5.5919730834749615,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.4182989999999336
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_petrolatum-15",
+          "cp07-ing_petrolatum-14",
+          "cp07-moisturizer_basics-3"
+        ],
+        "topics": [
+          "ing_petrolatum",
+          "moisturizer_basics"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_petrolatum-15",
+            "topic": "ing_petrolatum",
+            "score": 9.43451873344686,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_petrolatum-14",
+            "topic": "ing_petrolatum",
+            "score": 8.111359434252202,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-3",
+            "topic": "moisturizer_basics",
+            "score": 2.337277849440372,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.4911449999999604
+      }
+    },
+    {
+      "id": "petrolatum-ar",
+      "query": "فازلينا للترطيب",
+      "reference_topics": [
+        "ing_petrolatum"
+      ],
+      "expanded_query": "فازلينا للترطيب petrolatum",
+      "applied_rules": [
+        "petrolatum-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_petrolatum-15",
+          "cp07-ing_hyaluronic-17",
+          "cp07-ing_petrolatum-14"
+        ],
+        "topics": [
+          "ing_petrolatum",
+          "ing_hyaluronic"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_petrolatum-15",
+            "topic": "ing_petrolatum",
+            "score": 3.2520797062816214,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_hyaluronic-17",
+            "topic": "ing_hyaluronic",
+            "score": 3.215915586998116,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_petrolatum-14",
+            "topic": "ing_petrolatum",
+            "score": 2.7959865417374807,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 2.2018980000000283
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_petrolatum-15",
+          "cp07-ing_petrolatum-14",
+          "cp07-ing_hyaluronic-17",
+          "cp07-moisturizer_basics-3"
+        ],
+        "topics": [
+          "ing_petrolatum",
+          "ing_hyaluronic",
+          "moisturizer_basics"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_petrolatum-15",
+            "topic": "ing_petrolatum",
+            "score": 6.182439027165238,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_petrolatum-14",
+            "topic": "ing_petrolatum",
+            "score": 5.315372892514722,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_hyaluronic-17",
+            "topic": "ing_hyaluronic",
+            "score": 3.215915586998116,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-3",
+            "topic": "moisturizer_basics",
+            "score": 2.337277849440372,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 4.2817870000000084
+      }
+    },
+    {
+      "id": "ceramide",
+      "query": "ceramide AP ceramides",
+      "reference_topics": [
+        "ing_ceramides"
+      ],
+      "expanded_query": "ceramide AP ceramides ceramide np",
+      "applied_rules": [
+        "ceramide-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_ceramides-16"
+        ],
+        "topics": [
+          "ing_ceramides"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_ceramides-16",
+            "topic": "ing_ceramides",
+            "score": 8.822831899393119,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.5183459999999513
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_ceramides-16"
+        ],
+        "topics": [
+          "ing_ceramides"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_ceramides-16",
+            "topic": "ing_ceramides",
+            "score": 11.763775865857493,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.4045429999999897
+      }
+    },
+    {
+      "id": "b5",
+      "query": "provitamin b5",
+      "reference_topics": [
+        "ing_panthenol"
+      ],
+      "expanded_query": "provitamin b5 panthenol",
+      "applied_rules": [
+        "panthenol-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_panthenol-18"
+        ],
+        "topics": [
+          "ing_panthenol"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_panthenol-18",
+            "topic": "ing_panthenol",
+            "score": 7.619114513856397,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.5321619999999712
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_panthenol-18"
+        ],
+        "topics": [
+          "ing_panthenol"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_panthenol-18",
+            "topic": "ing_panthenol",
+            "score": 11.428671770784597,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.3017599999999447
+      }
+    },
+    {
+      "id": "hyaluronic",
+      "query": "حمض الهيالورونك",
+      "reference_topics": [
+        "ing_hyaluronic"
+      ],
+      "expanded_query": "حمض الهيالورونك sodium hyaluronate",
+      "applied_rules": [
+        "hyaluronic-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_hyaluronic-17",
+          "cp07-ing_urea-13",
+          "cp07-ing_salicylic-20",
+          "cp07-ing_salicylic-22",
+          "cp07-dandruff-9",
+          "cp07-ing_salicylic-21"
+        ],
+        "topics": [
+          "ing_hyaluronic",
+          "ing_urea",
+          "ing_salicylic",
+          "dandruff"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_hyaluronic-17",
+            "topic": "ing_hyaluronic",
+            "score": 5.226414889689434,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_urea-13",
+            "topic": "ing_urea",
+            "score": 2.381627254018244,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-20",
+            "topic": "ing_salicylic",
+            "score": 2.2178646387147154,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-22",
+            "topic": "ing_salicylic",
+            "score": 1.7632144480685414,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-dandruff-9",
+            "topic": "dandruff",
+            "score": 1.6937716523964488,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-21",
+            "topic": "ing_salicylic",
+            "score": 1.6718238359772795,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 2.3593830000000935
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_hyaluronic-17",
+          "cp07-ing_urea-13",
+          "cp07-ing_salicylic-20",
+          "cp07-ing_salicylic-22",
+          "cp07-dandruff-9",
+          "cp07-ing_salicylic-21"
+        ],
+        "topics": [
+          "ing_hyaluronic",
+          "ing_urea",
+          "ing_salicylic",
+          "dandruff"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_hyaluronic-17",
+            "topic": "ing_hyaluronic",
+            "score": 11.658246063685667,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_urea-13",
+            "topic": "ing_urea",
+            "score": 2.381627254018244,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-20",
+            "topic": "ing_salicylic",
+            "score": 2.2178646387147154,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-22",
+            "topic": "ing_salicylic",
+            "score": 1.7632144480685414,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-dandruff-9",
+            "topic": "dandruff",
+            "score": 1.6937716523964488,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-21",
+            "topic": "ing_salicylic",
+            "score": 1.6718238359772795,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.9725280000000112
+      }
+    },
+    {
+      "id": "sensitive",
+      "query": "بشرتها حساسة وتتأثر بسرعة",
+      "reference_topics": [
+        "sensitive_skin"
+      ],
+      "expanded_query": "بشرتها حساسة وتتأثر بسرعة حساسة sensitive",
+      "applied_rules": [
+        "sensitivity"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "sensitive_skin-10",
+          "sensitive_skin-9",
+          "sensitive_skin-11",
+          "sensitive_skin-7",
+          "sensitive_skin-8",
+          "cp07-exfoliation-5"
+        ],
+        "topics": [
+          "sensitive_skin",
+          "exfoliation"
+        ],
+        "scores": [
+          {
+            "id": "sensitive_skin-10",
+            "topic": "sensitive_skin",
+            "score": 3.133610360589484,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-9",
+            "topic": "sensitive_skin",
+            "score": 2.9884439779405363,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-11",
+            "topic": "sensitive_skin",
+            "score": 2.678263556953036,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-7",
+            "topic": "sensitive_skin",
+            "score": 2.678263556953036,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-8",
+            "topic": "sensitive_skin",
+            "score": 2.4729251359174675,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-exfoliation-5",
+            "topic": "exfoliation",
+            "score": 2.075173997095279,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.878652000000102
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-exfoliation-5",
+          "sensitive_skin-10",
+          "sensitive_skin-9",
+          "sensitive_skin-11",
+          "sensitive_skin-7",
+          "sensitive_skin-8"
+        ],
+        "topics": [
+          "exfoliation",
+          "sensitive_skin"
+        ],
+        "scores": [
+          {
+            "id": "cp07-exfoliation-5",
+            "topic": "exfoliation",
+            "score": 5.394540680813309,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-10",
+            "topic": "sensitive_skin",
+            "score": 3.133610360589484,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-9",
+            "topic": "sensitive_skin",
+            "score": 2.9884439779405363,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-11",
+            "topic": "sensitive_skin",
+            "score": 2.678263556953036,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-7",
+            "topic": "sensitive_skin",
+            "score": 2.678263556953036,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "sensitive_skin-8",
+            "topic": "sensitive_skin",
+            "score": 2.4729251359174675,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.924107000000049
+      }
+    },
+    {
+      "id": "acne-marks",
+      "query": "معها آثار حبوب وبقع غامقة",
+      "reference_topics": [
+        "pigmentation",
+        "acne"
+      ],
+      "expanded_query": "معها آثار حبوب وبقع غامقة تصبغات pigmentation",
+      "applied_rules": [
+        "pigmentation"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "combination_skin-17",
+          "hair_loss-41",
+          "acne-21",
+          "acne-20",
+          "acne-18",
+          "acne-19"
+        ],
+        "topics": [
+          "combination_skin",
+          "hair_loss",
+          "acne"
+        ],
+        "scores": [
+          {
+            "id": "combination_skin-17",
+            "topic": "combination_skin",
+            "score": 4.671981245885737,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "hair_loss-41",
+            "topic": "hair_loss",
+            "score": 3.955593756949161,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "acne-21",
+            "topic": "acne",
+            "score": 2.9884439779405363,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "acne-20",
+            "topic": "acne",
+            "score": 2.920790295309978,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "acne-18",
+            "topic": "acne",
+            "score": 2.7942743227122446,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "acne-19",
+            "topic": "acne",
+            "score": 2.7350393003063385,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 0.5,
+        "any_hit": true,
+        "all_topics": false,
+        "ms": 1.8824690000000146
+      },
+      "expanded": {
+        "claim_ids": [
+          "combination_skin-17",
+          "hair_loss-41",
+          "pigmentation-26",
+          "pigmentation-28",
+          "pigmentation-27",
+          "acne-21"
+        ],
+        "topics": [
+          "combination_skin",
+          "hair_loss",
+          "pigmentation",
+          "acne"
+        ],
+        "scores": [
+          {
+            "id": "combination_skin-17",
+            "topic": "combination_skin",
+            "score": 4.671981245885737,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "hair_loss-41",
+            "topic": "hair_loss",
+            "score": 3.955593756949161,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "pigmentation-26",
+            "topic": "pigmentation",
+            "score": 3.6600854293439102,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "pigmentation-28",
+            "topic": "pigmentation",
+            "score": 3.6600854293439102,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "pigmentation-27",
+            "topic": "pigmentation",
+            "score": 3.3561715938618115,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "acne-21",
+            "topic": "acne",
+            "score": 2.9884439779405363,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.9179260000000795
+      }
+    },
+    {
+      "id": "flakes",
+      "query": "راسي يحكني وفيه قشور",
+      "reference_topics": [
+        "dandruff"
+      ],
+      "expanded_query": "راسي يحكني وفيه قشور قشرة فروة dandruff",
+      "applied_rules": [
+        "scalp-flakes"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "oily_skin-14",
+          "dandruff-31",
+          "dandruff-33",
+          "cp07-exfoliation-8",
+          "cp07-ing_salicylic-20"
+        ],
+        "topics": [
+          "oily_skin",
+          "dandruff",
+          "exfoliation",
+          "ing_salicylic"
+        ],
+        "scores": [
+          {
+            "id": "oily_skin-14",
+            "topic": "oily_skin",
+            "score": 3.803598968944144,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dandruff-31",
+            "topic": "dandruff",
+            "score": 3.501546396730789,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dandruff-33",
+            "topic": "dandruff",
+            "score": 3.3561715938618115,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-exfoliation-8",
+            "topic": "exfoliation",
+            "score": 2.84024597265035,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_salicylic-20",
+            "topic": "ing_salicylic",
+            "score": 2.7792389140197837,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.6691889999999603
+      },
+      "expanded": {
+        "claim_ids": [
+          "dandruff-31",
+          "dandruff-33",
+          "dandruff-29",
+          "dandruff-30",
+          "dandruff-32",
+          "oily_skin-14"
+        ],
+        "topics": [
+          "dandruff",
+          "oily_skin"
+        ],
+        "scores": [
+          {
+            "id": "dandruff-31",
+            "topic": "dandruff",
+            "score": 8.49301873863827,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dandruff-33",
+            "topic": "dandruff",
+            "score": 8.140411408903951,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dandruff-29",
+            "topic": "dandruff",
+            "score": 4.593528833936762,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dandruff-30",
+            "topic": "dandruff",
+            "score": 4.593528833936762,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "dandruff-32",
+            "topic": "dandruff",
+            "score": 4.593528833936762,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_skin-14",
+            "topic": "oily_skin",
+            "score": 3.803598968944144,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 2.0996759999999313
+      }
+    },
+    {
+      "id": "hair-fall",
+      "query": "شعري يطيح كثير",
+      "reference_topics": [
+        "hair_loss"
+      ],
+      "expanded_query": "شعري يطيح كثير تساقط hair loss",
+      "applied_rules": [
+        "hair-shedding"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "hair_loss-40",
+          "hair_loss-39",
+          "hair_loss-41"
+        ],
+        "topics": [
+          "hair_loss"
+        ],
+        "scores": [
+          {
+            "id": "hair_loss-40",
+            "topic": "hair_loss",
+            "score": 4.235379508550072,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "hair_loss-39",
+            "topic": "hair_loss",
+            "score": 3.6600854293439102,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "hair_loss-41",
+            "topic": "hair_loss",
+            "score": 3.0988589877073847,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.2788370000000668
+      },
+      "expanded": {
+        "claim_ids": [
+          "hair_loss-40",
+          "hair_loss-39",
+          "cp07-ing_bpo-24",
+          "hair_loss-41",
+          "cp07-dandruff-10"
+        ],
+        "topics": [
+          "hair_loss",
+          "ing_bpo",
+          "dandruff"
+        ],
+        "scores": [
+          {
+            "id": "hair_loss-40",
+            "topic": "hair_loss",
+            "score": 4.235379508550072,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "hair_loss-39",
+            "topic": "hair_loss",
+            "score": 3.6600854293439102,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_bpo-24",
+            "topic": "ing_bpo",
+            "score": 3.4390787350654213,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "hair_loss-41",
+            "topic": "hair_loss",
+            "score": 3.0988589877073847,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-dandruff-10",
+            "topic": "dandruff",
+            "score": 2.5569202697618096,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.830740999999989
+      }
+    },
+    {
+      "id": "routine",
+      "query": "كيف أرتب صباح ومساء",
+      "reference_topics": [
+        "routine"
+      ],
+      "expanded_query": "كيف أرتب صباح ومساء روتين routine",
+      "applied_rules": [
+        "routine-sequence"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "oily_skin-12",
+          "routine-47",
+          "cp07-moisturizer_basics-2",
+          "cp07-moisturizer_basics-3",
+          "cp07-moisturizer_basics-1"
+        ],
+        "topics": [
+          "oily_skin",
+          "routine",
+          "moisturizer_basics"
+        ],
+        "scores": [
+          {
+            "id": "oily_skin-12",
+            "topic": "oily_skin",
+            "score": 3.7246413616967926,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "routine-47",
+            "topic": "routine",
+            "score": 3.6488951970233647,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-2",
+            "topic": "moisturizer_basics",
+            "score": 2.337277849440372,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-3",
+            "topic": "moisturizer_basics",
+            "score": 2.337277849440372,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-1",
+            "topic": "moisturizer_basics",
+            "score": 2.3039703272893655,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 5.327707000000032
+      },
+      "expanded": {
+        "claim_ids": [
+          "routine-47",
+          "routine-48",
+          "oily_skin-12",
+          "cp07-moisturizer_basics-2",
+          "cp07-moisturizer_basics-3",
+          "cp07-moisturizer_basics-1"
+        ],
+        "topics": [
+          "routine",
+          "oily_skin",
+          "moisturizer_basics"
+        ],
+        "scores": [
+          {
+            "id": "routine-47",
+            "topic": "routine",
+            "score": 7.2977903940467295,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "routine-48",
+            "topic": "routine",
+            "score": 4.1560069838736196,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "oily_skin-12",
+            "topic": "oily_skin",
+            "score": 3.7246413616967926,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-2",
+            "topic": "moisturizer_basics",
+            "score": 2.337277849440372,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-3",
+            "topic": "moisturizer_basics",
+            "score": 2.337277849440372,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-1",
+            "topic": "moisturizer_basics",
+            "score": 2.3039703272893655,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.802889999999934
+      }
+    },
+    {
+      "id": "urea",
+      "query": "carbamide",
+      "reference_topics": [
+        "ing_urea"
+      ],
+      "expanded_query": "carbamide urea",
+      "applied_rules": [
+        "urea-alias"
+      ],
+      "baseline": {
+        "claim_ids": [
+          "cp07-ing_urea-12",
+          "cp07-ing_urea-13"
+        ],
+        "topics": [
+          "ing_urea"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_urea-12",
+            "topic": "ing_urea",
+            "score": 3.3121114445333344,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_urea-13",
+            "topic": "ing_urea",
+            "score": 3.3121114445333344,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.1404079999999794
+      },
+      "expanded": {
+        "claim_ids": [
+          "cp07-ing_urea-12",
+          "cp07-ing_urea-13",
+          "cp07-moisturizer_basics-3"
+        ],
+        "topics": [
+          "ing_urea",
+          "moisturizer_basics"
+        ],
+        "scores": [
+          {
+            "id": "cp07-ing_urea-12",
+            "topic": "ing_urea",
+            "score": 6.296563708894,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-ing_urea-13",
+            "topic": "ing_urea",
+            "score": 6.296563708894,
+            "trust": "unreviewed"
+          },
+          {
+            "id": "cp07-moisturizer_basics-3",
+            "topic": "moisturizer_basics",
+            "score": 2.337277849440372,
+            "trust": "unreviewed"
+          }
+        ],
+        "topic_recall": 1,
+        "any_hit": true,
+        "all_topics": true,
+        "ms": 1.405695000000037
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "hypothesis": "Arabic concise planning instructions may reduce geographic drift and empty/unstated slots; structure grammar unchanged",
+  "scope": "PLANS_ONLY_NOT_DEEP_REASONING",
+  "split": "development",
+  "source_commit": "f05053773ed1a9828041e904f1817102ad1bde66",
+  "source_hashes": {
+    "server/src/intelligence/orchestrator.ts": "959dc6ddb44c27852b50b3ddf7ec582289d7262242ce3e120335cc5f478ca30f",
+    "server/src/intelligence/contracts.ts": "5e5c87cd0e42b876ac9ceaadb1f53633faec4f5e72e7a9c45c3925c39d5cb8d3",
+    "native/runtime.cpp": "a8a036cb190f2786d045705bced2a43531ffa30307878b39490ca7aa57b5ccdb",
+    "scripts/intelligence-benchmark-plan-experiment.ts": "e1b43b002f774eb24ffbcbccee8df3c1644d8c105a71f8973fabb134c4da6830"
+  },
+  "model": {
+    "id": "qwen35-4b-q4km",
+    "version": "e87f176479d0855a907a41277aca2f8ee7a09523",
+    "size": 2740937888,
+    "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+    "source": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF",
+    "license": "Apache-2.0",
+    "status": "RESEARCH_NOT_ANDROID_ACCEPTED"
+  },
+  "binary_sha256": "caf8d19c8103f595bcf2355c7c32ca6814387b70b81a6f397b58844a20c6f07f",
+  "probes": [
+    {
+      "id": "family-001-turn-1",
+      "intents": [
+        "consultation",
+        "clarify"
+      ],
+      "skin": [],
+      "hair": [],
+      "ingredients": [],
+      "relevantTools": [
+        "retrieve_scientific_evidence",
+        "retrieve_conversation_context"
+      ]
+    },
+    {
+      "id": "family-005-turn-1",
+      "intents": [
+        "ingredient"
+      ],
+      "skin": [],
+      "hair": [],
+      "ingredients": [
+        "glycerin"
+      ],
+      "relevantTools": [
+        "retrieve_scientific_evidence"
+      ]
+    },
+    {
+      "id": "family-021-turn-1",
+      "intents": [
+        "consultation",
+        "clarify"
+      ],
+      "skin": [],
+      "hair": [
+        "oily",
+        "dry"
+      ],
+      "ingredients": [],
+      "relevantTools": [
+        "retrieve_scientific_evidence",
+        "retrieve_conversation_context"
+      ]
+    }
+  ],
+  "arms": [
+    "current_english",
+    "arabic_candidate"
+  ],
+  "acceptance": "No winner from n=3. Independent human semantics NOT TESTED. No heldout access.",
+  "started_at": "2026-11-26T04:44:23.150Z"
+}

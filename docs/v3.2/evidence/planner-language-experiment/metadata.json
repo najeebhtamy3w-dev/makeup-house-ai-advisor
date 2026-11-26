@@ -1,0 +1,81 @@
+{
+  "hypothesis": "Arabic concise planning instructions may reduce geographic drift and empty/unstated slots; structure grammar unchanged",
+  "scope": "PLANS_ONLY_NOT_DEEP_REASONING",
+  "split": "development",
+  "source_commit": "8fa6f5b239388c6b5f2f12bbfe65963ef817881a",
+  "source_hashes": {
+    "server/src/intelligence/orchestrator.ts": "d499ea82ef9eddfbb0ec4faa5d06530b0049afb25fa37789bf1072c422543e67",
+    "server/src/intelligence/contracts.ts": "5e5c87cd0e42b876ac9ceaadb1f53633faec4f5e72e7a9c45c3925c39d5cb8d3",
+    "native/runtime.cpp": "a8a036cb190f2786d045705bced2a43531ffa30307878b39490ca7aa57b5ccdb",
+    "scripts/intelligence-benchmark-plan-experiment.ts": "57c04a5d7368db199d20fa4e93065a33c37562fb23d601536430a00ad7c510e9"
+  },
+  "model": {
+    "id": "qwen35-2b-q4km",
+    "version": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+    "source": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
+    "original_model": "https://huggingface.co/Qwen/Qwen3.5-2B",
+    "url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/Qwen3.5-2B-Q4_K_M.gguf",
+    "license": "Apache-2.0",
+    "format": "GGUF",
+    "quantization": "Q4_K_M",
+    "size": 1280835840,
+    "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+    "runtime": "llama.cpp-v1.0.0-b1b770d",
+    "requirements": "arm64-v8a; Android 7+; 8 GB device RAM; 4096 context; plan/decision input limited to3072tokens; CPU baseline",
+    "acceptance": "EXPERIMENTAL_UNTIL_DEVICE_AND_ARABIC_GATES_PASS"
+  },
+  "binary_sha256": "caf8d19c8103f595bcf2355c7c32ca6814387b70b81a6f397b58844a20c6f07f",
+  "probes": [
+    {
+      "id": "family-001-turn-1",
+      "intents": [
+        "consultation",
+        "clarify"
+      ],
+      "skin": [],
+      "hair": [],
+      "ingredients": [],
+      "relevantTools": [
+        "retrieve_scientific_evidence",
+        "retrieve_conversation_context"
+      ]
+    },
+    {
+      "id": "family-005-turn-1",
+      "intents": [
+        "ingredient"
+      ],
+      "skin": [],
+      "hair": [],
+      "ingredients": [
+        "glycerin"
+      ],
+      "relevantTools": [
+        "retrieve_scientific_evidence"
+      ]
+    },
+    {
+      "id": "family-021-turn-1",
+      "intents": [
+        "consultation",
+        "clarify"
+      ],
+      "skin": [],
+      "hair": [
+        "oily",
+        "dry"
+      ],
+      "ingredients": [],
+      "relevantTools": [
+        "retrieve_scientific_evidence",
+        "retrieve_conversation_context"
+      ]
+    }
+  ],
+  "arms": [
+    "current_english",
+    "arabic_candidate"
+  ],
+  "acceptance": "No winner from n=3. Independent human semantics NOT TESTED. No heldout access.",
+  "started_at": "2026-11-26T04:34:06.752Z"
+}

@@ -1,0 +1,133 @@
+{
+  "status": "EXPLORATORY_NOT_ACCEPTANCE",
+  "criteria_provenance": "Added after inspecting 2B first-pair false positives; frozen before fresh4B. Do not claim preregistered2B quality scores.",
+  "limitations": [
+    "Agent-authored engineering contracts, not clinical or qualified linguistic review",
+    "Strict tool_scope deliberately probes evidence-first plans and may exclude otherwise reasonable product-search strategies",
+    "Prompt contains a mixed-hair instruction example overlapping one development probe; no generalization claim",
+    "No text similarity or LLM self-grading",
+    "n=3 per prompt/model, not deep reasoning acceptance"
+  ],
+  "results": [
+    {
+      "case_id": "family-001-turn-1",
+      "arm": "current_english",
+      "metrics": {
+        "schema": true,
+        "no_unstated_concerns": true,
+        "no_unstated_ingredients": true,
+        "no_needless_missing": true,
+        "missing_question_consistency": true,
+        "tool_scope": false,
+        "scientific_query_relevance": false,
+        "concise_queries": false,
+        "mixed_hair_retained": null
+      },
+      "failed": [
+        "tool_scope",
+        "scientific_query_relevance",
+        "concise_queries"
+      ]
+    },
+    {
+      "case_id": "family-001-turn-1",
+      "arm": "arabic_candidate",
+      "metrics": {
+        "schema": true,
+        "no_unstated_concerns": false,
+        "no_unstated_ingredients": true,
+        "no_needless_missing": false,
+        "missing_question_consistency": false,
+        "tool_scope": false,
+        "scientific_query_relevance": false,
+        "concise_queries": true,
+        "mixed_hair_retained": null
+      },
+      "failed": [
+        "no_unstated_concerns",
+        "no_needless_missing",
+        "missing_question_consistency",
+        "tool_scope",
+        "scientific_query_relevance"
+      ]
+    },
+    {
+      "case_id": "family-005-turn-1",
+      "arm": "current_english",
+      "metrics": {
+        "schema": true,
+        "no_unstated_concerns": true,
+        "no_unstated_ingredients": true,
+        "no_needless_missing": false,
+        "missing_question_consistency": true,
+        "tool_scope": false,
+        "scientific_query_relevance": true,
+        "concise_queries": false,
+        "mixed_hair_retained": null
+      },
+      "failed": [
+        "no_needless_missing",
+        "tool_scope",
+        "concise_queries"
+      ]
+    },
+    {
+      "case_id": "family-005-turn-1",
+      "arm": "arabic_candidate",
+      "metrics": {
+        "schema": true,
+        "no_unstated_concerns": false,
+        "no_unstated_ingredients": true,
+        "no_needless_missing": true,
+        "missing_question_consistency": true,
+        "tool_scope": true,
+        "scientific_query_relevance": true,
+        "concise_queries": true,
+        "mixed_hair_retained": null
+      },
+      "failed": [
+        "no_unstated_concerns"
+      ]
+    },
+    {
+      "case_id": "family-021-turn-1",
+      "arm": "current_english",
+      "metrics": {
+        "schema": true,
+        "no_unstated_concerns": true,
+        "no_unstated_ingredients": true,
+        "no_needless_missing": false,
+        "missing_question_consistency": true,
+        "tool_scope": true,
+        "scientific_query_relevance": false,
+        "concise_queries": false,
+        "mixed_hair_retained": false
+      },
+      "failed": [
+        "no_needless_missing",
+        "scientific_query_relevance",
+        "concise_queries",
+        "mixed_hair_retained"
+      ]
+    },
+    {
+      "case_id": "family-021-turn-1",
+      "arm": "arabic_candidate",
+      "metrics": {
+        "schema": true,
+        "no_unstated_concerns": true,
+        "no_unstated_ingredients": true,
+        "no_needless_missing": false,
+        "missing_question_consistency": false,
+        "tool_scope": true,
+        "scientific_query_relevance": true,
+        "concise_queries": true,
+        "mixed_hair_retained": true
+      },
+      "failed": [
+        "no_needless_missing",
+        "missing_question_consistency"
+      ]
+    }
+  ]
+}

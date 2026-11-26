@@ -1,0 +1,28 @@
+{
+  "baseline": {
+    "cases": 22,
+    "macro_topic_recall_at6": 0.8409090909090909,
+    "any_topic_hit_at6": 0.9090909090909091,
+    "all_reference_topics_at6": 0.7727272727272727,
+    "empty_results": 2
+  },
+  "expanded": {
+    "cases": 22,
+    "macro_topic_recall_at6": 0.9242424242424242,
+    "any_topic_hit_at6": 0.9545454545454546,
+    "all_reference_topics_at6": 0.9090909090909091,
+    "empty_results": 0
+  },
+  "improved": [
+    "mixed-face",
+    "niacinamide-variant",
+    "hair-roots",
+    "acne-marks"
+  ],
+  "regressed": [
+    "wash-tight"
+  ],
+  "usable_claims": 74,
+  "qualified": 0,
+  "out": "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/docs/v3.2/evidence/recovery-2026-11-26/retrieval"
+}

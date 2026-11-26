@@ -18,7 +18,7 @@ export async function localAISettings(root) {
   };
   const draw = async () => {
     try {
-      const s = await window.MHLocalAI.call('status', getToken()); const m = s.manifest;
+      const s = await window.MHLocalAI.diagnostics(getToken()); const m = s.manifest;
       fill(content, h('h3', {}, 'النموذج المحلي — إصدار تجريبي'),
         h('p', {}, m?.id || 'غير معروف'), h('p', { class: 'tiny' }, `الإصدار: ${m?.version || '—'} · ${m?.format || '—'} · ${m?.quantization || '—'}`),
         h('p', {}, `الحجم: ${((m?.size || 0) / 1e9).toFixed(2)} GB · المساحة المتاحة: ${(s.free_bytes / 1e9).toFixed(2)} GB`),

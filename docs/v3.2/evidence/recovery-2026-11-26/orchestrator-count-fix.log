@@ -1,0 +1,20 @@
+✔ synthetic orchestration: safety precheck and financial policy bypass model entirely (77.337018ms)
+✔ synthetic orchestration: other user cannot consume ticket; authorized replay rejected (29.372762ms)
+✔ synthetic orchestration: foreign session starts isolated memory and stale concurrent turn is rejected (25.883424ms)
+✔ synthetic orchestration: runtime unavailable is transparent deterministic fallback, not generative success (44.9417ms)
+✔ synthetic orchestration: invalid identifiers trigger exactly one retry then fallback (59.035591ms)
+✔ synthetic orchestration: correction replaces persisted skin context and raw message is not saved (36.450736ms)
+✔ synthetic orchestration: tool and inference budgets stop iterative loops (37.815367ms)
+✔ synthetic orchestration: hostile tool names, instruction text and HTML-shaped prompt data cannot gain authority (42.83973ms)
+✔ API permissions: anonymous, cross-account, replay and manager diagnostics enforced with synthetic JSON (324.330001ms)
+✔ synthetic orchestration: product identifier must be observed even when its supporting claim exists (40.580396ms)
+✔ API session deletion enforces ownership, cascades context and invalidates outstanding model ticket (247.918169ms)
+✔ synthetic diagnostics: two model submissions count twice, not requested or duplicated calls (37.291635ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1898.845692

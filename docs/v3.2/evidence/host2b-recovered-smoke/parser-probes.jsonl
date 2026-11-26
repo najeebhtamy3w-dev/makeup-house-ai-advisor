@@ -1,0 +1,5 @@
+{"name":"malformed_json","raw_request":"{","result":{"error":"[json.exception.parse_error.101] parse error at line 1, column 2: syntax error while parsing object key - unexpected end of input; expected string literal","id":null,"metrics":null,"text":null},"passed":true}
+{"name":"top_level_array","raw_request":"[]","result":{"error":"REQUEST_INVALID","id":null,"metrics":null,"text":null},"passed":true}
+{"name":"unknown_task","raw_request":"{\"id\":\"probe-task\",\"prompt\":\"hello\",\"task\":\"arbitrary\"}","result":{"error":"TASK_INVALID","id":"probe-task","metrics":null,"text":null},"passed":true}
+{"name":"output_limit","raw_request":"{\"id\":\"probe-limit\",\"prompt\":\"hello\",\"task\":\"plan\",\"max_tokens\":769}","result":{"error":"OUTPUT_LIMIT","id":"probe-limit","metrics":null,"text":null},"passed":true}
+{"name":"extra_field","raw_request":"{\"id\":\"probe-extra\",\"prompt\":\"hello\",\"task\":\"plan\",\"extra\":true}","result":{"error":"REQUEST_FIELD","id":null,"metrics":null,"text":null},"passed":true}

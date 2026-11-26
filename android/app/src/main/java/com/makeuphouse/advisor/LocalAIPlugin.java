@@ -59,13 +59,24 @@ public class LocalAIPlugin extends Plugin {
         managerOperation=manager;
         executor.execute(()->{try{if(runtimeError!=null)throw new IOException(runtimeError);call.resolve(work.call());}catch(Throwable e){call.reject(e.getMessage()==null?"RUNTIME_FAILED":e.getMessage());}finally{managerOperation=false;busy.set(false);}});
     });}
-    private JSObject statusObject() throws Exception {
+    private JSObject statusObject() throws Exception {return statusObject(false);}
+    private JSObject statusObject(boolean diagnostics) throws Exception {
         JSObject out=new JSObject();out.put("runtime",manifest==null?"unavailable":manifest.getString("runtime"));out.put("manifest",manifest);
         out.put("installed",model.isFile());out.put("active",getContext().getSharedPreferences("local-ai",0).getBoolean("active",false));
         out.put("loaded",loaded);out.put("busy",busy.get());out.put("free_bytes",directory.getUsableSpace());out.put("downloaded",partial.length());out.put("error",runtimeError);
-        out.put("abis",android.os.Build.SUPPORTED_ABIS);out.put("device",android.os.Build.MODEL);out.put("hardware",android.os.Build.HARDWARE);return out;
+        out.put("abis",android.os.Build.SUPPORTED_ABIS);out.put("device",android.os.Build.MODEL);out.put("hardware",android.os.Build.HARDWARE);
+        if(diagnostics){
+            JSObject metrics=new JSObject();metrics.put("process_pss_kb",android.os.Debug.getPss());
+            metrics.put("native_heap_bytes",android.os.Debug.getNativeHeapAllocatedSize());
+            metrics.put("android_sdk",android.os.Build.VERSION.SDK_INT);
+            if(android.os.Build.VERSION.SDK_INT>=31)metrics.put("soc_model",android.os.Build.SOC_MODEL);
+            android.app.ActivityManager am=(android.app.ActivityManager)getContext().getSystemService(android.content.Context.ACTIVITY_SERVICE);
+            if(am!=null){android.app.ActivityManager.MemoryInfo info=new android.app.ActivityManager.MemoryInfo();am.getMemoryInfo(info);metrics.put("system_total_memory_bytes",info.totalMem);metrics.put("system_available_memory_bytes",info.availMem);metrics.put("system_low_memory",info.lowMemory);}
+            out.put("diagnostics",metrics);
+        }
+        return out;
     }
-    @PluginMethod public void status(PluginCall c){authorized(c,false,()->{try{c.resolve(statusObject());}catch(Exception e){c.reject("STATUS_FAILED");}});}
+    @PluginMethod public void status(PluginCall c){boolean diagnostics=c.getBoolean("diagnostics",false);authorized(c,diagnostics,()->{try{c.resolve(statusObject(diagnostics));}catch(Exception e){c.reject("STATUS_FAILED");}});}
     private void verify(File f) throws Exception {
         if(f.length()!=manifest.getLong("size"))throw new IOException("MODEL_SIZE_MISMATCH");
         MessageDigest md=MessageDigest.getInstance("SHA-256");byte[] buf=new byte[1024*1024];

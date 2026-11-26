@@ -13,3 +13,11 @@ Fixed during recovery: stray consultation intercept blocks in backup/restore cli
 Current blockers: no completed verified V3.2 APK; no physical Samsung; permanent owner signing unavailable; genuine intelligence acceptance remains unachieved; no full300+ inference/holdout/A-B-C-D comparison; qualified science/Arabic review pending; pending-review knowledge remains limited. Never claim production readiness.
 
 Next executable actions: save/push this checkpoint; provision pinned toolchain using scripts/provision-v32-toolchain.sh; rebuild actual APK; verify native/manifest/alignment; rerun real model comparisons from durable logs; improve failed development cases without opening holdout.
+
+## Latest verified app freeze
+
+219/219 aggregate tests PASSED, TypeScript both targets PASSED, real Host browser UI7/7, scorer11/11 and encrypted backup scale2/2 PASSED. Final engineering APKs built and inspected: unsigned permanent-ID release SHA5ac64e08967879aa5baac8da1287b4ab2b00a8a1050957fbfebe43538f2dc0ae; isolated Debug SHA c85e1c055c8d1106018edbdf235a468b473a94897b0041a9a6176a597ca42001.201source files snapshot/39embedded assets match; ARM64 ZIP/ELF16KiB PASSED. Historical signed APK/certificate independently reverified, private owner key not available.
+
+Real2B first full consultation FAILED genuine completion (168484ms,3actual generations, unobserved product ->fallback). Fixed duplicated diagnostic counter and preserved legacy fallback conversation state; new focused tests PASSED13/13. Six plans in fixed exploratory English/Arabic comparison all had semantic audit failures; Arabic prompt NOT adopted.4B separately verified research download/comparison underway, no installer/model/prompt switch. Final holdout not used.
+
+Production remains BLOCKED by semantic intelligence acceptance, qualified science/Arabic review, Samsung and permanent signing/update acceptance. Source and software gates do not close those gates. Next executable step: finish fair4B exploratory comparison; improve failed model understanding/decision quality using development data and authoritative knowledge; do not run final holdout until code/model/criteria freeze and adequate development performance.
