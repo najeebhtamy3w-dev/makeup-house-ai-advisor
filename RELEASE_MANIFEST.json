@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-11-26T19:06:07.460988+00:00",
+  "updated_at": "2026-11-26T19:10:20.319261+00:00",
   "branch": "work-v32-unified-scientific-core",
   "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
-  "verified_published_head": "67f66f27ea843cbdffadd76814c0d42561fda9d8",
-  "published_tree": "286e110f3349da9031d1334ccd0bc5d45b93780b",
+  "verified_published_head": "917d85c96488512681c1100c8af4eb78133e8391",
+  "published_tree": "61f5854f2abec088cf954b68382212716fdd412c",
   "version_name": "3.2.0-dev.3",
   "version_code": 8,
   "production_approved": false,
@@ -49,7 +49,9 @@
         "cause": "same duplicate JNI source; corrected locally"
       }
     ],
-    "dev3_latest": "Pending publication of JNI and negation safety corrections; dev2 OCR remains latest verified available APK"
+    "dev3_latest": "IN PROGRESS; not yet accepted as an APK",
+    "dev3_current_run": 45881131718,
+    "dev3_current_source": "917d85c96488512681c1100c8af4eb78133e8391"
   },
   "owner_field_evidence": {
     "device": "SM-S908E",

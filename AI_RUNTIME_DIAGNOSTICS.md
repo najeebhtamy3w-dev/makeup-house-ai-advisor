@@ -6,4 +6,4 @@ Main consultation traces distinguish attempts, completed native invocations, too
 
 Native lifecycle 11/11, typed constraints 13/13 and parser guards 9/9 passed on Host. New Android execution, cancellation after resume, memory pressure, thermal and battery behavior remain NOT TESTED on Samsung. The owner's baseline 61-byte/6236ms snapshot is historical field evidence, not acceptance of this source.
 
-Current integration uses CPU and the text path of a vision-capable Qwen family. Installing a separate projector alone does not enable image inference. OCR is a separate local text extractor and must not be labeled VLM.
+Current source integrates CPU text and optional mtmd image inference with the same Qwen model. The manager-only image output remains unvalidated; installing its projector alone does not prove readiness. Host visual inference/cancellation is verified, Android/Samsung remains pending. OCR is a separate local text extractor and must not be labeled VLM.
