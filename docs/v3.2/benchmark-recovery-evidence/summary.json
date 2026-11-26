@@ -1,0 +1,55 @@
+{
+  "evaluated_turns": 1,
+  "consultation_families": 1,
+  "metrics": {
+    "intent": {
+      "eligible": 1,
+      "passed": 0,
+      "failed": 1,
+      "rate": 0
+    },
+    "slots": {
+      "eligible": 1,
+      "passed": 0,
+      "failed": 1,
+      "rate": 0
+    },
+    "tool_selection": {
+      "eligible": 1,
+      "passed": 0,
+      "failed": 1,
+      "rate": 0
+    },
+    "tool_permissions": {
+      "eligible": 1,
+      "passed": 1,
+      "failed": 0,
+      "rate": 1
+    },
+    "scientific_grounding": {
+      "eligible": 1,
+      "passed": 0,
+      "failed": 1,
+      "rate": 0
+    },
+    "no_financial_fields": {
+      "eligible": 1,
+      "passed": 1,
+      "failed": 0,
+      "rate": 1
+    },
+    "ablation_integrity": {
+      "eligible": 1,
+      "passed": 1,
+      "failed": 0,
+      "rate": 1
+    }
+  },
+  "provenance": {
+    "deterministic_fallback": 1
+  },
+  "genuine_generative_completed": 0,
+  "genuine_generative_completion_rate": 0,
+  "human_scientific_review": "NOT TESTED",
+  "human_arabic_quality": "NOT TESTED"
+}

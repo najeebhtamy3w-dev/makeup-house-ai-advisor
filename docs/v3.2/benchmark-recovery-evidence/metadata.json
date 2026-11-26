@@ -1,0 +1,21 @@
+{
+  "source_hashes": {
+    "server/src/intelligence/orchestrator.ts": "d499ea82ef9eddfbb0ec4faa5d06530b0049afb25fa37789bf1072c422543e67",
+    "server/src/intelligence/contracts.ts": "5e5c87cd0e42b876ac9ceaadb1f53633faec4f5e72e7a9c45c3925c39d5cb8d3",
+    "server/src/intelligence/tools.ts": "8dd32ae1fff1d289a984694ef6fca93a084ca092f2543f76483501f45fab5fb6",
+    "native/runtime.cpp": "a8a036cb190f2786d045705bced2a43531ffa30307878b39490ca7aa57b5ccdb",
+    "scripts/intelligence-benchmark-run.ts": "a5bb25f10325e0647bb8781cc7b9abc9e5cbf06e6596b02a98216f558af8fc44"
+  },
+  "source_commit": "17b824cbedb02781354c275cdecab48efe77a6d6",
+  "source_dirty": true,
+  "split": "development",
+  "mode": "ablation",
+  "limit": 1,
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "model": null,
+  "model_sha256": null,
+  "binary_sha256": null,
+  "started_at": "2026-11-26T04:24:21.576Z",
+  "synthetic_products": true,
+  "network_inference": false
+}

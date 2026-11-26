@@ -32,3 +32,7 @@ node --import tsx scripts/intelligence-benchmark-run.ts --candidate 4b --model .
 ```
 
 لا تشغل العمليتين بالتوازي. runner يسمح development/model_selection فقط ويرفض final_holdout وvalidation. احفظ وادفع السجلات الخام مباشرة بعد كل رسالة. يجب عدم إعادة استخدام مجلد نتيجة قائم. لقطة world للهوية والتوفر تأتي من DB والأدوات الفعلية؛ fallback القديم يفتقر إلى trace استرجاع مستقل، فلا تُفسَّر نتيجة grounding غير القابلة للإثبات باعتبارها حكمًا على صحة seed العلمية.
+
+## تحقق جديد بعد الاستعادة
+
+VERIFIED: `node --import tsx scripts/intelligence-benchmark-run.ts --mode ablation --limit 1` نفذ فعلًا في2026-11-26: رسالة واحدة، deterministic_fallback،48ms، صفر استدعاءات نموذج. حفظت لقطة DB والخرج وscorer في `benchmark-recovery-evidence/`. بقيت عقود intent/slots/tool_selection/grounding غير محققة لمسار fallback وفق حدود instrumentation الموضحة. هذا يثبت تكامل runner مع المصدر المستعاد فقط؛ لا يثبت inference جديدًا ولا جودة علمية أو لغوية.
