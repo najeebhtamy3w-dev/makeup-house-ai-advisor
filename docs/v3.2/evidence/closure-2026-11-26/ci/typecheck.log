@@ -1,0 +1,4 @@
+
+> makeup-house-beauty-advisor@3.2.0-dev.1 typecheck
+> tsc --noEmit && tsc --noEmit -p mobile
+
