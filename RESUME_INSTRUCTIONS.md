@@ -15,3 +15,5 @@
 12. Native vision: optional projector already verified in ../toolchain/native-recovery/mmproj-F16.gguf. Native wrapper and Host evidence in docs/v3.2/vision-probe; restore synthetic fixtures from .base64 via provided script. Never confuse Host vision with Samsung/full product acceptance.
 
 13. Last verified remote before safety/build correction:67f66f27ea843cbdffadd76814c0d42561fda9d8, tree286e110f3349da9031d1334ccd0bc5d45b93780b. Android failed on duplicate JNI definitions, now corrected locally. New safety negation guard and tests must be included in next build. Publish exact Git blob bytes (not universal-newline read_text) to preserve CRLF licenses/raw logs and verify tree equality.
+
+14. Completed current Android build45881131718 PASS, source917d85c96488512681c1100c8af4eb78133e8391, artifact15147271806; restored at ../delivery/v32-dev3 with exact hashes verified. Do NOT rebuild unchanged code for signing. Owner signing should reuse this run, not the earlier OCR-only run. Debug certificate differs from older engineering builds and cannot be called a compatible update.

@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-11-26T19:10:20.319261+00:00",
+  "updated_at": "2026-11-26T19:12:28.599016+00:00",
   "branch": "work-v32-unified-scientific-core",
   "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
-  "verified_published_head": "917d85c96488512681c1100c8af4eb78133e8391",
-  "published_tree": "61f5854f2abec088cf954b68382212716fdd412c",
+  "verified_published_head": "790462202de7f19e3ae3842f9be902d8c24becd6",
+  "published_tree": "a121f24a494acb988261fc49240190464174b622",
   "version_name": "3.2.0-dev.3",
   "version_code": 8,
   "production_approved": false,
@@ -25,7 +25,7 @@
   },
   "open_work": [
     "Correct genuine model-owned conversational understanding; prior full/minimal/raw grounding tests failed, XML PoC remains isolated",
-    "Compile and inspect Android integration of optional vision path; test full real product image flow and Samsung",
+    "Test Android runtime and full real product image flow on Samsung; build and APK inspection now PASS",
     "Owner verifies installed APK certificate + JKS privately, configures protected signing environment, then sign existing verified APK",
     "Complete qualified scientific/Arabic review, semantic retrieval and held-out acceptance without weakened guards"
   ],
@@ -49,9 +49,24 @@
         "cause": "same duplicate JNI source; corrected locally"
       }
     ],
-    "dev3_latest": "IN PROGRESS; not yet accepted as an APK",
+    "dev3_latest": "PASS: Android build, exact APK/source SHA verification, signatures, ARM64 and 16KiB checks; device execution NOT TESTED",
     "dev3_current_run": 45881131718,
-    "dev3_current_source": "917d85c96488512681c1100c8af4eb78133e8391"
+    "dev3_current_source": "917d85c96488512681c1100c8af4eb78133e8391",
+    "dev3_artifact_id": 15147271806,
+    "dev3_archive_sha256": "4cd37db6ebc323fbb08cddd0384ab6a410899dbd14222d1a4be49d10c32962a7",
+    "dev3_apks": {
+      "UNSIGNED_ENGINEERING": {
+        "file": "MAKEUP_HOUSE_ADVISOR_3.2.0_DEV3_UNSIGNED_ENGINEERING.apk",
+        "bytes": 22496254,
+        "sha256": "b30c0e2ba88bc9a79a63c1fbbf7858a90d8dca7cfe579ddb2759470c6cbecce6"
+      },
+      "DEBUG_ISOLATED_TEST_ONLY": {
+        "file": "MAKEUP_HOUSE_ADVISOR_3.2.0_DEV3_DEBUG_ISOLATED_TEST_ONLY.apk",
+        "bytes": 23752759,
+        "sha256": "8f6d929745555448eef437a443241373d56c04812be143675443f6b14276a54d"
+      }
+    },
+    "dev3_debug_certificate_sha256": "ac81957ac45f0359e8c147e9dba2a89cfd9b90d2418285037455566a526eb740"
   },
   "owner_field_evidence": {
     "device": "SM-S908E",
@@ -81,7 +96,7 @@
     "vlm": "NOT IMPLEMENTED",
     "image_intake": "storedimagevalidationandoptionalBarcodeDetectoronly",
     "vlm_host": "PASS actual different-image inference, EOS, cancellation during prefill and recovery; PARTIAL content accuracy",
-    "vlm_android": "NOT TESTED; manager-only unvalidated observations, no automatic identity or product saving",
+    "vlm_android": "IMPLEMENTED + BUILD PASS, manager-only unvalidated observations; Android runtime/device NOT TESTED",
     "projector_bytes": 668227264,
     "projector_sha256": "7035e9cb8d7c6a9681d07eef9a364783e86ea4cd73faab2eabb4f43a101830c7"
   },

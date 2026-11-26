@@ -9,3 +9,5 @@ Core main UI unified with real native bridge; typed IDs, raw manager diagnostic 
 Current source HEAD is obtained with `git rev-parse HEAD`; manifest commit fields identify what was verified when written, not a self-referential hash. GitHub connector may create a different commitSHA from local commits but content-tree equality is checked.
 
 Latest verified published code checkpoint:917d85c96488512681c1100c8af4eb78133e8391; exact local tree61f5854f2abec088cf954b68382212716fdd412c. Android run45881131718 builds this correction. OCR dev.2 remains latest previously verified delivered APK until this new run is inspected.
+
+Android dev.3 correction build45881131718 PASS, compiled source917d85c96488512681c1100c8af4eb78133e8391; artifact15147271806 recovered and hash-verified. Both native/OCR assets and licenses inspected. This is engineering build acceptance, NOT conversation/science/Samsung or owner-signing acceptance. See RELEASE_MANIFEST.json for hashes.
