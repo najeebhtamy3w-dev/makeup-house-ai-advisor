@@ -1,0 +1,17 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> makeup-house-beauty-advisor@3.2.0-dev.1 android:sync
+> node scripts/build-mobile.mjs && npx cap sync android
+
+dist-mobile ready: client.js, sqlite3.wasm, worker.js
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✔ Copying web assets from dist-mobile to android/app/src/main/assets/public in 8.98ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 692.98μs
+✔ copy android in 23.11ms
+✔ Updating Android plugins in 3.41ms
+[info] Found 3 Capacitor plugins for android:
+       @capacitor/app@8.1.2
+       @capacitor/filesystem@8.1.5
+       @capacitor/share@8.0.3
+✔ update android in 38.33ms
+[info] Sync finished in 0.086s
