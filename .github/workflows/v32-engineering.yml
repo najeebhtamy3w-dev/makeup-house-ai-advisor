@@ -1,0 +1,44 @@
+name: V3.2 engineering Android artifacts
+on:
+  push:
+    branches: [work-v32-generative-orchestrator]
+    paths:
+      - 'android/**'
+      - 'native/**'
+      - 'client/**'
+      - 'server/**'
+      - 'shared/**'
+      - 'public/**'
+      - 'mobile/**'
+      - 'web/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'package*.json'
+      - '*config*'
+      - '.github/workflows/v32-engineering.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: v32-engineering-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  engineering:
+    if: github.ref == 'refs/heads/work-v32-generative-orchestrator'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      # Official repository tag refs independently resolved 2026-11-26; immutable pins.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build and independently inspect engineering APKs
+        run: bash scripts/ci-v32-build.sh
+      - name: Preserve actual outputs and failure logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: makeup-house-v32-engineering-${{ github.sha }}
+          path: artifacts/v3.2-ci/
+          if-no-files-found: error
+          retention-days: 30
