@@ -1,0 +1,114 @@
+[
+  {
+    "id": "xml-new-meta",
+    "first_tool_correct": true,
+    "actual_tool_calls": 1,
+    "tool_failure": null,
+    "final_complete": true,
+    "cited_ids": [],
+    "unknown_ids": [],
+    "fidelity": {
+      "ok": false,
+      "problems": [
+        {
+          "sentence": "أنا مساعد متخصص في العناية بالبشرة والشعر.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "يمكنني مساعدتك في:",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "فهم احتياجات بشرتك وشعرك.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "مقارنة المنتجات المتاحة بناءً على معايير الجودة.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "بناء روتين العناية المناسب لاحتياجاتك.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "*متى تحتاج مني معلومات إضافية؟**",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "إذا كنت تريد معرفة تفاصيل محددة عن منتج معين (مثل التركيز، المكونات، أو طريقة الاستخدام).",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "إذا كنت تبحث عن معلومات عن مكونات معينة أو فوائد محددة.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "إذا كنت تريد معرفة عن منتجات محددة في محلك أو في العالم.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "إذا كنت تريد معرفة عن أضرار أو تفاعلات محتملة مع منتجات معينة.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "أنا لا أصف الأدوية ولا أختلق مكونات، وعند وجود غموض أو نقص في الدليل أطلب توضيحًا منك.",
+          "problem": "no citation"
+        }
+      ],
+      "sentences": 11
+    },
+    "safety_violations": [],
+    "accepted": false,
+    "review_levels": [
+      "application_contract"
+    ],
+    "qualified_human_acceptance": false
+  },
+  {
+    "id": "xml-new-mixed",
+    "first_tool_correct": false,
+    "actual_tool_calls": 0,
+    "tool_failure": null,
+    "final_complete": true,
+    "cited_ids": [],
+    "unknown_ids": [],
+    "fidelity": {
+      "ok": false,
+      "problems": [
+        {
+          "sentence": "لا، لا يجب أن تتعامل مع كل وجه بنفس المنتجات.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "الأنف هو جزء من الوجه، ولكن المنتجات التي تناسب الوجه العام قد لا تكون مناسبة للأنف، والعكس صحيح.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "الأنف أكثر عرضة للأكسدة والتشقق بسبب التعرض المستمر للأكسجين، بينما الوجه أكثر حماية.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "لتحقيق أفضل نتيجة، يجب استخدام منتجات مخصصة لكل وجه:",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "**للوجه:** منتجات مرطبة ومضادة للأكسدة.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "**للأنف:** منتجات مرطبة ومضادة للتشقق.",
+          "problem": "no citation"
+        },
+        {
+          "sentence": "هل تريد معرفة المزيد عن المنتجات المخصصة للأنف؟",
+          "problem": "no citation"
+        }
+      ],
+      "sentences": 7
+    },
+    "safety_violations": [],
+    "accepted": false,
+    "review_levels": [],
+    "qualified_human_acceptance": false
+  }
+]

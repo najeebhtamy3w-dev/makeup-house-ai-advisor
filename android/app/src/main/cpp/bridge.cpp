@@ -1,7 +1,6 @@
 #include <jni.h>
 #include "runtime.hpp"
 static LocalRuntime runtime;
-static VisionResult visionResult;
 static VisionResult latestVision;
 static std::string utf8(JNIEnv *env,jstring s) {
     // Java strings use UTF-16; JNI modified UTF-8 cannot encode supplementary characters correctly.
@@ -16,23 +15,6 @@ extern "C" JNIEXPORT void JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nat
 extern "C" JNIEXPORT void JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeUnload(JNIEnv*,jclass){runtime.unload();}
 extern "C" JNIEXPORT void JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeReset(JNIEnv*,jclass){runtime.cancelled=false;runtime.reset();}
 extern "C" JNIEXPORT void JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeCancel(JNIEnv*,jclass){runtime.cancelled=true;}
-extern "C" JNIEXPORT void JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeLoadVision(JNIEnv* e,jclass,jstring p){try{runtime.loadVision(utf8(e,p));}catch(const std::exception &x){error(e,x);}}
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeDescribeImage(JNIEnv* e,jobject self,jbyteArray image,jstring question,jint limit){
-    jbyte *bytes=nullptr;
-    try{
-        if(!image)throw std::runtime_error("VISION_IMAGE_SIZE");
-        auto length=e->GetArrayLength(image);if(length<1||length>2097152)throw std::runtime_error("VISION_IMAGE_SIZE");
-        bytes=e->GetByteArrayElements(image,nullptr);if(!bytes)throw std::runtime_error("VISION_IMAGE_MEMORY");
-        auto method=e->GetMethodID(e->GetObjectClass(self),"onProgress","(I)V");
-        visionResult=runtime.describeImage(reinterpret_cast<unsigned char*>(bytes),length,utf8(e,question),limit,[&](int n){e->CallVoidMethod(self,method,n);});
-        e->ReleaseByteArrayElements(image,bytes,JNI_ABORT);bytes=nullptr;
-        auto output=e->NewByteArray(visionResult.text.size());if(output)e->SetByteArrayRegion(output,0,visionResult.text.size(),reinterpret_cast<const jbyte*>(visionResult.text.data()));return output;
-    }catch(const std::exception &x){if(bytes)e->ReleaseByteArrayElements(image,bytes,JNI_ABORT);error(e,x);return nullptr;}
-}
-extern "C" JNIEXPORT jdoubleArray JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeVisionMetrics(JNIEnv* e,jclass){
-    const jdouble values[]={visionResult.projector_load_ms,visionResult.image_prefill_ms,visionResult.first_token_ms,visionResult.generation_ms,static_cast<double>(visionResult.input_tokens),static_cast<double>(visionResult.image_tokens),static_cast<double>(visionResult.output_tokens),visionResult.finish_reason=="stop"?1.0:2.0};
-    auto output=e->NewDoubleArray(8);if(output)e->SetDoubleArrayRegion(output,0,8,values);return output;
-}
 extern "C" JNIEXPORT void JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeLoadVision(JNIEnv* e,jclass,jstring path){try{runtime.loadVision(utf8(e,path));}catch(const std::exception &x){error(e,x);}}
 extern "C" JNIEXPORT jdoubleArray JNICALL Java_com_makeuphouse_advisor_LocalAIPlugin_nativeVisionMetrics(JNIEnv* e,jclass){
     const double values[]={latestVision.projector_load_ms,latestVision.image_prefill_ms,latestVision.first_token_ms,latestVision.generation_ms,static_cast<double>(latestVision.input_tokens),static_cast<double>(latestVision.image_tokens),static_cast<double>(latestVision.output_tokens),latestVision.finish_reason=="stop"?1.0:2.0};
@@ -60,6 +42,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_makeuphouse_advisor_LocalAIPlug
         validate_constraints(constraints);
         auto method=e->GetMethodID(e->GetObjectClass(self),"onProgress","(I)V");
         auto s=runtime.generate(utf8(e,p),limit,[&](auto n){e->CallVoidMethod(self,method,std::stoi(n));},utf8(e,task),constraints);
-        auto b=e->NewByteArray(s.size());e->SetByteArrayRegion(b,0,s.size(),(jbyte*)s.data());return b;
+        auto b=e->NewByteArray(s.size());if(b)e->SetByteArrayRegion(b,0,s.size(),(jbyte*)s.data());return b;
     }catch(const std::exception &x){error(e,x);return nullptr;}
 }

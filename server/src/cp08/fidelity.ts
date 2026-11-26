@@ -11,6 +11,7 @@
  *   6. qualifiers are not dropped (الطبية، الوصفية، بعض، لدى بعض، مؤقتًا…);
  *   7. no number that is not in the cited claim;
  *   8. (with the question) a sentence that only echoes the staff question is rejected.
+ *   9. a cited Arabic negated verb+noun anchor must not be repeated affirmatively.
  * Deterministic and conservative: when unsure it rejects, and the engine falls back to the claim text itself.
  * This is NOT semantic entailment; it is a set of rules aimed at the failure modes actually observed.
  */
@@ -26,6 +27,38 @@ const CONSULT = /(يسال الطبيب|يسال|اسالي|استشير|است�
 const PROHIBIT = /(ممنوع|يمنع|لا ينصح|لا يُنصح|يجب تجنب|يجب عدم|لا تستخدم|لا تستعمل|محظور|ابتعدي|تجنبي تماما|يحرم)/;
 const QUALIFIERS = ['الطبيه', 'الوصفيه', 'وصفي', 'لدى بعض', 'بعض الناس', 'بعض الاشخاص', 'مؤقتا', 'في البدايه', 'الاسابيع الاولى'];
 const NUM = /\d+(?:[.,]\d+)?/g;
+
+// Narrow polarity guard for the failure actually reproduced: lexical overlap alone can accept
+// "لا أشخص الأمراض ولا أصف الأدوية" -> "أشخص الأمراض وأصف الأدوية". This is NOT Arabic NLI:
+// only an unchanged, normalized two-word anchor is checked; unseen morphology is not inferred.
+const NEGATORS = new Set(['لا','لن','لم','ليس','ليست','لست','لسنا','لستم','ما','مش']);
+const NEGATION_BRIDGES = new Set(['ان','يمكنني','يمكننا','يمكن','استطيع','نستطيع','تستطيع','اقدر','نقدر','قادر','قادره','قادرين','كنت','كان','يكون','سوف']);
+const polarityTokens = (s:string) => normAr(s).replace(/\[[^\]]*\]/g,' ').match(/[\p{L}\p{N}]+|[.!؟?،؛:]/gu)??[];
+const isNegator = (word:string) => NEGATORS.has(word)||((word.startsWith('و')||word.startsWith('ف'))&&NEGATORS.has(word.slice(1)));
+const wordMatches = (word:string,anchor:string) => word===anchor||word==='و'+anchor||word==='ف'+anchor;
+function negatedAt(tokens:string[],index:number):boolean {
+  // Modals may separate the negator from the same verb; unrelated clauses must not lend
+  // their negation to an affirmative clause ("لا أشخص الأمراض وأصف الأدوية").
+  for(let j=index-1;j>=Math.max(0,index-4);j--){
+    if(isNegator(tokens[j]!))return true;
+    if(!NEGATION_BRIDGES.has(tokens[j]!))break;
+  }
+  return false;
+}
+function negationInversions(sentence:string,claimText:string):string[] {
+  const source=polarityTokens(claimText),output=polarityTokens(sentence),anchors=new Map<string,[string,string]>();
+  for(let i=0;i+2<source.length;i++){
+    if(!isNegator(source[i]!))continue;
+    const verb=source[i+1]!,noun=source[i+2]!;
+    if(!/^[\p{L}]{2,}$/u.test(verb)||!/^[\p{L}]{2,}$/u.test(noun)||isNegator(verb)||isNegator(noun))continue;
+    anchors.set(verb+' '+noun,[verb,noun]);
+  }
+  const inverted:string[]=[];
+  for(const [label,[verb,noun]]of anchors){
+    for(let i=0;i+1<output.length;i++)if(wordMatches(output[i]!,verb)&&wordMatches(output[i+1]!,noun)&&!negatedAt(output,i)){inverted.push(label);break;}
+  }
+  return inverted;
+}
 
 export interface FidelityProblem { sentence: string; problem: string }
 export function splitSentences(text: string): string[] {
@@ -62,6 +95,8 @@ export function fidelityCheck(text: string, claims: { id: string; text: string }
     if (CONSULT.test(cn) && PROHIBIT.test(sn) && !PROHIBIT.test(cn)) p('directive inversion («استشيري» → منع)');
     // 6. qualifier dropped — only when the sentence talks about the same subject (shares content words)
     for (const q of QUALIFIERS) if (cn.includes(q) && !sn.includes(q) && support >= 0.3 && sw.length >= 4) { if (q === 'الطبيه' || q === 'الوصفيه' || q === 'وصفي') { if (/(ريتين|ادابالين|بنزويل)/.test(sn)) p(`qualifier dropped «${q}»`); } else if (!HEDGE.test(sn)) p(`qualifier dropped «${q}»`); }
+    // 6b. Preserve local Arabic negation even when another negative clause remains.
+    for(const anchor of negationInversions(sn,claimText))p(`negation inversion «${anchor}»`);
     // 7. numbers
     const cnum = new Set(claimText.match(NUM) ?? []);
     for (const n of s.replace(/\[[^\]]*\]/g, ' ').match(NUM) ?? []) if (!cnum.has(n)) { p(`number not in claim: ${n}`); break; }

@@ -1,25 +1,25 @@
 {
-  "updated_at": "2026-11-26T14:13:44.562819+00:00",
+  "updated_at": "2026-11-26T19:06:07.460988+00:00",
   "branch": "work-v32-unified-scientific-core",
   "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
-  "verified_published_head": "899df0253dabe0e023ac661386cb80d387973441",
-  "published_tree": "1a258e549d42429d92bfc1b646c7f5fe094b026c",
+  "verified_published_head": "67f66f27ea843cbdffadd76814c0d42561fda9d8",
+  "published_tree": "286e110f3349da9031d1334ccd0bc5d45b93780b",
   "version_name": "3.2.0-dev.3",
   "version_code": 8,
   "production_approved": false,
   "gates": {
     "01_runtime": "PARTIAL: Host tests and real Android build/ARM64 ELF/ZIP checks PASS; device execution NOT TESTED",
-    "02_conversation": "FAIL/PARTIAL — 4B capabilities actual main UI success; 2B latest two turns both chose irrelevant clarification, raw logs preserved; no conversational acceptance",
-    "03_scientific": "PARTIAL — typedreadtools,reviewstateandvalidators; no qualifiedreview/independentgenerativeacceptance",
+    "02_conversation": "FAIL: full JSON, minimal route and XML experimental final responses did not pass; do not replace production with isolated failed paths",
+    "03_scientific": "PARTIAL / FAIL acceptance: independent checks active; reproduced negation drop vulnerability fixed with narrow anchor guard and regression tests; no full semantic entailment or qualified scientific review",
     "04_multimodal_product": "PARTIAL: image storage, barcode, confirmed drafts and OCR wired; actual VLM Host proof in progress; Android vision not integrated"
   },
   "test_evidence": {
-    "full_suite_last": "263/263 software tests, 0 failed, 0 skipped",
+    "full_suite_last": "270/270 PASS, 0 failed, 0 skipped",
     "focused_after_loop_guard": "21/21 including application dialogue governance",
     "typecheck": "PASS",
     "mobile_assets": "PASS",
-    "host_native_lifecycle": "11/11",
-    "native_constraints": "13/13",
+    "host_native_lifecycle": "11/11 rerun after vision integration",
+    "native_constraints": "13/13 rerun after vision integration",
     "native_parser": "9/9",
     "python": "16/16 tests PASS: OCR integrity 5, signing 10, VisionAsset integrity suite 1 (22 Java boundary checks)"
   },
@@ -38,7 +38,18 @@
     "debug_apk_sha256": "510826082059808dbe21dfdf74c29e5b6fa181b3fcbded9b2b2fcb1f8bb17fc9",
     "unsigned_apk_sha256": "7248c65f0c268d55d9157dc79bca3a42fb2fecad72008f1c5212425e832eed4e",
     "permanent_signing": "BLOCKED: owner key on phone, certificate not matched yet",
-    "debug_certificate_sha256": "8d511afe34f1a3e7d7b9662432087c90773b51b79ba188aad0029645669a14b9"
+    "debug_certificate_sha256": "8d511afe34f1a3e7d7b9662432087c90773b51b79ba188aad0029645669a14b9",
+    "dev3_previous_failures": [
+      {
+        "run": 45837208602,
+        "cause": "duplicate native vision JNI definitions during merge; corrected locally"
+      },
+      {
+        "run": 45837341117,
+        "cause": "same duplicate JNI source; corrected locally"
+      }
+    ],
+    "dev3_latest": "Pending publication of JNI and negation safety corrections; dev2 OCR remains latest verified available APK"
   },
   "owner_field_evidence": {
     "device": "SM-S908E",

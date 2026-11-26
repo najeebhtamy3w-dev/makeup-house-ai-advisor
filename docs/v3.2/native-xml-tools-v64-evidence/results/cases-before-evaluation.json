@@ -1,0 +1,15 @@
+{
+  "cases": [
+    {
+      "id": "xml-new-meta",
+      "question": "أنا جديد على هذا المساعد. وضّح لي نوع المساعدة الممكنة ومتى تحتاج مني معلومات إضافية.",
+      "expected_first_tool": "get_system_capabilities"
+    },
+    {
+      "id": "xml-new-mixed",
+      "question": "خدي ينشف ويتقشر لكن الأنف يلمع، والعطر يلسع وجهي. هل أتعامل مع كل الوجه بنفس المنتجات؟",
+      "expected_first_tool": "retrieve_scientific_evidence"
+    }
+  ],
+  "criteria": "Correct allowlisted first tool, actual tool execution, final exact known citations+existingfidelity+no safety violations; max2calls and3native requests/case. No holdout."
+}

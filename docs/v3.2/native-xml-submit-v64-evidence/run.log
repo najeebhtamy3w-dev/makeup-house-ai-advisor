@@ -1,0 +1,2 @@
+{"case": "submit-fresh-role", "native_requests": 2, "actual_read_tools": 1, "failure": "EXACTLY_ONE_FUNCTION_REQUIRED", "submission": null}
+{"case": "submit-followup-memory", "native_requests": 2, "actual_read_tools": 1, "failure": "EXACTLY_ONE_FUNCTION_REQUIRED", "submission": null}

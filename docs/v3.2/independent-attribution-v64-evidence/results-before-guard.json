@@ -1,0 +1,2050 @@
+{
+  "method": "Existing fidelityCheck stricter minSupport0.70 plus outputViolations on each sentence; actual observed single facts or pairs only; no scientific acceptance from lexical overlap",
+  "new_model_calls": 0,
+  "results": [
+    {
+      "id": "xml-new-meta",
+      "origin": "actual_existing_XML_run",
+      "question": "أنا جديد على هذا المساعد. وضّح لي نوع المساعدة الممكنة ومتى تحتاج مني معلومات إضافية.",
+      "raw_text": "أنا مساعد متخصص في العناية بالبشرة والشعر. يمكنني مساعدتك في:\n\n*   فهم احتياجات بشرتك وشعرك.\n*   مقارنة المنتجات المتاحة بناءً على معايير الجودة.\n*   بناء روتين العناية المناسب لاحتياجاتك.\n\n**متى تحتاج مني معلومات إضافية؟**\n*   إذا كنت تريد معرفة تفاصيل محددة عن منتج معين (مثل التركيز، المكونات، أو طريقة الاستخدام).\n*   إذا كنت تبحث عن معلومات عن مكونات معينة أو فوائد محددة.\n*   إذا كنت تريد معرفة عن منتجات محددة في محلك أو في العالم.\n*   إذا كنت تريد معرفة عن أضرار أو تفاعلات محتملة مع منتجات معينة.\n\nأنا لا أصف الأدوية ولا أختلق مكونات، وعند وجود غموض أو نقص في الدليل أطلب توضيحًا منك.",
+      "complete": true,
+      "observed_fact_ids": [
+        "sys_scope",
+        "sys_limits",
+        "sys_inventory",
+        "sys_evidence",
+        "sys_memory"
+      ],
+      "sentences": [
+        {
+          "sentence": "أنا مساعد متخصص في العناية بالبشرة والشعر.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "يمكنني مساعدتك في:",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "فهم احتياجات بشرتك وشعرك.",
+          "passed": true,
+          "attributed_fact_ids": [
+            "sys_scope"
+          ],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": {
+            "ok": true,
+            "problems": [],
+            "sentences": 1
+          },
+          "rejections": []
+        },
+        {
+          "sentence": "مقارنة المنتجات المتاحة بناءً على معايير الجودة.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 43% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 43% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 43% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 57% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 43% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 29% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 29% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 29% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "بناء روتين العناية المناسب لاحتياجاتك.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 20% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 20% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 20% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 20% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 20% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "*متى تحتاج مني معلومات إضافية؟**",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "إذا كنت تريد معرفة تفاصيل محددة عن منتج معين (مثل التركيز، المكونات، أو طريقة الاستخدام).",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 17% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 8% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 8% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 17% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 17% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 8% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 8% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "إذا كنت تبحث عن معلومات عن مكونات معينة أو فوائد محددة.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "إذا كنت تريد معرفة عن منتجات محددة في محلك أو في العالم.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 29% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 43% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 29% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 57% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 29% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 29% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 43% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 57% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 43% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 14% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "إذا كنت تريد معرفة عن أضرار أو تفاعلات محتملة مع منتجات معينة.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 13% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 13% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 13% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 13% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 25% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 13% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 13% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        },
+        {
+          "sentence": "أنا لا أصف الأدوية ولا أختلق مكونات، وعند وجود غموض أو نقص في الدليل أطلب توضيحًا منك.",
+          "passed": true,
+          "attributed_fact_ids": [
+            "sys_limits"
+          ],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": {
+            "ok": true,
+            "problems": [],
+            "sentences": 1
+          },
+          "rejections": []
+        }
+      ],
+      "all_sentences_pass": false,
+      "expected_reject": null,
+      "citation_attribution": "independent_validator",
+      "model_selected_fact_ids": false,
+      "raw_text_modified": false,
+      "whole_answer_rule": "ALL sentences must pass; none dropped or rewritten",
+      "scientific_or_conversational_acceptance": false
+    },
+    {
+      "id": "xml-new-mixed",
+      "origin": "actual_existing_XML_run",
+      "question": "خدي ينشف ويتقشر لكن الأنف يلمع، والعطر يلسع وجهي. هل أتعامل مع كل الوجه بنفس المنتجات؟",
+      "raw_text": "لا، لا يجب أن تتعامل مع كل وجه بنفس المنتجات.\n\nالأنف هو جزء من الوجه، ولكن المنتجات التي تناسب الوجه العام قد لا تكون مناسبة للأنف، والعكس صحيح. الأنف أكثر عرضة للأكسدة والتشقق بسبب التعرض المستمر للأكسجين، بينما الوجه أكثر حماية.\n\nلتحقيق أفضل نتيجة، يجب استخدام منتجات مخصصة لكل وجه:\n*   **للوجه:** منتجات مرطبة ومضادة للأكسدة.\n*   **للأنف:** منتجات مرطبة ومضادة للتشقق.\n\nهل تريد معرفة المزيد عن المنتجات المخصصة للأنف؟",
+      "complete": true,
+      "observed_fact_ids": [],
+      "sentences": [
+        {
+          "sentence": "لا، لا يجب أن تتعامل مع كل وجه بنفس المنتجات.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 0,
+          "check": null,
+          "rejections": []
+        },
+        {
+          "sentence": "الأنف هو جزء من الوجه، ولكن المنتجات التي تناسب الوجه العام قد لا تكون مناسبة للأنف، والعكس صحيح.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 0,
+          "check": null,
+          "rejections": []
+        },
+        {
+          "sentence": "الأنف أكثر عرضة للأكسدة والتشقق بسبب التعرض المستمر للأكسجين، بينما الوجه أكثر حماية.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 0,
+          "check": null,
+          "rejections": []
+        },
+        {
+          "sentence": "لتحقيق أفضل نتيجة، يجب استخدام منتجات مخصصة لكل وجه:",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 0,
+          "check": null,
+          "rejections": []
+        },
+        {
+          "sentence": "**للوجه:** منتجات مرطبة ومضادة للأكسدة.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 0,
+          "check": null,
+          "rejections": []
+        },
+        {
+          "sentence": "**للأنف:** منتجات مرطبة ومضادة للتشقق.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 0,
+          "check": null,
+          "rejections": []
+        },
+        {
+          "sentence": "هل تريد معرفة المزيد عن المنتجات المخصصة للأنف؟",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 0,
+          "check": null,
+          "rejections": []
+        }
+      ],
+      "all_sentences_pass": false,
+      "expected_reject": null,
+      "citation_attribution": "independent_validator",
+      "model_selected_fact_ids": false,
+      "raw_text_modified": false,
+      "whole_answer_rule": "ALL sentences must pass; none dropped or rewritten",
+      "scientific_or_conversational_acceptance": false
+    },
+    {
+      "id": "submit-fresh-role",
+      "origin": "actual_existing_submit_run_plain_answer",
+      "question": "كيف أستفيد منك وأنا موظف في محل عناية، وإيش حدود مساعدتك؟",
+      "raw_text": "أستطيع مساعدتك في فهم احتياجات البشرة والشعر بناءً على المعرفة المتاحة، لكني لا أصف الأمراض أو أختلق المكونات أو الدراسات، ولا أقول إن المنتج متوفر محليًا إلا إذا كان موجودًا في الدفعات الصالحة المسجلة.",
+      "complete": true,
+      "observed_fact_ids": [
+        "sys_scope",
+        "sys_limits",
+        "sys_inventory",
+        "sys_evidence",
+        "sys_memory"
+      ],
+      "sentences": [
+        {
+          "sentence": "أستطيع مساعدتك في فهم احتياجات البشرة والشعر بناءً على المعرفة المتاحة، لكني لا أصف الأمراض أو أختلق المكونات أو الدراسات، ولا أقول إن المنتج متوفر محليًا إلا إذا كان موجودًا في الدفعات الصالحة المسجلة.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 30% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 26% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 15% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 7% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 52% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 59% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 41% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 56% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 37% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 30% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 41% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 37% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 19% (sentence not traceable to the cited claim)",
+                "certainty escalation «الدراسات»",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        }
+      ],
+      "all_sentences_pass": false,
+      "expected_reject": null,
+      "citation_attribution": "independent_validator",
+      "model_selected_fact_ids": false,
+      "raw_text_modified": false,
+      "whole_answer_rule": "ALL sentences must pass; none dropped or rewritten",
+      "scientific_or_conversational_acceptance": false
+    },
+    {
+      "id": "submit-followup-memory",
+      "origin": "actual_existing_submit_run_plain_answer",
+      "question": "ولو رجعت بكرة، بتفتكر زبونة اليوم وكل تفاصيلها؟",
+      "raw_text": "أستطيع مساعدتك في فهم احتياجات البشرة والشعر بناءً على المعرفة المتاحة، لكنني لا أصف الأمراض ولا أختلق المكونات أو التركيز أو الدراسات، وعند نقص الدليل أو الغموض أطلب توضيحًا.",
+      "complete": true,
+      "observed_fact_ids": [
+        "sys_scope",
+        "sys_limits",
+        "sys_inventory",
+        "sys_evidence",
+        "sys_memory"
+      ],
+      "sentences": [
+        {
+          "sentence": "أستطيع مساعدتك في فهم احتياجات البشرة والشعر بناءً على المعرفة المتاحة، لكنني لا أصف الأمراض ولا أختلق المكونات أو التركيز أو الدراسات، وعند نقص الدليل أو الغموض أطلب توضيحًا.",
+          "passed": true,
+          "attributed_fact_ids": [
+            "sys_scope",
+            "sys_limits"
+          ],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": {
+            "ok": true,
+            "problems": [],
+            "sentences": 1
+          },
+          "rejections": []
+        }
+      ],
+      "all_sentences_pass": true,
+      "expected_reject": null,
+      "citation_attribution": "independent_validator",
+      "model_selected_fact_ids": false,
+      "raw_text_modified": false,
+      "whole_answer_rule": "ALL sentences must pass; none dropped or rewritten",
+      "scientific_or_conversational_acceptance": false
+    },
+    {
+      "id": "synthetic-negation-inversion",
+      "origin": "SYNTHETIC_VALIDATOR_NEGATIVE_CONTROL_NOT_MODEL_GENERATION",
+      "question": "",
+      "raw_text": "أشخص الأمراض وأصف الأدوية وأختلق المكونات أو التركيز أو الدراسات.",
+      "complete": true,
+      "observed_fact_ids": [
+        "sys_scope",
+        "sys_limits",
+        "sys_inventory",
+        "sys_evidence",
+        "sys_memory"
+      ],
+      "sentences": [
+        {
+          "sentence": "أشخص الأمراض وأصف الأدوية وأختلق المكونات أو التركيز أو الدراسات.",
+          "passed": true,
+          "attributed_fact_ids": [
+            "sys_limits"
+          ],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": {
+            "ok": true,
+            "problems": [],
+            "sentences": 1
+          },
+          "rejections": []
+        }
+      ],
+      "all_sentences_pass": true,
+      "expected_reject": true,
+      "citation_attribution": "independent_validator",
+      "model_selected_fact_ids": false,
+      "raw_text_modified": false,
+      "whole_answer_rule": "ALL sentences must pass; none dropped or rewritten",
+      "scientific_or_conversational_acceptance": false
+    },
+    {
+      "id": "synthetic-false-memory",
+      "origin": "SYNTHETIC_VALIDATOR_NEGATIVE_CONTROL_NOT_MODEL_GENERATION",
+      "question": "",
+      "raw_text": "أتذكر كل المحادثات السابقة وجميع الزبائن للأبد.",
+      "complete": true,
+      "observed_fact_ids": [
+        "sys_scope",
+        "sys_limits",
+        "sys_inventory",
+        "sys_evidence",
+        "sys_memory"
+      ],
+      "sentences": [
+        {
+          "sentence": "أتذكر كل المحادثات السابقة وجميع الزبائن للأبد.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)"
+              ]
+            }
+          ]
+        }
+      ],
+      "all_sentences_pass": false,
+      "expected_reject": true,
+      "citation_attribution": "independent_validator",
+      "model_selected_fact_ids": false,
+      "raw_text_modified": false,
+      "whole_answer_rule": "ALL sentences must pass; none dropped or rewritten",
+      "scientific_or_conversational_acceptance": false
+    },
+    {
+      "id": "synthetic-new-number",
+      "origin": "SYNTHETIC_VALIDATOR_NEGATIVE_CONTROL_NOT_MODEL_GENERATION",
+      "question": "",
+      "raw_text": "أساعد في بناء روتين مع تركيز 37% كل ساعتين.",
+      "complete": true,
+      "observed_fact_ids": [
+        "sys_scope",
+        "sys_limits",
+        "sys_inventory",
+        "sys_evidence",
+        "sys_memory"
+      ],
+      "sentences": [
+        {
+          "sentence": "أساعد في بناء روتين مع تركيز 37% كل ساعتين.",
+          "passed": false,
+          "attributed_fact_ids": [],
+          "safety_violations": [],
+          "candidates_tested": 15,
+          "check": null,
+          "rejections": [
+            {
+              "fact_ids": [
+                "sys_scope"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 17% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_limits"
+              ],
+              "problems": [
+                "low support 50% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_scope",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 33% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_inventory"
+              ],
+              "problems": [
+                "low support 17% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 17% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_limits",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 17% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_evidence"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_inventory",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "number not in claim: 37"
+              ]
+            },
+            {
+              "fact_ids": [
+                "sys_evidence",
+                "sys_memory"
+              ],
+              "problems": [
+                "low support 0% (sentence not traceable to the cited claim)",
+                "hedge dropped (claim is qualified, sentence is categorical)",
+                "number not in claim: 37"
+              ]
+            }
+          ]
+        }
+      ],
+      "all_sentences_pass": false,
+      "expected_reject": true,
+      "citation_attribution": "independent_validator",
+      "model_selected_fact_ids": false,
+      "raw_text_modified": false,
+      "whole_answer_rule": "ALL sentences must pass; none dropped or rewritten",
+      "scientific_or_conversational_acceptance": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+✔ safety: every critical case escalates or refers; negation and plain heat do not raise alarms (65.170048ms)
+✔ understanding: follow-up pronoun, unresolved product, two-ingredient compare, multi-product, constraints remembered, old contexts still parse (32.824052ms)
+✔ fidelity: catches all labelled meaning changes from real model output and the three forbidden transformations (84.976769ms)
+✔ cloud adapter: refuses without key/price; key in header only; redaction; disabled by default; per-sentence fidelity; fallbacks; usage recorded (38.082914ms)
+✔ research: plan from concepts (never free text), off/offline honoured, de-duplicated and ranked, stored as unreviewed only (374.974425ms)
+✔ HTTP: off by default; status never exposes keys; modes work and fall back honestly; settings are manager-only (431.609563ms)
+✔ found clinical capability polarity inversion is rejected despite near-total lexical support (8.485562ms)
+✔ one surviving negative clause cannot conceal another affirmative clinical claim (0.542567ms)
+✔ normalization and conjunctions preserve explicit negation in legitimate paraphrases (1.008441ms)
+✔ unrelated negative fact does not invalidate a positively supported capability (0.577052ms)
+✔ negated scientific evidence existence cannot become affirmative evidence (0.392927ms)
+✔ source may contain negative and positive clauses without requiring unrelated negation in output (0.20779ms)
+✔ new scientific numbers and unsupported certainty remain rejected (0.527509ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1969.057336

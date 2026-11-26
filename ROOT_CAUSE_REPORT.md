@@ -8,3 +8,6 @@
 6. Runtime wiring is not the remaining semantic solution. Actual 2B main-UI and isolated paired planner tests still produce irrelevant clarification. A shorter Arabic prompt reduced latency but did not improve semantic understanding; it was NOT adopted. Phi also failed quality checks, so the baseline model was not replaced for appearances.
 
 Evidence is under docs/v3.2/native-execution-evidence, main-ui-2b-dialogue-schema, native-phi-evidence and native-planner-concise-evidence. Host Chromium with actual C++ inference proves the Host main path, not Android/JNI or Samsung acceptance. New APK builds require separate verification and owner testing.
+
+7. A reference-attribution negative control exposed loss of Arabic negation despite lexical overlap. A local two-word negated-anchor guard now rejects the reproduced inversion without changing existing support thresholds; this remains conservative and incomplete for novel morphology. Failed attribution was never adopted.
+8. Android compilation found duplicate JNI vision definitions from integration. The duplicate block was removed and failure logs preserved. The new Android build must prove this correction; Host vision success does not imply Android compilation.

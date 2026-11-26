@@ -1,0 +1,1 @@
+COMPLETE2cases/4realnativecalls/2actualcapabilitytoolreads. Modelnevercalledsubmit_application_response; missingmodelselectedIDs. Followupignoredmemoryquestion. Finalaccepted0/2; no implicitIDassignmentoroutputconversion; no productionedit. No more repeats of this failedhypothesis.

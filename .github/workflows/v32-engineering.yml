@@ -21,7 +21,7 @@ permissions:
   contents: read
 concurrency:
   group: v32-engineering-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   engineering:
     if: github.ref == 'refs/heads/work-v32-generative-orchestrator' || github.ref == 'refs/heads/work-v32-unified-scientific-core'

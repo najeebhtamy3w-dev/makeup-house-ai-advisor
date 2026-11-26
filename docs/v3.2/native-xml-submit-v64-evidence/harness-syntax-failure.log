@@ -1,0 +1,4 @@
+  File "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/docs/v3.2/native-xml-submit-v64-evidence/probe_submit.py", line 7
+    env=Environment();env.globals['raise_exception']=lambda s:(_for _ in()).throw(ValueError(s));template=env.from_string(TP.read_text())
+                                                               ^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?

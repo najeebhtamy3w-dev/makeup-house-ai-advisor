@@ -1,0 +1,7 @@
+{
+  "utc": "2026-11-26T14:20:34.573243+00:00",
+  "new_model_calls": 0,
+  "fidelity_source_sha256": "a786db6844480f533b30c6adf8ce6ebb2c5e0c9fff6e6d0baec08cc1377bfc03",
+  "scope": "existing raw generated outputs plus separately labeled synthetic negative controls",
+  "critical_failure": "negation inversion accepted before guard repair; preserve results.json as BEFORE evidence"
+}

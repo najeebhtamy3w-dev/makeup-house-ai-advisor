@@ -1,0 +1,15 @@
+{
+  "utc": "2026-11-26T14:14:07.308366+00:00",
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "binary_sha256": "282648a7b6e081e5fa9c5b92dfd22fe988e90f6b88ee419ca891849c68b5d008",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "template_sha256": "7f0e529032c25183bcd66c7f238da2d377f43be754a94e2725a58c4e16d2ed67",
+  "production_changed": false,
+  "sampler": "existing greedy",
+  "task": "diagnostic(noGrammar)",
+  "output_cap": 256,
+  "max_native_requests": 3,
+  "max_read_tools": 1,
+  "final_submit": "strict allowlisted text/fact_ids only",
+  "jinja_version": "3.1.6"
+}

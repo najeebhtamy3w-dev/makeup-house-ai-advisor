@@ -1,0 +1,70 @@
+{
+  "complete_cases": 2,
+  "actual_native_requests": 4,
+  "actual_capability_tool_executions": 2,
+  "actual_submit_function_calls": 0,
+  "accepted_final_responses": 0,
+  "failures": [
+    {
+      "case": "submit-fresh-role",
+      "failure": "EXACTLY_ONE_FUNCTION_REQUIRED"
+    },
+    {
+      "case": "submit-followup-memory",
+      "failure": "EXACTLY_ONE_FUNCTION_REQUIRED"
+    }
+  ],
+  "no_implicit_id_assignment": true,
+  "per_sentence_fidelity_checker": "unchanged existingfidelityCheck minSupport0.5; not reached because neither model output submitted text+fact_ids",
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "metrics": [
+    {
+      "case": "submit-fresh-role",
+      "step": 0,
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 5478.068746,
+        "generation_ms": 6384.908557,
+        "input_tokens": 377,
+        "model_load_ms": 1246.092932,
+        "tokens": 14
+      }
+    },
+    {
+      "case": "submit-fresh-role",
+      "step": 1,
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 13258.011668,
+        "generation_ms": 16304.916238,
+        "input_tokens": 938,
+        "model_load_ms": 1246.092932,
+        "tokens": 54
+      }
+    },
+    {
+      "case": "submit-followup-memory",
+      "step": 0,
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 6527.809616,
+        "generation_ms": 7404.570043,
+        "input_tokens": 458,
+        "model_load_ms": 1246.092932,
+        "tokens": 14
+      }
+    },
+    {
+      "case": "submit-followup-memory",
+      "step": 1,
+      "metrics": {
+        "finish_reason": "stop",
+        "first_token_ms": 12696.999638,
+        "generation_ms": 15115.908557,
+        "input_tokens": 1019,
+        "model_load_ms": 1246.092932,
+        "tokens": 47
+      }
+    }
+  ]
+}

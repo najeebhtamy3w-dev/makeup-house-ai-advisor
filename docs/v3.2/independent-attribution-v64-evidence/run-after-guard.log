@@ -1,0 +1,194 @@
+[
+  {
+    "id": "xml-new-meta",
+    "origin": "actual_existing_XML_run",
+    "all_sentences_pass": false,
+    "passing_sentences": 2,
+    "total_sentences": 11,
+    "expected_reject": null,
+    "alignment": [
+      {
+        "text": "أنا مساعد متخصص في العناية بالبشرة والشعر.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "يمكنني مساعدتك في:",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "فهم احتياجات بشرتك وشعرك.",
+        "ids": [
+          "sys_scope"
+        ],
+        "pass": true
+      },
+      {
+        "text": "مقارنة المنتجات المتاحة بناءً على معايير الجودة.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "بناء روتين العناية المناسب لاحتياجاتك.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "*متى تحتاج مني معلومات إضافية؟**",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "إذا كنت تريد معرفة تفاصيل محددة عن منتج معين (مثل التركيز، المكونات، أو طريقة الاستخدام).",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "إذا كنت تبحث عن معلومات عن مكونات معينة أو فوائد محددة.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "إذا كنت تريد معرفة عن منتجات محددة في محلك أو في العالم.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "إذا كنت تريد معرفة عن أضرار أو تفاعلات محتملة مع منتجات معينة.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "أنا لا أصف الأدوية ولا أختلق مكونات، وعند وجود غموض أو نقص في الدليل أطلب توضيحًا منك.",
+        "ids": [
+          "sys_limits"
+        ],
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "xml-new-mixed",
+    "origin": "actual_existing_XML_run",
+    "all_sentences_pass": false,
+    "passing_sentences": 0,
+    "total_sentences": 7,
+    "expected_reject": null,
+    "alignment": [
+      {
+        "text": "لا، لا يجب أن تتعامل مع كل وجه بنفس المنتجات.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "الأنف هو جزء من الوجه، ولكن المنتجات التي تناسب الوجه العام قد لا تكون مناسبة للأنف، والعكس صحيح.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "الأنف أكثر عرضة للأكسدة والتشقق بسبب التعرض المستمر للأكسجين، بينما الوجه أكثر حماية.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "لتحقيق أفضل نتيجة، يجب استخدام منتجات مخصصة لكل وجه:",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "**للوجه:** منتجات مرطبة ومضادة للأكسدة.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "**للأنف:** منتجات مرطبة ومضادة للتشقق.",
+        "ids": [],
+        "pass": false
+      },
+      {
+        "text": "هل تريد معرفة المزيد عن المنتجات المخصصة للأنف؟",
+        "ids": [],
+        "pass": false
+      }
+    ]
+  },
+  {
+    "id": "submit-fresh-role",
+    "origin": "actual_existing_submit_run_plain_answer",
+    "all_sentences_pass": false,
+    "passing_sentences": 0,
+    "total_sentences": 1,
+    "expected_reject": null,
+    "alignment": [
+      {
+        "text": "أستطيع مساعدتك في فهم احتياجات البشرة والشعر بناءً على المعرفة المتاحة، لكني لا أصف الأمراض أو أختلق المكونات أو الدراسات، ولا أقول إن المنتج متوفر محليًا إلا إذا كان موجودًا في الدفعات الصالحة المسجلة.",
+        "ids": [],
+        "pass": false
+      }
+    ]
+  },
+  {
+    "id": "submit-followup-memory",
+    "origin": "actual_existing_submit_run_plain_answer",
+    "all_sentences_pass": true,
+    "passing_sentences": 1,
+    "total_sentences": 1,
+    "expected_reject": null,
+    "alignment": [
+      {
+        "text": "أستطيع مساعدتك في فهم احتياجات البشرة والشعر بناءً على المعرفة المتاحة، لكنني لا أصف الأمراض ولا أختلق المكونات أو التركيز أو الدراسات، وعند نقص الدليل أو الغموض أطلب توضيحًا.",
+        "ids": [
+          "sys_scope",
+          "sys_limits"
+        ],
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "synthetic-negation-inversion",
+    "origin": "SYNTHETIC_VALIDATOR_NEGATIVE_CONTROL_NOT_MODEL_GENERATION",
+    "all_sentences_pass": false,
+    "passing_sentences": 0,
+    "total_sentences": 1,
+    "expected_reject": true,
+    "alignment": [
+      {
+        "text": "أشخص الأمراض وأصف الأدوية وأختلق المكونات أو التركيز أو الدراسات.",
+        "ids": [],
+        "pass": false
+      }
+    ]
+  },
+  {
+    "id": "synthetic-false-memory",
+    "origin": "SYNTHETIC_VALIDATOR_NEGATIVE_CONTROL_NOT_MODEL_GENERATION",
+    "all_sentences_pass": false,
+    "passing_sentences": 0,
+    "total_sentences": 1,
+    "expected_reject": true,
+    "alignment": [
+      {
+        "text": "أتذكر كل المحادثات السابقة وجميع الزبائن للأبد.",
+        "ids": [],
+        "pass": false
+      }
+    ]
+  },
+  {
+    "id": "synthetic-new-number",
+    "origin": "SYNTHETIC_VALIDATOR_NEGATIVE_CONTROL_NOT_MODEL_GENERATION",
+    "all_sentences_pass": false,
+    "passing_sentences": 0,
+    "total_sentences": 1,
+    "expected_reject": true,
+    "alignment": [
+      {
+        "text": "أساعد في بناء روتين مع تركيز 37% كل ساعتين.",
+        "ids": [],
+        "pass": false
+      }
+    ]
+  }
+]

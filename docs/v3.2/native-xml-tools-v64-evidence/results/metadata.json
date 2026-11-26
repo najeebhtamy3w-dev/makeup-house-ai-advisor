@@ -1,0 +1,13 @@
+{
+  "utc": "2026-11-26T14:10:39.883267+00:00",
+  "platform": "HOST_NATIVE_NOT_ANDROID",
+  "binary_sha256": "9e42a027d465cbae4fc277bfb9f4f602120a0979800dead50831a3c525cf82c1",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "embedded_template_sha256": "7f0e529032c25183bcd66c7f238da2d377f43be754a94e2725a58c4e16d2ed67",
+  "template_rendering": "actual embedded Jinja via Jinja2, tools definitions and serial tool role messages; enable_thinking false",
+  "production_changed": false,
+  "sampler": "existing greedy",
+  "output_cap": 256,
+  "max_tools_per_case": 2,
+  "jinja_version": "3.1.6"
+}

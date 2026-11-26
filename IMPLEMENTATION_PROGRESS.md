@@ -27,3 +27,11 @@ Integrated mtmd with the SAME existing 2B model, a separately verified optional 
 Protected owner signing workflow reuses an existing successful engineering artifact rather than rebuilding it. Fixed historical certificate, source/run/artifact/hash/package/version/ELF verification and owner local preflight are implemented; actual key and installed reference still unavailable. Ten signing tests passed with an ephemeral test key, not the owner's private key.
 
 Software263/263, Python16/16 and native vision bounds8/8 passed. Actual real-image product/INCI accuracy, model conversation acceptance and qualified review remain NOT TESTED or FAIL/PARTIAL as recorded. No production approval.
+
+## JNI build recovery and scientific polarity guard
+
+Android runs45837208602 and45837341117 failed on duplicate JNI vision method definitions introduced during integration. Removed the duplicate block; original failure log retained. New source must be rebuilt; no dev.3 APK is claimed yet. Host syntax/runtime checks are not a substitute for this Android build.
+
+A negative-control experiment proved lexical reference attribution could accept an affirmative inversion of a negated capability. Added a narrow normalized Arabic verb/noun negation-anchor check to the independent fidelity validator. Seven regression tests include partial-clause inversion and legitimate negative paraphrases. This is not complete NLI. No attribution bypass or failed XML/minimal-routing experiment was adopted.
+
+Software suite 270/270, typecheck/mobile assets PASS. Host lifecycle11/11 and constraints13/13 rerun after vision integration PASS. Existing OCR APK/source/evidence remain available; owner certificate/key verification and Samsung acceptance remain required.

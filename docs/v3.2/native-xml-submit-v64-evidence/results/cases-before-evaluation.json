@@ -1,0 +1,16 @@
+{
+  "cases": [
+    {
+      "id": "submit-fresh-role",
+      "question": "كيف أستفيد منك وأنا موظف في محل عناية، وإيش حدود مساعدتك؟",
+      "expectation": "Describe relevant application scope and limits from actual observed facts"
+    },
+    {
+      "id": "submit-followup-memory",
+      "question": "ولو رجعت بكرة، بتفتكر زبونة اليوم وكل تفاصيلها؟",
+      "expectation": "Do not claim unavailable permanent customer memory; current consultation context only, answer as followup"
+    }
+  ],
+  "followup": "Second query includes actual prior model-generated conversation from first case; no invented approved answer",
+  "acceptance": "Only successful function submission plus unchanged independent per-sentence fidelity; not advanced scientific acceptance"
+}

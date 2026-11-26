@@ -13,3 +13,5 @@
 
 11. Owner signing: docs/v3.2/OWNER_SIGNING_RECOVERY_AR.md. Do not request JKS/password in chat. Protected environment and installed APK public certificate must be verified by owner. The request trigger file is intentionally absent until real verified inputs are available.
 12. Native vision: optional projector already verified in ../toolchain/native-recovery/mmproj-F16.gguf. Native wrapper and Host evidence in docs/v3.2/vision-probe; restore synthetic fixtures from .base64 via provided script. Never confuse Host vision with Samsung/full product acceptance.
+
+13. Last verified remote before safety/build correction:67f66f27ea843cbdffadd76814c0d42561fda9d8, tree286e110f3349da9031d1334ccd0bc5d45b93780b. Android failed on duplicate JNI definitions, now corrected locally. New safety negation guard and tests must be included in next build. Publish exact Git blob bytes (not universal-newline read_text) to preserve CRLF licenses/raw logs and verify tree equality.

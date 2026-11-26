@@ -1,0 +1,46 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "get_system_capabilities",
+      "description": "Read the actual application abilities and limits. Use to answer questions about this assistant itself.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "retrieve_scientific_evidence",
+      "description": "Retrieve locally available documented skincare, hair and ingredient facts with evidence IDs and review state.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "A concise Arabic query for the knowledge retrieval"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "retrieve_conversation_context",
+      "description": "Retrieve the available conversation context; does not invent an earlier unavailable conversation.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  }
+]
