@@ -1,0 +1,24 @@
+✔ synthetic orchestration: safety precheck and financial policy bypass model entirely (57.048821ms)
+✔ synthetic orchestration: other user cannot consume ticket; authorized replay rejected (22.754529ms)
+✔ synthetic orchestration: foreign session starts isolated memory and stale concurrent turn is rejected (25.987692ms)
+✔ synthetic orchestration: runtime unavailable is transparent deterministic fallback, not generative success (54.018698ms)
+✔ synthetic orchestration: invalid identifiers trigger exactly one retry then fallback (56.653163ms)
+✔ synthetic orchestration: correction replaces persisted skin context and raw message is not saved (29.133297ms)
+✔ synthetic orchestration: tool and inference budgets stop iterative loops (28.711123ms)
+✔ synthetic orchestration: hostile tool names, instruction text and HTML-shaped prompt data cannot gain authority (26.556308ms)
+✔ API permissions: anonymous, cross-account, replay and manager diagnostics enforced with synthetic JSON (402.74769ms)
+✔ synthetic orchestration: product identifier must be observed even when its supporting claim exists (32.327052ms)
+✔ API session deletion enforces ownership, cascades context and invalidates outstanding model ticket (198.441325ms)
+✔ synthetic diagnostics: two model submissions count twice, not requested or duplicated calls (24.366288ms)
+✔ fallback preserves existing scientific advisor context across model-missing turns (28.281254ms)
+✔ decision prompt has no fictional product example and preserves independent rejection: بعد السباحة يصير جلدي مشدود وأريد عناية لطيفة (27.491166ms)
+✔ decision prompt has no fictional product example and preserves independent rejection: أحتاج أفهم دور المادة الجاذبة للماء في المرطب (31.992089ms)
+✔ decision prompt has no fictional product example and preserves independent rejection: هل تختلف عناية أطراف الشعر المتكسرة عن الفروة؟ (33.374128ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2436.678951

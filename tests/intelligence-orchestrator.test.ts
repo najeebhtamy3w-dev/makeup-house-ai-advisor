@@ -39,3 +39,22 @@ test('API session deletion enforces ownership, cascades context and invalidates 
 test('synthetic diagnostics: two model submissions count twice, not requested or duplicated calls',()=>{const db=fresh();try{const r=startConsultation(db,1,{message:'ترطيب البشرة الجافة'});const d=send(db,r,evidencePlan);const f=send(db,d,{clarification:'ما نوع المرطب المستخدم حاليًا؟'});assert.equal(f.intelligence.model_invocations,2);assert.equal(f.intelligence.inferences,2);}finally{db.close();}});
 
 test('fallback preserves existing scientific advisor context across model-missing turns',()=>{const db=fresh();try{const r=startConsultation(db,1,{message:'بشرتي دهنية وأشتي مرطب'});const a=advanceConsultation(db,1,{ticket:r.ticket,raw:'',failure:'model_missing'});assert.ok(a.answer.understanding.conversation_context.skin.includes('oily'));const stored=JSON.parse((db.prepare('SELECT state_json FROM intelligence_memory WHERE session_id=?').get(r.session_id) as {state_json:string}).state_json);assert.ok(stored.skin.includes('oily'));const n=startConsultation(db,1,{message:'طيب كيف أستخدمه؟',session_id:r.session_id});const b=advanceConsultation(db,1,{ticket:n.ticket,raw:'',failure:'model_missing'});assert.ok(b.answer.understanding.conversation_context.skin.includes('oily'));assert.equal(b.intelligence.model_invocations,0);}finally{db.close();}});
+
+// New wording absent from the application prompt. Synthetic JSON checks governance only, not actual model reasoning.
+for(const question of ['بعد السباحة يصير جلدي مشدود وأريد عناية لطيفة','أحتاج أفهم دور المادة الجاذبة للماء في المرطب','هل تختلف عناية أطراف الشعر المتكسرة عن الفروة؟']) {
+ test('decision prompt has no fictional product example and preserves independent rejection: '+question,()=>{
+  const db=fresh();try{
+   const start=startConsultation(db,1,{message:question});const request=send(db,start,evidencePlan);
+   assert.equal(request.task,'decision');
+   const system=request.prompt.split('<|im_end|>')[0];
+   assert.ok(system.includes('"recommendations":[]'));
+   assert.doesNotMatch(system,/"product_id"\s*:\s*-?\d/);
+   assert.match(system,/If observations contain no products, recommendations MUST be empty/);
+   const claim=retrieveKnowledgeGraph(db,{query:'ترطيب البشرة الجافة',limit:8}).claims[0];assert.ok(claim);
+   const rejected=send(db,request,{recommendations:[{product_id:1,claim_ids:[claim.id]}]});
+   assert.equal(rejected.kind,'request_model');assert.match(rejected.prompt,/unobserved_product/);
+   const final=send(db,rejected,{recommendations:[{product_id:1,claim_ids:[claim.id]}]});
+   assert.equal(final.intelligence.provenance,'deterministic_fallback');assert.equal(final.intelligence.fallback_reason,'unobserved_product');
+  }finally{db.close();}
+ });
+}
