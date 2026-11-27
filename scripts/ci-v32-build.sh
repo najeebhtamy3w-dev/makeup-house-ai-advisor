@@ -59,12 +59,12 @@ def run(args):
  return {'exit_code':r.returncode,'output':r.stdout}
 results={}
 for kind,relative,identity,version,debug in [
- ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.4',False),
- ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.4-test',True)]:
+ ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.5',False),
+ ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.5-test',True)]:
  f=repo/'android/app/build/outputs/apk'/relative
  assert f.is_file(),str(f)
  a=run([bt/'aapt','dump','badging',f]);assert a['exit_code']==0
- assert f"name='{identity}'" in a['output'] and "versionCode='9'" in a['output'] and f"versionName='{version}'" in a['output']
+ assert f"name='{identity}'" in a['output'] and "versionCode='10'" in a['output'] and f"versionName='{version}'" in a['output']
  assert ('application-debuggable' in a['output'])==debug
  alignment=run([bt/'zipalign','-c','-P','16','4',f]);assert alignment['exit_code']==0
  signature=run([bt/'apksigner','verify','--verbose','--print-certs',f]);assert (signature['exit_code']==0)==debug
@@ -91,16 +91,16 @@ for kind,relative,identity,version,debug in [
  readelf=run([sdk/'ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf','-lW',elf]);assert readelf['exit_code']==0
  loads=[s for s in readelf['output'].splitlines() if s.strip().startswith('LOAD')];assert loads and all(int(s.split()[-1],16)>=16384 for s in loads)
  elf.unlink()
- dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV3_{kind}.apk';shutil.copy2(f,dest)
+ dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV5_{kind}.apk';shutil.copy2(f,dest)
  results[kind]={'file':dest.name,'bytes':dest.stat().st_size,'sha256':hashlib.file_digest(dest.open('rb'),'sha256').hexdigest(),'aapt':a,'signature':signature,'zip_alignment':alignment,'elf_headers':readelf,'all_elf_headers':all_elf_headers,'embedded_assets':embedded}
 sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
-manifest={'git_sha':sha,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'acceptance':'ENGINEERING_ONLY_NOT_PRODUCTION_APPROVED','physical_samsung':'NOT TESTED','permanent_signing':'BLOCKED_OWNER_KEY_REQUIRED','actual_artifacts':results}
+manifest={'git_sha':sha,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'acceptance':'ENGINEERING_ONLY_NOT_PRODUCTION_APPROVED','physical_samsung':'NOT TESTED','permanent_signing':'DEFERRED_BY_OWNER','actual_artifacts':results}
 (out/'DELIVERY_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
 (out/'SHA256SUMS.txt').write_text(''.join(f"{r['sha256']}  {r['file']}\n" for r in results.values()))
 commit=os.environ.get('GITHUB_SHA') or subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
 subprocess.run(['git','archive','--format=zip','--output='+str(out/'MAKEUP_HOUSE_V32_SOURCE.zip'),commit],cwd=repo,check=True)
 source=out/'MAKEUP_HOUSE_V32_SOURCE.zip'
-manifest={'source_commit':commit,'status':'ENGINEERING_TEST_ONLY','production_approved':False,'model_reasoning_after_template_fix':'PARTIAL: Host real inference evidence retained; intelligence and Samsung acceptance not passed','physical_samsung':'NOT TESTED','permanent_signing':'BLOCKED — owner key required','apks':results,'source_zip':{'file':source.name,'sha256':hashlib.file_digest(source.open('rb'),'sha256').hexdigest()},'ci_run':os.environ.get('GITHUB_RUN_ID')}
+manifest={'source_commit':commit,'status':'ENGINEERING_TEST_ONLY','production_approved':False,'model_reasoning_after_template_fix':'PARTIAL: Host real inference evidence retained; intelligence and Samsung acceptance not passed','physical_samsung':'NOT TESTED','permanent_signing':'DEFERRED BY OWNER','apks':results,'source_zip':{'file':source.name,'sha256':hashlib.file_digest(source.open('rb'),'sha256').hexdigest()},'ci_run':os.environ.get('GITHUB_RUN_ID')}
 (out/'DELIVERY_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
 with (out/'SHA256SUMS.txt').open('a') as checks:checks.write(manifest['source_zip']['sha256']+'  '+source.name+'\n')
 (out/'FINAL_REPORT_AR.md').write_text(f'''# تسليم هندسي V3.2 — Unified Core
@@ -115,7 +115,7 @@ with (out/'SHA256SUMS.txt').open('a') as checks:checks.write(manifest['source_zi
 
 **NOT TESTED:** تشغيل هذا APK على Samsung، الأداء والذاكرة والبطارية والحرارة، العمل في وضع الطيران، قبول OCR على Android، المراجعة العلمية واللغوية المؤهلة. لا توجد شهادة تكافؤ مع ChatGPT.
 
-**BLOCKED:** توقيع Release بالمفتاح الدائم غير متاح في CI. APK غير الموقع لا يثبت مباشرة. Debug يحمل `com.makeuphouse.advisor.engineering` للتجربة المنفصلة؛ لا يحدّث التطبيق الدائم. مفتاح Debug المؤقت قد لا يطابق نسخة اختبار سابقة. عند تعارض التوقيع لا تحذف التطبيق أو البيانات؛ استخدم المفتاح الصحيح. لا يتضمن التسليم أوزان النموذج.
+**DEFERRED BY OWNER:** التوقيع الإنتاجي مؤجل وفق قرار المالك، وليس عائقًا للتطوير. APK غير الموقع لا يثبت مباشرة. Debug يحمل `com.makeuphouse.advisor.engineering` للتجربة المنفصلة؛ لا يحدّث التطبيق الدائم. مفتاح Debug المؤقت قد لا يطابق نسخة اختبار سابقة. عند تعارض التوقيع لا تحذف التطبيق أو البيانات؛ استخدم المفتاح الصحيح. لا يتضمن التسليم أوزان النموذج.
 
 يحافظ التطبيق الدائم عند توقيعه بالمفتاح الصحيح على هويته ومسار الأوزان والبيانات؛ لم يُختبر التحديث الفعلي على الهاتف. راجع DELIVERY_MANIFEST.json وSHA256SUMS.txt للتحقق من الملفات والتوقيع.
 ''')

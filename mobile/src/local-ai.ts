@@ -12,7 +12,7 @@ interface NativeAI {
   reset(o: { token: string }): Promise<any>;
   test(o: { token: string }): Promise<any>;
   cancel(o: { token: string }): Promise<void>;
-  generate(o: { token: string; prompt: string; task?: string; max_tokens?: number; allowed_product_ids?: number[]; allowed_claim_ids?: string[] }): Promise<{ text: string; ms: number }>;
+  generate(o: { token: string; prompt: string; task?: string; max_tokens?: number; allowed_product_ids?: number[]; allowed_claim_ids?: string[] }): Promise<{ text: string; ms: number;metrics:{model_load_ms:number;first_token_ms:number;generation_ms:number;tokens:number;input_tokens:number;finish_reason:string;model_id?:string;model_version?:string;runtime?:string} }>;
 }
 const native = registerPlugin<NativeAI>('LocalAI');
 let composing = false;
@@ -68,7 +68,7 @@ export const localAI = {
     const timer = setTimeout(cancel, 150_000);
     try {
       for (let i = 0; current.kind === 'request_model' && i < 4; i++) {
-        let raw = '', failure: string | undefined, model_started=false;
+        let native_metrics:Awaited<ReturnType<NativeAI['generate']>>['metrics']|undefined;let raw = '', failure: string | undefined, model_started=false;
         try {
           if(epoch!==cancellationEpoch||Date.now()>deadline)throw new Error('consultation_cancelled');
           const status = await native.status({ token });
@@ -78,9 +78,9 @@ export const localAI = {
           const output = await native.generate({ token, prompt: current.prompt, task: current.task, max_tokens: current.max_tokens, allowed_product_ids: current.allowed_product_ids ?? [], allowed_claim_ids: current.allowed_claim_ids ?? [] });
           model_started=true;
           if(epoch!==cancellationEpoch||Date.now()>deadline)throw new Error('consultation_cancelled');
-          raw = output.text;phase('validating','جار التحقق من الادعاءات واسترجاع الأدوات');
+          native_metrics=output.metrics;if(!native_metrics)throw Error('native_metrics_missing');raw = output.text;phase('validating','جار التحقق من الادعاءات واسترجاع الأدوات');
         } catch(e) { model_started ||= Boolean((e as any)?.data?.model_started === true); failure = epoch!==cancellationEpoch?'cancelled':Date.now()>deadline?'deadline':e instanceof Error?e.message.slice(0,80):'local_runtime_unavailable_or_interrupted'; }
-        current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, model_started, ...(failure ? { failure } : {}) });
+        current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, model_started, ...(native_metrics?{native_metrics}:{}), ...(failure ? { failure } : {}) });
       }
       if (current.kind !== 'final') throw new Error('انتهت ميزانية الاستشارة');
       if(epoch!==cancellationEpoch)throw Error('CANCELLED');

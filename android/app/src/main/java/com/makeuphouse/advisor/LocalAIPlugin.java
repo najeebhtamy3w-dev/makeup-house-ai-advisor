@@ -157,7 +157,7 @@ public class LocalAIPlugin extends Plugin {
         if(!loaded){cancelDownload.set(false);verify(model);phase="loading";loaded=false;visionLoaded=false;nativeLoad(model.getAbsolutePath());loaded=true;}
         if(generationCancelled.get()||!foreground)throw new IOException("CANCELLED");
         phase="generating";long t=System.nanoTime();nativeInvocationStarted=true;String text=new String(nativeGenerate(prompt,limit,task,allowedProducts,allowedClaims),StandardCharsets.UTF_8);
-        double[] m=nativeMetrics();JSObject metrics=new JSObject();metrics.put("model_load_ms",m[0]);metrics.put("first_token_ms",m[1]);metrics.put("generation_ms",m[2]);metrics.put("tokens",(int)m[3]);metrics.put("input_tokens",(int)m[4]);metrics.put("finish_reason",finishReason((int)m[5]));
+        double[] m=nativeMetrics();JSObject metrics=new JSObject();metrics.put("model_load_ms",m[0]);metrics.put("first_token_ms",m[1]);metrics.put("generation_ms",m[2]);metrics.put("tokens",(int)m[3]);metrics.put("input_tokens",(int)m[4]);metrics.put("finish_reason",finishReason((int)m[5]));metrics.put("model_id",manifest.getString("id"));metrics.put("model_version",manifest.getString("version"));metrics.put("runtime",manifest.getString("runtime"));
         JSObject out=new JSObject();out.put("text",text);out.put("ms",(System.nanoTime()-t)/1000000);out.put("metrics",metrics);return out;
     });}
     private static String finishReason(int code){return code==1?"stop":code==2?"length":code==3?"cancelled":code==4?"error":"none";}

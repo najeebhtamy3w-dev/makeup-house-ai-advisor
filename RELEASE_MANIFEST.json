@@ -4,8 +4,8 @@
   "local_head_at_checkpoint_start": "6f49f95",
   "verified_published_head": "7cbdc9df54dfb054dab2b5e70671f1782b36dd31",
   "published_tree": "d4b24e1a5b638211e6425949befc871920f580b9",
-  "version_name": "3.2.0-dev.4",
-  "version_code": 9,
+  "version_name": "3.2.0-dev.5",
+  "version_code": 10,
   "production_approved": false,
   "gates": {
     "01_runtime": "PARTIAL: Host tests and real Android build/ARM64 ELF/ZIP checks PASS; device execution NOT TESTED",
@@ -14,7 +14,7 @@
     "04_multimodal_product": "PARTIAL: OCR and optional native vision Android build previously PASS; actual Samsung runtime/product accuracy NOT TESTED"
   },
   "test_evidence": {
-    "full_suite_last": "285/285 PASS; follow-up saved-context UI suite10/10 PASS",
+    "full_suite_last": "288/288 PASS, 0 failed, 0 skipped",
     "focused_after_loop_guard": "21/21 including application dialogue governance",
     "typecheck": "PASS",
     "mobile_assets": "PASS",
@@ -136,5 +136,23 @@
     ],
     "baseline_model_replaced": false,
     "build_run_id": 45936337100
+  },
+  "v69_native_trace_checkpoint": {
+    "apk_status": "NOT_BUILT",
+    "quality_gate": "NOT PASSED",
+    "software_tests": 288,
+    "previous_code_remote": "14396ae43a1d959db28389cca86361f7d2c9887a",
+    "telemetry_origin": "reported_native_bridge_not_independent_attestation"
+  },
+  "v69_delivered_dev4": {
+    "source_commit": "7cbdc9df54dfb054dab2b5e70671f1782b36dd31",
+    "run_id": 45936337100,
+    "artifact_id": 15170976997,
+    "sha256": "c1b917469e75774305ba53c650fe8bbf7e64a8425ea639b5b3b2cd972c7764be",
+    "package_id": "com.makeuphouse.advisor.engineering",
+    "version_code": 9,
+    "debug_certificate_sha256": "686b6cb3d6c5784a0d72b354900e1fe8e48e6fb9f004855e2b53018eb2549d8b",
+    "compatible_with_prior_debug": false,
+    "samsung": "NOT TESTED"
   }
 }

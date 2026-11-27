@@ -30,3 +30,7 @@ export interface ToolObservation {name:string;query:string;product_ids:number[];
 export interface ConsultationMemory {skin:string[];hair:string[];concerns:string[];ingredients:string[];constraints:string[];product_refs:{id:number;name:string}[];protected_referrals:string[];last_intent:string;pending_question?:string|null;recent_turns?:{role:'user'|'assistant';text:string}[];}
 export type Provenance='generative_first'|'generative_retry'|'deterministic_fallback'|'safety_referral'|'policy_bypass'|'clarification'|'incomplete'|'evidence_selection'|'grounded_conversation';
 export const EMPTY_MEMORY:ConsultationMemory={skin:[],hair:[],concerns:[],ingredients:[],constraints:[],product_refs:[],protected_referrals:[],last_intent:'consultation',pending_question:null,recent_turns:[]};
+
+/** Native bridge measurements are reported telemetry, not proof of semantic correctness. */
+export const NativeInferenceMetrics=z.object({model_load_ms:z.number().finite().min(0).max(1800000),first_token_ms:z.number().finite().min(0).max(1800000),generation_ms:z.number().finite().min(0).max(1800000),tokens:z.number().int().min(0).max(768),input_tokens:z.number().int().min(0).max(3072),finish_reason:z.enum(['stop','length','cancelled','error','none']),model_id:z.string().min(1).max(100).optional(),model_version:z.string().min(1).max(100).optional(),runtime:z.string().min(1).max(100).optional()}).strict().refine(v=>v.first_token_ms<=v.generation_ms,'first token exceeds generation time');
+export type NativeMetrics=z.infer<typeof NativeInferenceMetrics>;

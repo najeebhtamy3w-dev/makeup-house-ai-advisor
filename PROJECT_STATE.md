@@ -4,7 +4,7 @@ See `RELEASE_MANIFEST.json` for measured state, gates, commit references and ope
 
 Active branch: `work-v32-unified-scientific-core`. Prior stable development branch preserved. Recovery branch `checkpoint/pre-unified-core-20261126` preserves local baseline. No force push/main merge.
 
-Core main UI unified with real native bridge; typed IDs, raw manager diagnostic lab, bounded memory, transparent fallback and safety preserved. Actual Host runs and failed cases are retained.2B remains baseline,4B not automaticallyselected. Current source version3.2.0-dev.4/code9 is not a signed production release.
+Core main UI unified with real native bridge; typed IDs, raw manager diagnostic lab, bounded memory, transparent fallback and safety preserved. Actual Host runs and failed cases are retained.2B remains baseline,4B not automaticallyselected. Current source version3.2.0-dev.5/code10 is not a signed production release.
 
 Current source HEAD is obtained with `git rev-parse HEAD`; manifest commit fields identify what was verified when written, not a self-referential hash. GitHub connector may create a different commitSHA from local commits but content-tree equality is checked.
 
@@ -23,3 +23,10 @@ A bounded PubMed/Europe PMC research metadata tool is linked to research mode af
 Verification: 285/285 software tests, TypeScript check and mobile asset build PASS. Two prior backup-test failures were stale expected migration lists; updated for additive012 while preserving 10,000-record content checks. No Samsung execution or generative quality gate is newly passed.
 Qwen3-4B-Instruct-2507 Q4_K_M candidate size/hash verified (2497281120 bytes, 3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597). Isolated frozen-case Host comparison in progress; preserve outputs before rerunning. Baseline unchanged.
 Semantic E5 experiments produced poor retrieval and remain experimental, outside Android integration. No semantic acceptance claimed.
+
+
+## V6.9 continuation — native completion and repeated clarification
+Source targets dev.5/code10. Previous dev.4/code9 Android run45936337100 PASS, artifact15170976997 verified and delivered separately. Dev.4 Debug certificate differs from dev.3; no compatible update or data transfer is claimed. Production signing remains DEFERRED BY OWNER.
+Added exact normalized pending-question repeat rejection across plan/decision/segments, bounded repair then explicit fallback. Native metrics/model identity now travel from actual Java bridge into consultation diagnostics; telemetry is explicitly reported, not independent attestation or semantic acceptance. Length/cancel/error/zero-token completions cannot silently become final generated answers.
+288/288 software tests PASS, typecheck and mobile asset build PASS. Two initial old synthetic tests reused the same fixed clarification to set up unrelated revision/correction checks; their setup now uses distinct questions while preserving all ownership, stale-revision, context and redaction assertions. Failure log retained. New repeated-question regression remains strict. Actual Host main UI regression is being recorded; Samsung execution remains NOT TESTED.
+The isolated two-stage paraphrase experiment did not improve shared acceptance (1/3 weak plan checks, same as baseline), introduced incorrect paraphrases and repeated questions; NOT ADOPTED. Original questions/history and all raw failures remain retained.

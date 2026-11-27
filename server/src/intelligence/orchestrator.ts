@@ -12,15 +12,17 @@ import { PRODUCT_SELECT,presentProduct,type ProductRow } from '../routes.ts';
 import { seedKnowledge, claimSources, type ClaimRow, USABLE_SQL } from '../cp07/store.ts';
 import { fidelityCheck } from '../cp08/fidelity.ts';
 import { normAr } from '../advisor2/understand.ts';
-import { Plan,Decision,ToolCall,EMPTY_MEMORY,type ConsultationPlan,type ConsultationDecision,type ConsultationMemory,type ToolObservation,type ProductFact,type EvidenceFact,type Provenance } from './contracts.ts';
+import { NativeInferenceMetrics,type NativeMetrics,Plan,Decision,ToolCall,EMPTY_MEMORY,type ConsultationPlan,type ConsultationDecision,type ConsultationMemory,type ToolObservation,type ProductFact,type EvidenceFact,type Provenance } from './contracts.ts';
 import { executeTool,readProduct } from './tools.ts';
 
 const MAX_INFERENCES=4,MAX_TOOLS=6,TTL=180_000;
-interface Run {session:Session;revision:number;question:string;memory:ConsultationMemory;plan?:ConsultationPlan;observations:ToolObservation[];stage:'plan'|'decision';inferences:number;modelInvocations:number;modelAttempts:number;traceId:string;retries:number;started:number;expires:number;protected:string[];}
+interface Run {session:Session;revision:number;question:string;memory:ConsultationMemory;plan?:ConsultationPlan;observations:ToolObservation[];stage:'plan'|'decision';inferences:number;modelInvocations:number;modelAttempts:number;traceId:string;retries:number;started:number;expires:number;protected:string[];nativeMetrics:{stage:string;metrics:NativeMetrics}[];}
 const runs=new WeakMap<DB,Map<string,Run>>();
 const safeData=(v:unknown)=>JSON.stringify(v).replaceAll('<','\\u003c').replaceAll('>','\\u003e');
 const forbidden=(s:string)=>outputViolations(s).length>0||/https?:|<\||ميزاني|budget|payment|price|cost|system prompt|تجاهل التعليمات/i.test(s);
 const safeQuestion=(s:string,context:string)=>normAr(s).replace(/[؟?!.]/g,'')!==normAr(context).replace(/[؟?!.]/g,'')&&!forbidden(s)&&/[؟?]$/.test(s.trim())&&!/(استخدم|استعمل|تناول|خذي|خذ |ضعي|ضاعف|جرعه|نسبه خلط|علاج نهائي|يشفي)/i.test(normAr(s))&&(s.match(/\d+(?:[.,]\d+)?/g)??[]).every(n=>context.includes(n));
+const questionKey=(s:string)=>normAr(s).replace(/[؟?!.،,:;؛]/g,'').replace(/\s+/g,' ').trim();
+function checkNewQuestion(r:Run,s:string){if(r.memory.pending_question&&questionKey(s)===questionKey(r.memory.pending_question))throw new Error('repeated_clarification_consider_latest_reply');}
 const parse=(s:string)=>{try{return JSON.parse(s);}catch{return null;}};
 const redact=(text:string)=>text.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[بريد محذوف]').replace(/(?:\+?\d[\s()-]*){7,}/g,'[رقم محذوف]').replace(/[\p{Script=Arabic}]+(?:_[\p{Script=Arabic}]+)+/gu,'[معرف شخصي محذوف]').replace(/(?:اسم(?:ها|ه|ي)|اسم العميلة|اسم الزبونة)\s*[:：]?\s+\S+(?:\s+\S+)?/g,'[اسم محذوف]').slice(0,800);
 function loadMemory(db:DB,s:Session){
@@ -50,7 +52,7 @@ function request(db:DB,r:Run,feedback=''):any{
  const ticket=randomBytes(24).toString('hex');map.set(ticket,r);
  return {kind:'request_model',session_id:r.session.id,ticket,task:r.stage==='decision'&&r.plan?.intent==='capabilities'?'dialogue':r.stage,prompt:prompt(r.stage,data,feedback),max_tokens:768,allowed_claim_ids:[...seenFacts],allowed_product_ids:r.stage==='decision'?[...new Set((data as any).observations.flatMap((o:any)=>o.products.map((p:any)=>p.id)))]:r.memory.product_refs.map(p=>p.id),diagnostics:{generative_invoked:false,stage:r.stage,inferences_requested:r.inferences}};
 }
-function diagnostics(r:Run,provenance:Provenance,reason?:string){return {provenance,trace_id:r.traceId,generative_invoked:r.modelInvocations>0||r.modelAttempts>0,model_attempts:r.modelAttempts,model_invocations:r.modelInvocations,intent_understanding:Boolean(r.plan),generative_planning:Boolean(r.plan),tool_calls:r.observations.map(o=>({name:o.name,status:o.status,product_ids:o.products.map(p=>p.id),claim_ids:o.facts.map(f=>f.id),ms:Math.round(o.ms)})),inferences:r.inferences,retries:r.retries,elapsed_ms:Date.now()-r.started,fallback_reason:reason??null};}
+function diagnostics(r:Run,provenance:Provenance,reason?:string){return {provenance,trace_id:r.traceId,generative_invoked:r.modelInvocations>0||r.modelAttempts>0,native_telemetry_origin:'reported_native_bridge_not_independent_attestation',native_inferences:r.nativeMetrics,model_attempts:r.modelAttempts,model_invocations:r.modelInvocations,intent_understanding:Boolean(r.plan),generative_planning:Boolean(r.plan),tool_calls:r.observations.map(o=>({name:o.name,status:o.status,product_ids:o.products.map(p=>p.id),claim_ids:o.facts.map(f=>f.id),ms:Math.round(o.ms)})),inferences:r.inferences,retries:r.retries,elapsed_ms:Date.now()-r.started,fallback_reason:reason??null};}
 function persist(db:DB,r:Run,ctx:ConsultationMemory,provenance:Provenance,diag:unknown,reply=''){
  ctx.recent_turns=[...(ctx.recent_turns??[]),{role:'user' as const,text:redact(r.question)},{role:'assistant' as const,text:redact(reply||ctx.pending_question||provenance)}].slice(-8);
  db.exec('SAVEPOINT intelligence_turn');
@@ -83,7 +85,7 @@ function fallback(db:DB,r:Run,reason:string,provenance:Provenance='deterministic
 }
 export function startConsultation(db:DB,userId:number,input:{message:string;session_id?:string;disabled?:boolean}):any{
  seedKnowledge(db);const session=openSession(db,userId,input.session_id);const m=loadMemory(db,session);
- const r:Run={session,revision:m.revision,question:input.message,memory:m.memory,observations:[],stage:'plan',inferences:0,modelInvocations:0,modelAttempts:0,traceId:randomBytes(12).toString('hex'),retries:0,started:Date.now(),expires:Date.now()+TTL,protected:m.memory.protected_referrals};
+ const r:Run={session,revision:m.revision,question:input.message,memory:m.memory,observations:[],stage:'plan',inferences:0,modelInvocations:0,modelAttempts:0,traceId:randomBytes(12).toString('hex'),retries:0,started:Date.now(),expires:Date.now()+TTL,protected:m.memory.protected_referrals,nativeMetrics:[]};
  const s=assessSafety(input.message,session.ctx),extra=assessSafetyCp08(input.message);
  r.protected=[...new Set([...r.protected,...s.referrals,...extra.referrals.map(x=>x.label_ar)])];r.memory.protected_referrals=r.protected;
  if(s.stop||extra.urgent.length||session.ctx.safety_flags.includes('urgent')){if(!session.ctx.safety_flags.includes('urgent'))session.ctx.safety_flags.push('urgent');return fallback(db,r,'urgent_precheck','safety_referral');}
@@ -106,7 +108,7 @@ function validateDecision(db:DB,r:Run,d:ConsultationDecision){
  if(r.plan?.intent==='capabilities'&&(d.recommendations.length||d.routine.length||d.inference_notes.length||d.next_tools.length||!d.response_segments.length||d.response_segments.some(s=>!['capability','limitation','clarification'].includes(s.kind))))throw new Error('application_dialogue_requires_conversational_response');
  for(const segment of d.response_segments){
   if(forbidden(segment.text))throw new Error('unsafe_response_segment');
-  if(segment.kind==='clarification'){if(segment.claim_ids.length||!safeQuestion(segment.text,r.question))throw new Error('invalid_clarification_segment');continue;}
+  if(segment.kind==='clarification'){checkNewQuestion(r,segment.text);if(segment.claim_ids.length||!safeQuestion(segment.text,r.question))throw new Error('invalid_clarification_segment');continue;}
   if(segment.kind==='capability'&&segment.claim_ids.some(id=>facts.get(id)?.topic!=='system'))throw new Error('capability_requires_system_fact');
   if(!segment.claim_ids.length||segment.claim_ids.some(id=>!facts.has(id)))throw new Error('unobserved_segment_claim');
   const relevant=segment.claim_ids.map(id=>({id,text:facts.get(id)!.text}));
@@ -126,6 +128,7 @@ function validateDecision(db:DB,r:Run,d:ConsultationDecision){
 if(step.product_id!==null&&!d.recommendations.some(p=>p.product_id===step.product_id))throw new Error('routine_product_not_recommended');if(step.step==='active'&&r.protected.length)throw new Error('active_with_referral');}
  for(const period of ['morning','evening','both','hair']){const steps=d.routine.filter(s=>s.period===period).map(s=>s.step);if(steps.includes('protect')&&steps.at(-1)!=='protect')throw new Error('sunscreen_order');if(steps.includes('cleanse')&&steps[0]!=='cleanse')throw new Error('cleanser_order');}
  for(const i of d.inference_notes){cite(i.premise_ids);if(forbidden(i.summary))throw new Error('unsafe_inference');const text=i.summary+' ['+i.premise_ids.join(', ')+']';if(!fidelityCheck(text,[...facts.values()].map(f=>({id:f.id,text:f.text})),{minSupport:0.5}).ok)throw new Error('unsupported_inference');if(i.relation==='conflict'&&!i.premise_ids.some(id=>['interaction','caution','warning'].includes(facts.get(id)!.kind)))throw new Error('unsupported_conflict');}
+ if(d.clarification)checkNewQuestion(r,d.clarification);
  if(d.clarification&&!safeQuestion(d.clarification,r.question))throw new Error('unsafe_clarification');
  if(!d.clarification&&!d.selected_claim_ids.length&&!d.recommendations.length&&!d.routine.length&&!d.response_segments.length)throw new Error('empty_decision');
  return {facts,products};
@@ -151,19 +154,21 @@ function render(db:DB,r:Run,d:ConsultationDecision,checked:ReturnType<typeof val
  const answer={conversation_text:conversationText,engine:'v32_local_generative',mode:'LOCAL_MODEL',understanding:{intent:r.plan!.intent,skin_type:r.memory.skin,hair_type:r.memory.hair,concerns:r.memory.concerns,conversation_context:AdvisorContext.parse({...r.session.ctx,skin:r.memory.skin,hair:r.memory.hair,concerns:r.memory.concerns,product_refs:r.memory.product_refs}),medical_red_flags:[]},sections,sources,products:chosen.length?{items:chosen,needs_information:[],excluded:[],note:'الاختيار من النموذج؛ التحقق العلمي والتوفر مستقلان.'}:null,used_claim_ids:used,evidence_status:sources.length?'unreviewed':'none',follow_up:null,text:sections.flatMap(s=>s.items.map((i:any)=>i.text)).join('\n')};
  return {kind:'final',session_id:r.session.id,mode_requested:'offline',mode_used:'offline',answer,research:null,cloud:null,intelligence:diag};
 }
-export function advanceConsultation(db:DB,userId:number,input:{ticket:string;raw:string;failure?:string;model_started?:boolean}):any{
+export function advanceConsultation(db:DB,userId:number,input:{ticket:string;raw:string;failure?:string;model_started?:boolean;native_metrics?:NativeMetrics}):any{
  const map=runs.get(db),r=map?.get(input.ticket);if(!r||r.session.user_id!==userId||r.expires<Date.now())throw new HttpError(403,'انتهى الطلب أو غير مصرح');map!.delete(input.ticket);
  const revision=(db.prepare('SELECT revision FROM intelligence_memory WHERE session_id=?').get(r.session.id) as {revision:number}|undefined)?.revision;if(revision!==r.revision)throw new HttpError(409,'تغير سياق الاستشارة');
  if(input.model_started||!input.failure)r.modelAttempts++;
  if(!input.failure)r.modelInvocations++;
  if(input.failure)return fallback(db,r,'runtime_'+input.failure.slice(0,40));
  try{
+  if(input.native_metrics){const metrics=NativeInferenceMetrics.parse(input.native_metrics);r.nativeMetrics.push({stage:r.stage,metrics});if(metrics.finish_reason!=='stop')throw new Error('native_incomplete_'+metrics.finish_reason);if(metrics.tokens===0)throw new Error('native_empty_generation');}
   if(r.stage==='plan'){
    const p=Plan.parse(parse(input.raw));if(p.product_refs.some(id=>!r.memory.product_refs.some(x=>x.id===id)))throw new Error('unobserved_reference');
    for(const ingredient of p.ingredients){
  const names=[ingredient,...(db.prepare('SELECT names_ar,synonyms FROM ingredient_knowledge WHERE lower(inci)=lower(?)').all(ingredient) as {names_ar:string;synonyms:string}[]).flatMap(row=>{try{return [...JSON.parse(row.names_ar),...JSON.parse(row.synonyms)];}catch{return [];}})];
  if(!names.some(n=>normAr(r.question+' '+r.memory.ingredients.join(' ')).includes(normAr(n))))throw new Error('ingredient_not_in_user_context');
  }
+ if(p.question)checkNewQuestion(r,p.question);
  if(p.question&&!safeQuestion(p.question,r.question))throw new Error('unsafe_question');
    if(p.intent==='clarify'&&!p.question.trim())throw new Error('clarification_question_missing');
    if(p.intent==='out_of_scope')return fallback(db,r,'model_scope','policy_bypass');
