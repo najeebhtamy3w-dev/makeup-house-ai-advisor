@@ -1,0 +1,21 @@
+[
+  "c++",
+  "-O3",
+  "-std=c++17",
+  "-I/workspace/scratch/921845f84f0b/toolchain/native-recovery/llama/include",
+  "-I/workspace/scratch/921845f84f0b/toolchain/native-recovery/llama/common",
+  "-I/workspace/scratch/921845f84f0b/toolchain/native-recovery/llama/ggml/include",
+  "-I/workspace/scratch/921845f84f0b/toolchain/native-recovery/llama/vendor",
+  "/workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/scripts/native-parity-prefill.cpp",
+  "-L/workspace/scratch/921845f84f0b/toolchain/native-recovery/vision-host/bin",
+  "-Wl,-rpath,/workspace/scratch/921845f84f0b/toolchain/native-recovery/vision-host/bin",
+  "-lllama-common",
+  "-lllama",
+  "-lggml",
+  "-lggml-base",
+  "-lggml-cpu",
+  "-pthread",
+  "-ldl",
+  "-o",
+  "/workspace/scratch/94abed0b16f7/native-parity/probe"
+]

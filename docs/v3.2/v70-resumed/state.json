@@ -29,7 +29,7 @@
     "VLM/product field acceptance incomplete",
     "conversational root cause still unresolved; safeguards are not semantic understanding"
   ],
-  "next": "Publish current dev7 source and verify exact tree; recover Android workflow/artifact; deliver actual Debug APK with manifest; continue model/runtime intelligence work independently.",
+  "next": "Continue architectural/model understanding work from persisted failures; do not repeat official sampling or prefill/sampler parity controls unchanged. APK dev7 verified and prepared for owner. Physical Samsung acceptance remains external; all intelligence gates remain incomplete.",
   "native_host_lifecycle": {
     "checks": 11,
     "status": "PASS",
@@ -37,8 +37,47 @@
     "android_acceptance": false
   },
   "dev7_build": {
+    "sha256": "627683340dcf60ad045dd8fd35a5ee1e3320998231868776814ac20627a12769",
+    "bytes": 23763119,
+    "application_id": "com.makeuphouse.advisor.engineering",
+    "version_name": "3.2.0-dev.7-test",
+    "version_code": 12,
     "source_commit": "bcdf437f38dfcf82ec8c3695be666cb1bf8b4e7f",
+    "ci_run": "45978899228",
+    "certificate_sha256": "da9d4d6b4bdafec013c5b2963204b31dbfff7b016df648e13d03dd77c1272261",
+    "certificate_differs_from_dev5": true,
+    "arm64_libraries": [
+      "lib/arm64-v8a/libjpeg.so",
+      "lib/arm64-v8a/libleptonica.so",
+      "lib/arm64-v8a/libmh_local_ai.so",
+      "lib/arm64-v8a/libpngx.so",
+      "lib/arm64-v8a/libtesseract.so"
+    ],
+    "elf_16kb_alignment": "PASS",
+    "all_embedded_asset_hashes": "PASS",
+    "zip_integrity": "PASS",
+    "apk_hash_matches_ci_manifest": true,
+    "ci_apksigner_verification": 0,
+    "local_certificate_extraction": "PASS",
+    "samsung": "NOT_TESTED",
+    "intelligence_gate02": "FAIL",
+    "source_archive_verified_against_git": {
+      "files": 966,
+      "status": "PASS",
+      "sha256": "11fd31c88f5bde539b5ecbd83a34ef9406bbbd6048157b330e6a3357d6358b46"
+    },
     "run": 45978899228,
-    "status": "IN_PROGRESS"
+    "artifact": 15187914550,
+    "status": "PASS",
+    "artifact_sha256": "d9a1a61e16b2069c7c82226d30227963fd595f159a9662035380bdfbbd7f12b8"
+  },
+  "native_parity": {
+    "evidence": "docs/v3.2/v70-resumed-parity",
+    "tokens_identical": 674,
+    "vocabulary_logits_compared": 248320,
+    "generation_steps_identical": 64,
+    "production_code_changed": false,
+    "semantic_acceptance": "FAIL unchanged",
+    "remaining_prior_cli_difference": "UNRESOLVED"
   }
 }

@@ -1,0 +1,27 @@
+{
+  "scope": "HOST_TEACHER_FORCED_SAMPLER_PARITY_NOT_SEMANTIC_ACCEPTANCE",
+  "binary_sha256": "78b3e3a9476b1055d37dffd5321d22bde1707c4ce2d1c9ba0a814cb2720542ac",
+  "source_sha256": "af0fa7c3f970852879726fc83d01af9af572fdec75f3db4daca42f6560a6112c",
+  "grammar_sha256": "06caf361e806b6b2a7b624890cf96c3246e6532e516601b886a2eb1d822d044b",
+  "prompt_sha256": "517d437540385a2fa70b5d3cb0736d44da7973383096e08b73525c3be34d7ab0",
+  "profiles": [
+    "direct grammar then greedy",
+    "common_sampler default rejection",
+    "common_sampler grammar_first"
+  ],
+  "limit_each": 64,
+  "prefix": "All later profiles teacher-force direct baseline tokens, retaining identical prefix for logits/mask comparison",
+  "same_context": 4096,
+  "same_batch": 128,
+  "same_ubatch": 128,
+  "same_threads": 4,
+  "disabled_penalties": true,
+  "temperature": 0,
+  "warmup": false,
+  "grammar_file": "/workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/docs/v3.2/v68-core/plan-empty-observations.gbnf",
+  "exit_code": 0,
+  "wall_seconds": 71.99418355700004,
+  "steps_each_profile": 64,
+  "selection_divergences": 0,
+  "pre_sampling_logit_differences": 0
+}

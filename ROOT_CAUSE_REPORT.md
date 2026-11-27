@@ -35,3 +35,6 @@ V6.9 actual main-UI regression is complete: docs/v3.2/v69-main-ui contains3 actu
 ## Current V7.0 resumption
 
 See `docs/v3.2/v70-resumed/state.json` and fresh logs for current source/limits. Retained constraints now reach tools; essential-oil exclusion and unresolved-fallback relevance regressions pass. No intelligence gate or Samsung acceptance is upgraded.
+
+
+V7.0 resumed diagnostic: current Host lifecycle11 checks PASS; exact674 input tokens and full-vocabulary logits match reference batching/reset, and64 constrained decoding steps match direct/common sampler paths. No demonstrated BOS/prefill/reset/sampler mechanism explains the failed semantics. The older CLI discrepancy remains unresolved. See docs/v3.2/v70-resumed-parity; no intelligence PASS or production runtime change follows.

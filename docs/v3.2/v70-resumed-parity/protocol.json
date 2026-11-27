@@ -1,0 +1,24 @@
+{
+  "scope": "HOST_PREFILL_ONLY_NOT_SEMANTIC_OR_ANDROID_ACCEPTANCE",
+  "prompt_sha256": "517d437540385a2fa70b5d3cb0736d44da7973383096e08b73525c3be34d7ab0",
+  "binary_sha256": "875ace56d3cc171262b159b0504e2e87db8229ab4565d710061815259af2156b",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "model_hash_previously_verified": true,
+  "grammar": "None applied in either profile; compares pre-sampling logits only, no generation",
+  "same_parameters": {
+    "n_ctx": 4096,
+    "n_batch": 128,
+    "n_ubatch": 128,
+    "threads": 4,
+    "gpu_layers": 0,
+    "mmap": true
+  },
+  "template": "Exact prior problematic serialized prompt unchanged; token arrays compared independently via common_tokenize",
+  "library_directory": "/workspace/scratch/921845f84f0b/toolchain/native-recovery/vision-host/bin",
+  "lifecycle_precondition": "PASSED 11 real native host lifecycle checks observed before launch",
+  "model_context_initialization": "One raw llama_init_from_model reused with full memory clear between profiles; this isolates batching/reset, not common_init defaults",
+  "probe_path": "/workspace/scratch/94abed0b16f7/native-parity/probe",
+  "exit_code": 0,
+  "different_logits_all_profiles": 0,
+  "full_vocab_logits_compared": 248320
+}

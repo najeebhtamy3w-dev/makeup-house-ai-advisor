@@ -1,0 +1,31 @@
+{
+  "sha256": "627683340dcf60ad045dd8fd35a5ee1e3320998231868776814ac20627a12769",
+  "bytes": 23763119,
+  "application_id": "com.makeuphouse.advisor.engineering",
+  "version_name": "3.2.0-dev.7-test",
+  "version_code": 12,
+  "source_commit": "bcdf437f38dfcf82ec8c3695be666cb1bf8b4e7f",
+  "ci_run": "45978899228",
+  "certificate_sha256": "da9d4d6b4bdafec013c5b2963204b31dbfff7b016df648e13d03dd77c1272261",
+  "certificate_differs_from_dev5": true,
+  "arm64_libraries": [
+    "lib/arm64-v8a/libjpeg.so",
+    "lib/arm64-v8a/libleptonica.so",
+    "lib/arm64-v8a/libmh_local_ai.so",
+    "lib/arm64-v8a/libpngx.so",
+    "lib/arm64-v8a/libtesseract.so"
+  ],
+  "elf_16kb_alignment": "PASS",
+  "all_embedded_asset_hashes": "PASS",
+  "zip_integrity": "PASS",
+  "apk_hash_matches_ci_manifest": true,
+  "ci_apksigner_verification": 0,
+  "local_certificate_extraction": "PASS",
+  "samsung": "NOT_TESTED",
+  "intelligence_gate02": "FAIL",
+  "source_archive_verified_against_git": {
+    "files": 966,
+    "status": "PASS",
+    "sha256": "11fd31c88f5bde539b5ecbd83a34ef9406bbbd6048157b330e6a3357d6358b46"
+  }
+}
