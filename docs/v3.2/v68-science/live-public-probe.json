@@ -1,0 +1,146 @@
+{
+  "at": "2026-11-26T20:18:49.899Z",
+  "environment": "Host Node public APIs, not Android or qualified scientific review",
+  "query_kind": "generic public cosmetic concept only",
+  "result": {
+    "method": "bounded_multi_index_metadata_research",
+    "concepts": [
+      "niacinamide"
+    ],
+    "publications": [
+      {
+        "id": "pmid:24993939",
+        "title": "Niacinamide - mechanisms of action and its topical use in dermatology.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/24993939/",
+        "pmid": "24993939",
+        "doi": null,
+        "publishers": [
+          "PubMed — Skin Pharmacol Physiol"
+        ],
+        "year": "2014",
+        "indexes": [
+          "pubmed"
+        ],
+        "evidence_level": "narrative_review",
+        "metadata_quality": 0.6,
+        "relevance": 1,
+        "review_state": "unreviewed",
+        "license_scope": "bibliographic_metadata_only",
+        "findings_available": false,
+        "independent_study_count": 1,
+        "metadata_conflicts": []
+      },
+      {
+        "id": "pmid:38722460",
+        "title": "Niacinamide: a review on dermal delivery strategies and clinical evidence.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/38722460/",
+        "pmid": "38722460",
+        "doi": null,
+        "publishers": [
+          "PubMed — Drug Deliv Transl Res"
+        ],
+        "year": "2024",
+        "indexes": [
+          "pubmed"
+        ],
+        "evidence_level": "narrative_review",
+        "metadata_quality": 0.6,
+        "relevance": 1,
+        "review_state": "unreviewed",
+        "license_scope": "bibliographic_metadata_only",
+        "findings_available": false,
+        "independent_study_count": 1,
+        "metadata_conflicts": []
+      },
+      {
+        "id": "pmid:34525885",
+        "title": "Topical treatment for postinflammatory hyperpigmentation: a systematic review.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/34525885/",
+        "pmid": "34525885",
+        "doi": null,
+        "publishers": [
+          "PubMed — J Dermatolog Treat"
+        ],
+        "year": "2022",
+        "indexes": [
+          "pubmed"
+        ],
+        "evidence_level": "systematic_review",
+        "metadata_quality": 0.85,
+        "relevance": 0,
+        "review_state": "unreviewed",
+        "license_scope": "bibliographic_metadata_only",
+        "findings_available": false,
+        "independent_study_count": 1,
+        "metadata_conflicts": []
+      },
+      {
+        "id": "pmid:35520754",
+        "title": "Xeroderma pigmentosum: an updated review.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/35520754/",
+        "pmid": "35520754",
+        "doi": null,
+        "publishers": [
+          "PubMed — Drugs Context"
+        ],
+        "year": "2022",
+        "indexes": [
+          "pubmed"
+        ],
+        "evidence_level": "narrative_review",
+        "metadata_quality": 0.6,
+        "relevance": 0,
+        "review_state": "unreviewed",
+        "license_scope": "bibliographic_metadata_only",
+        "findings_available": false,
+        "independent_study_count": 1,
+        "metadata_conflicts": []
+      },
+      {
+        "id": "pmid:40233838",
+        "title": "Skincare ingredients recommended by cosmetic dermatologists: A Delphi consensus study.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/40233838/",
+        "pmid": "40233838",
+        "doi": null,
+        "publishers": [
+          "PubMed — J Am Acad Dermatol"
+        ],
+        "year": "2025",
+        "indexes": [
+          "pubmed"
+        ],
+        "evidence_level": "unknown",
+        "metadata_quality": 0.2,
+        "relevance": 0,
+        "review_state": "unreviewed",
+        "license_scope": "bibliographic_metadata_only",
+        "findings_available": false,
+        "independent_study_count": 1,
+        "metadata_conflicts": []
+      }
+    ],
+    "calls": [
+      {
+        "index": "pubmed",
+        "query": "niacinamide topical skin",
+        "status": "ok",
+        "cached": false
+      }
+    ],
+    "requests": 3,
+    "stored": 5,
+    "review_state": "unreviewed",
+    "claims": [],
+    "scientific_conclusions": [],
+    "conflict_analysis": {
+      "status": "NOT_ASSESSED",
+      "reason": "Titles and bibliographic metadata cannot establish scientific findings or contradictory outcomes."
+    },
+    "warnings": [
+      "نتائج اكتشاف مصادر غير مراجعة؛ وجود دراسة أو عنوانها لا يثبت فائدة أو سلامة أو استنتاجًا علميًا.",
+      "PubMed وEurope PMC قد يفهرسان الدراسة نفسها؛ تكرار الفهرسة ليس دليلًا مستقلاً."
+    ],
+    "status": "cancelled_or_deadline",
+    "elapsed_ms": 15014
+  }
+}

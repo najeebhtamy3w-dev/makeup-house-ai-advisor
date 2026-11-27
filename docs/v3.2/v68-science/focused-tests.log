@@ -1,0 +1,18 @@
+✔ deep research rejects raw personal prose and unsupported concepts before any outgoing request (23.476528ms)
+✔ manager disabled and offline empty research never contact a network (19.710027ms)
+✔ real connector functions with fixture HTTP retrieve two indexes, deduplicate PMID, preserve DOI and forbid scientific conclusions (389.009558ms)
+✔ cached metadata survives offline retrieval without pretending to search fresh internet (375.212443ms)
+✔ metadata disagreement is flagged, not represented as a scientific contradiction or multiple studies (0.653455ms)
+✔ cancellation during response body terminates a non-cooperative provider without approval or stored records (47.331293ms)
+✔ already cancelled research cannot issue network calls (17.883113ms)
+✔ one failing source retains other index metadata and honestly reports partial research (370.433416ms)
+✔ a shared DOI does not silently merge different PMID identities (9.605595ms)
+✔ conflicting DOI values for one PMID remain explicitly unresolved (0.553147ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1752.382906

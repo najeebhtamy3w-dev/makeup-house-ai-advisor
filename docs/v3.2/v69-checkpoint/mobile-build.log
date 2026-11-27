@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> makeup-house-beauty-advisor@3.2.0-dev.4 build:mobile
+> node scripts/build-mobile.mjs
+
+dist-mobile ready: client.js, sqlite3.wasm, worker.js

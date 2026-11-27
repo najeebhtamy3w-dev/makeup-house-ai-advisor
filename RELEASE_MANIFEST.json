@@ -115,5 +115,25 @@
     "evidence_library_file_id": "libfile_355325136590819195d8c5d28a320540",
     "scope": "Engineering preview, not accepted production or compatible permanent update"
   },
-  "authorization": "V6.8 — INTELLIGENCE FIRST / DEBUG FIRST"
+  "authorization": "V6.8 — INTELLIGENCE FIRST / DEBUG FIRST",
+  "active_source_checkpoint_v69": {
+    "version_name": "3.2.0-dev.4",
+    "version_code": 9,
+    "apk_status": "NOT_BUILT",
+    "software_tests": {
+      "pass": 285,
+      "fail": 0
+    },
+    "typecheck": "PASS",
+    "mobile_assets": "PASS",
+    "production_signing": "DEFERRED BY OWNER",
+    "conversation_quality": "FAIL / PARTIAL",
+    "samsung": "NOT TESTED",
+    "new_features": [
+      "explicit_saved_context",
+      "empty_clarification_repair",
+      "bounded_unreviewed_research_metadata"
+    ],
+    "baseline_model_replaced": false
+  }
 }

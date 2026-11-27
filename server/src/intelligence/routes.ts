@@ -3,8 +3,10 @@ import {route,HttpError} from '../http.ts';
 import {scientificAdvisor,isOnline,researchSources,getRuntime} from '../cp08/features.ts';
 import {externalSearchEnabled} from '../cp07/connectors.ts';
 import {runResearch} from '../cp08/research.ts';
+import {runDeepResearch} from './deep-research.ts';
 import {startConsultation,advanceConsultation} from './orchestrator.ts';
 import './inventory.ts';
+import './saved-conversations.ts';
 import './product-attachments.ts';
 import './global-catalog.ts';
 import {installScientificEvidencePack} from './scientific-evidence-pack.ts';
@@ -45,3 +47,10 @@ route('POST','/api/intelligence/consult','any',async c=>{
 });
 
 route('POST','/api/intelligence/knowledge/install-pack','manager',async c=>{z.object({confirmed:z.literal(true)}).strict().parse(await c.body());return {result:installScientificEvidencePack(c.db),status:'pending_human_review'};});
+
+// Explicit, consent-governed research tool. Bibliographic results are not consultation evidence.
+route('POST','/api/intelligence/research','any',async c=>{
+ const b=z.object({concepts:z.array(z.string().trim().min(1).max(100)).min(1).max(6),domain:z.enum(['skin','hair','both']).default('both'),max_queries:z.union([z.literal(1),z.literal(2)]).default(1)}).strict().parse(await c.body());
+ const result=await runDeepResearch(c.db,b,{fetch:globalThis.fetch as any,online:isOnline(c.cfg)});
+ return {...result,execution_origin:'explicit_research_tool',used_in_scientific_answer:false};
+});

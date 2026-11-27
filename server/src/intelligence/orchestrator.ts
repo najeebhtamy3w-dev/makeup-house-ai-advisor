@@ -165,9 +165,10 @@ export function advanceConsultation(db:DB,userId:number,input:{ticket:string;raw
  if(!names.some(n=>normAr(r.question+' '+r.memory.ingredients.join(' ')).includes(normAr(n))))throw new Error('ingredient_not_in_user_context');
  }
  if(p.question&&!safeQuestion(p.question,r.question))throw new Error('unsafe_question');
+   if(p.intent==='clarify'&&!p.question.trim())throw new Error('clarification_question_missing');
    if(p.intent==='out_of_scope')return fallback(db,r,'model_scope','policy_bypass');
    r.plan=p;r.memory=mergeMemory(r,p);
-   if(p.intent==='clarify'||(p.missing.length&&p.question&&p.tools.length===0)){const d=Decision.parse({clarification:p.question||'ما المعلومة الناقصة عن المنتج أو الاحتياج؟'});return render(db,r,d,{facts:new Map(),products:new Map()});}
+   if(p.intent==='clarify'||(p.missing.length&&p.question&&p.tools.length===0)){const d=Decision.parse({clarification:p.question});return render(db,r,d,{facts:new Map(),products:new Map()});}
    if(!p.tools.length)throw new Error('plan_has_no_tools');
    runTools(db,r,p.tools);r.stage='decision';return request(db,r);
   }

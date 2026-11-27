@@ -83,6 +83,16 @@ export const localAI = {
         current = await post('/api/intelligence/advance', { ticket: current.ticket, raw, model_started, ...(failure ? { failure } : {}) });
       }
       if (current.kind !== 'final') throw new Error('انتهت ميزانية الاستشارة');
+      if(epoch!==cancellationEpoch)throw Error('CANCELLED');
+      if(body.mode==='research'&&current.intelligence?.provenance!=='safety_referral'){
+        const context=current.answer?.understanding?.conversation_context??{};
+        const needs:Record<string,string>={dryness:'dry skin',oil:'oily skin',sensitivity:'sensitive skin',acne:'acne',pigmentation:'hyperpigmentation',dandruff:'dandruff',hair_loss:'hair loss',breakage:'hair damage',sun:'photoprotection',hydration:'moisturizer'};
+        // Translate model/context enums, not the customer's free text, into permitted scientific concepts.
+        const concepts=[...new Set([...(context.using??[]),...(context.concerns??[]).map((n:string)=>needs[n]).filter(Boolean)])].slice(0,6);
+        if(concepts.length){phase('research','جار بحث مصادر علمية؛ النتائج المكتشفة تحتاج مراجعة');try{current.deep_research=await post('/api/intelligence/research',{concepts,domain:context.hair?.length?'hair':'skin',max_queries:1});}catch{current.deep_research={status:'failed',publications:[],notes_ar:['تعذر البحث المتصل؛ لم يُستبدل الجواب المحلي بمعلومات غير متحققة.'],used_in_scientific_answer:false};}}
+        if(epoch!==cancellationEpoch)throw Error('CANCELLED');
+        current.mode_requested='research';if(current.deep_research?.publications?.length)current.mode_used='research';if(current.deep_research?.publications?.length)current.mode_used='research';
+      }
       phase('completed','اكتملت الإجابة');return current;
     } finally { composing = false; clearTimeout(timer); window.removeEventListener('hashchange', cancel); }
   },

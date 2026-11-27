@@ -59,12 +59,12 @@ def run(args):
  return {'exit_code':r.returncode,'output':r.stdout}
 results={}
 for kind,relative,identity,version,debug in [
- ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.3',False),
- ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.3-test',True)]:
+ ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.4',False),
+ ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.4-test',True)]:
  f=repo/'android/app/build/outputs/apk'/relative
  assert f.is_file(),str(f)
  a=run([bt/'aapt','dump','badging',f]);assert a['exit_code']==0
- assert f"name='{identity}'" in a['output'] and "versionCode='8'" in a['output'] and f"versionName='{version}'" in a['output']
+ assert f"name='{identity}'" in a['output'] and "versionCode='9'" in a['output'] and f"versionName='{version}'" in a['output']
  assert ('application-debuggable' in a['output'])==debug
  alignment=run([bt/'zipalign','-c','-P','16','4',f]);assert alignment['exit_code']==0
  signature=run([bt/'apksigner','verify','--verbose','--print-certs',f]);assert (signature['exit_code']==0)==debug

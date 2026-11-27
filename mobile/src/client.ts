@@ -39,7 +39,7 @@ window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   await window.MH_READY;
   if (['/api/intelligence/consult','/api/cp08/advisor/chat'].includes(url.pathname) && method === 'POST' && Capacitor.isNativePlatform() && body) {
     const input = JSON.parse(new TextDecoder().decode(body));
-    if ((input.mode ?? 'offline') === 'offline') {
+    if (['offline','research'].includes(input.mode ?? 'offline')) {
       const result = await localAI.consult(input, (headers.get('authorization') ?? '').replace(/^Bearer /, ''), window.fetch);
       return new Response(JSON.stringify(result), { status: 200, headers: { 'content-type': 'application/json' } });
     }

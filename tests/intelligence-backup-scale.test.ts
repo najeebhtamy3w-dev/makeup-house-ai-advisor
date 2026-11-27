@@ -50,18 +50,18 @@ test('10,000 synthetic rows: baseline009 additive migration and MHBAK1 legacy de
   const sealed=await seal(oldBytes,PASS,{app:'com.makeuphouse.advisor',schema:db.prepare('SELECT name FROM schema_migrations ORDER BY name').all().map(r=>String(r.name)),counts:{products:COUNT}});
   await assert.rejects(decryptLegacy(sealed,'wrong-passphrase'));
   const opened=await decryptLegacy(sealed,PASS);assert.equal(await sha256hex(opened.plain),await sha256hex(oldBytes));
-  writeFileSync(join(dir,'legacy-restored.db'),opened.plain);restored=new DatabaseSync(join(dir,'legacy-restored.db'));restored.exec('PRAGMA foreign_keys=ON');assert.deepEqual(migrate(restored),['010_intelligence_state.sql','011_inventory_batches.sql']);assert.deepEqual(digest(restored,OLD),before);verify(restored);assert.deepEqual(migrate(restored),[]);
+  writeFileSync(join(dir,'legacy-restored.db'),opened.plain);restored=new DatabaseSync(join(dir,'legacy-restored.db'));restored.exec('PRAGMA foreign_keys=ON');assert.deepEqual(migrate(restored),['010_intelligence_state.sql','011_inventory_batches.sql','012_saved_consultations.sql']);assert.deepEqual(digest(restored,OLD),before);verify(restored);assert.deepEqual(migrate(restored),[]);
   assert.equal(restored.prepare('SELECT count(*) n FROM inventory_batches').get()!.n,0,'old availability must not invent batches');
   assert.equal(restored.prepare('SELECT count(*) n FROM intelligence_memory').get()!.n,0);
   const changed=sealed.slice();changed[changed.length-1]^=1;await assert.rejects(decryptLegacy(changed,PASS));
-  console.log('V32_BACKUP_METRIC '+JSON.stringify({kind:'MHBAK1_host_legacy',synthetic_products:COUNT,sqlite_bytes:oldBytes.length,encrypted_bytes:sealed.length,elapsed_ms:Math.round(performance.now()-start),migrations:['010','011'],android:false}));
+  console.log('V32_BACKUP_METRIC '+JSON.stringify({kind:'MHBAK1_host_legacy',synthetic_products:COUNT,sqlite_bytes:oldBytes.length,encrypted_bytes:sealed.length,elapsed_ms:Math.round(performance.now()-start),migrations:['010','011','012'],android:false}));
  }finally{restored?.close();db?.close();rmSync(dir,{recursive:true,force:true});}
 });
 
 test('10,000 synthetic local/global/batch records: actual MHBAK2 file stream authenticates and restores complete V3.2 state',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'mh-v32-stream-'));let db:DB|undefined,restored:DB|undefined;let input:number|undefined,output:number|undefined,backup:number|undefined;
  const start=performance.now();try{
-  db=baseline(join(dir,'source.db'));const old=digest(db,OLD);assert.deepEqual(migrate(db),['010_intelligence_state.sql','011_inventory_batches.sql']);assert.deepEqual(digest(db,OLD),old);addV32(db);verify(db);
+  db=baseline(join(dir,'source.db'));const old=digest(db,OLD);assert.deepEqual(migrate(db),['010_intelligence_state.sql','011_inventory_batches.sql','012_saved_consultations.sql']);assert.deepEqual(digest(db,OLD),old);addV32(db);verify(db);
   const tables=[...OLD,'global_products','inventory_batches','advisor_sessions','intelligence_memory','intelligence_diagnostics','knowledge_settings'];const before=digest(db,tables);
   const copy=join(dir,'snapshot.db');db.prepare('VACUUM INTO ?').run(copy);
   const sourceSize=statSync(copy).size,writer=await BackupWriterV2.create(PASS,{app:'com.makeuphouse.advisor',schema:db.prepare('SELECT name FROM schema_migrations ORDER BY name').all().map(r=>String(r.name)),counts:{products:COUNT,global_products:COUNT,inventory_batches:COUNT},page_size:Number(db.prepare('PRAGMA page_size').get()!.page_size),page_count:Number(db.prepare('PRAGMA page_count').get()!.page_count)});
