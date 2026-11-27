@@ -1,0 +1,10 @@
+✔ persistent store exact stream validates 96MiB under 32MiB heap; size/hash/magic/cancel fail independently (1546.383819ms)
+ℹ PASS: 96MiB with32MiB heap; size/hash/GGUF/cancel controls. HOST_STREAM_ONLY_SAF_DEVICE_NOT_TESTED
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1729.325421

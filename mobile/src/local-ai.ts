@@ -5,6 +5,11 @@ interface NativeAI {
   install(o: { token: string }): Promise<any>;
   installVision(o:{token:string}):Promise<any>;
   removeVision(o:{token:string}):Promise<any>;
+  selectStorage(o:{token:string;asset:'model'|'vision'}):Promise<any>;
+  reconnectStorage(o:{token:string;asset:'model'|'vision'}):Promise<any>;
+  importAsset(o:{token:string;asset:'model'|'vision'}):Promise<any>;
+  exportAsset(o:{token:string;asset:'model'|'vision'}):Promise<any>;
+  recoverAsset(o:{token:string;asset:'model'|'vision'}):Promise<any>;
   describeImage(o:{token:string;image_base64:string;question:string}):Promise<any>;
   activate(o: { token: string }): Promise<any>;
   deactivate(o: { token: string }): Promise<any>;
@@ -24,11 +29,14 @@ export const localAI = {
     if (!Capacitor.isNativePlatform()) throw new Error('يتطلب تطبيق Android');
     return native.status({ token, diagnostics: true });
   },
-  async call(action: keyof NativeAI, token: string) {
+  async call(action: keyof NativeAI, token: string, options: {asset?:'model'|'vision'} = {}) {
     if (!Capacitor.isNativePlatform()) throw new Error('يتطلب تطبيق Android');
-    if (!['status', 'install', 'activate', 'deactivate', 'remove', 'reset', 'cancel', 'test','installVision','removeVision'].includes(action)) throw new Error('عملية غير مسموحة');
+    if (!['status', 'install', 'activate', 'deactivate', 'remove', 'reset', 'cancel', 'test','installVision','removeVision','selectStorage','reconnectStorage','importAsset','exportAsset','recoverAsset'].includes(action)) throw new Error('عملية غير مسموحة');
     if(action==='cancel')cancellationEpoch++;
-    const out = await (native[action] as (o: { token: string }) => Promise<any>)({ token });
+    if (Object.keys(options).some(key=>key!=='asset') || (options.asset!==undefined && !['model','vision'].includes(options.asset))) throw Error('خيارات إدارة الملفات غير صالحة');
+    const storageAction=['selectStorage','reconnectStorage','importAsset','exportAsset','recoverAsset'].includes(action);
+    const payload={token,...(storageAction?{asset:options.asset??'model'}:{})};
+    const out = await (native[action] as (o: { token: string;asset?:'model'|'vision' }) => Promise<any>)(payload);
     if (['activate', 'deactivate', 'remove', 'install'].includes(action)) {
       const r = await fetch('/api/local-ai/config', { method: 'POST', headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' }, body: JSON.stringify({ model_id: 'qwen35-2b-q4km', desired_active: Boolean(out?.active) }) });
       if (!r.ok) throw new Error('تعذر حفظ إعداد النموذج؛ راجعي حالة التشغيل');
@@ -73,7 +81,9 @@ export const localAI = {
           if(epoch!==cancellationEpoch||Date.now()>deadline)throw new Error('consultation_cancelled');
           const status = await native.status({ token });
           phase(status.loaded?'understanding':'loading',status.loaded?'جار فهم السؤال والتخطيط':'جار تحميل النموذج المحلي');
-          if (!status.active || !status.installed || status.error) throw new Error('model_unavailable');
+          if (status.error) throw new Error(String(status.error));
+          if (!status.installed) throw new Error(String(status.last_operation_error || 'MODEL_MISSING'));
+          if (!status.active) throw new Error('MODEL_NOT_ACTIVE');
           phase(current.task,current.task==='plan'?'جار فهم السؤال والتخطيط':'جار تحليل الأدلة وتوليد الإجابة');
           const output = await native.generate({ token, prompt: current.prompt, task: current.task, max_tokens: current.max_tokens, allowed_product_ids: current.allowed_product_ids ?? [], allowed_claim_ids: current.allowed_claim_ids ?? [] });
           model_started=true;
@@ -127,7 +137,7 @@ export const localAI = {
 declare global { interface Window { MHLocalAI?: typeof localAI } }
 window.MHLocalAI = localAI;
 if (Capacitor.isNativePlatform()) {
-  native.addListener('downloadProgress', d => window.dispatchEvent(new CustomEvent('mh-ai-progress', { detail: `تم تنزيل ${(d.bytes / 1e6).toFixed(0)} من ${(d.total / 1e6).toFixed(0)} MB` }))).catch(() => {});
+  native.addListener('downloadProgress', d => window.dispatchEvent(new CustomEvent('mh-ai-progress', { detail: `تم تنزيل ${(d.bytes / 1e6).toFixed(0)} من ${(d.total / 1e6).toFixed(0)} MB${d.total>0?' ('+Math.min(100,100*d.bytes/d.total).toFixed(1)+'%)':''} — المتبقي ${(Math.max(0,d.total-d.bytes)/1e6).toFixed(0)} MB${Number.isFinite(d.bytes_per_second)?' — '+(d.bytes_per_second/1e6).toFixed(2)+' MB/s':''}` }))).catch(() => {});
   // No raw token is sent to the screen: output is buffered until the worker validates it.
   native.addListener('generationProgress', d => window.dispatchEvent(new CustomEvent('mh-ai-progress', { detail: `جارٍ التوليد والتحقق — ${d.tokens} رمز` }))).catch(() => {});
 }

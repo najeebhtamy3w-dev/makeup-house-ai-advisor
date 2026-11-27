@@ -236,3 +236,7 @@ ul.help{padding-inline-start:18px;line-height:1.8;font-size:14px}
 .bulkrow { gap: 10px; padding: 10px 4px; border-bottom: 1px solid rgba(0,0,0,.06); align-items: center; }
 .bulkrow input { width: 22px; height: 22px; }
 #codes-section .row input { flex: 1; min-width: 0; }
+
+/* Long Arabic/Latin diagnostic labels must remain inside narrow Android sheets. */
+.card button,.sheet button{white-space:normal;overflow-wrap:anywhere;max-width:100%}
+.card pre{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;direction:ltr;text-align:left}

@@ -27,13 +27,32 @@ jobs:
     if: github.ref == 'refs/heads/work-v32-generative-orchestrator' || github.ref == 'refs/heads/work-v32-unified-scientific-core'
     runs-on: ubuntu-24.04
     timeout-minutes: 50
+    outputs:
+      certificate_sha256: ${{ steps.engineering-build.outputs.certificate_sha256 }}
     steps:
       # Official repository tag refs independently resolved 2026-11-26; immutable pins.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+      # Isolated engineering key only: never upload this path or cache a production key.
+      # Exact branch-scoped key; no restore-keys crossing branches or identities.
+      - name: Restore engineering debug identity
+        id: engineering-debug-key
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/.android/debug.keystore
+          key: makeup-house-engineering-debug-v1-${{ github.ref_name }}
       - name: Build and independently inspect engineering APKs
+        id: engineering-build
+        env:
+          MH_DEBUG_KEY_CACHE_HIT: ${{ steps.engineering-debug-key.outputs.cache-hit }}
         run: bash scripts/ci-v32-build.sh
+      - name: Preserve engineering debug identity after verified build
+        if: success() && steps.engineering-debug-key.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/.android/debug.keystore
+          key: makeup-house-engineering-debug-v1-${{ github.ref_name }}
       - name: Preserve actual outputs and failure logs
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -42,3 +61,38 @@ jobs:
           path: artifacts/v3.2-ci/
           if-no-files-found: error
           retention-days: 30
+
+  engineering_identity_reuse:
+    name: Verify identity reuse in a separate runner
+    needs: engineering
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Restore exact engineering identity
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/.android/debug.keystore
+          key: makeup-house-engineering-debug-v1-${{ github.ref_name }}
+          fail-on-cache-miss: true
+      - name: Compare restored public certificate
+        env:
+          MH_EXPECTED_DEBUG_CERTIFICATE: ${{ needs.engineering.outputs.certificate_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json,os,re,subprocess
+          from pathlib import Path
+          expected=os.environ['MH_EXPECTED_DEBUG_CERTIFICATE']
+          assert re.fullmatch(r'[0-9a-f]{64}',expected),'MISSING_BUILD_CERTIFICATE'
+          key=Path.home()/'.android/debug.keystore'
+          assert key.is_file(),'ENGINEERING_DEBUG_KEY_CACHE_MISS'
+          key.chmod(0o600)
+          cert=subprocess.check_output([os.environ['JAVA_HOME_21_X64']+'/bin/keytool','-exportcert','-alias','androiddebugkey','-storepass','android','-keystore',str(key)],stderr=subprocess.DEVNULL)
+          actual=hashlib.sha256(cert).hexdigest()
+          assert actual==expected,'ENGINEERING_DEBUG_RESTORED_CERTIFICATE_MISMATCH'
+          result={'certificate_sha256':actual,'matches_verified_build_certificate':True,'separate_runner_cache_restore':'PASS','android_update_installation':'NOT_TESTED','dev7_update_compatibility':'NOT_INFERRED','private_key_uploaded':False}
+          print(json.dumps(result,sort_keys=True))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+           out.write('Engineering debug identity restored on a separate runner and matched the build certificate. No APK/device update test is implied. Certificate SHA-256: `'+actual+'`.\n')
+          PY

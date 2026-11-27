@@ -2,7 +2,9 @@ import {analyzeScientificSpecialist} from './scientific-specialists.ts';
 import {getStoredProductImages} from './product-attachments.ts';
 import type { DB } from '../db.ts';
 import { PRODUCT_SELECT,presentProduct,type ProductRow } from '../routes.ts';
-import { evaluate, type Need } from '../science/suitability.ts';
+import { evaluate, type Need, type Evaluation } from '../science/suitability.ts';
+import { parseIngredients } from '../science/ingredients.ts';
+import { classifyIngredients, inciList } from '../enrichment/identity.ts';
 import { parseNeed, norm } from '../advisor.ts';
 import { retrieveKnowledgeGraph } from './knowledge-links.ts';
 import { checkValidBatches } from './inventory.ts';
@@ -16,6 +18,43 @@ export function independentNeed(plan:ConsultationPlan,original:string):Need {
  if(plan.skin.includes('sensitive')&&!n.avoid.includes('fragrance'))n.avoid.push('fragrance');
  return n;
 }
+/** Independent interpretation of explicit free-from constraints; never infers clinical safety.
+ * FDA cosmetic label naming distinguishes ethanol/Alcohol Denat./SD Alcohol from fatty alcohols:
+ * https://www.fda.gov/cosmetics/cosmetics-labeling-claims/alcohol-free
+ * Ingredient absence below is bounded to a complete manager-verified INCI list, not analytical proof.
+ */
+function checkFreeConstraints(ev:Evaluation,plan:ConsultationPlan,original:string,ingredients:string):string[]{
+ const notes:string[]=[],tokens=inciList(ingredients),text=norm(original);
+ const complete=ev.formulation.status==='verified'&&classifyIngredients(ingredients).kind==='inci'&&!/(\.\.\.|…|\betc\b|\bother ingredients?\b|\bproprietary blend\b|\bpartial\b|\bincomplete\b|بقيه|جزئي|غير مكتمل)/i.test(norm(ingredients));
+ const uncertain=(why:string)=>{notes.push(why);ev.missing.push(why);if(ev.verdict!=='excluded')ev.verdict='insufficient';};
+ const exclude=(why:string)=>{notes.push(why);ev.exclusion_reasons.push(why);ev.verdict='excluded';};
+ if(plan.constraints.includes('alcohol_free')){
+  notes.push('تفسير شرط alcohol_free هنا: الإيثانول/الكحول الإيثيلي، بما فيه Alcohol Denat وSD Alcohol؛ وليس جميع الكحولات.');
+  const hits=tokens.filter(t=>/^(?:alcohol|ethanol|ethyl alcohol|alcohol denat(?:ured)?|denatured alcohol|sd alcohol(?:[- ]*\d+[a-z-]*)?)$/i.test(t));
+  if(hits.length)exclude('إيثانول/كحول إيثيلي مدرج يخالف الشرط: '+hits.join('، '));
+  else if(/(?:كل|جميع|اي)\s+(?:انواع\s+)?(?:ال)?كحول|\ball alcohols?\b|\bany alcohol\b/.test(text))uncertain('طلب استبعاد كل أنواع الكحول أوسع من تفسير الإيثانول المدعوم؛ يلزم توضيح الأنواع المقصودة.');
+  else if(!complete)uncertain('لا يمكن التحقق من شرط الإيثانول: يلزم INCI كامل موثق دون تعارض أو أجزاء ناقصة.');
+  else notes.push('لا يظهر الإيثانول في قائمة INCI الكاملة الموثقة؛ هذا لا يثبت خلو المنتج من جميع أنواع الكحول أو ملاءمته لكل بشرة.');
+  if(tokens.some(t=>/^(?:cetyl|cetearyl|stearyl|lanolin) alcohol$/.test(t)))ev.precautions.unshift('الكحولات الدهنية مثل Cetyl/Cetearyl/Stearyl مختلفة عن الإيثانول؛ وجودها لا يخالف هذا التفسير وحده ولا يثبت السلامة الفردية.');
+ }
+ if(plan.constraints.includes('oil_free')){
+  // A generic model label cannot decide which chemically different oil families the user means.
+  const mineral=/(?:بدون|بلا|خالي(?:ا)? من|لا اريد)\s+(?:ال)?(?:زيت|زيوت)(?:ا)?\s+(?:ال)?معدني(?:ه)?|\bmineral[- ]oil[- ]free\b|\b(?:without|no|avoid) mineral oils?\b/.test(text);
+  const essential=/(?:بدون|بلا|خالي(?:ا)? من|لا اريد)\s+(?:ال)?(?:زيت|زيوت)(?:ا)?\s+(?:ال)?عطري(?:ه)?|\bessential[- ]oil[- ]free\b|\b(?:without|no|avoid) essential oils?\b/.test(text);
+  if(!mineral&&!essential)uncertain('شرط oil_free يحتاج توضيح المقصود: الزيوت المعدنية أم العطرية أم نطاق آخر؛ لم يُفترض غياب أي فئة.');
+  else{
+   const mineralHits=tokens.filter(t=>/^(?:mineral oil|paraffinum liquidum|liquid paraffin|paraffin oil)$/.test(t));
+   const essentialHits=parseIngredients(ingredients).essentialOils;
+   const hits=[...(mineral?mineralHits:[]),...(essential?essentialHits:[])];
+   const scope=[...(mineral?['الزيوت المعدنية']:[]),...(essential?['الزيوت العطرية المصنفة']:[])].join(' و');
+   if(hits.length)exclude('مكوّن مدرج يخالف النطاق المحدد '+scope+': '+hits.join('، '));
+   else if(!complete)uncertain('يلزم INCI كامل موثق للتحقق من نطاق '+scope+'؛ لا يمكن استنتاج الغياب من قائمة ناقصة.');
+   else if(essential)uncertain('لا تظهر زيوت عطرية مصنفة في القائمة، لكن التصنيف المحلي غير شامل؛ لا يمكن إثبات شرط oil_free بهذا النطاق.');
+   else notes.push('لا يظهر زيت معدني بالأسماء المصنفة في INCI الموثق؛ لا يعني ذلك خلوه من الزيوت النباتية أو العطرية أو المشتقات غير المصنفة.');
+  }
+ }
+ return notes;
+}
 export function readProduct(db:DB,id:number,plan:ConsultationPlan,original:string):ProductFact|null {
  let p:any,scope:'local'|'global'=id>0?'local':'global';
  if(id>0){const row=db.prepare(`${PRODUCT_SELECT} WHERE products.id=? AND products.record_status='active'`).get(id) as ProductRow|undefined;if(!row)return null;p=presentProduct(row,72);}
@@ -23,10 +62,11 @@ export function readProduct(db:DB,id:number,plan:ConsultationPlan,original:strin
  if(p.verification!=='verified'||!p.ingredients?.trim())return null;
  const conflicts=id>0&&Boolean(db.prepare("SELECT 1 FROM enrichment_candidates WHERE barcode=? AND review_status='pending' AND conflict_note<>'' LIMIT 1").get(p.barcode??''));
  const ev=evaluate(p,independentNeed(plan,original),{conflict:conflicts});
+ const constraintNotes=checkFreeConstraints(ev,plan,original,p.ingredients);
  // Independent pre-check referral cannot be erased by a model plan.
  if(/حامل|حمل|مرضع|رضاع/.test(norm(original))&&/retinol|retino|adapalene|tretinoin/i.test(p.ingredients))ev.verdict='excluded';
  const availability=id>0?checkValidBatches(db,id).availability:'unknown';
- return {id,name:p.name,brand:p.brand,product_type:p.product_type,ingredients:p.ingredients.slice(0,700),verification:p.verification,availability,suitability:ev.verdict,reasons:ev.used_info.slice(0,5),precautions:ev.precautions.slice(0,4),scope,primary_image_id:scope==='local'&&Number.isSafeInteger(p.primary_image_id)?p.primary_image_id:null};
+ return {id,name:p.name,brand:p.brand,product_type:p.product_type,ingredients:p.ingredients.slice(0,700),verification:p.verification,availability,suitability:ev.verdict,reasons:[...constraintNotes,...ev.exclusion_reasons,...ev.missing,...ev.used_info].slice(0,5),precautions:ev.precautions.slice(0,4),scope,primary_image_id:scope==='local'&&Number.isSafeInteger(p.primary_image_id)?p.primary_image_id:null};
 }
 function searchProducts(db:DB,q:string,plan:ConsultationPlan,original:string,global:boolean):ProductFact[]{
  const terms=[...new Set(q.trim().split(/[\s,،;]+/).filter(t=>t.length>=2))].slice(0,6);

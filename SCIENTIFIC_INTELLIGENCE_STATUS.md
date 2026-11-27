@@ -12,3 +12,6 @@ V6.9 source integrity unit after dev.5 APK: exact NLM retracted-publication/retr
 ## Current V7.0 resumption
 
 See `docs/v3.2/v70-resumed/state.json` and fresh logs for current source/limits. Retained constraints now reach tools; essential-oil exclusion and unresolved-fallback relevance regressions pass. No intelligence gate or Samsung acceptance is upgraded.
+
+
+V7.6 current status: docs/v3.2/v76/state.json. New storage Gate05 PARTIAL pending realAndroid provider/reinstall/airplaneinference. OwnerSamsung dev7 navigation reported successful, modelinstallation FAIL and no rawinference; not a device semantic-quality judgment. No agent/science/vision PASS is upgraded. alcohol_free/oil_free now conservatively checked; narrow semantics and uncertainties retained.

@@ -1,3 +1,7 @@
+# Active V7.6 checkpoint
+
+SSOT docs/v3.2/v76/state.json supersedes older next-actions. Dev8/code13 source introduces actual SAF original storage + verifiedinternal runtime copy and robustshared downloader. FullAndroidbuild and newstableDebugcache identity validation pending. Do not uninstall ownerapp or delete oldweights. Current modelneedsinstallation onSamsung, so fieldnoinference is not modelquality evidence. Prior HostGate02FAIL retained.
+
 # Immediate next P0
 
 See docs/v3.2/v70-resumed/state.json. Android dev7/code12 is delivered from bcdf437f38dfcf82ec8c3695be666cb1bf8b4e7f/run45978899228; do not rebuild it unchanged. New6-call authority-only control is COMPLETE and NOT ADOPTED; full raw results preserved. Native prefill/sampler parity and official sampling controls are completed, not next tasks. Inspect model-native tool-call contract versus current planner before another implementation experiment. Original turns, evidence guards, prices exclusion, protected referrals and inventory authority remain mandatory. Intelligence Gate02 remains FAIL; no total completion claimed.

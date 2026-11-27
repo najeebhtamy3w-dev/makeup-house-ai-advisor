@@ -1,0 +1,16 @@
+Note: /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/android/app/src/main/java/com/makeuphouse/advisor/ResumableAssetDownload.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+PASS bounded206 segments continue with exact Range and If-Range
+PASS dropped200 body retained then resumed206
+PASS persistentEOF keeps bytes and source metadata
+PASS 200 ignores Range preserves existing bytes without truncate
+PASS 416 never destroys partial and valid complete bypasses network
+PASS malformed numeric and mismatched Content-Range rejected before write
+PASS expired signed redirect retries ORIGINAL pinned URL
+PASS ETag change does not append new representation
+PASS wrong hash and wrong GGUF never return installed result
+PASS cancellation preserves partial and affects only owning downloader
+PASS held regular descriptor alias resumes without sibling mutations
+PASS cancel cannot disconnect another concurrent download
+PASS metadata source mismatch and production HTTP rejected
+PASSED 13 real HTTP streaming/resume cases; fixtures=/tmp/mh-resume-test-3978460781464262240

@@ -8,7 +8,7 @@ mkdir -p "$OUTPUT/logs"
 trap 'printf "%s\n" "${BASH_COMMAND}" > "$OUTPUT/logs/last-command.txt"' ERR
 exec > >(tee -a "$OUTPUT/logs/pipeline.log") 2>&1
 [[ "${GITHUB_REF:-}" == refs/heads/work-v32-generative-orchestrator || "${GITHUB_REF:-}" == refs/heads/work-v32-unified-scientific-core ]] || { echo 'Dedicated engineering branch required'; exit 1; }
-# Reject signing overrides. Debug's automatically generated key belongs only to isolated testing.
+# Reject production signing overrides. The cached Debug key belongs only to isolated testing.
 [[ -z "${MH_KEYSTORE_PROPERTIES:-}" && ! -f android/keystore.properties ]] || { echo 'Unexpected signing configuration'; exit 1; }
 # Select a preinstalled cached Node22/24 with node:sqlite support; do not silently use Node20.
 TASK_NODE_BIN="$(python3 - <<'NODE'
@@ -31,9 +31,19 @@ export JAVA_HOME="${JAVA_HOME_21_X64:?Runner JDK21 missing}"
 export PATH="$JAVA_HOME/bin:$PATH"
 export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:?Android SDK missing}}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
+# A public certificate pin can be committed after the first verified bootstrap.
+# A cache miss with a pin is an error, never permission to rotate engineering identity.
+TASK_DEBUG_KEYSTORE="$HOME/.android/debug.keystore"
+TASK_DEBUG_PIN="$REPO_ROOT/android/engineering-debug-certificate.sha256"
+if [[ -f "$TASK_DEBUG_PIN" && ! -f "$TASK_DEBUG_KEYSTORE" ]]; then
+  echo 'ENGINEERING_DEBUG_KEY_MISSING: restore the cached key; do not rotate the pinned identity.'
+  exit 1
+fi
+export TASK_DEBUG_KEYSTORE TASK_DEBUG_PIN
 node --version; npm --version; java -version
 npm ci
 npm test 2>&1 | tee "$OUTPUT/logs/tests.log"
+bash scripts/test-resumable-download.sh 2>&1 | tee "$OUTPUT/logs/resumable-download-tests.log"
 python3 -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee "$OUTPUT/logs/ocr-integrity-tests.log"
 npm run typecheck 2>&1 | tee "$OUTPUT/logs/typecheck.log"
 npm run android:sync 2>&1 | tee "$OUTPUT/logs/android-sync.log"
@@ -48,26 +58,52 @@ mkdir -p "$TASK_TEMP/llama"
 tar -xzf "$TASK_TEMP/llama.tar.gz" -C "$TASK_TEMP/llama" --strip-components=1
 export MH_LLAMA_SOURCE_DIR="$TASK_TEMP/llama"
 # Invoke the repository wrapper: it pins Gradle8.14.3. No insecure TLS/proxy workarounds.
-(cd android && bash ./gradlew --no-daemon --max-workers=2 --console=plain :app:assembleRelease :app:assembleDebug) 2>&1 | tee "$OUTPUT/logs/android-build.log"
+(cd android && bash ./gradlew --no-daemon --max-workers=2 --console=plain :app:assembleDebug) 2>&1 | tee "$OUTPUT/logs/android-build.log"
 export OUTPUT REPO_ROOT
 python3 - <<'PY'
 from pathlib import Path
-import os,subprocess,json,hashlib,zipfile,shutil,datetime
+import os,subprocess,json,hashlib,zipfile,shutil,datetime,re
 repo=Path(os.environ['REPO_ROOT']);out=Path(os.environ['OUTPUT']);sdk=Path(os.environ['ANDROID_HOME']);bt=sdk/'build-tools/36.0.0'
 def run(args):
  r=subprocess.run([str(a) for a in args],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
  return {'exit_code':r.returncode,'output':r.stdout}
+# Version metadata comes from the actual source used by Gradle, never a stale CI literal.
+gradle=(repo/'android/app/build.gradle').read_text()
+version_name=re.search(r'^\s*versionName\s+"([^"\r\n]+)"',gradle,re.M).group(1)
+version_code=int(re.search(r'^\s*versionCode\s+(\d+)\s*$',gradle,re.M).group(1))
+assert json.loads((repo/'package.json').read_text())['version']==version_name,'Package/Android version disagreement'
+version_match=re.fullmatch(r'([0-9]+\.[0-9]+\.[0-9]+)-dev\.([0-9]+)',version_name)
+assert version_match,'Engineering source version required'
+artifact_version=version_match.group(1)+'_DEV'+version_match.group(2)
+# Inspect public DER certificate only. The private keystore is never copied into OUTPUT.
+key=Path(os.environ['TASK_DEBUG_KEYSTORE']);assert key.is_file(),'ENGINEERING_DEBUG_KEY_MISSING'
+key.chmod(0o600)
+cert=subprocess.check_output([os.environ['JAVA_HOME']+'/bin/keytool','-exportcert','-alias','androiddebugkey','-storepass','android','-keystore',str(key)],stderr=subprocess.DEVNULL)
+key_certificate=hashlib.sha256(cert).hexdigest()
+pin_path=Path(os.environ['TASK_DEBUG_PIN']);expected_pin=pin_path.read_text().strip().lower() if pin_path.is_file() else None
+if expected_pin:
+ assert re.fullmatch(r'[0-9a-f]{64}',expected_pin),'INVALID_ENGINEERING_DEBUG_CERTIFICATE_PIN'
+ assert key_certificate==expected_pin,'ENGINEERING_DEBUG_CERTIFICATE_PIN_MISMATCH'
+cache_hit=os.environ.get('MH_DEBUG_KEY_CACHE_HIT')=='true'
+dev7_certificate='da9d4d6b4bdafec013c5b2963204b31dbfff7b016df648e13d03dd77c1272261'
+signing={'certificate_sha256':key_certificate,'cache_restored':cache_hit,'expected_certificate_pin':expected_pin,'dev7_certificate_sha256':dev7_certificate,'certificate_matches_dev7':key_certificate==dev7_certificate,'dev7_private_key_recovered':key_certificate==dev7_certificate,'identity_state':'PINNED_CACHE_RESTORED' if cache_hit and expected_pin else 'CACHE_RESTORED_UNPINNED' if cache_hit else 'BOOTSTRAP_UNPINNED','update_compatibility':'NOT_PROVEN: certificate match alone does not prove data/model migration','two_independent_runs_verified':False,'cache_limit':'Cache can expire or be evicted. Preserve a secure external backup before claiming permanent key retention; a committed public pin makes subsequent cache loss fail closed.'}
+(out/'ENGINEERING_DEBUG_CERTIFICATE.sha256').write_text(key_certificate+'\n')
+(out/'DEBUG_SIGNING_STATUS.json').write_text(json.dumps(signing,indent=2)+'\n')
+if os.environ.get('GITHUB_OUTPUT'):
+ with open(os.environ['GITHUB_OUTPUT'],'a') as step_output:step_output.write('certificate_sha256='+key_certificate+'\n')
 results={}
 for kind,relative,identity,version,debug in [
- ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.7',False),
- ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.7-test',True)]:
+ ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering',version_name+'-test',True)]:
  f=repo/'android/app/build/outputs/apk'/relative
  assert f.is_file(),str(f)
  a=run([bt/'aapt','dump','badging',f]);assert a['exit_code']==0
- assert f"name='{identity}'" in a['output'] and "versionCode='12'" in a['output'] and f"versionName='{version}'" in a['output']
+ assert f"name='{identity}'" in a['output'] and f"versionCode='{version_code}'" in a['output'] and f"versionName='{version}'" in a['output']
  assert ('application-debuggable' in a['output'])==debug
  alignment=run([bt/'zipalign','-c','-P','16','4',f]);assert alignment['exit_code']==0
  signature=run([bt/'apksigner','verify','--verbose','--print-certs',f]);assert (signature['exit_code']==0)==debug
+ if debug:
+  cert_match=re.search(r'certificate SHA-256 digest: ([0-9a-f]{64})',signature['output'])
+  assert cert_match and cert_match.group(1)==key_certificate,'APK_ENGINEERING_CERTIFICATE_MISMATCH'
  with zipfile.ZipFile(f) as z:
   assert z.testzip() is None
   libs=[n for n in z.namelist() if n.startswith('lib/') and n.endswith('.so')]
@@ -91,7 +127,7 @@ for kind,relative,identity,version,debug in [
  readelf=run([sdk/'ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf','-lW',elf]);assert readelf['exit_code']==0
  loads=[s for s in readelf['output'].splitlines() if s.strip().startswith('LOAD')];assert loads and all(int(s.split()[-1],16)>=16384 for s in loads)
  elf.unlink()
- dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV7_{kind}.apk';shutil.copy2(f,dest)
+ dest=out/f'MAKEUP_HOUSE_ADVISOR_{artifact_version}_{kind}.apk';shutil.copy2(f,dest)
  results[kind]={'file':dest.name,'bytes':dest.stat().st_size,'sha256':hashlib.file_digest(dest.open('rb'),'sha256').hexdigest(),'aapt':a,'signature':signature,'zip_alignment':alignment,'elf_headers':readelf,'all_elf_headers':all_elf_headers,'embedded_assets':embedded}
 sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
 manifest={'git_sha':sha,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'acceptance':'ENGINEERING_ONLY_NOT_PRODUCTION_APPROVED','physical_samsung':'NOT TESTED','permanent_signing':'DEFERRED_BY_OWNER','actual_artifacts':results}
@@ -100,7 +136,7 @@ manifest={'git_sha':sha,'utc':datetime.datetime.now(datetime.timezone.utc).isofo
 commit=os.environ.get('GITHUB_SHA') or subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
 subprocess.run(['git','archive','--format=zip','--output='+str(out/'MAKEUP_HOUSE_V32_SOURCE.zip'),commit],cwd=repo,check=True)
 source=out/'MAKEUP_HOUSE_V32_SOURCE.zip'
-manifest={'source_commit':commit,'status':'ENGINEERING_TEST_ONLY','production_approved':False,'model_reasoning_after_template_fix':'PARTIAL: Host real inference evidence retained; intelligence and Samsung acceptance not passed','physical_samsung':'NOT TESTED','permanent_signing':'DEFERRED BY OWNER','apks':results,'source_zip':{'file':source.name,'sha256':hashlib.file_digest(source.open('rb'),'sha256').hexdigest()},'ci_run':os.environ.get('GITHUB_RUN_ID')}
+manifest={'source_commit':commit,'status':'ENGINEERING_TEST_ONLY','production_approved':False,'model_reasoning_after_template_fix':'PARTIAL: Host real inference evidence retained; intelligence and Samsung acceptance not passed','physical_samsung':'NOT TESTED','permanent_signing':'DEFERRED BY OWNER','apks':results,'source_zip':{'file':source.name,'sha256':hashlib.file_digest(source.open('rb'),'sha256').hexdigest()},'ci_run':os.environ.get('GITHUB_RUN_ID'),'version_name':version_name,'version_code':version_code,'engineering_debug_signing':signing}
 (out/'DELIVERY_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
 with (out/'SHA256SUMS.txt').open('a') as checks:checks.write(manifest['source_zip']['sha256']+'  '+source.name+'\n')
 (out/'FINAL_REPORT_AR.md').write_text(f'''# تسليم هندسي V3.2 — Unified Core
@@ -115,7 +151,7 @@ with (out/'SHA256SUMS.txt').open('a') as checks:checks.write(manifest['source_zi
 
 **NOT TESTED:** تشغيل هذا APK على Samsung، الأداء والذاكرة والبطارية والحرارة، العمل في وضع الطيران، قبول OCR على Android، المراجعة العلمية واللغوية المؤهلة. لا توجد شهادة تكافؤ مع ChatGPT.
 
-**DEFERRED BY OWNER:** التوقيع الإنتاجي مؤجل وفق قرار المالك، وليس عائقًا للتطوير. APK غير الموقع لا يثبت مباشرة. Debug يحمل `com.makeuphouse.advisor.engineering` للتجربة المنفصلة؛ لا يحدّث التطبيق الدائم. مفتاح Debug المؤقت قد لا يطابق نسخة اختبار سابقة. عند تعارض التوقيع لا تحذف التطبيق أو البيانات؛ استخدم المفتاح الصحيح. لا يتضمن التسليم أوزان النموذج.
+**DEFERRED BY OWNER:** التوقيع الإنتاجي مؤجل وفق قرار المالك، وليس عائقًا للتطوير. APK غير الموقع لا يثبت مباشرة. Debug يحمل `com.makeuphouse.advisor.engineering` للتجربة المنفصلة؛ لا يحدّث التطبيق الدائم. مفتاح Debug محفوظ في مخبأ هندسي منفصل عند نجاح البناء؛ راجع DEBUG_SIGNING_STATUS.json لمطابقة الشهادة. لا يثبت المخبأ وحده استمرارية التوقيع، وقد لا يطابق dev.7 أو نسخة اختبار سابقة. يجب تثبيت البصمة العامة في المصدر بعد أول تهيئة ناجحة، والاحتفاظ بنسخة آمنة خارج المخبأ قبل ادعاء الدوام. عند تعارض التوقيع لا تحذف التطبيق أو البيانات؛ استخدم المفتاح الصحيح. لا يتضمن التسليم أوزان النموذج.
 
 يحافظ التطبيق الدائم عند توقيعه بالمفتاح الصحيح على هويته ومسار الأوزان والبيانات؛ لم يُختبر التحديث الفعلي على الهاتف. راجع DELIVERY_MANIFEST.json وSHA256SUMS.txt للتحقق من الملفات والتوقيع.
 ''')

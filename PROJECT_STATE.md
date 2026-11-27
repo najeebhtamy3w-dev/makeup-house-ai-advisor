@@ -1,3 +1,7 @@
+# Active V7.6 checkpoint
+
+SSOT docs/v3.2/v76/state.json supersedes older next-actions. Dev8/code13 source introduces actual SAF original storage + verifiedinternal runtime copy and robustshared downloader. FullAndroidbuild and newstableDebugcache identity validation pending. Do not uninstall ownerapp or delete oldweights. Current modelneedsinstallation onSamsung, so fieldnoinference is not modelquality evidence. Prior HostGate02FAIL retained.
+
 # V7.0 resumed — current checkpoint
 
 SSOT: `docs/v3.2/v70-resumed/state.json`. Source targets dev.7/code12; fresh305/305 regression and10/10 focused tests. Dev.7 Android run45978899228 SUCCESS; artifact15187914550/sourcebcdf437f38dfcf82ec8c3695be666cb1bf8b4e7f. APK hash/certificate and all966 archived source blobs verified. Do not rebuild unchanged code. Local unpushed raw experiments lost on environment recreation are explicitly unverified; preserve remote evidence. Gate02 remains FAIL; other intelligence/device gates not promoted. Production signing deferred.
