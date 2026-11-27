@@ -1,0 +1,18 @@
+✔ legacy correction replaces the addressed fact and retains every unrelated field (4.114994ms)
+✔ targeted correction, selective constraint removal and later enrichment preserve the thread (0.855844ms)
+✔ only explicit clearing forgets a field and never discards safety referrals or product identities (0.658504ms)
+✔ explicit empty mask is a no-op for extracted facts and patches do not mutate input arrays (0.376626ms)
+✔ patch schema rejects unsupported fields, contradictory operations and implicit empty replacement (1.091566ms)
+✔ public multi-turn corrections persist unrelated facts and survive archive resumption (41.852071ms)
+✔ rejected plan memory does not contaminate a repaired clarification (23.926075ms)
+✔ follow-up tools and recommendation validation enforce retained fragrance and local-stock constraints (319.475066ms)
+✔ structured essential-oil avoidance excludes documented aromatic oil but preserves a plain formulation (211.93774ms)
+✔ unresolved short follow-up fallback asks clarification without unrelated evidence or products (58.774916ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1237.998451

@@ -1,3 +1,7 @@
+# V7.0 resumed — current checkpoint
+
+SSOT: `docs/v3.2/v70-resumed/state.json`. Source targets dev.7/code12; fresh305/305 regression and10/10 focused tests. Dev.6 Android run45942224953 SUCCESS; recover newer CI after publishing current source before rebuilding. Local unpushed raw experiments lost on environment recreation are explicitly unverified; preserve remote evidence. Gate02 remains FAIL; other intelligence/device gates not promoted. Production signing deferred.
+
 # Resume without restarting
 
 1. Read PROJECT_STATE.md, RELEASE_MANIFEST.json and git status/log. Preserve newer changes and never reset or force push.

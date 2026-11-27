@@ -25,9 +25,6 @@ Added exact normalized pending-question repeat rejection across plan/decision/se
 The isolated two-stage paraphrase experiment did not improve shared acceptance (1/3 weak plan checks, same as baseline), introduced incorrect paraphrases and repeated questions; NOT ADOPTED. Original questions/history and all raw failures remain retained.
 
 
-## V7.0 active checkpoint — 2026-11-27
-Authoritative current incremental recovery: `docs/v3.2/v70-checkpoint/checkpoint.json`; fresh logs alongside it. Recovered remote HEAD b160e3e28547eb742ad20ad18d655c142a21dbfd; no prior local modifications overwritten. Dev.5 run45939536985 verified success through GitHub jobs and artifact metadata; no rebuild of unchanged dev.5.
-Implemented targeted update_fields/clear_fields across model contract, native grammar and memory application. Legacy correction preserves unrelated nonempty context; erasure requires explicit field. Rejected plans restore context and usable observations before repair, while tool execution audit and budgets remain retained. Public multi-turn/archive recovery and rejected-plan regression pass.
-Scientific quarantine now propagates across valid normalized DOI/PMID identity links, preserves warning source URLs and human-reviewed knowledge. Four missing behaviors reproduced before fix.
-302/302 software tests, typecheck and mobile assets PASS. These are not real-model quality acceptance. Exact-input grammar controls in docs/v3.2/v70-grammar-control show removing grammar alone does NOT fix omission/repetition and weakens schema/policy. Uses recovered older Host binary, clearly labeled; holdout untouched. Gate02 remains FAIL, scientific/multimodal gates retain prior partial/unverified states, Samsung NOT TESTED. Baseline model unchanged.
-Source targets dev.6/code11; APK not built at this checkpoint. Production signing remains deferred. Next: finish fresh Native build/current-source inference, publish verified source, inspect CI and deliver actual APK, then continue independent semantic and scientific work.
+## Current V7.0 resumption
+
+See `docs/v3.2/v70-resumed/state.json` and fresh logs for current source/limits. Retained constraints now reach tools; essential-oil exclusion and unresolved-fallback relevance regressions pass. No intelligence gate or Samsung acceptance is upgraded.

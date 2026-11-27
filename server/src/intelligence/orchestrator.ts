@@ -72,6 +72,12 @@ function persist(db:DB,r:Run,ctx:ConsultationMemory,provenance:Provenance,diag:u
 function fallback(db:DB,r:Run,reason:string,provenance:Provenance='deterministic_fallback'){
  const products=()=> (db.prepare(`${PRODUCT_SELECT} WHERE products.record_status='active'`).all() as unknown as ProductRow[]).map(p=>presentProduct(p,72));
  const answer=answerCp07(db,r.question,r.session.ctx,{products});
+ // An unresolved subject cannot authorize unrelated top-ranked scientific advice.
+ if(answer.understanding.intent==='unclear'&&!answer.understanding.concerns.length&&!answer.understanding.ingredients.length&&!answer.understanding.requested_product_type&&answer.understanding.conversation_context.domain==='general'){
+  const question='ما الحالة المقصودة وما الذي تريد معرفته عنها؟';
+  answer.sections=[{kind:'insufficient',title:'السياق غير كافٍ',items:[{text:'تعذر على المسار التوليدي إكمال الفهم، والسياق المتاح للمحرك المعرفي لا يكفي لاختيار نصيحة علمية مرتبطة بسؤالك.',source_ids:[]}]},{kind:'follow_up',title:'توضيح مطلوب',items:[{text:question,source_ids:[]}]}];
+  answer.sources=[];answer.used_claim_ids=[];answer.products=null;answer.evidence_status='none';answer.follow_up={question,choices:[]};
+ }
  // Legacy fallback may display products, but must never assert local availability without valid batches.
  if(answer.products)for(const p of answer.products.items){const fresh=readProduct(db,p.id,r.plan??Plan.parse({intent:'consultation'}),r.question);p.availability=fresh?.availability??'unknown';p.availability_note='التوفر المحلي وفق الدفعات الصالحة فقط';}
  // Preserve the existing advisor's multi-turn state when the model is unavailable or rejected.
@@ -173,7 +179,9 @@ export function advanceConsultation(db:DB,userId:number,input:{ticket:string;raw
  if(p.question&&!safeQuestion(p.question,r.question))throw new Error('unsafe_question');
    if(p.intent==='clarify'&&!p.question.trim())throw new Error('clarification_question_missing');
    if(p.intent==='out_of_scope')return fallback(db,r,'model_scope','policy_bypass');
-   r.plan=p;r.memory=mergeMemory(r,p);
+   r.memory=mergeMemory(r,p);
+   // Tools and final checks must enforce retained user constraints.
+   r.plan={...p,skin:r.memory.skin as ConsultationPlan['skin'],hair:r.memory.hair as ConsultationPlan['hair'],concerns:r.memory.concerns as ConsultationPlan['concerns'],ingredients:r.memory.ingredients,constraints:r.memory.constraints as ConsultationPlan['constraints']};
    if(p.intent==='clarify'||(p.missing.length&&p.question&&p.tools.length===0)){const d=Decision.parse({clarification:p.question});return render(db,r,d,{facts:new Map(),products:new Map()});}
    if(!p.tools.length)throw new Error('plan_has_no_tools');
    runTools(db,r,p.tools);r.stage='decision';return request(db,r);

@@ -1,0 +1,33 @@
+{
+  "branch": "work-v32-unified-scientific-core",
+  "recovered_remote": "1a8a941da2b9c507fe5a3b023a8ed46c13fd3478",
+  "last_successful_android_run": 45942224953,
+  "last_successful_android_artifact": 15172648555,
+  "last_successful_android_version": "3.2.0-dev.6",
+  "source_version": "3.2.0-dev.7",
+  "version_code": 12,
+  "fresh_tests": {
+    "focused": 10,
+    "regression": 305,
+    "failed": 0
+  },
+  "conversational_gate": "FAIL;no new intelligence PASS",
+  "scientific_gate": "PARTIAL",
+  "multimodal_gate": "PARTIAL",
+  "samsung": "NOT TESTED",
+  "production_signing": "DEFERRED_BY_OWNER",
+  "model": "Qwen3.5-2B baseline retained; no candidate promotion",
+  "recovered_functional_changes": [
+    "retained context is applied to actual product tools and final validator",
+    "no_essential_oil mapped to existing independent ingredient evaluator",
+    "unresolved fallback suppresses unrelated scientific advice and sources"
+  ],
+  "lost_unpushed_evidence": "Previous local dev7 commit f7851f3 and v70-current-main/extraction2B/extraction4B raw folders were not uploaded before environment recreation; not reconstructed or counted as durable acceptance evidence. Existing remote v69-main-ui and v70-grammar-control preserved.",
+  "remaining_limits": [
+    "alcohol_free/oil_free are not independently enforced by current ingredient evaluator",
+    "scientific RAG semantic/deep synthesis and agents not broadly accepted",
+    "VLM/product field acceptance incomplete",
+    "conversational root cause still unresolved; safeguards are not semantic understanding"
+  ],
+  "next": "Publish current dev7 source and verify exact tree; recover Android workflow/artifact; deliver actual Debug APK with manifest; continue model/runtime intelligence work independently."
+}

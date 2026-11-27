@@ -59,12 +59,12 @@ def run(args):
  return {'exit_code':r.returncode,'output':r.stdout}
 results={}
 for kind,relative,identity,version,debug in [
- ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.6',False),
- ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.6-test',True)]:
+ ('UNSIGNED_ENGINEERING','release/app-release-unsigned.apk','com.makeuphouse.advisor','3.2.0-dev.7',False),
+ ('DEBUG_ISOLATED_TEST_ONLY','debug/app-debug.apk','com.makeuphouse.advisor.engineering','3.2.0-dev.7-test',True)]:
  f=repo/'android/app/build/outputs/apk'/relative
  assert f.is_file(),str(f)
  a=run([bt/'aapt','dump','badging',f]);assert a['exit_code']==0
- assert f"name='{identity}'" in a['output'] and "versionCode='11'" in a['output'] and f"versionName='{version}'" in a['output']
+ assert f"name='{identity}'" in a['output'] and "versionCode='12'" in a['output'] and f"versionName='{version}'" in a['output']
  assert ('application-debuggable' in a['output'])==debug
  alignment=run([bt/'zipalign','-c','-P','16','4',f]);assert alignment['exit_code']==0
  signature=run([bt/'apksigner','verify','--verbose','--print-certs',f]);assert (signature['exit_code']==0)==debug
@@ -91,7 +91,7 @@ for kind,relative,identity,version,debug in [
  readelf=run([sdk/'ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf','-lW',elf]);assert readelf['exit_code']==0
  loads=[s for s in readelf['output'].splitlines() if s.strip().startswith('LOAD')];assert loads and all(int(s.split()[-1],16)>=16384 for s in loads)
  elf.unlink()
- dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV6_{kind}.apk';shutil.copy2(f,dest)
+ dest=out/f'MAKEUP_HOUSE_ADVISOR_3.2.0_DEV7_{kind}.apk';shutil.copy2(f,dest)
  results[kind]={'file':dest.name,'bytes':dest.stat().st_size,'sha256':hashlib.file_digest(dest.open('rb'),'sha256').hexdigest(),'aapt':a,'signature':signature,'zip_alignment':alignment,'elf_headers':readelf,'all_elf_headers':all_elf_headers,'embedded_assets':embedded}
 sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
 manifest={'git_sha':sha,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'acceptance':'ENGINEERING_ONLY_NOT_PRODUCTION_APPROVED','physical_samsung':'NOT TESTED','permanent_signing':'DEFERRED_BY_OWNER','actual_artifacts':results}

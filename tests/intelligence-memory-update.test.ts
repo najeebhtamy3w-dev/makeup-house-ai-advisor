@@ -6,6 +6,8 @@ import { updateConsultationMemory } from '../server/src/intelligence/memory-upda
 import { openDb } from '../server/src/db.ts';
 import { startConsultation, advanceConsultation } from '../server/src/intelligence/orchestrator.ts';
 import { saveConsultation, resumeConsultation } from '../server/src/intelligence/saved-conversations.ts';
+import { boot } from './helpers.ts';
+import { independentNeed, readProduct } from '../server/src/intelligence/tools.ts';
 
 function prior():ConsultationMemory{return {...EMPTY_MEMORY,skin:['sensitive'],hair:['oily','dry'],concerns:['hair_loss'],ingredients:['glycerin'],constraints:['fragrance_free','sulfate_free'],product_refs:[{id:8,name:'observed product'}],protected_referrals:['protected referral'],recent_turns:[{role:'user',text:'prior context'}]};}
 
@@ -91,5 +93,59 @@ test('rejected plan memory does not contaminate a repaired clarification',()=>{
   assert.equal(final.intelligence.tool_calls.length,1,'executed read-only tool remains in attempt telemetry');assert.equal(final.intelligence.model_invocations,2,'rejected invocation remains in accounting');
   const stored=JSON.parse((db.prepare('SELECT state_json FROM intelligence_memory WHERE session_id=?').get(first.session_id) as {state_json:string}).state_json);
   assert.deepEqual(stored.skin,['sensitive']);assert.deepEqual(stored.hair,[]);assert.deepEqual(stored.constraints,['fragrance_free']);
+ }finally{db.close();}
+});
+
+test('follow-up tools and recommendation validation enforce retained fragrance and local-stock constraints',async()=>{
+ const t=await boot();
+ try{
+  const products=[] as number[];
+  for(const ingredients of ['Aqua, Glycerin, Parfum','Aqua, Glycerin']){
+   const added=await t.call('POST','/api/products',{token:t.manager,body:{name:'ContextSafetyFixture '+products.length,ingredients,verification:'verified',source_url:'https://example.test/synthetic-fixture'}});
+   assert.equal(added.status,200);products.push(added.json.id);
+  }
+  const first=startConsultation(t.db,1,{message:'أريد عناية بدون عطر ومن المتوفر عندكم فقط'});
+  const seeded=advanceConsultation(t.db,1,{ticket:first.ticket,raw:JSON.stringify({intent:'clarify',constraints:['fragrance_free','local_only'],missing:['goal'],question:'ما هدف العناية الأساسي؟'})});
+  assert.equal(seeded.kind,'final');
+  const followup=startConsultation(t.db,1,{session_id:first.session_id,message:'أحتاج ترطيبًا، ابحث عن ContextSafetyFixture'});
+  const decision=advanceConsultation(t.db,1,{ticket:followup.ticket,raw:JSON.stringify({intent:'consultation',tools:[{name:'search_local_products',query:'ContextSafetyFixture'},{name:'retrieve_scientific_evidence',query:'ترطيب البشرة الجافة'}]})});
+  assert.equal(decision.kind,'request_model');assert.equal(decision.task,'decision');
+  const data=JSON.parse(decision.prompt.split('<|im_start|>user\n')[1].split('\n/no_think')[0]);
+  const found=data.observations.flatMap((o:any)=>o.products);
+  assert.equal(found.find((p:any)=>p.id===products[0])?.suitability,'excluded','retained fragrance constraint reaches actual product evaluation');
+  assert.deepEqual(data.plan.constraints,['fragrance_free','local_only'],'effective tool plan retains constraints despite empty follow-up extraction');
+  const availableCandidate=found.find((p:any)=>p.id===products[1]);assert.ok(availableCandidate);assert.equal(availableCandidate.availability,'unknown');
+  const fact=data.observations.flatMap((o:any)=>o.facts)[0];assert.ok(fact,'actual retrieval returns an observed scientific claim');
+  const retry=advanceConsultation(t.db,1,{ticket:decision.ticket,raw:JSON.stringify({recommendations:[{product_id:products[1],claim_ids:[fact.id]}]})});
+  assert.equal(retry.kind,'request_model');assert.match(retry.prompt,/unavailable_product/,'retained local_only independently rejects unproven stock');
+ }finally{await t.close();}
+});
+
+test('structured essential-oil avoidance excludes documented aromatic oil but preserves a plain formulation',async()=>{
+ const plan=Plan.parse({intent:'consultation',constraints:['no_essential_oil']});
+ assert.deepEqual(independentNeed(plan,'قارن المنتجين').avoid,['essential_oil'],'structured constraint uses the existing ingredient avoidance contract');
+ const t=await boot();
+ try{
+  const ids=[] as number[];
+  for(const ingredients of ['Aqua, Glycerin, Lavandula Angustifolia Oil','Aqua, Glycerin']){
+   const added=await t.call('POST','/api/products',{token:t.manager,body:{name:'EssentialOilFixture '+ids.length,ingredients,verification:'verified',source_url:'https://example.test/synthetic-fixture'}});
+   assert.equal(added.status,200);ids.push(added.json.id);
+  }
+  assert.equal(readProduct(t.db,ids[0],plan,'قارن المنتجين')?.suitability,'excluded');
+  assert.notEqual(readProduct(t.db,ids[1],plan,'قارن المنتجين')?.suitability,'excluded');
+ }finally{await t.close();}
+});
+
+test('unresolved short follow-up fallback asks clarification without unrelated evidence or products',()=>{
+ const db=openDb(':memory:');
+ try{
+  db.prepare("INSERT INTO users(id,username,display_name,role,password_hash,created_at) VALUES (1,'unresolved-fixture','اختبار','staff','synthetic-not-a-password',?)").run(new Date().toISOString());
+  const first=startConsultation(db,1,{message:'شعري يتساقط وأريد أفهم كيف تساعدني'});
+  const seeded=advanceConsultation(db,1,{ticket:first.ticket,raw:JSON.stringify({intent:'clarify',question:'ما نوع الشعر الحالي؟'})});
+  assert.equal(seeded.kind,'final');
+  const turn=startConsultation(db,1,{session_id:first.session_id,message:'بدأ بشكل سريع قبل نصف شهر'});
+  const final=advanceConsultation(db,1,{ticket:turn.ticket,raw:'',failure:'model_unavailable'});
+  assert.equal(final.kind,'final');assert.equal(final.intelligence.provenance,'deterministic_fallback');
+  assert.deepEqual(final.answer.used_claim_ids,[]);assert.deepEqual(final.answer.sources,[]);assert.equal(final.answer.evidence_status,'none');assert.equal(final.answer.products,null);assert.ok(final.answer.follow_up?.question);
  }finally{db.close();}
 });

@@ -9,7 +9,7 @@ import { checkValidBatches } from './inventory.ts';
 import type { ConsultationPlan,ConsultationMemory,ToolObservation,SafeToolCall,ProductFact,EvidenceFact } from './contracts.ts';
 
 export function independentNeed(plan:ConsultationPlan,original:string):Need {
- const labels:Record<string,string>={dry:'جافة',oily:'دهنية',combination:'مختلطة',sensitive:'حساسة',fragrance_free:'بدون عطر',sulfate_free:'بدون سلفات'};
+ const labels:Record<string,string>={dry:'جافة',oily:'دهنية',combination:'مختلطة',sensitive:'حساسة',fragrance_free:'بدون عطر',sulfate_free:'بدون سلفات',no_essential_oil:'بدون زيوت عطرية'};
  const text=norm(original+' '+[...plan.skin,...plan.hair,...plan.constraints].map(x=>labels[x]??x).join(' '));
  const n=parseNeed(text,[]); // validation only; does not decide tools or rank recommendations
  n.hairDry=plan.hair.includes('dry')||plan.hair.includes('damaged');
