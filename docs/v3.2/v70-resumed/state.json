@@ -29,5 +29,16 @@
     "VLM/product field acceptance incomplete",
     "conversational root cause still unresolved; safeguards are not semantic understanding"
   ],
-  "next": "Publish current dev7 source and verify exact tree; recover Android workflow/artifact; deliver actual Debug APK with manifest; continue model/runtime intelligence work independently."
+  "next": "Publish current dev7 source and verify exact tree; recover Android workflow/artifact; deliver actual Debug APK with manifest; continue model/runtime intelligence work independently.",
+  "native_host_lifecycle": {
+    "checks": 11,
+    "status": "PASS",
+    "evidence": "docs/v3.2/v70-resumed-native",
+    "android_acceptance": false
+  },
+  "dev7_build": {
+    "source_commit": "bcdf437f38dfcf82ec8c3695be666cb1bf8b4e7f",
+    "run": 45978899228,
+    "status": "IN_PROGRESS"
+  }
 }
