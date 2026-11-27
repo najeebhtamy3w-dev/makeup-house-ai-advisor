@@ -47,15 +47,30 @@ export interface ResearchPublication {
 }
 function identity(e:IndexedEvidence){
  const pmid=e.pmid??e.url.match(/^https:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/(\d+)\/?$/)?.[1];
- return{pmid:pmid&&/^\d{1,12}$/.test(pmid)?pmid:null,doi:e.doi?.toLowerCase()??null};
+ const doi=typeof e.doi==='string'?e.doi.trim().toLowerCase():'';
+ return{pmid:pmid&&/^\d{1,12}$/.test(pmid)?pmid:null,doi:/^10\.\d{4,9}\/[^\s<>]+$/.test(doi)?doi:null};
 }
 type ResearchRows={index:string;query:string;items:RawEvidence[]}[];
 function metadataQuarantine(rows:ResearchRows){
- const found=new Map<string,{url:string;indexes:string[];publication_types:string[]}>();
- for(const row of rows)for(const item of row.items){
-  if(!['RETRACTED_FLAG','RETRACTION_NOTICE','CONCERN_NOTICE'].includes(publicationIntegrity(item.pub_types)))continue;
-  if(!/^https:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/\d{1,12}\/$/.test(item.url))continue;
-  const old=found.get(item.url)??{url:item.url,indexes:[],publication_types:[]};old.indexes=[...new Set([...old.indexes,row.index])];old.publication_types=[...new Set([...old.publication_types,...item.pub_types])];found.set(item.url,old);
+ const found=new Map<string,{url:string;indexes:string[];publication_types:string[];source_urls:string[]}>();
+ const records=rows.flatMap(row=>row.items.map(item=>({index:row.index,item,ids:identity(item as IndexedEvidence)})));
+ for(const seed of records){
+  if(!['RETRACTED_FLAG','RETRACTION_NOTICE','CONCERN_NOTICE'].includes(publicationIntegrity(seed.item.pub_types)))continue;
+  if(!/^https:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/\d{1,12}\/$/.test(seed.item.url))continue;
+  // Quarantine is conservative identity review, not a declaration that a conflicting PMID is retracted.
+  // Propagate only exact URLs, validated PMIDs and valid normalized DOIs; never title similarity.
+  const urls=new Set([seed.item.url]),pmids=new Set<string>(),dois=new Set<string>();
+  if(seed.ids.pmid)pmids.add(seed.ids.pmid);if(seed.ids.doi)dois.add(seed.ids.doi);
+  let changed=true;while(changed){changed=false;for(const record of records){
+   if(!urls.has(record.item.url)&&!(record.ids.pmid&&pmids.has(record.ids.pmid))&&!(record.ids.doi&&dois.has(record.ids.doi)))continue;
+   if(!urls.has(record.item.url)){urls.add(record.item.url);changed=true;}
+   if(record.ids.pmid&&!pmids.has(record.ids.pmid)){pmids.add(record.ids.pmid);changed=true;}
+   if(record.ids.doi&&!dois.has(record.ids.doi)){dois.add(record.ids.doi);changed=true;}
+  }}
+  for(const url of urls){
+   const old=found.get(url)??{url,indexes:[],publication_types:[],source_urls:[]};
+   old.indexes=[...new Set([...old.indexes,seed.index])];old.publication_types=[...new Set([...old.publication_types,...seed.item.pub_types])];old.source_urls=[...new Set([...old.source_urls,seed.item.url])];found.set(url,old);
+  }
  }return found;
 }
 /** Metadata matching, never conclusion extraction. Both index appearances count as ONE publication. */

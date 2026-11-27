@@ -3,6 +3,7 @@ export const ToolName = z.enum(['retrieve_scientific_evidence','search_local_pro
 export const ToolCall = z.object({ name: ToolName, query: z.string().max(200).default(''), product_ids: z.array(z.number().int().refine(n=>n!==0)).max(5).default([]), specialist:z.enum(['skin','hair','inci','formulation','evidence']).optional() }).strict();
 export const Skin = z.enum(['dry','oily','combination','sensitive','normal']);
 export const Hair = z.enum(['dry','oily','colored','curly','damaged','normal']);
+export const MemoryField = z.enum(['skin','hair','concerns','ingredients','constraints']);
 export const Plan = z.object({
  intent:z.enum(['consultation','ingredient','compatibility','compare','routine','alternative','availability','clarify','capabilities','out_of_scope']),
  skin:z.array(Skin).max(5).default([]),hair:z.array(Hair).max(6).default([]),
@@ -11,7 +12,13 @@ export const Plan = z.object({
  missing:z.array(z.enum(['skin','hair','product','ingredients','goal','usage','pregnancy','reaction'])).max(8).default([]),
  question:z.string().max(300).default(''),queries:z.array(z.string().max(200)).max(4).default([]),
  tools:z.array(ToolCall).max(4).default([]),correction:z.boolean().default(false),
-}).strict();
+ update_fields:z.array(MemoryField).max(5).optional(),clear_fields:z.array(MemoryField).max(5).optional(),
+}).strict().superRefine((plan,ctx)=>{
+ for(const field of plan.update_fields??[]){
+  if(plan.clear_fields?.includes(field))ctx.addIssue({code:'custom',path:['update_fields'],message:'field cannot be updated and cleared together'});
+  if(!plan[field].length)ctx.addIssue({code:'custom',path:[field],message:'empty update requires explicit clear_fields'});
+ }
+});
 export const Decision = z.object({
  selected_claim_ids:z.array(z.string().max(100)).max(6).default([]),
  recommendations:z.array(z.object({product_id:z.number().int().refine(n=>n!==0),claim_ids:z.array(z.string().max(100)).min(1).max(4),tradeoffs:z.array(z.enum(['hydration','oil_control','sensitivity','fragrance','hair_conditioning','uncertain','global_only'])).max(4).default([])}).strict()).max(4).default([]),

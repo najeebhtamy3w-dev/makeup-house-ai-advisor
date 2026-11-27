@@ -1,0 +1,24 @@
+{
+  "recovered_remote": "b160e3e28547eb742ad20ad18d655c142a21dbfd",
+  "branch": "work-v32-unified-scientific-core",
+  "source_version": "3.2.0-dev.6",
+  "version_code": 11,
+  "software_tests": {
+    "pass": 302,
+    "fail": 0
+  },
+  "typecheck": "PASS",
+  "mobile_build": "PASS",
+  "runtime_build": "IN_PROGRESS",
+  "gate02": "FAIL",
+  "model": "Qwen3.5-2B baseline retained; Qwen3-4B-Instruct-2507 not promoted",
+  "dev5": {
+    "source": "ec7b34b84075fb175f4a81912ec42977e411ef8c",
+    "run": 45939536985,
+    "artifact": 15171359888,
+    "verified_github_job": "success"
+  },
+  "samsung": "NOT TESTED",
+  "production_signing": "DEFERRED_BY_OWNER",
+  "next": "Finish current Native compile and real inference; publish source then recover new CI build artifacts. Continue semantic root-cause experiments without adopting unproven prompt/model changes."
+}

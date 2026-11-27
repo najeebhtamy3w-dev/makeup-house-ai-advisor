@@ -1,0 +1,12 @@
+{
+  "scope": "HOST_EXPERIMENT_NOT_ANDROID_OR_SAMSUNG",
+  "model": "Qwen3.5-2B Q4_K_M baseline",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "binary_sha256": "282648a7b6e081e5fa9c5b92dfd22fe988e90f6b88ee419ca891849c68b5d008",
+  "binary_path": "/workspace/scratch/921845f84f0b/toolchain/native-recovery/host/mh-ai-session",
+  "binary_scope": "Recovered Nov26 binary, older than current source; not acceptance for current native runtime.",
+  "control": "Identical original V69 prompts, weights, greedy decoding,256-token caps; task plan selects application GBNF while diagnostic disables GBNF. Each request resets KV state. Fixed order constrained then unconstrained; not latency ranking.",
+  "cases": "Existing development failures only; final holdout untouched.",
+  "scientifically_validated": false,
+  "gate02_pass": false
+}
