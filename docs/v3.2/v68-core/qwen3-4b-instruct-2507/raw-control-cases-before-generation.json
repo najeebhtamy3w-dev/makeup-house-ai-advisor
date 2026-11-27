@@ -1,0 +1,30 @@
+[
+  {
+    "id": "scope-control",
+    "messages": [
+      [
+        "user",
+        "قبل أختار أي منتج، قول لي كيف تساعدني هنا ومتى تقول ما أعرف؟"
+      ]
+    ],
+    "expectation": "Explain capabilities and uncertainty directly; no personal skin history needed."
+  },
+  {
+    "id": "followup-control",
+    "messages": [
+      [
+        "user",
+        "شعري يتساقط"
+      ],
+      [
+        "assistant",
+        "هل بدأ بالتدريج أم فجأة؟"
+      ],
+      [
+        "user",
+        "مو بالتدريج؛ بدأ بشكل سريع قبل نصف شهر."
+      ]
+    ],
+    "expectation": "Understand sudden onset about two weeks; do not ask the same gradual/sudden question."
+  }
+]

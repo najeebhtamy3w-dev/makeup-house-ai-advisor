@@ -1,0 +1,70 @@
+[
+  {
+    "id": "open-role",
+    "question": "قبل أختار أي منتج، قول لي كيف تساعدني هنا ومتى تقول ما أعرف؟",
+    "reference": {
+      "intent": [
+        "capabilities"
+      ],
+      "required_tool_any": [
+        "get_system_capabilities"
+      ],
+      "missing_should_be_empty": true
+    }
+  },
+  {
+    "id": "mixed-skin-correction",
+    "question": "كل مرة أقول بشرتي دهنية، لكن أصحح: الخدود ناشفة ومنطقة الجبهة تلمع، وأي عطر يلسعني.",
+    "reference": {
+      "intent": [
+        "consultation",
+        "clarify"
+      ],
+      "concerns_all": [
+        "dryness",
+        "oil",
+        "sensitivity"
+      ],
+      "skin_any": [
+        "combination",
+        "sensitive"
+      ],
+      "correction": true,
+      "appropriate_tools_any": [
+        "retrieve_scientific_evidence",
+        "scientific_specialist"
+      ]
+    }
+  },
+  {
+    "id": "context-short-reply",
+    "question": "مو بالتدريج؛ بدأ بشكل سريع قبل نصف شهر.",
+    "memory": {
+      "concerns": [
+        "hair_loss"
+      ],
+      "last_intent": "consultation",
+      "pending_question": "هل تساقط الشعر تدريجي أم مفاجئ؟",
+      "recent_turns": [
+        {
+          "role": "user",
+          "text": "شعري يتساقط"
+        },
+        {
+          "role": "assistant",
+          "text": "هل تساقط الشعر تدريجي أم مفاجئ؟"
+        }
+      ]
+    },
+    "reference": {
+      "intent": [
+        "consultation",
+        "clarify"
+      ],
+      "concerns_all": [
+        "hair_loss"
+      ],
+      "context_should_remain_hair": true
+    }
+  }
+]

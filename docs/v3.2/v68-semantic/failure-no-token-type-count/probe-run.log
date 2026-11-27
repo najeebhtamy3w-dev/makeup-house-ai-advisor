@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/scripts/v68-semantic-probe.py", line 48, in <module>
+    d=request({'texts':[d['text']for d in CASES['documents']],'query':False});q=request({'texts':[q['text']for q in CASES['queries']],'query':True})
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/921845f84f0b/makeup-house-ai-advisor/scripts/v68-semantic-probe.py", line 45, in request
+    if 'error'in response:raise RuntimeError(response['error'])
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: EMBEDDING_MODEL_INVALID

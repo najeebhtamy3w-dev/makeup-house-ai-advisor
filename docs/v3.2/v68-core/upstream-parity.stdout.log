@@ -1,0 +1,20 @@
+{
+  "intent": "consultation",
+  "skin": [],
+  "hair": [],
+  "concerns": [],
+  "ingredients": [],
+  "product_refs": [],
+  "constraints": [],
+  "missing": [
+    			],
+   "question": "كيف يمكنني مساعدتك في اختيار منتج مناسب؟",
+  "queries": [
+   				],
+   "tools": [
+   {"name":"get_system_capabilities","query":"Arabic search","product_ids":[]}
+  ],
+  "correction":false
+} [end of text]
+
+

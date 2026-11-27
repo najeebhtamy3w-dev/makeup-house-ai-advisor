@@ -1,20 +1,20 @@
 {
-  "updated_at": "2026-11-26T20:16:36.400590+00:00",
+  "updated_at": "2026-11-27T03:51:58.798837+00:00",
   "branch": "work-v32-unified-scientific-core",
-  "local_head_at_checkpoint_start": "36e4dd768d311070679840d9b1bc6d7ec67e471c",
-  "verified_published_head": "790462202de7f19e3ae3842f9be902d8c24becd6",
-  "published_tree": "a121f24a494acb988261fc49240190464174b622",
-  "version_name": "3.2.0-dev.3",
-  "version_code": 8,
+  "local_head_at_checkpoint_start": "6f49f95",
+  "verified_published_head": "7cbdc9df54dfb054dab2b5e70671f1782b36dd31",
+  "published_tree": "d4b24e1a5b638211e6425949befc871920f580b9",
+  "version_name": "3.2.0-dev.4",
+  "version_code": 9,
   "production_approved": false,
   "gates": {
     "01_runtime": "PARTIAL: Host tests and real Android build/ARM64 ELF/ZIP checks PASS; device execution NOT TESTED",
     "02_conversation": "FAIL: full JSON, minimal route and XML experimental final responses did not pass; do not replace production with isolated failed paths",
     "03_scientific": "PARTIAL / FAIL acceptance: independent checks active; reproduced negation drop vulnerability fixed with narrow anchor guard and regression tests; no full semantic entailment or qualified scientific review",
-    "04_multimodal_product": "PARTIAL: image storage, barcode, confirmed drafts and OCR wired; actual VLM Host proof in progress; Android vision not integrated"
+    "04_multimodal_product": "PARTIAL: OCR and optional native vision Android build previously PASS; actual Samsung runtime/product accuracy NOT TESTED"
   },
   "test_evidence": {
-    "full_suite_last": "270/270 PASS, 0 failed, 0 skipped",
+    "full_suite_last": "285/285 PASS; follow-up saved-context UI suite10/10 PASS",
     "focused_after_loop_guard": "21/21 including application dialogue governance",
     "typecheck": "PASS",
     "mobile_assets": "PASS",
@@ -134,6 +134,7 @@
       "empty_clarification_repair",
       "bounded_unreviewed_research_metadata"
     ],
-    "baseline_model_replaced": false
+    "baseline_model_replaced": false,
+    "build_run_id": 45936337100
   }
 }

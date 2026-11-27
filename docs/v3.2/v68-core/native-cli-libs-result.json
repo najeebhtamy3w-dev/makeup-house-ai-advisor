@@ -1,0 +1,31 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 20.025619057000085,
+  "response": {
+    "error": null,
+    "id": "open-role-greedy",
+    "metrics": {
+      "finish_reason": "stop",
+      "first_token_ms": 9814.144196,
+      "generation_ms": 19025.248824,
+      "input_tokens": 674,
+      "model_load_ms": 910.883721,
+      "tokens": 113
+    },
+    "text": "{\n  \"intent\": \"clarify\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \t\t\t],\n   \"question\": \"كيف يمكنني مساعدتك في اختيار المنتج المناسب؟\",\n  \"queries\": [\n   \t\t\t\t],\n   \"tools\": [\n     \t\t],\n   \"correction\": false\n  }"
+  },
+  "native_original": {
+    "error": null,
+    "id": "open-role-greedy",
+    "metrics": {
+      "finish_reason": "stop",
+      "first_token_ms": 8175.046262,
+      "generation_ms": 16704.170737,
+      "input_tokens": 674,
+      "model_load_ms": 1398.519757,
+      "tokens": 113
+    },
+    "text": "{\n  \"intent\": \"clarify\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \t\t\t],\n   \"question\": \"كيف يمكنني مساعدتك في اختيار المنتج المناسب؟\",\n  \"queries\": [\n   \t\t\t\t],\n   \"tools\": [\n     \t\t],\n   \"correction\": false\n  }"
+  },
+  "same_libraries_as_CLI": true
+}

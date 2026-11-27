@@ -8,7 +8,7 @@
 | 04 Multimodal / product | PARTIAL | Actual image BLOB persistence, barcode lookup and human-confirmed drafts. OCR Android build PASS, device test pending. VLM actual Host image inference/cancellation PASS, accuracy PARTIAL. Optional Android path implemented and BUILD PASS; Android runtime and device tests pending |
 | Production signing | DEFERRED BY OWNER | Not a current development blocker; preserve all original identity/data and signing tools |
 
-Software suite: 270/270 passed; Python 16/16 and native image bounds 8/8 also passed. This is not an intelligence score. No 80/100 aggregate, final holdout acceptance, Samsung acceptance or production approval is claimed. All failed raw generation is retained.
+Software suite: latest285/285 passed; additional saved-context UI suite10/10 passed; Python 16/16 and native image bounds 8/8 also passed. This is not an intelligence score. No 80/100 aggregate, final holdout acceptance, Samsung acceptance or production approval is claimed. All failed raw generation is retained.
 
 
 ## V6.9 active checkpoint — 2026-11-27

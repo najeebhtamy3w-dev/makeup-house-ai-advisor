@@ -15,8 +15,8 @@ const text=(e:any):string=>Array.isArray(e)?e.map(text).join(' '):e instanceof E
 const fixture=(overrides:any={})=>({kind:'final',session_id:'a'.repeat(36),mode_requested:'offline',mode_used:'offline',answer:{understanding:{conversation_context:{}},conversation_text:'رد متحقق في اختبار واجهة فقط.',sections:[],sources:[],evidence_status:'none'},intelligence:{provenance:'clarification',model_invocations:1,generative_invoked:true},...overrides});
 function harness(options:any={}) {
   const calls:any[]=[],nativeCalls:any[]=[];const listeners=new Map();let latestStatus=options.nativeStatus;
-  const context:any={console,Promise,String,Number,Array,Set,Math,Date,getToken:()=> 'synthetic-ui-token',
-    api:async(method:string,path:string,body:any)=>{calls.push({method,path,body});if(path==='/api/auth/me')return{user:{role:options.role??'manager'}};if(path==='/api/intelligence/status')return{enabled:true,modes:{research:{available:false,enabled:false,online:false,sources:[]},cloud:{enabled:false,reason:'معطل'}},note_ar:'اختبار واجهة'};if(path==='/api/intelligence/consult')return options.consult?options.consult(body):fixture();return{deleted:true};},
+  const context:any={console,Promise,String,Number,Array,Set,Math,Date,confirm:options.confirm??(()=>true),getToken:()=> 'synthetic-ui-token',
+    api:async(method:string,path:string,body:any)=>{calls.push({method,path,body});if(options.api){const value=await options.api(method,path,body);if(value!==undefined)return value;}if(path==='/api/auth/me')return{user:{role:options.role??'manager'}};if(path==='/api/intelligence/status')return{enabled:true,modes:{research:{available:false,enabled:false,online:false,sources:[]},cloud:{enabled:false,reason:'معطل'}},note_ar:'اختبار واجهة'};if(path==='/api/intelligence/consult')return options.consult?options.consult(body):fixture();return{deleted:true};},
     thumb:(product:any)=>new Element('img',{src:'/api/images/'+product.primary_image_id+'?size=thumb'}),h:(tag:string,props:any,...children:any[])=>new Element(tag,props??{},...children),fill:(e:Element,...children:any[])=>e.replaceChildren(...children),skeleton:()=>new Element('skeleton'),errorBox:(message:any)=>new Element('error',{},message),toast:()=>{},busy:async(_b:any,f:Function)=>f(),emptyState:()=>new Element('empty'),
     window:{addEventListener:(n:any,f:any)=>listeners.set(n,f),removeEventListener:(n:any)=>listeners.delete(n),...(options.native?{MHLocalAI:{available:true,call:async(action:string)=>{nativeCalls.push(action);if(action==='status'){if(options.statusError)throw Error('status failed');return latestStatus;}return{};}}}:{})},
   };
@@ -58,3 +58,12 @@ test('recommendations use actual stored local thumbnail IDs and never invent glo
 });
 
 test('last operation failure cannot be presented as ready despite loaded weights',async()=>{const h=harness({native:true,nativeStatus:{installed:true,active:true,loaded:true,last_operation_error:"DECODE_FAILED"}});await h.context.show(h.root);const status=h.text(h.walk(h.root).find(x=>x.props.id==="advisor-mode"));assert.match(status,/فشلت آخر عملية/);assert.match(status,/DECODE_FAILED/);assert.doesNotMatch(status,/مثبت ومفعّل ومحمّل/);});
+
+
+test('saved context UI explicitly saves, restores archived turns and uses the restored session on follow-up',async()=>{
+ const saved='b'.repeat(36),restored='c'.repeat(36);let confirmed=0;const h=harness({confirm:()=>{confirmed++;return true;},api:async(method:string,path:string)=>{if(path.endsWith('/save'))return{note:'حفظ صريح'};if(path==='/api/intelligence/saved')return{note:'محفوظات الحساب',items:[{id:saved,title:'حالة اختبار',updated_at:'2026-11-27'}]};if(path.endsWith('/resume'))return{session_id:restored,note:'ذاكرة ليست دليلًا',context:{concerns:['hair_loss']},recent_turns:[{role:'user',text:'متابعة محفوظة'}]};}});
+ await h.context.show(h.root);const form=h.walk(h.root).find(x=>x.tag==='form')!,input=h.walk(form).find(x=>x.tag==='input')!;input.value='سؤال أول';await form.props.onsubmit({preventDefault(){}});await new Promise(r=>setTimeout(r,0));
+ await h.walk(h.root).find(x=>x.props.id==='save-consultation')!.props.onclick();assert.ok(h.calls.some(x=>x.path.endsWith('/session/'+'a'.repeat(36)+'/save')&&x.body.confirmed===true));
+ const summary=h.walk(h.root).find(x=>x.tag==='summary'&&h.text(x)==='الاستشارات المحفوظة')!;await summary.props.onclick();await h.walk(h.root).find(x=>x.tag==='button'&&h.text(x)==='استعادة')!.props.onclick();assert.equal(confirmed,1);assert.match(h.text(h.root),/متابعة محفوظة/);
+ input.value='أكمل';await form.props.onsubmit({preventDefault(){}});await new Promise(r=>setTimeout(r,0));assert.equal(h.calls.filter(x=>x.path==='/api/intelligence/consult').at(-1).body.session_id,restored);
+});

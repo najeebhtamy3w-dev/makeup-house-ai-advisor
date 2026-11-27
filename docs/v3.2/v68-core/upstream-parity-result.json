@@ -1,0 +1,44 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 18.460983370999998,
+  "stdout": "{\n  \"intent\": \"consultation\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \t\t\t],\n   \"question\": \"كيف يمكنني مساعدتك في اختيار منتج مناسب؟\",\n  \"queries\": [\n   \t\t\t\t],\n   \"tools\": [\n   {\"name\":\"get_system_capabilities\",\"query\":\"Arabic search\",\"product_ids\":[]}\n  ],\n  \"correction\":false\n} [end of text]\n\n\n",
+  "parsed": null,
+  "native_parsed": {
+    "intent": "clarify",
+    "skin": [],
+    "hair": [],
+    "concerns": [],
+    "ingredients": [],
+    "product_refs": [],
+    "constraints": [],
+    "missing": [],
+    "question": "كيف يمكنني مساعدتك في اختيار المنتج المناسب؟",
+    "queries": [],
+    "tools": [],
+    "correction": false
+  },
+  "exact_same_parsed_json": false,
+  "scientific_acceptance": false,
+  "parsed_model_payload": {
+    "intent": "consultation",
+    "skin": [],
+    "hair": [],
+    "concerns": [],
+    "ingredients": [],
+    "product_refs": [],
+    "constraints": [],
+    "missing": [],
+    "question": "كيف يمكنني مساعدتك في اختيار منتج مناسب؟",
+    "queries": [],
+    "tools": [
+      {
+        "name": "get_system_capabilities",
+        "query": "Arabic search",
+        "product_ids": []
+      }
+    ],
+    "correction": false
+  },
+  "CLI_stdout_suffix": "[end of text] (transport display marker, original raw retained)",
+  "same_parsed_payload_as_native": false
+}

@@ -1,0 +1,13 @@
+[  1%] Built target llama-common-base
+[  8%] Built target ggml-base
+[  8%] Built target cpp-httplib
+[ 20%] Built target ggml-cpu
+[ 23%] Built target ggml
+[ 55%] Built target llama
+[ 97%] Built target llama-common
+[ 97%] Building CXX object tools/completion/CMakeFiles/llama-completion-impl.dir/completion.cpp.o
+[ 98%] Linking CXX shared library ../../bin/libllama-completion-impl.so
+[ 98%] Built target llama-completion-impl
+[100%] Building CXX object tools/completion/CMakeFiles/llama-completion.dir/main.cpp.o
+[100%] Linking CXX executable ../../bin/llama-completion
+[100%] Built target llama-completion

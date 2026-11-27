@@ -1,0 +1,11 @@
+{
+  "platform": "HOST_CPU_NOT_ANDROID",
+  "candidate_sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+  "binary_sha256": "282648a7b6e081e5fa9c5b92dfd22fe988e90f6b88ee419ca891849c68b5d008",
+  "template_source": "original-tokenizer_config.json",
+  "template_adaptation": "same production system/user; remove Qwen3.5 closed think prefix for non-thinking Qwen3 Instruct",
+  "baseline_same_frozen_cases": true,
+  "final_holdout_used": false,
+  "baseline_replaced": false,
+  "utc": "2026-11-27T03:47:31.958152+00:00"
+}

@@ -1,0 +1,60 @@
+{
+  "fixture_kind": "Synthetic retrieval evaluation only; these are not reviewed scientific knowledge or real products",
+  "documents": [
+    {
+      "id": "barrier",
+      "text": "عند جفاف البشرة قد يحدث شد بعد الغسل. التنظيف اللطيف ووضع المرطب يساعدان في الاحتفاظ بالرطوبة."
+    },
+    {
+      "id": "hair",
+      "text": "فروة الرأس الدهنية تحتاج تنظيف الجذور، بينما بلسم الشعر يركز على الأطراف الجافة والمتكسرة."
+    },
+    {
+      "id": "niacinamide",
+      "text": "Niacinamide is a form of vitamin B3. It differs from vitamin C and from exfoliating ingredients."
+    },
+    {
+      "id": "sun",
+      "text": "Sunscreen protects skin from ultraviolet radiation during outdoor exposure. It is different from hair shampoo."
+    },
+    {
+      "id": "fragrance",
+      "text": "Perfume provides a scent. Fragrance sensitivity can require avoiding scented cosmetic products."
+    },
+    {
+      "id": "cooking",
+      "text": "Cooking rice requires water and a covered pot. This passage is unrelated to cosmetic consultation."
+    },
+    {
+      "id": "pigment",
+      "text": "التصبغات وآثار الحبوب موضوع مختلف عن ملمس الشعر والأطراف المتكسرة."
+    },
+    {
+      "id": "inventory",
+      "text": "Product inventory quantities and valid batches determine local stock availability, independently of ingredient suitability."
+    }
+  ],
+  "queries": [
+    {
+      "id": "ar-dry",
+      "text": "وجهي مشدود كلما أغسله وأشتي أخفف إحساس النشاف",
+      "expected": "barrier"
+    },
+    {
+      "id": "ar-hair",
+      "text": "الجذور تزيت لكن أطراف شعري ناشفة وتتكسر، كيف أفرق العناية؟",
+      "expected": "hair"
+    },
+    {
+      "id": "en-b3",
+      "text": "Which ingredient is a form of vitamin B3 rather than vitamin C?",
+      "expected": "niacinamide"
+    },
+    {
+      "id": "en-uv",
+      "text": "I work outdoors and want protection from ultraviolet exposure",
+      "expected": "sun"
+    }
+  ],
+  "purpose": "Separate same-language diagnostic declared AFTER cross-language failure, not a replacement acceptance set"
+}

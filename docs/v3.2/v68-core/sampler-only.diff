@@ -1,0 +1,16 @@
+--- production/native/runtime.cpp
++++ isolated/runtime-sampled.cpp
+@@ -155,7 +155,12 @@
+     if(!gs){llama_sampler_free(sampler);throw std::runtime_error("GRAMMAR_FAILED");}
+     llama_sampler_chain_add(sampler,gs);
+     }
+-    llama_sampler_chain_add(sampler,llama_sampler_init_greedy());
++    // Isolated experiment only: official non-thinking text sampling, fixed seed.
++    llama_sampler_chain_add(sampler,llama_sampler_init_penalties(llama_vocab_n_tokens(vocab),4096,1.0f,0.0f,2.0f));
++    llama_sampler_chain_add(sampler,llama_sampler_init_top_k(20));
++    llama_sampler_chain_add(sampler,llama_sampler_init_top_p(1.0f,1));
++    llama_sampler_chain_add(sampler,llama_sampler_init_temp(1.0f));
++    llama_sampler_chain_add(sampler,llama_sampler_init_dist(680026));
+     std::string output;
+     try {
+         for(int i=0;i<limit;i++) {

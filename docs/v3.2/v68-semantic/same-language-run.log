@@ -1,0 +1,8 @@
+{
+  "semantic_hit1": 4,
+  "lexical_hit1": 3,
+  "sample_count": 4,
+  "generation_ms": 1375.6656379999868,
+  "peak_vm_hwm_kb": 378400,
+  "recovery": true
+}

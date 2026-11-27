@@ -1,0 +1,29 @@
+{
+  "platform": "HOST_CPU_NOT_ANDROID",
+  "time": "2026-11-26T20:16:35.940866+00:00",
+  "model_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+  "source_request": "unified-core-evidence/main-ui-2b-dialogue-schema/native-requests.jsonl",
+  "same_full_production_system": true,
+  "same_closed_thinking_template": true,
+  "same_GBNF_schemas": true,
+  "same_max_tokens": 768,
+  "only_difference": "sampler chain, seeded official README non-thinking text configuration",
+  "sampled": {
+    "top_k": 20,
+    "top_p": 1.0,
+    "temperature": 1.0,
+    "penalty_last_n": 4096,
+    "presence_penalty": 2.0,
+    "repetition_penalty": 1.0,
+    "frequency_penalty": 0.0,
+    "seed": 680026
+  },
+  "binaries": {
+    "greedy": "282648a7b6e081e5fa9c5b92dfd22fe988e90f6b88ee419ca891849c68b5d008",
+    "official-seeded": "19a2558f36fe0d7564dceda3be0509bfa97fb8d7826bde14dc019c66df25b77d"
+  },
+  "holdout_used": false,
+  "source_runtime_sha256": "8ce39652b6ffce36ba4b2cd5ed50405d691f98d9d5bfc4e0cc0372e94d5fd6e1",
+  "isolated_runtime_sha256": "fc85e3f2b0f5d84bb10ad6c22be9db6fab92bed86dcedf231efd77cf2567a2ca",
+  "performance_limit": "Sequential profiles on Host; unrelated concurrent engineering load is not controlled. Not a matched Samsung performance benchmark."
+}

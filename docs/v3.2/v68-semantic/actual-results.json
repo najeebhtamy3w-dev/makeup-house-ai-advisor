@@ -1,0 +1,360 @@
+{
+  "platform": "HOST_LINUX_CPU_NOT_ANDROID",
+  "model_sha256": "0a34067a40f25d3149b36885faa62bee0e5284d0f9edc102acfc00e115d953e8",
+  "binary_sha256": "1129d4da0af1139f7313a50e98dee66a009a1bea0876e465ea3dba92ca7c8d0a",
+  "dimensions": 384,
+  "prefixes": {
+    "query": "query: ",
+    "document": "passage: "
+  },
+  "pooling": "mean",
+  "normalization": "L2",
+  "cases": [
+    {
+      "query": {
+        "id": "ar-dry",
+        "text": "وجهي مشدود كلما أغسله وأشتي أخفف إحساس النشاف",
+        "expected": "barrier"
+      },
+      "semantic": [
+        {
+          "id": "pigment",
+          "cosine": 0.8483041561170007
+        },
+        {
+          "id": "sun",
+          "cosine": 0.8282231595978873
+        },
+        {
+          "id": "inventory",
+          "cosine": 0.8152899089497347
+        },
+        {
+          "id": "barrier",
+          "cosine": 0.8119856180916474
+        },
+        {
+          "id": "fragrance",
+          "cosine": 0.8057299685260234
+        },
+        {
+          "id": "niacinamide",
+          "cosine": 0.8003592359584893
+        },
+        {
+          "id": "cooking",
+          "cosine": 0.7969425207470902
+        },
+        {
+          "id": "hair",
+          "cosine": 0.7916662230474393
+        }
+      ],
+      "lexical": [
+        {
+          "id": "barrier",
+          "jaccard": 0.0
+        },
+        {
+          "id": "cooking",
+          "jaccard": 0.0
+        },
+        {
+          "id": "fragrance",
+          "jaccard": 0.0
+        },
+        {
+          "id": "hair",
+          "jaccard": 0.0
+        },
+        {
+          "id": "inventory",
+          "jaccard": 0.0
+        },
+        {
+          "id": "niacinamide",
+          "jaccard": 0.0
+        },
+        {
+          "id": "pigment",
+          "jaccard": 0.0
+        },
+        {
+          "id": "sun",
+          "jaccard": 0.0
+        }
+      ],
+      "semantic_hit1": false,
+      "lexical_hit1": true
+    },
+    {
+      "query": {
+        "id": "ar-hair",
+        "text": "الجذور تزيت لكن أطراف شعري ناشفة وتتكسر، كيف أفرق العناية؟",
+        "expected": "hair"
+      },
+      "semantic": [
+        {
+          "id": "pigment",
+          "cosine": 0.862104225557258
+        },
+        {
+          "id": "sun",
+          "cosine": 0.8193098540199252
+        },
+        {
+          "id": "niacinamide",
+          "cosine": 0.8043075570294598
+        },
+        {
+          "id": "cooking",
+          "cosine": 0.8032387020882836
+        },
+        {
+          "id": "barrier",
+          "cosine": 0.8009074369328698
+        },
+        {
+          "id": "hair",
+          "cosine": 0.7944229601010695
+        },
+        {
+          "id": "fragrance",
+          "cosine": 0.7900911179327907
+        },
+        {
+          "id": "inventory",
+          "cosine": 0.7875820929504053
+        }
+      ],
+      "lexical": [
+        {
+          "id": "barrier",
+          "jaccard": 0.0
+        },
+        {
+          "id": "cooking",
+          "jaccard": 0.0
+        },
+        {
+          "id": "fragrance",
+          "jaccard": 0.0
+        },
+        {
+          "id": "hair",
+          "jaccard": 0.0
+        },
+        {
+          "id": "inventory",
+          "jaccard": 0.0
+        },
+        {
+          "id": "niacinamide",
+          "jaccard": 0.0
+        },
+        {
+          "id": "pigment",
+          "jaccard": 0.0
+        },
+        {
+          "id": "sun",
+          "jaccard": 0.0
+        }
+      ],
+      "semantic_hit1": false,
+      "lexical_hit1": false
+    },
+    {
+      "query": {
+        "id": "en-b3",
+        "text": "Which ingredient is a form of vitamin B3 rather than vitamin C?",
+        "expected": "niacinamide"
+      },
+      "semantic": [
+        {
+          "id": "hair",
+          "cosine": 0.8029934637810707
+        },
+        {
+          "id": "cooking",
+          "cosine": 0.8001646389689865
+        },
+        {
+          "id": "fragrance",
+          "cosine": 0.7997166026744732
+        },
+        {
+          "id": "niacinamide",
+          "cosine": 0.7994513000048548
+        },
+        {
+          "id": "inventory",
+          "cosine": 0.7984436093883783
+        },
+        {
+          "id": "pigment",
+          "cosine": 0.7838738044976491
+        },
+        {
+          "id": "barrier",
+          "cosine": 0.7745387365057762
+        },
+        {
+          "id": "sun",
+          "cosine": 0.7508568987033458
+        }
+      ],
+      "lexical": [
+        {
+          "id": "inventory",
+          "jaccard": 0.08695652173913043
+        },
+        {
+          "id": "cooking",
+          "jaccard": 0.08333333333333333
+        },
+        {
+          "id": "fragrance",
+          "jaccard": 0.045454545454545456
+        },
+        {
+          "id": "barrier",
+          "jaccard": 0.04
+        },
+        {
+          "id": "hair",
+          "jaccard": 0.0
+        },
+        {
+          "id": "niacinamide",
+          "jaccard": 0.0
+        },
+        {
+          "id": "pigment",
+          "jaccard": 0.0
+        },
+        {
+          "id": "sun",
+          "jaccard": 0.0
+        }
+      ],
+      "semantic_hit1": false,
+      "lexical_hit1": false
+    },
+    {
+      "query": {
+        "id": "en-uv",
+        "text": "I work outdoors and want protection from ultraviolet exposure",
+        "expected": "sun"
+      },
+      "semantic": [
+        {
+          "id": "pigment",
+          "cosine": 0.8033779160717173
+        },
+        {
+          "id": "inventory",
+          "cosine": 0.7991618796514678
+        },
+        {
+          "id": "sun",
+          "cosine": 0.7981329742827682
+        },
+        {
+          "id": "cooking",
+          "cosine": 0.7955772279402152
+        },
+        {
+          "id": "fragrance",
+          "cosine": 0.7928985572955217
+        },
+        {
+          "id": "hair",
+          "cosine": 0.7841906839984292
+        },
+        {
+          "id": "barrier",
+          "cosine": 0.7815757853414772
+        },
+        {
+          "id": "niacinamide",
+          "cosine": 0.7247463961816573
+        }
+      ],
+      "lexical": [
+        {
+          "id": "inventory",
+          "jaccard": 0.045454545454545456
+        },
+        {
+          "id": "barrier",
+          "jaccard": 0.043478260869565216
+        },
+        {
+          "id": "cooking",
+          "jaccard": 0.043478260869565216
+        },
+        {
+          "id": "hair",
+          "jaccard": 0.03571428571428571
+        },
+        {
+          "id": "fragrance",
+          "jaccard": 0.0
+        },
+        {
+          "id": "niacinamide",
+          "jaccard": 0.0
+        },
+        {
+          "id": "pigment",
+          "jaccard": 0.0
+        },
+        {
+          "id": "sun",
+          "jaccard": 0.0
+        }
+      ],
+      "semantic_hit1": false,
+      "lexical_hit1": false
+    }
+  ],
+  "semantic_hit1": 0,
+  "lexical_hit1": 1,
+  "sample_count": 4,
+  "boundary": [
+    {
+      "expected": "EMBEDDING_BATCH_LIMIT",
+      "response": {
+        "error": "EMBEDDING_BATCH_LIMIT"
+      },
+      "passed": true
+    },
+    {
+      "expected": "EMBEDDING_INPUT_SIZE",
+      "response": {
+        "error": "EMBEDDING_INPUT_SIZE"
+      },
+      "passed": true
+    },
+    {
+      "expected": "EMBEDDING_INPUT_SIZE",
+      "response": {
+        "error": "EMBEDDING_INPUT_SIZE"
+      },
+      "passed": true
+    },
+    {
+      "expected": "EMBEDDING_TOKEN_LIMIT",
+      "response": {
+        "error": "EMBEDDING_TOKEN_LIMIT"
+      },
+      "passed": true
+    }
+  ],
+  "recovery": true,
+  "generation_ms": 781.1313870000163,
+  "peak_vm_hwm_kb": 185252,
+  "scientific_acceptance": false,
+  "final_holdout_used": false
+}

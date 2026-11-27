@@ -1,0 +1,8 @@
+{
+  "repository": "Qwen/Qwen3.5-2B",
+  "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+  "readme_sha256": "c0e83a849c776e6fa843d011f023132d942a0f0140d903205bf1c363adad2275",
+  "generation_config": "NOT PRESENT (HTTP404, preserved discovery finding)",
+  "sampling_source": "README Non-thinking mode for text tasks: temperature1,top_p1,top_k20,presence2,repetition1",
+  "retrieved_utc": "2026-11-26T20:15:17.668771+00:00"
+}

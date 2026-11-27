@@ -1,0 +1,18 @@
+✔ main navigation and historical intel alias resolve the same consultation function (2.585479ms)
+✔ primary UI submits to unified endpoint, retains returned session, and never uses legacy status (18.537343ms)
+✔ native actual status controls activation text and manager-only settings link (21.510129ms)
+✔ unknown native status stays unknown instead of claiming a missing or active model (2.272041ms)
+✔ fallback is explicit and zero model calls are never presented as generated success (1.723072ms)
+✔ safety referral remains visible before conversational text and evidence stays collapsed (2.899819ms)
+✔ reset deletes owned consultation session and clears the visible conversation (11.960071ms)
+✔ recommendations use actual stored local thumbnail IDs and never invent global product images (4.505359ms)
+✔ last operation failure cannot be presented as ready despite loaded weights (5.190053ms)
+✔ saved context UI explicitly saves, restores archived turns and uses the restored session on follow-up (15.791494ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 531.138519
