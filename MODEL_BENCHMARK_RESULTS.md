@@ -28,3 +28,6 @@ The isolated two-stage paraphrase experiment did not improve shared acceptance (
 ## Current V7.0 resumption
 
 See `docs/v3.2/v70-resumed/state.json` and fresh logs for current source/limits. Retained constraints now reach tools; essential-oil exclusion and unresolved-fallback relevance regressions pass. No intelligence gate or Samsung acceptance is upgraded.
+
+
+V7.0 resumed: six real Native planning calls/three development pairs tested only the authority-policy sentence. All responses stopped normally; no semantic repair, no adoption. New wording added an irrelevant geographic question in one case. This does not prove any single root cause or pass security/holdout/Android acceptance. Baseline unchanged. Raw evidence docs/v3.2/v70-authority-control.

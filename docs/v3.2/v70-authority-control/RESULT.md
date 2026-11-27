@@ -1,0 +1,17 @@
+# Single-sentence authority-policy control — not adopted
+
+Six actual planning calls completed: baseline/candidate pairs for three existing development inputs. Current production `startConsultation` produced full prompts including targeted memory-update masks; original questions and their recorded history/memory stayed unchanged. Only the blanket sentence treating questions as untrusted authority was replaced by the explicitly recorded staff-request/product-data distinction. Same2B weights, current native binary, grammar, greedy sampling and768-token caps. Exact sentence-only deltas and unchanged request controls were verified for all three pairs. No equivalent replacement was found in prior evidence before running.
+
+| Existing development case | Baseline | Candidate authority wording | Semantic conclusion |
+| --- | --- | --- | --- |
+| Explicit hair-loss request | All facts/masks empty; repeated hair descriptions within malformed300-character clarification. | All facts/masks still empty; broad generic skin/hair history question replaces the repetitive wording. | Surface wording improved, explicit hair-loss context still omitted. FAIL. |
+| Follow-up denying gradual onset and specifying rapid onset half a month ago | Exact prior clarification repeated; no context/change extracted. | Same exact prior clarification repeated; all facts/masks empty. | No demonstrated multi-turn improvement. FAIL. |
+| Mixed-skin correction with fragrance stinging | Only oily skin; dryness/sensitivity partially recognized; oil concern/combination state/correction missed, masks empty; irrelevant missing-hair/pregnancy fields. | Same partial extraction and missed correction/masks; asks about products in Yemen without such a request. | No meaningful improvement; new irrelevant geographic assumption. FAIL. |
+
+All six finish_reason values are stop, not output-token exhaustion; outputs range136–235tokens. Baseline first-question degeneration reaches its300-character grammar string limit, so natural-language completeness is still not established by finish_reason=stop. Generation times23.4–33.9seconds are exploratory Host timings, not Android speed/thermal evidence.
+
+The rewrite changes wording but does not establish reliable understanding, correction or memory updates. It is **NOT ADOPTED**. These results do not prove that the original authority sentence causes the semantic failures, nor that runtime/configuration causes them. No model promotion, production prompt change, scientific recommendation or Gate02 PASS follows. Independent final holdout remained untouched.
+
+Security scope: only ordinary cosmetic development requests were tested. This experiment does not establish prompt-injection resistance or authorize treating product/retrieved text as instructions. The candidate text retained policy/evidence/tool boundaries, but that wording alone is not a security proof. Existing independent guards were not bypassed or changed. Outputs here are raw planning diagnostics, never approved consultation answers.
+
+Reproduction: run `node --no-warnings --import tsx docs/v3.2/v70-authority-control/prepare.mts`, then `python3 docs/v3.2/v70-authority-control/run.py` in a new output location when a justified new trial is needed. Current run.py refuses to launch if responses.jsonl already exists; inspect retained results instead of repeating this finished experiment. Protocol records source commit, exact replacement and active native binary SHA256 `be711e52b8ebee2f1196f99bd2d07cfe1c6e322900f7300daab0e18286c9e12d`.

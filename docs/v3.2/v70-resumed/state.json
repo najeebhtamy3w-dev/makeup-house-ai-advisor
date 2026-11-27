@@ -29,7 +29,7 @@
     "VLM/product field acceptance incomplete",
     "conversational root cause still unresolved; safeguards are not semantic understanding"
   ],
-  "next": "Continue architectural/model understanding work from persisted failures; do not repeat official sampling or prefill/sampler parity controls unchanged. APK dev7 verified and prepared for owner. Physical Samsung acceptance remains external; all intelligence gates remain incomplete.",
+  "next": "P0: inspect the model-native tool-call contract/training format versus the current multi-field planner, then prototype one bounded contract change outside the main route with original turns preserved. Do not repeat completed sampling, paraphrase, authority-only wording or native parity controls unchanged. No model promotion without independent semantic/safety evidence. Current APK7 is verified; Samsung acceptance and scientific/multimodal completion remain pending.",
   "native_host_lifecycle": {
     "checks": 11,
     "status": "PASS",
@@ -79,5 +79,25 @@
     "production_code_changed": false,
     "semantic_acceptance": "FAIL unchanged",
     "remaining_prior_cli_difference": "UNRESOLVED"
+  },
+  "latest_prior_failed_android_run": {
+    "run": 45837341117,
+    "source": "67f66f27ea843cbdffadd76814c0d42561fda9d8",
+    "status": "FAIL historical; subsequent dev3/dev4/dev5/dev6/dev7 builds PASS"
+  },
+  "regression_negative_control": {
+    "baseline": "1a8a941da2b9c507fe5a3b023a8ed46c13fd3478",
+    "tests": 10,
+    "pass": 7,
+    "expected_fail": 3,
+    "fixed_on_dev7": true
+  },
+  "authority_prompt_control": {
+    "actual_native_calls": 6,
+    "development_pairs": 3,
+    "production_adopted": false,
+    "semantic_status": "FAIL",
+    "evidence": "docs/v3.2/v70-authority-control",
+    "security_status": "no adversarial injection acceptance tested"
   }
 }

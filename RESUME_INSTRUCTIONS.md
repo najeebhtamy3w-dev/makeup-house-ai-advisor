@@ -1,3 +1,7 @@
+# Immediate next P0
+
+See docs/v3.2/v70-resumed/state.json. Android dev7/code12 is delivered from bcdf437f38dfcf82ec8c3695be666cb1bf8b4e7f/run45978899228; do not rebuild it unchanged. New6-call authority-only control is COMPLETE and NOT ADOPTED; full raw results preserved. Native prefill/sampler parity and official sampling controls are completed, not next tasks. Inspect model-native tool-call contract versus current planner before another implementation experiment. Original turns, evidence guards, prices exclusion, protected referrals and inventory authority remain mandatory. Intelligence Gate02 remains FAIL; no total completion claimed.
+
 # V7.0 resumed — current checkpoint
 
 SSOT: `docs/v3.2/v70-resumed/state.json`. Source targets dev.7/code12; fresh305/305 regression and10/10 focused tests. Dev.7 Android run45978899228 SUCCESS; artifact15187914550/sourcebcdf437f38dfcf82ec8c3695be666cb1bf8b4e7f. APK hash/certificate and all966 archived source blobs verified. Do not rebuild unchanged code. Local unpushed raw experiments lost on environment recreation are explicitly unverified; preserve remote evidence. Gate02 remains FAIL; other intelligence/device gates not promoted. Production signing deferred.
