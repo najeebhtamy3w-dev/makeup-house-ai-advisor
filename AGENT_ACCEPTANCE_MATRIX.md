@@ -22,3 +22,5 @@ These are functional role mappings, not sixteen accepted autonomous agents. A sh
 | Critical Review | claim/citation validation; safety guards | PARTIAL | Deterministic validation; full evidence conflict reasoning incomplete |
 
 Evidence: tests/unified-core.test.ts, tests/saved-conversations.test.ts, tests/deep-research.test.ts, tests/research-tool-route.test.ts, docs/v3.2/v69-checkpoint/software-tests.log; previous raw native and vision evidence remains retained. These establish software behavior separately from model quality. Runtime, conversational, scientific and multimodal gates remain PARTIAL/FAIL as recorded in ACCEPTANCE_MATRIX.md.
+
+V6.9 follow-up evidence: real main UI3 native calls/2 turns retained under docs/v3.2/v69-main-ui. Runtime telemetry and bounded repeat rejection work on Host; memory/context comprehension still fails. Do not upgrade any agent status from this boundary regression.

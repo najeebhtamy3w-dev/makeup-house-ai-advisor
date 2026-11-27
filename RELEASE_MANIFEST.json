@@ -2,8 +2,8 @@
   "updated_at": "2026-11-27T03:51:58.798837+00:00",
   "branch": "work-v32-unified-scientific-core",
   "local_head_at_checkpoint_start": "6f49f95",
-  "verified_published_head": "7cbdc9df54dfb054dab2b5e70671f1782b36dd31",
-  "published_tree": "d4b24e1a5b638211e6425949befc871920f580b9",
+  "verified_published_head": "ec7b34b84075fb175f4a81912ec42977e411ef8c",
+  "published_tree": "52903ca33e6e2c6e7569b6b31d00c309126295f6",
   "version_name": "3.2.0-dev.5",
   "version_code": 10,
   "production_approved": false,
@@ -142,7 +142,16 @@
     "quality_gate": "NOT PASSED",
     "software_tests": 288,
     "previous_code_remote": "14396ae43a1d959db28389cca86361f7d2c9887a",
-    "telemetry_origin": "reported_native_bridge_not_independent_attestation"
+    "telemetry_origin": "reported_native_bridge_not_independent_attestation",
+    "build_run_id": 45939536985,
+    "host_main_ui": {
+      "real_native_calls": 3,
+      "turns": 2,
+      "browser_errors": 0,
+      "model_comprehension": "FAIL",
+      "repeat_guard": "PASS on captured failure",
+      "android_or_samsung": false
+    }
   },
   "v69_delivered_dev4": {
     "source_commit": "7cbdc9df54dfb054dab2b5e70671f1782b36dd31",

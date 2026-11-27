@@ -1,0 +1,13 @@
+{
+  "platform": "Host Chromium actual main UI + real C++ model, NOT Android/JNI",
+  "adapter": "Local HTTP proxy forwards authenticated start/advance and invokes actual mh-ai-session binary; native status derived from actual model responses",
+  "url": "http://127.0.0.1:43085",
+  "browser": "151.0.7922.34",
+  "native_requests": 3,
+  "model_path": "/workspace/scratch/921845f84f0b/toolchain/native-recovery/qwen35-2b.gguf",
+  "errors": [],
+  "cases": [
+    "شعري يتساقط وأريد أفهم كيف تساعدني في هذه الحالة.",
+    "مو بالتدريج؛ بدأ بشكل سريع قبل نصف شهر."
+  ]
+}
