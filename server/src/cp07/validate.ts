@@ -7,12 +7,24 @@ import { normAr } from '../advisor2/understand.ts';
 import type { EvidenceLevel } from './seed.ts';
 
 export interface EvidenceMeta { title: string; url: string; publisher: string; published_at?: string | null; pub_types?: string[]; snippet?: string; affiliation?: string }
-export interface ValidationResult { complete: boolean; missing: string[]; evidence_level: EvidenceLevel; is_marketing: boolean; industry_affiliated: boolean; strength: number; reasons: string[]; verdict: 'send_to_review' | 'blocked' }
+export interface ValidationResult { integrity_status:PublicationIntegrity; complete: boolean; missing: string[]; evidence_level: EvidenceLevel; is_marketing: boolean; industry_affiliated: boolean; strength: number; reasons: string[]; verdict: 'send_to_review' | 'blocked' }
 
 const MARKETING_HOST = /(shop|store|buy|amazon\.|noon\.|ebay\.|aliexpress|\.myshopify\.|sephora|ulta|iherb|boots\.com)/i;
 const MARKETING_TEXT = /\b(buy now|shop now|best seller|limited offer|discount|% off|add to cart|free shipping|miracle|clinically proven to)\b/i;
 const MANUFACTURER_HOST = /(cerave|loreal|l-oreal|lorealparis|neutrogena|larocheposay|vichy|nivea|beiersdorf|olay|theordinary|bioderma|avene|eucerin|garnier)\./i;
 const TRUSTED = /(medlineplus\.gov|nih\.gov|ncbi\.nlm\.nih\.gov|pubmed\.ncbi|aad\.org|dermnetnz\.org|nhs\.uk|who\.int|fda\.gov|europa\.eu|cochranelibrary\.com)/i;
+
+/** Exact index metadata only; absent flags never prove that a paper was not retracted.
+ * NLM policy: https://www.nlm.nih.gov/bsd/policy/errata.html */
+export type PublicationIntegrity='RETRACTED_FLAG'|'RETRACTION_NOTICE'|'CONCERN_NOTICE'|'CORRECTION_NOTICE'|'NOT_ASSESSED';
+export function publicationIntegrity(types:readonly string[]=[]):PublicationIntegrity{
+ const t=new Set(types.map(v=>v.trim().toLowerCase()));
+ if(t.has('retracted publication'))return 'RETRACTED_FLAG';
+ if(t.has('retraction notice')||t.has('retraction of publication'))return 'RETRACTION_NOTICE';
+ if(t.has('expression of concern'))return 'CONCERN_NOTICE';
+ if(t.has('published erratum'))return 'CORRECTION_NOTICE';
+ return 'NOT_ASSESSED';
+}
 
 export function classifyLevel(m: EvidenceMeta): EvidenceLevel {
   const pt = (m.pub_types ?? []).map((x) => x.toLowerCase());
@@ -33,6 +45,10 @@ export function validateEvidence(m: EvidenceMeta, nowYear = new Date().getFullYe
   if (!/^https:\/\//.test(m.url ?? '')) missing.push('https url');
   if (!m.publisher?.trim()) missing.push('publisher');
   if (!m.published_at) reasons.push('تاريخ النشر غير معروف');
+  const integrity_status=publicationIntegrity(m.pub_types);
+  const integrityBlocked=['RETRACTED_FLAG','RETRACTION_NOTICE','CONCERN_NOTICE'].includes(integrity_status);
+  if(integrityBlocked)reasons.push('علامة سحب أو إشعار نزاهة منشور في بيانات الفهرسة؛ لا يُستخدم دليلًا على الفعالية أو السلامة.');
+  if(integrity_status==='CORRECTION_NOTICE')reasons.push('إشعار تصحيح؛ راجع المقال الأصلي والتصحيح معًا قبل أي استنتاج.');
   const level = classifyLevel(m);
   const is_marketing = level === 'manufacturer_claim' || MARKETING_TEXT.test(`${m.title} ${m.snippet ?? ''}`);
   const industry = Boolean(m.affiliation && /(gmbh|inc\.?|ltd|s\.a\.|ag\b|l'or[eé]al|bayer|evonik|consumer care|laboratoires|cosmetic active)/i.test(m.affiliation));
@@ -43,10 +59,10 @@ export function validateEvidence(m: EvidenceMeta, nowYear = new Date().getFullYe
   if (!TRUSTED.test(m.url ?? '')) { strength -= 0.1; reasons.push('النطاق ليس ضمن قائمة المصادر الموثوقة المعتمدة'); }
   if (is_marketing) reasons.push('محتوى تسويقي أو ادعاء شركة — لا يُعد دليلًا مستقلًا');
   if (missing.length) reasons.push(`بيانات ناقصة: ${missing.join('، ')}`);
-  strength = Math.max(0, Math.round(strength * 100) / 100);
-  const verdict = missing.length || is_marketing ? 'blocked' : 'send_to_review';
+  strength = integrityBlocked?0:Math.max(0, Math.round(strength * 100) / 100);
+  const verdict = missing.length || is_marketing || integrityBlocked ? 'blocked' : 'send_to_review';
   if (verdict === 'send_to_review') reasons.push('صالح للعرض على مراجع بشري (لم يُعتمد)');
-  return { complete: !missing.length, missing, evidence_level: level, is_marketing, industry_affiliated: industry, strength, reasons, verdict };
+  return { integrity_status,complete: !missing.length, missing, evidence_level: level, is_marketing, industry_affiliated: industry, strength, reasons, verdict };
 }
 
 /* ---------- duplicates and conflicts between claims ---------- */

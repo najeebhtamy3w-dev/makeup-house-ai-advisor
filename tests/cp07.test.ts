@@ -242,3 +242,6 @@ test('HTTP: CP07 is off by default (404); when enabled, staff chat works, knowle
     assert.ok(h.json.history.some((x: { action: string }) => x.action === 'state:approved'));
   } finally { if (prev === undefined) delete process.env.MH_CP07; else process.env.MH_CP07 = prev; await t.close(); }
 });
+
+
+test('publication integrity metadata blocks retractions and notices without guessing status from a title',()=>{for(const flag of ['Retracted Publication','Retraction of Publication','Retraction Notice','Expression of Concern']){const r=validateEvidence({title:'Synthetic controlled trial',url:'https://pubmed.ncbi.nlm.nih.gov/123/',publisher:'PubMed fixture',published_at:'2024',pub_types:['Randomized Controlled Trial',flag]});assert.equal(r.verdict,'blocked');assert.equal(r.strength,0);}const unknown=validateEvidence({title:'A review of retracted publications',url:'https://pubmed.ncbi.nlm.nih.gov/124/',publisher:'PubMed fixture',pub_types:['Review']});assert.equal(unknown.integrity_status,'NOT_ASSESSED');assert.equal(unknown.verdict,'send_to_review');const correction=validateEvidence({title:'Correction',url:'https://pubmed.ncbi.nlm.nih.gov/125/',publisher:'PubMed fixture',pub_types:['Published Erratum']});assert.equal(correction.integrity_status,'CORRECTION_NOTICE');assert.equal(correction.verdict,'send_to_review');});

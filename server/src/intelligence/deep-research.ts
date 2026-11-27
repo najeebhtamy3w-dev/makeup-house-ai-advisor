@@ -6,7 +6,7 @@ import { KB } from '../science/knowledge.ts';
 import { normAr } from '../advisor2/understand.ts';
 import { pubMed, guardedSearch, externalSearchEnabled, sanitizeSnippet, type Connector, type FetchLike, type RawEvidence } from '../cp07/connectors.ts';
 import { storeEvidence } from '../cp07/growth.ts';
-import { validateEvidence } from '../cp07/validate.ts';
+import { publicationIntegrity,validateEvidence } from '../cp07/validate.ts';
 
 const GENERIC:Record<string,string>={
  'dry skin':'dry skin','sensitive skin':'sensitive skin','oily skin':'oily skin',acne:'acne',hyperpigmentation:'hyperpigmentation',dandruff:'dandruff','hair loss':'hair loss','hair damage':'hair damage',sunscreen:'sunscreen',photoprotection:'photoprotection','skin barrier':'skin barrier',moisturizer:'moisturizer',ceramides:'ceramides',niacinamide:'niacinamide','azelaic acid':'azelaic acid',retinol:'retinol',retinal:'retinal','vitamin c':'ascorbic acid',
@@ -49,10 +49,20 @@ function identity(e:IndexedEvidence){
  const pmid=e.pmid??e.url.match(/^https:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/(\d+)\/?$/)?.[1];
  return{pmid:pmid&&/^\d{1,12}$/.test(pmid)?pmid:null,doi:e.doi?.toLowerCase()??null};
 }
+type ResearchRows={index:string;query:string;items:RawEvidence[]}[];
+function metadataQuarantine(rows:ResearchRows){
+ const found=new Map<string,{url:string;indexes:string[];publication_types:string[]}>();
+ for(const row of rows)for(const item of row.items){
+  if(!['RETRACTED_FLAG','RETRACTION_NOTICE','CONCERN_NOTICE'].includes(publicationIntegrity(item.pub_types)))continue;
+  if(!/^https:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/\d{1,12}\/$/.test(item.url))continue;
+  const old=found.get(item.url)??{url:item.url,indexes:[],publication_types:[]};old.indexes=[...new Set([...old.indexes,row.index])];old.publication_types=[...new Set([...old.publication_types,...item.pub_types])];found.set(item.url,old);
+ }return found;
+}
 /** Metadata matching, never conclusion extraction. Both index appearances count as ONE publication. */
 export function mergeResearchPublications(rows:{index:string;query:string;items:RawEvidence[]}[],concepts:string[]):ResearchPublication[]{
- const out:ResearchPublication[]=[];const words=new Set(concepts.join(' ').toLowerCase().split(/\W+/).filter(w=>w.length>2));
+ const quarantine=metadataQuarantine(rows);const out:ResearchPublication[]=[];const words=new Set(concepts.join(' ').toLowerCase().split(/\W+/).filter(w=>w.length>2));
  for(const batch of rows)for(const raw of batch.items){
+  if(quarantine.has(raw.url))continue;
   const e=raw as IndexedEvidence,ids=identity(e);if(!ids.pmid&&!ids.doi)continue;
   const validation=validateEvidence(e);if(validation.verdict==='blocked')continue;
   const conflictingDoi=out.filter(p=>ids.doi&&p.doi===ids.doi&&ids.pmid&&p.pmid&&ids.pmid!==p.pmid);
@@ -60,7 +70,6 @@ export function mergeResearchPublications(rows:{index:string;query:string;items:
   if(existing){
    if(!existing.indexes.includes(batch.index))existing.indexes.push(batch.index);
    if(!existing.publishers.includes(e.publisher))existing.publishers.push(e.publisher);
-   if(existing.doi&&ids.doi&&existing.doi!==ids.doi)existing.metadata_conflicts.push('DOI differs for the same PMID; manual identity review required');
    if(existing.doi&&ids.doi&&existing.doi!==ids.doi)existing.metadata_conflicts.push('DOI differs for the same PMID; manual identity review required');
    if(!existing.doi&&ids.doi)existing.doi=ids.doi;
    if(normAr(existing.title)!==normAr(e.title))existing.metadata_conflicts.push('title differs between indexes; manual identity review required');
@@ -75,7 +84,7 @@ export function mergeResearchPublications(rows:{index:string;query:string;items:
 }
 export async function runDeepResearch(db:DB,input:DeepResearchInput,env:DeepResearchEnvironment){
  const normalized=normalizeResearchConcepts(input.concepts);const start=Date.now();
- const base={method:'bounded_multi_index_metadata_research',concepts:normalized.concepts,publications:[] as ResearchPublication[],calls:[] as {index:string;query:string;status:string;cached:boolean}[],requests:0,stored:0,review_state:'unreviewed',claims:[] as never[],scientific_conclusions:[] as never[],conflict_analysis:{status:'NOT_ASSESSED',reason:'Titles and bibliographic metadata cannot establish scientific findings or contradictory outcomes.'},warnings:['نتائج اكتشاف مصادر غير مراجعة؛ وجود دراسة أو عنوانها لا يثبت فائدة أو سلامة أو استنتاجًا علميًا.','PubMed وEurope PMC قد يفهرسان الدراسة نفسها؛ تكرار الفهرسة ليس دليلًا مستقلاً.']};
+ const base={method:'bounded_multi_index_metadata_research',concepts:normalized.concepts,publications:[] as ResearchPublication[],excluded_publications:[] as {url:string;indexes:string[];publication_types:string[]}[],calls:[] as {index:string;query:string;status:string;cached:boolean}[],requests:0,stored:0,review_state:'unreviewed',claims:[] as never[],scientific_conclusions:[] as never[],conflict_analysis:{status:'NOT_ASSESSED',reason:'Titles and bibliographic metadata cannot establish scientific findings or contradictory outcomes.'},warnings:['نتائج اكتشاف مصادر غير مراجعة؛ وجود دراسة أو عنوانها لا يثبت فائدة أو سلامة أو استنتاجًا علميًا.','PubMed وEurope PMC قد يفهرسان الدراسة نفسها؛ تكرار الفهرسة ليس دليلًا مستقلاً.']};
  if(!normalized.valid)return{...base,status:'requires_supported_concepts',elapsed_ms:Date.now()-start};
  if(!externalSearchEnabled(db))return{...base,status:'disabled',elapsed_ms:Date.now()-start};
  if(input.domain&&!['skin','hair','both'].includes(input.domain))return{...base,status:'invalid_domain',elapsed_ms:Date.now()-start};
@@ -98,7 +107,20 @@ export async function runDeepResearch(db:DB,input:DeepResearchInput,env:DeepRese
   }finally{controller.signal.removeEventListener('abort',stop);init?.signal?.removeEventListener('abort',stop);ac.signal.removeEventListener('abort',rejectAbort);}
  };
  const sleep=async(ms:number)=>{check();if(env.sleep)await env.sleep(ms);else await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>{controller.signal.removeEventListener('abort',onAbort);resolve();},ms);const onAbort=()=>{clearTimeout(timer);reject(Error('RESEARCH_CANCELLED_OR_DEADLINE'));};controller.signal.addEventListener('abort',onAbort,{once:true});});check();};
- const rows:{index:string;query:string;items:RawEvidence[]}[]=[];
+ const rows:ResearchRows=[];let finalized=false;
+ const finalize=()=>{
+  if(finalized)return;finalized=true;const quarantined=metadataQuarantine(rows);base.excluded_publications=[...quarantined.values()];
+  db.exec('SAVEPOINT research_metadata_store');let stored=0;try{
+   for(const row of rows)stored+=storeEvidence(db,row.index,row.query,row.items,new Date(env.nowMs??Date.now()).toISOString(),null,null);
+   for(const flag of quarantined.values()){
+    const candidates=db.prepare("SELECT id,validation FROM knowledge_retrievals WHERE url=? AND review_state='unreviewed' AND evidence_state='pending_review'").all(flag.url) as {id:number;validation:string}[];
+    for(const old of candidates){let validation:any={};try{validation=JSON.parse(old.validation);}catch{}
+     db.prepare("UPDATE knowledge_retrievals SET evidence_state='rejected',validation=? WHERE id=? AND review_state='unreviewed'").run(JSON.stringify({...validation,verdict:'blocked',strength:0,cross_index_integrity:flag,reasons:[...(Array.isArray(validation.reasons)?validation.reasons:[]),'علامة سحب أو إشعار نزاهة للمقال نفسه في فهرس آخر؛ يلزم تحقق المراجع.']}),old.id);
+    }
+   }db.exec('RELEASE research_metadata_store');base.stored=stored;
+  }catch(e){db.exec('ROLLBACK TO research_metadata_store');db.exec('RELEASE research_metadata_store');throw e;}
+  base.publications=mergeResearchPublications(rows,normalized.concepts);
+ };
  let activeCall:{index:string;query:string;status:string;cached:boolean}|null=null;
  try{
   for(const query of queries.slice(0,2))for(const connector of [pubMed,europePmc]){
@@ -109,14 +131,13 @@ export async function runDeepResearch(db:DB,input:DeepResearchInput,env:DeepRese
    if(r.status==='ok'){
     const safeItems=r.items.filter(e=>/^https:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/\d{1,12}\/$/.test(e.url)).slice(0,5).map(e=>({...e,title:clean(e.title),publisher:clean(e.publisher,160),pub_types:Array.isArray(e.pub_types)?e.pub_types.filter(t=>typeof t==='string').slice(0,20):[],snippet:'',affiliation:''}));
     rows.push({index:connector.id,query,items:safeItems});
-    base.stored+=storeEvidence(db,connector.id,query,safeItems,new Date(env.nowMs??Date.now()).toISOString(),null,null);
    }
   }
-  base.publications=mergeResearchPublications(rows,normalized.concepts);
+  finalize();
   return{...base,status:!env.online?(base.publications.length?'offline_cached':'offline'):base.calls.some(c=>c.status!=='ok')?'partial':'completed_metadata_research',elapsed_ms:Date.now()-start};
  }catch{
   if(activeCall?.status==='running')activeCall.status=controller.signal.aborted?'cancelled_or_deadline':'failed';
-  base.publications=mergeResearchPublications(rows,normalized.concepts);
+  finalize();
   return{...base,status:controller.signal.aborted?'cancelled_or_deadline':'failed',elapsed_ms:Date.now()-start};
  }finally{clearTimeout(deadline);env.signal?.removeEventListener('abort',abort);}
 }

@@ -138,7 +138,7 @@
     "build_run_id": 45936337100
   },
   "v69_native_trace_checkpoint": {
-    "apk_status": "NOT_BUILT",
+    "apk_status": "BUILD_AND_PACKAGE_CHECK_PASS",
     "quality_gate": "NOT PASSED",
     "software_tests": 288,
     "previous_code_remote": "14396ae43a1d959db28389cca86361f7d2c9887a",
@@ -151,7 +151,12 @@
       "model_comprehension": "FAIL",
       "repeat_guard": "PASS on captured failure",
       "android_or_samsung": false
-    }
+    },
+    "artifact_id": 15171359888,
+    "apk_source_commit": "ec7b34b84075fb175f4a81912ec42977e411ef8c",
+    "apk_sha256": "77a53b7e78a7b86669b1c7c495bb0509ec0717df8d84bf4fd2d8a1cdeed3f837",
+    "debug_certificate_sha256": "d9cd069e2a1d0c4466572687d4038536da9a289c005eb0de2be9600bebc8542e",
+    "compatible_with_previous_debug": false
   },
   "v69_delivered_dev4": {
     "source_commit": "7cbdc9df54dfb054dab2b5e70671f1782b36dd31",
@@ -163,5 +168,15 @@
     "debug_certificate_sha256": "686b6cb3d6c5784a0d72b354900e1fe8e48e6fb9f004855e2b53018eb2549d8b",
     "compatible_with_prior_debug": false,
     "samsung": "NOT TESTED"
+  },
+  "unreleased_source_integrity": {
+    "software_tests": 291,
+    "typecheck": "PASS",
+    "mobile_assets": "PASS",
+    "included_in_dev5_apk": false,
+    "known_index_retractions": "BLOCKED across index mirrors",
+    "full_retraction_check": "NOT_IMPLEMENTED",
+    "qualified_review": "NOT_PERFORMED",
+    "preserve_human_reviewed_knowledge": true
   }
 }

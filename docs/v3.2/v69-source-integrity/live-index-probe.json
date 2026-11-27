@@ -1,0 +1,190 @@
+{
+  "utc": "2026-11-27T04:31:28.935908+00:00",
+  "purpose": "Read-only index publication-type verification; not clinical evidence or knowledge approval",
+  "source": "NLM E-utilities",
+  "accepted_scientific_claims": [],
+  "esearch_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=1&term=skin%20AND%20retracted%20publication%5Bpt%5D",
+  "esearch": {
+    "header": {
+      "type": "esearch",
+      "version": "0.3"
+    },
+    "esearchresult": {
+      "count": "878",
+      "retmax": "1",
+      "retstart": "0",
+      "idlist": [
+        "42420052"
+      ],
+      "translationset": [
+        {
+          "from": "skin",
+          "to": "\"skin\"[MeSH Terms] OR \"skin\"[All Fields]"
+        }
+      ],
+      "querytranslation": "(\"skin\"[MeSH Terms] OR \"skin\"[All Fields]) AND \"retracted publication\"[Publication Type]"
+    }
+  },
+  "esummary_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=json&id=42420052",
+  "esummary": {
+    "header": {
+      "type": "esummary",
+      "version": "0.3"
+    },
+    "result": {
+      "uids": [
+        "42420052"
+      ],
+      "42420052": {
+        "uid": "42420052",
+        "pubdate": "2026 Oct 15",
+        "epubdate": "2026 Jul 8",
+        "source": "Int Immunopharmacol",
+        "authors": [
+          {
+            "name": "Feng C",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Zhang H",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Wang P",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Zhang L",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Liu X",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Yan G",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Yan Y",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Yang J",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Liu J",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Tan F",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Wang X",
+            "authtype": "Author",
+            "clusterid": ""
+          },
+          {
+            "name": "Zeng Q",
+            "authtype": "Author",
+            "clusterid": ""
+          }
+        ],
+        "lastauthor": "Zeng Q",
+        "title": "WITHDRAWN: Corrigendum to \"Oroxylin A suppress LL-37 generated rosacea-like skin inflammation through the modulation of SIRT3-SOD2-NF-κB signaling pathway\" [Int. Immunopharmacol. 129 (2024) 111636].",
+        "sorttitle": "withdrawn corrigendum to oroxylin a suppress ll 37 generated rosacea like skin inflammation through the modulation of sirt3 sod2 nf b signaling pathway int immunopharmacol 129 2024 111636",
+        "volume": "187",
+        "issue": "",
+        "pages": "117101",
+        "lang": [
+          "eng"
+        ],
+        "nlmuniqueid": "100965259",
+        "issn": "1567-5769",
+        "essn": "1878-1705",
+        "pubtype": [
+          "Journal Article",
+          "Retracted Publication"
+        ],
+        "recordstatus": "PubMed - in process",
+        "pubstatus": "256",
+        "articleids": [
+          {
+            "idtype": "pubmed",
+            "idtypen": 1,
+            "value": "42420052"
+          },
+          {
+            "idtype": "doi",
+            "idtypen": 3,
+            "value": "10.1016/j.intimp.2026.117101"
+          },
+          {
+            "idtype": "pii",
+            "idtypen": 4,
+            "value": "S1567-5769(26)00947-1"
+          }
+        ],
+        "history": [
+          {
+            "pubstatus": "pubmed",
+            "date": "2026/07/09 00:40"
+          },
+          {
+            "pubstatus": "medline",
+            "date": "2026/07/09 00:40"
+          },
+          {
+            "pubstatus": "entrez",
+            "date": "2026/07/08 21:52"
+          }
+        ],
+        "references": [
+          {
+            "refsource": "10.1016/j.intimp.2026.117101",
+            "reftype": "Retraction in",
+            "pmid": "",
+            "note": ""
+          }
+        ],
+        "attributes": [
+          "Has Abstract"
+        ],
+        "pmcrefcount": "",
+        "fulljournalname": "International immunopharmacology",
+        "elocationid": "doi: 10.1016/j.intimp.2026.117101",
+        "doctype": "citation",
+        "srccontriblist": [],
+        "booktitle": "",
+        "medium": "",
+        "edition": "",
+        "publisherlocation": "",
+        "publishername": "",
+        "srcdate": "",
+        "reportnumber": "",
+        "availablefromurl": "",
+        "locationlabel": "",
+        "doccontriblist": [],
+        "docdate": "",
+        "bookname": "",
+        "chapter": "",
+        "sortpubdate": "2026/10/15 00:00",
+        "sortfirstauthor": "Feng C",
+        "vernaculartitle": ""
+      }
+    }
+  },
+  "status": "COMPLETED_METADATA_ONLY"
+}

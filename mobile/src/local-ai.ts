@@ -91,7 +91,7 @@ export const localAI = {
         const concepts=[...new Set([...(context.using??[]),...(context.concerns??[]).map((n:string)=>needs[n]).filter(Boolean)])].slice(0,6);
         if(concepts.length){phase('research','جار بحث مصادر علمية؛ النتائج المكتشفة تحتاج مراجعة');try{current.deep_research=await post('/api/intelligence/research',{concepts,domain:context.hair?.length?'hair':'skin',max_queries:1});}catch{current.deep_research={status:'failed',publications:[],notes_ar:['تعذر البحث المتصل؛ لم يُستبدل الجواب المحلي بمعلومات غير متحققة.'],used_in_scientific_answer:false};}}
         if(epoch!==cancellationEpoch)throw Error('CANCELLED');
-        current.mode_requested='research';if(current.deep_research?.publications?.length)current.mode_used='research';if(current.deep_research?.publications?.length)current.mode_used='research';
+        current.mode_requested='research';if(current.deep_research?.publications?.length)current.mode_used='research';
       }
       phase('completed','اكتملت الإجابة');return current;
     } finally { composing = false; clearTimeout(timer); window.removeEventListener('hashchange', cancel); }

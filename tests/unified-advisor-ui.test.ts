@@ -67,3 +67,6 @@ test('saved context UI explicitly saves, restores archived turns and uses the re
  const summary=h.walk(h.root).find(x=>x.tag==='summary'&&h.text(x)==='الاستشارات المحفوظة')!;await summary.props.onclick();await h.walk(h.root).find(x=>x.tag==='button'&&h.text(x)==='استعادة')!.props.onclick();assert.equal(confirmed,1);assert.match(h.text(h.root),/متابعة محفوظة/);
  input.value='أكمل';await form.props.onsubmit({preventDefault(){}});await new Promise(r=>setTimeout(r,0));assert.equal(h.calls.filter(x=>x.path==='/api/intelligence/consult').at(-1).body.session_id,restored);
 });
+
+
+test('research metadata is rendered once and excluded integrity records have a visible warning',()=>{const h=harness();const nodes=h.context.render(fixture({deep_research:{status:'completed_metadata_research',publications:[{title:'Synthetic safe metadata',url:'https://pubmed.ncbi.nlm.nih.gov/123/',indexes:['pubmed']}],excluded_publications:[{url:'https://pubmed.ncbi.nlm.nih.gov/124/'}]}}));const all=nodes.flatMap(h.walk);assert.equal(all.filter((e:Element)=>e.tag==='details'&&e.props.class==='research').length,1);assert.equal(all.filter((e:Element)=>e.tag==='a'&&e.props.href==='https://pubmed.ncbi.nlm.nih.gov/123/').length,1);assert.ok(all.some((e:Element)=>e.props.role==='alert'&&h.text(e).includes('استُبعدت 1')));});

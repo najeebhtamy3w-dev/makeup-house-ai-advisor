@@ -1,0 +1,23 @@
+{
+  "platform": "HOST_METADATA_VALIDATION_NOT_MODEL_REASONING",
+  "pmid": "42420052",
+  "received_pub_types": [
+    "Journal Article",
+    "Retracted Publication"
+  ],
+  "result": {
+    "integrity_status": "RETRACTED_FLAG",
+    "complete": true,
+    "missing": [],
+    "evidence_level": "unknown",
+    "is_marketing": false,
+    "industry_affiliated": false,
+    "strength": 0,
+    "reasons": [
+      "علامة سحب أو إشعار نزاهة منشور في بيانات الفهرسة؛ لا يُستخدم دليلًا على الفعالية أو السلامة."
+    ],
+    "verdict": "blocked"
+  },
+  "scientific_claims_accepted": [],
+  "samsung": false
+}
