@@ -1,0 +1,9 @@
+{
+  "baseline": "1a8a941da2b9c507fe5a3b023a8ed46c13fd3478",
+  "test_file": "current dev7 intelligence-memory-update.test.ts copied unchanged into isolated baseline worktree",
+  "exit_code": 1,
+  "tests": 10,
+  "pass": 7,
+  "fail": 3,
+  "purpose": "Demonstrate added regressions catch missing retained constraints, essential-oil mapping, unresolved fallback relevance. No model invoked."
+}

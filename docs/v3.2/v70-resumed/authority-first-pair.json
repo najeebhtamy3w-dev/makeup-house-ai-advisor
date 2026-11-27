@@ -1,0 +1,75 @@
+{
+  "status": "INVESTIGATIVE_NOT_ADOPTED",
+  "records": [
+    {
+      "case": "hair-initial",
+      "profile": "baseline",
+      "response": {
+        "error": null,
+        "id": "hair-initial-baseline",
+        "metrics": {
+          "finish_reason": "stop",
+          "first_token_ms": 9299.285498,
+          "generation_ms": 33871.411492,
+          "input_tokens": 775,
+          "model_load_ms": 949.078311,
+          "tokens": 235
+        },
+        "text": "{\n  \"intent\": \"clarify\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \t\t\t],\n   \"question\": \"ما نوع الشعر (جاف، دهني، مختلط، شعر مصقول، شعر متقشر)؟ وما هي الحالة الحالية (تساقط، شعرة واحدة، شعر غير منتظم، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، ش\",\n   \"queries\": [\n     \t\t]\n   ,\"tools\": [\n     \t\t]\n   ,\"correction\": false,\n   \"update_fields\": [],\n   \"clear_fields\": []\n  }"
+      },
+      "parsed": {
+        "intent": "clarify",
+        "skin": [],
+        "hair": [],
+        "concerns": [],
+        "ingredients": [],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [],
+        "question": "ما نوع الشعر (جاف، دهني، مختلط، شعر مصقول، شعر متقشر)؟ وما هي الحالة الحالية (تساقط، شعرة واحدة، شعر غير منتظم، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، شعر متقشر، شعر مصقول، ش",
+        "queries": [],
+        "tools": [],
+        "correction": false,
+        "update_fields": [],
+        "clear_fields": []
+      },
+      "wall_seconds": 34.82906970399995,
+      "consultation_accepted": false
+    },
+    {
+      "case": "hair-initial",
+      "profile": "candidate",
+      "response": {
+        "error": null,
+        "id": "hair-initial-candidate",
+        "metrics": {
+          "finish_reason": "stop",
+          "first_token_ms": 11066.786322,
+          "generation_ms": 27165.320566,
+          "input_tokens": 802,
+          "model_load_ms": 949.078311,
+          "tokens": 171
+        },
+        "text": "{\n  \"intent\": \"clarify\",\n  \"skin\": [],\n  \"hair\": [],\n  \"concerns\": [],\n  \"ingredients\": [],\n  \"product_refs\": [],\n  \"constraints\": [],\n  \"missing\": [\n    \t\t\t],\n   \"question\": \"هل هناك أي معلومات سابقة عن نوع البشرة (جافة، دهنية، حساسة، عادية)، نوع الشعر (جاف، دهني، بلون، خشن)، أو أي مشاكل محددة (مثل تساقط الشعر، جفاف، التهابات)؟\",\n  \"queries\": [\n    \t\t\t],\n   \"tools\": [\n     \t\t],\n   \"correction\": false,\n   \"update_fields\": [],\n   \"clear_fields\": []\n}"
+      },
+      "parsed": {
+        "intent": "clarify",
+        "skin": [],
+        "hair": [],
+        "concerns": [],
+        "ingredients": [],
+        "product_refs": [],
+        "constraints": [],
+        "missing": [],
+        "question": "هل هناك أي معلومات سابقة عن نوع البشرة (جافة، دهنية، حساسة، عادية)، نوع الشعر (جاف، دهني، بلون، خشن)، أو أي مشاكل محددة (مثل تساقط الشعر، جفاف، التهابات)؟",
+        "queries": [],
+        "tools": [],
+        "correction": false,
+        "update_fields": [],
+        "clear_fields": []
+      },
+      "wall_seconds": 27.17083780200005,
+      "consultation_accepted": false
+    }
+  ]
+}

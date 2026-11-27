@@ -1,0 +1,95 @@
+✔ legacy correction replaces the addressed fact and retains every unrelated field (4.259612ms)
+✔ targeted correction, selective constraint removal and later enrichment preserve the thread (0.558126ms)
+✔ only explicit clearing forgets a field and never discards safety referrals or product identities (0.435516ms)
+✔ explicit empty mask is a no-op for extracted facts and patches do not mutate input arrays (0.220723ms)
+✔ patch schema rejects unsupported fields, contradictory operations and implicit empty replacement (1.159923ms)
+✔ public multi-turn corrections persist unrelated facts and survive archive resumption (53.544648ms)
+✔ rejected plan memory does not contaminate a repaired clarification (27.480571ms)
+✖ follow-up tools and recommendation validation enforce retained fragrance and local-stock constraints (418.368231ms)
+✖ structured essential-oil avoidance excludes documented aromatic oil but preserves a plain formulation (2.169835ms)
+✖ unresolved short follow-up fallback asks clarification without unrelated evidence or products (49.093738ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 7
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1699.91223
+
+✖ failing tests:
+
+test at tests/intelligence-memory-update.test.ts:1:10321
+✖ follow-up tools and recommendation validation enforce retained fragrance and local-stock constraints (418.368231ms)
+  AssertionError [ERR_ASSERTION]: retained fragrance constraint reaches actual product evaluation
+  + actual - expected
+  
+  + 'conditional'
+  - 'excluded'
+  
+      at TestContext.<anonymous> (/workspace/scratch/94abed0b16f7/dev6-negative-control/tests/intelligence-memory-update.test.ts:115:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'conditional',
+    expected: 'excluded',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/intelligence-memory-update.test.ts:1:13075
+✖ structured essential-oil avoidance excludes documented aromatic oil but preserves a plain formulation (2.169835ms)
+  AssertionError [ERR_ASSERTION]: structured constraint uses the existing ingredient avoidance contract
+  + actual - expected
+  
+  + []
+  - [
+  -   'essential_oil'
+  - ]
+  
+      at TestContext.<anonymous> (/workspace/scratch/94abed0b16f7/dev6-negative-control/tests/intelligence-memory-update.test.ts:126:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'essential_oil' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/intelligence-memory-update.test.ts:1:14187
+✖ unresolved short follow-up fallback asks clarification without unrelated evidence or products (49.093738ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'dandruff-30',
+  +   'sensitive_skin-8',
+  +   'retinoid-42',
+  +   'pigmentation-28'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/workspace/scratch/94abed0b16f7/dev6-negative-control/tests/intelligence-memory-update.test.ts:149:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'dandruff-30', 'sensitive_skin-8', 'retinoid-42', 'pigmentation-28' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
