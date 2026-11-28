@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.VisualFinder" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/burgundy</item>
+        <item name="android:colorPrimaryDark">@color/burgundy_dark</item>
+        <item name="android:colorAccent">@color/gold</item>
+        <item name="android:windowBackground">@color/ivory</item>
+        <item name="android:statusBarColor">@color/ivory</item>
+        <item name="android:navigationBarColor">@color/ivory</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:textColorPrimary">@color/charcoal</item>
+        <item name="android:textColor">@color/charcoal</item>
+        <item name="android:alertDialogTheme">@style/Theme.VisualFinder.Dialog</item>
+    </style>
+    <style name="Theme.VisualFinder.Dialog" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/burgundy</item>
+    </style>
+    <!-- Pre-Android 12 launch: branded window background. -->
+    <style name="Theme.VisualFinder.Starting" parent="Theme.VisualFinder">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+
+    <style name="Btn" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:minHeight">56dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <style name="Btn.Primary">
+        <item name="android:background">@drawable/btn_primary</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="Btn.Gold">
+        <item name="android:background">@drawable/btn_gold</item>
+        <item name="android:textColor">@color/charcoal</item>
+    </style>
+    <style name="Btn.Outline">
+        <item name="android:background">@drawable/btn_outline</item>
+        <item name="android:textColor">@color/burgundy</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+    <style name="NavBtn" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textColor">@color/burgundy</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">2dp</item>
+        <item name="android:paddingEnd">2dp</item>
+    </style>
+</resources>

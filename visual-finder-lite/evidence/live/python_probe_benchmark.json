@@ -1,0 +1,284 @@
+[
+ {
+  "category": "cream",
+  "brand": "Mixa",
+  "product": "La Crème des peaux extra-sèches",
+  "upload_bytes": 32862,
+  "upload_ms": 911,
+  "cbir_id": "2107287/0hExcHEvKbzwCvkqu7jiNA2901",
+  "cbir_unique": true,
+  "results_ms": 2068,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 8,
+  "top3_titles": [
+   "Mixa Cream: Madeca Cream, Slow Aging, Face Moisturizer, Sensitive Skin, Acne, Be",
+   "MIXA Crème Peaux très Sèches à ternes Aux beurres de Cacao et Karité purs 400 ml",
+   "Mixa Intensif Peaux Sèches Crème 400ml - Multi-Usages"
+  ],
+  "download": "no reachable origin (sandbox allowlist blocks most third-party hosts)"
+ },
+ {
+  "category": "shampoo",
+  "brand": "cadum",
+  "product": "cadum",
+  "upload_bytes": 43604,
+  "upload_ms": 894,
+  "cbir_id": "1827690/Bg2uyO4Uwyl-CzYpj3KvSw2908",
+  "cbir_unique": true,
+  "results_ms": 1865,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 7,
+  "top3_titles": [
+   "Cadum Shampooing 2 en 1 Démêleur Force & Vitalité aux Œufs - Cheveux Normaux - I",
+   "شامبو كادوم",
+   "Cadum Def by jeffery daniels blog"
+  ],
+  "download": "no reachable origin (sandbox allowlist blocks most third-party hosts)"
+ },
+ {
+  "category": "serum",
+  "brand": "essence",
+  "product": "Primer Serum",
+  "upload_bytes": 517541,
+  "upload_ms": 1467,
+  "cbir_id": "2107692/HbBKDZ-yBXGNawcaNpQy3w2914",
+  "cbir_unique": true,
+  "results_ms": 2133,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 9,
+  "top3_titles": [
+   "Сыворотка для лица Здравствуйте, хорошая штука! Праймер, 30 мл купить, отзывы, ф",
+   "Купить Essence Hello Good Stuff Primer Serum сыворотка 30 мл в Туздыбастау - Маг",
+   "Essence, Сыворотка-праймер для лица, 30 мл, HELLO, GOOD STUFF! купить на OZON по"
+  ],
+  "download": "no reachable origin (sandbox allowlist blocks most third-party hosts)"
+ },
+ {
+  "category": "sunscreen",
+  "brand": "Avène",
+  "product": "Spray Solare Protezione alta SPF 50 - Corpo",
+  "upload_bytes": 872921,
+  "upload_ms": 1623,
+  "cbir_id": "1606440/6wCoTgFbJhSTQSkB6OZgxA2921",
+  "cbir_unique": true,
+  "results_ms": 2158,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 2,
+  "top3_titles": [
+   "AVENE Sonnenspray SPF 50 19129469",
+   "Спрей солнцезащитный Avene, цвет: прозрачный, XD001XW02WVO - купить в интернет-м",
+   "Eau Thermale Avène Spray Solare SPF 30 Alta protezione - Risparmia il 15% con il"
+  ],
+  "download": {
+   "url": "https://avatars.mds.yandex.net/get-mpic/19876206/2a0000019e766b18663aac383c02316a230e/orig",
+   "http": 200,
+   "content_type": "image/jpeg",
+   "magic": "jpeg",
+   "bytes": 49237,
+   "sha256": "a6b56050ef5a99ca"
+  }
+ },
+ {
+  "category": "mascara",
+  "brand": "Essence",
+  "product": "Essence Lash Princess False Lash Effect Black Mascara",
+  "upload_bytes": 123166,
+  "upload_ms": 1138,
+  "cbir_id": "4494937/We3p32L_SU4B6u9iMAuLFA2929",
+  "cbir_unique": true,
+  "results_ms": 1926,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 10,
+  "top3_titles": [
+   "Тушь для ресниц Essence Lash Princess False Effect Mascara - \\",
+   "Essence - Volume Lash Lash Princess Mascara - Купить дешево на Joom",
+   "Тушь для ресниц Essence Lash Princess False Effect Mascara - \\"
+  ],
+  "download": "no reachable origin (sandbox allowlist blocks most third-party hosts)"
+ },
+ {
+  "category": "hair-conditioner",
+  "brand": "Herbal Essences",
+  "product": "Coconut Milk",
+  "upload_bytes": 61075,
+  "upload_ms": 859,
+  "cbir_id": "10506154/2ofl0_vd0FISN1FgHv8BBg2936",
+  "cbir_unique": true,
+  "results_ms": 2242,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 10,
+  "top3_titles": [
+   "Шампунь и кондиционер Herbal Essences с марокканским аргановым маслом для мягких",
+   "herbal essences coco All products are discounted, Cheaper Than Retail Price, Fre",
+   "Herbal Essences Шампунь для волос Кокосовое молоко 250 мл - купить по цене от 29"
+  ],
+  "download": {
+   "url": "https://avatars.mds.yandex.net/get-mpic/5289362/img_id4996830837227876447.png/orig",
+   "http": 200,
+   "content_type": "image/png",
+   "magic": "png",
+   "bytes": 1368638,
+   "sha256": "c0efb052ef510d62"
+  }
+ },
+ {
+  "category": "body-lotion",
+  "brand": "Johnson’s",
+  "product": "Face & body lotion",
+  "upload_bytes": 560942,
+  "upload_ms": 1458,
+  "cbir_id": "1656340/ZNE1Una0IlHKnl4d-vQRrQ2946",
+  "cbir_unique": true,
+  "results_ms": 1997,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 8,
+  "top3_titles": [
+   "Johnson Baby Daily Face And Body Lotion Best Sale www.puritanaudiolabs.com",
+   "Johnson's Baby Молочко Нежность хлопка - купить по низкой цене на Яндекс Маркете",
+   "Johnson's Cotton Touch 2 In 1 Wash Shop www.puritanaudiolabs.com"
+  ],
+  "download": {
+   "url": "https://avatars.mds.yandex.net/get-mpic/4338525/img_id4473251431628679388.jpeg/orig",
+   "http": 200,
+   "content_type": "image/jpeg",
+   "magic": "jpeg",
+   "bytes": 145063,
+   "sha256": "64046d35685dce44"
+  }
+ },
+ {
+  "category": "perfume",
+  "brand": "Maison Francis Kurkdjian",
+  "product": "Baccarat Rouge 540",
+  "upload_bytes": 441150,
+  "upload_ms": 1328,
+  "cbir_id": "3921138/rUAVkXNh93MiAIHX_63khA2953",
+  "cbir_unique": true,
+  "results_ms": 2183,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 4,
+  "top3_titles": [
+   "Отзывы на Aqua Vitae Cologne Forte Parfum парфюмерия maison francis kurkdjian 65",
+   "Baccarat540, Baccarat rouge 540, baccarat алматы, Baccarat rouge, baccarat Караг",
+   "Maison Francis Kurkdjian - Rare Baccarat Rouge 540 Eau De Parfum 2.4 oz / 70 ml "
+  ],
+  "download": "no reachable origin (sandbox allowlist blocks most third-party hosts)"
+ },
+ {
+  "category": "shower-gel",
+  "brand": "Le Petit Marseillais",
+  "product": "Gel Douche Peche nectarine",
+  "upload_bytes": 145922,
+  "upload_ms": 1160,
+  "cbir_id": "8220711/8c8vgvdXpGKodAkNPff_QQ2960",
+  "cbir_unique": true,
+  "results_ms": 2005,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 9,
+  "top3_titles": [
+   "Le Petit Marseillais Biała brzoskwinia/Nektarynka гель для душа, 400 ml купить в",
+   "Le Petit Marseillais Средство для душа, гель, 650 мл купить на OZON по низкой це",
+   "Гель для душа Le Petit Marseillais Белый персик и Нектарин, 400 мл. (Франция) - "
+  ],
+  "download": {
+   "url": "https://avatars.mds.yandex.net/get-mpic/901948/img_id4427065382757540416.jpeg/orig",
+   "http": 200,
+   "content_type": "image/jpeg",
+   "magic": "jpeg",
+   "bytes": 43285,
+   "sha256": "e9485dc8d614719e"
+  }
+ },
+ {
+  "category": "lipstick",
+  "brand": "Nyx",
+  "product": "NYX Professional Makeup Lingerie XXL 05 Stripd Down Lippenstift",
+  "upload_bytes": 26118,
+  "upload_ms": 734,
+  "cbir_id": "117762/MpDbylXJ1fw2rPOLT8_p2g2966",
+  "cbir_unique": true,
+  "results_ms": 1956,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 9,
+  "top3_titles": [
+   "NYX professional makeup Жидкая помада для губ Lip Lingerie XXL, оттенок 23 it's ",
+   "Матовый жидкий губной карандаш NYX Professional Makeup Lip Lingerie XXL 25 Cande",
+   "Помада для губ, премиумоттенок купить на OZON по низкой цене (5534409238)"
+  ],
+  "download": {
+   "url": "https://avatars.mds.yandex.net/get-mpic/1521939/img_id1649123033635079748.jpeg/orig",
+   "http": 200,
+   "content_type": "image/jpeg",
+   "magic": "jpeg",
+   "bytes": 11769,
+   "sha256": "a0af10b04e94d1b9"
+  }
+ },
+ {
+  "category": "deodorant",
+  "brand": "Narta",
+  "product": "5 protection",
+  "upload_bytes": 1715231,
+  "upload_ms": 1815,
+  "cbir_id": "1387308/Bws_rrcfbX7F05HUJ3YWcA2972",
+  "cbir_unique": true,
+  "results_ms": 2144,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 6,
+  "top3_titles": [
+   "Шариковый дезодорант Narta для мужчин, 50 мл купить по цене от 1593 ₽ в интернет",
+   "Deodorant Anti Transpirant Sans Odeur by paulette west blog",
+   "Шариковый дезодорант Protection5 \\"
+  ],
+  "download": "no reachable origin (sandbox allowlist blocks most third-party hosts)"
+ },
+ {
+  "category": "toothpaste",
+  "brand": "Signal",
+  "product": "Signal",
+  "upload_bytes": 273657,
+  "upload_ms": 1304,
+  "cbir_id": "4601268/o-p0p7ANidi9acrwhkmi8A2980",
+  "cbir_unique": true,
+  "results_ms": 2078,
+  "results_http": 200,
+  "captcha": false,
+  "similar_count": 40,
+  "top10_brand_hits": 6,
+  "top3_titles": [
+   "Сигнал зубная паста уголь белый herbale 120g eBay",
+   "Steam Workshop::dentifrice",
+   "MaxMart Online . Signal Toothpaste Cavity Protection 75ml"
+  ],
+  "download": {
+   "url": "https://avatars.mds.yandex.net/get-eda/3774488/d9b521bd572da6dddf1deb7768fec146/orig",
+   "http": 200,
+   "content_type": "image/jpeg",
+   "magic": "jpeg",
+   "bytes": 169215,
+   "sha256": "90116a0d2c701aea"
+  }
+ }
+]

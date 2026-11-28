@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ system splash screen (used on Android 16). -->
+    <style name="Theme.VisualFinder.Starting" parent="Theme.VisualFinder">
+        <item name="android:windowSplashScreenBackground">@color/ivory</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/burgundy</item>
+    </style>
+</resources>

@@ -1,0 +1,162 @@
+[
+ {
+  "image": "body-lotion.jpg",
+  "cbir_id": "4330620/ZNE1Una0IlHKnl4d-vQRrQ4651",
+  "captcha": false,
+  "http": 200,
+  "cycle": 1,
+  "results": 40
+ },
+ {
+  "image": "cream.jpg",
+  "cbir_id": "2404916/0hExcHEvKbzwCvkqu7jiNA4656",
+  "captcha": false,
+  "http": 200,
+  "cycle": 2,
+  "results": 40
+ },
+ {
+  "image": "deodorant.jpg",
+  "cbir_id": "2001141/Bws_rrcfbX7F05HUJ3YWcA4660",
+  "captcha": false,
+  "http": 200,
+  "cycle": 3,
+  "results": 40
+ },
+ {
+  "image": "hair-conditioner.jpg",
+  "cbir_id": "9416909/2ofl0_vd0FISN1FgHv8BBg4665",
+  "captcha": false,
+  "http": 200,
+  "cycle": 4,
+  "results": 40
+ },
+ {
+  "image": "lipstick.jpg",
+  "cbir_id": "3260151/MpDbylXJ1fw2rPOLT8_p2g4669",
+  "captcha": false,
+  "http": 200,
+  "cycle": 5,
+  "results": 40
+ },
+ {
+  "image": "mascara.jpg",
+  "cbir_id": "12731128/We3p32L_SU4B6u9iMAuLFA4673",
+  "captcha": false,
+  "http": 200,
+  "cycle": 6,
+  "results": 40
+ },
+ {
+  "image": "perfume.jpg",
+  "cbir_id": "2023711/rUAVkXNh93MiAIHX_63khA4677",
+  "captcha": false,
+  "http": 200,
+  "cycle": 7,
+  "results": 40
+ },
+ {
+  "image": "serum.jpg",
+  "cbir_id": "6452924/HbBKDZ-yBXGNawcaNpQy3w4681",
+  "captcha": false,
+  "http": 200,
+  "cycle": 8,
+  "results": 40
+ },
+ {
+  "image": "shampoo.jpg",
+  "cbir_id": "10245192/Bg2uyO4Uwyl-CzYpj3KvSw4686",
+  "captcha": false,
+  "http": 200,
+  "cycle": 9,
+  "results": 40
+ },
+ {
+  "image": "shower-gel.jpg",
+  "cbir_id": "1338757/8c8vgvdXpGKodAkNPff_QQ4690",
+  "captcha": false,
+  "http": 200,
+  "cycle": 10,
+  "results": 40
+ },
+ {
+  "image": "sunscreen.jpg",
+  "cbir_id": "6531188/6wCoTgFbJhSTQSkB6OZgxA4694",
+  "captcha": false,
+  "http": 200,
+  "cycle": 11,
+  "results": 40
+ },
+ {
+  "image": "toothpaste.jpg",
+  "cbir_id": "7179920/o-p0p7ANidi9acrwhkmi8A4699",
+  "captcha": false,
+  "http": 200,
+  "cycle": 12,
+  "results": 40
+ },
+ {
+  "image": "body-lotion.jpg",
+  "cbir_id": "2242385/ZNE1Una0IlHKnl4d-vQRrQ4704",
+  "captcha": false,
+  "http": 200,
+  "cycle": 13,
+  "results": 40
+ },
+ {
+  "image": "cream.jpg",
+  "cbir_id": "1537273/0hExcHEvKbzwCvkqu7jiNA4708",
+  "captcha": false,
+  "http": 200,
+  "cycle": 14,
+  "results": 40
+ },
+ {
+  "image": "deodorant.jpg",
+  "cbir_id": "9429637/Bws_rrcfbX7F05HUJ3YWcA4712",
+  "captcha": false,
+  "http": 200,
+  "cycle": 15,
+  "results": 40
+ },
+ {
+  "image": "hair-conditioner.jpg",
+  "cbir_id": "1613984/2ofl0_vd0FISN1FgHv8BBg4717",
+  "captcha": false,
+  "http": 200,
+  "cycle": 16,
+  "results": 40
+ },
+ {
+  "image": "lipstick.jpg",
+  "cbir_id": "768002/MpDbylXJ1fw2rPOLT8_p2g4721",
+  "captcha": false,
+  "http": 200,
+  "cycle": 17,
+  "results": 40
+ },
+ {
+  "image": "mascara.jpg",
+  "cbir_id": "1747157/We3p32L_SU4B6u9iMAuLFA4725",
+  "captcha": false,
+  "http": 200,
+  "cycle": 18,
+  "results": 40
+ },
+ {
+  "image": "perfume.jpg",
+  "cbir_id": "2436487/rUAVkXNh93MiAIHX_63khA4729",
+  "captcha": false,
+  "http": 200,
+  "cycle": 19,
+  "results": 40
+ },
+ {
+  "image": "serum.jpg",
+  "cbir_id": "1907776/HbBKDZ-yBXGNawcaNpQy3w4734",
+  "captcha": false,
+  "http": 200,
+  "cycle": 20,
+  "results": 40
+ }
+]

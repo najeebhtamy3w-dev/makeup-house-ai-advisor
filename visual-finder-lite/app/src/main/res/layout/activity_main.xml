@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layoutDirection="rtl"
+        android:paddingStart="20dp" android:paddingEnd="20dp"
+        android:paddingTop="20dp" android:paddingBottom="24dp">
+
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/brand_title" android:gravity="center"
+            android:textColor="@color/burgundy" android:textSize="28sp"
+            android:textStyle="bold" android:letterSpacing="0.12" android:fontFamily="serif" />
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/brand_subtitle" android:gravity="center"
+            android:textColor="@color/gold" android:textSize="13sp"
+            android:letterSpacing="0.3" android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:text="@string/tagline" android:gravity="center"
+            android:textColor="@color/charcoal_soft" android:textSize="14sp" />
+
+        <!-- Preview + search action -->
+        <FrameLayout
+            android:id="@+id/previewFrame"
+            android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+            android:layout_marginTop="18dp" android:minHeight="280dp"
+            android:background="@drawable/preview_frame" android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/preview"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:scaleType="fitCenter" android:contentDescription="@string/preview_desc"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/previewEmpty"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:gravity="center" android:text="@string/preview_empty"
+                android:textColor="@color/charcoal_soft" android:textSize="15sp"
+                android:lineSpacingExtra="4dp" />
+
+            <LinearLayout
+                android:id="@+id/progress"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:background="#CCFBF7F0" android:gravity="center"
+                android:orientation="vertical" android:visibility="gone"
+                android:clickable="true" android:focusable="true">
+                <ProgressBar
+                    android:layout_width="48dp" android:layout_height="48dp"
+                    android:indeterminateTint="@color/burgundy" />
+                <TextView
+                    android:id="@+id/progressText"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:textColor="@color/burgundy"
+                    android:textSize="15sp" android:textStyle="bold" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/btnSearch" style="@style/Btn.Gold"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:minHeight="64dp"
+            android:text="@string/btn_search" android:textSize="19sp"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:visibility="gone" />
+
+        <!-- Error box -->
+        <LinearLayout
+            android:id="@+id/errorBox"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:orientation="vertical"
+            android:background="@drawable/error_bg" android:padding="12dp"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textColor="@color/error" android:textSize="15sp" />
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btnRetry" style="@style/Btn.Outline"
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content" android:text="@string/btn_retry" />
+                <Space android:layout_width="8dp" android:layout_height="1dp" />
+                <Button
+                    android:id="@+id/btnManual" style="@style/Btn.Outline"
+                    android:layout_width="0dp" android:layout_weight="1.4"
+                    android:layout_height="wrap_content" android:text="@string/btn_manual" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Capture / pick -->
+        <Button
+            android:id="@+id/btnCapture" style="@style/Btn.Primary"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:minHeight="64dp"
+            android:text="@string/btn_capture" android:textSize="19sp"
+            android:drawableStart="@android:drawable/ic_menu_camera" />
+        <Button
+            android:id="@+id/btnGallery" style="@style/Btn.Outline"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:minHeight="56dp"
+            android:text="@string/btn_gallery" android:textSize="16sp"
+            android:drawableStart="@android:drawable/ic_menu_gallery" />
+
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:gravity="center"
+            android:text="@string/usage_note" android:textColor="@color/charcoal_soft"
+            android:textSize="12sp" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ميك أب هاوس – الباحث البصري</string>
+    <string name="brand_title">MAKEUP HOUSE</string>
+    <string name="brand_subtitle">VISUAL FINDER LITE</string>
+    <string name="tagline">صوّر المنتج، ثم ابحث عن صوره المشابهة في Yandex</string>
+
+    <string name="btn_capture">تصوير المنتج</string>
+    <string name="btn_gallery">اختيار صورة من المعرض</string>
+    <string name="btn_search">البحث عن صور مشابهة</string>
+    <string name="btn_recapture">إعادة التصوير</string>
+    <string name="btn_other_image">اختيار صورة أخرى</string>
+    <string name="btn_retry">إعادة المحاولة</string>
+    <string name="btn_manual">فتح Yandex والرفع يدويًا</string>
+
+    <string name="preview_empty">لم تُختر صورة بعد.\nصوّر المنتج أو اختر صورة من المعرض.</string>
+    <string name="preview_desc">معاينة صورة المنتج</string>
+    <string name="status_preparing">جارٍ تجهيز الصورة…</string>
+    <string name="status_uploading">جارٍ رفع الصورة إلى Yandex…</string>
+
+    <string name="err_no_internet">لا يوجد اتصال بالإنترنت. تحقّق من الشبكة ثم أعد المحاولة.</string>
+    <string name="err_upload">تعذّر رفع الصورة إلى Yandex. يمكنك إعادة المحاولة أو الرفع يدويًا من صفحة Yandex.</string>
+    <string name="err_timeout">انتهت مهلة الاتصال بـ Yandex (الاتصال ضعيف). أعد المحاولة.</string>
+    <string name="err_decode">تعذّر قراءة هذه الصورة (قد تكون تالفة أو بصيغة غير مدعومة). اختر صورة أخرى.</string>
+    <string name="err_no_camera">لا يوجد تطبيق كاميرا متاح على هذا الجهاز.</string>
+    <string name="err_storage">مساحة التخزين غير كافية لحفظ الصورة.</string>
+    <string name="msg_capture_cancelled">أُلغي التصوير.</string>
+    <string name="msg_pick_cancelled">لم تُختر أي صورة.</string>
+
+    <!-- Search screen -->
+    <string name="nav_back">رجوع</string>
+    <string name="nav_reload">إعادة تحميل</string>
+    <string name="nav_browser">فتح في المتصفح</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="hint_manual">اضغط زر الكاميرا في صفحة Yandex وستُرفق صورتك تلقائيًا.</string>
+    <string name="hint_results">اختر صورة ثم اضغط زر التنزيل ↓ أو اضغط مطوّلًا على الصورة لحفظها.</string>
+    <string name="page_error">تعذّر تحميل صفحة Yandex. تحقّق من الاتصال ثم اضغط «إعادة تحميل».</string>
+    <string name="captcha_hint">طلبت Yandex التحقق (CAPTCHA). أكمله في الصفحة ثم تابع.</string>
+
+    <string name="dl_title">حفظ الصورة</string>
+    <string name="dl_message">هل تريد تنزيل هذه الصورة إلى معرض الهاتف؟</string>
+    <string name="dl_save">تنزيل</string>
+    <string name="dl_open_page">فتحها في الصفحة</string>
+    <string name="dl_cancel">إلغاء</string>
+    <string name="dl_menu_save">حفظ الصورة</string>
+    <string name="dl_in_progress">جارٍ تنزيل الصورة…</string>
+    <string name="dl_done">تم حفظ الصورة في: الصور › MakeupHouse</string>
+    <string name="dl_view">عرض</string>
+    <string name="dl_not_image">الرابط لا يحتوي على صورة قابلة للحفظ (الموقع المصدر أعاد صفحة وليس صورة).</string>
+    <string name="dl_failed">فشل تنزيل الصورة من الموقع المصدر. جرّب الضغط المطوّل على الصورة المعروضة لحفظ نسخة Yandex.</string>
+    <string name="dl_unsupported">هذا النوع من الروابط لا يمكن حفظه داخل التطبيق. استخدم «فتح في المتصفح».</string>
+    <string name="usage_note">تنبيه: ظهور الصورة في نتائج البحث لا يعني إذنًا باستخدامها تجاريًا.</string>
+</resources>

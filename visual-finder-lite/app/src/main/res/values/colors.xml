@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ivory">#FBF7F0</color>
+    <color name="ivory_dark">#F1EADF</color>
+    <color name="burgundy">#7A1E35</color>
+    <color name="burgundy_dark">#5C1427</color>
+    <color name="gold">#C2A15A</color>
+    <color name="gold_soft">#E9DCBC</color>
+    <color name="charcoal">#2B2B2E</color>
+    <color name="charcoal_soft">#6B6870</color>
+    <color name="error">#B3261E</color>
+    <color name="white">#FFFFFF</color>
+</resources>

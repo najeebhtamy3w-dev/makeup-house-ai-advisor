@@ -1,0 +1,110 @@
+[
+ {
+  "file": "cream.jpg",
+  "category": "cream",
+  "code": "3600551020419",
+  "brand": "Mixa",
+  "product": "La Crème des peaux extra-sèches",
+  "source": "https://images.openbeautyfacts.org/images/products/360/055/102/0419/front_en.21.full.jpg",
+  "bytes": 32862
+ },
+ {
+  "file": "shampoo.jpg",
+  "category": "shampoo",
+  "code": "6111056012986",
+  "brand": "cadum",
+  "product": "cadum",
+  "source": "https://images.openbeautyfacts.org/images/products/611/105/601/2986/front_ar.28.full.jpg",
+  "bytes": 43604
+ },
+ {
+  "file": "serum.jpg",
+  "category": "serum",
+  "code": "4059729338792",
+  "brand": "essence",
+  "product": "Primer Serum",
+  "source": "https://images.openbeautyfacts.org/images/products/405/972/933/8792/front_ro.3.full.jpg",
+  "bytes": 517541
+ },
+ {
+  "file": "sunscreen.jpg",
+  "category": "sunscreen",
+  "code": "3282770396331",
+  "brand": "Avène",
+  "product": "Spray Solare Protezione alta SPF 50 - Corpo",
+  "source": "https://images.openbeautyfacts.org/images/products/328/277/039/6331/front_it.8.full.jpg",
+  "bytes": 872921
+ },
+ {
+  "file": "mascara.jpg",
+  "category": "mascara",
+  "code": "4250947516027",
+  "brand": "Essence",
+  "product": "Essence Lash Princess False Lash Effect Black Mascara",
+  "source": "https://images.openbeautyfacts.org/images/products/425/094/751/6027/front_en.6.full.jpg",
+  "bytes": 123166
+ },
+ {
+  "file": "hair-conditioner.jpg",
+  "category": "hair-conditioner",
+  "code": "8001090662200",
+  "brand": "Herbal Essences",
+  "product": "Coconut Milk",
+  "source": "https://images.openbeautyfacts.org/images/products/800/109/066/2200/front_en.15.full.jpg",
+  "bytes": 61075
+ },
+ {
+  "file": "body-lotion.jpg",
+  "category": "body-lotion",
+  "code": "3574661428093",
+  "brand": "Johnson’s",
+  "product": "Face & body lotion",
+  "source": "https://images.openbeautyfacts.org/images/products/357/466/142/8093/front_en.5.full.jpg",
+  "bytes": 560942
+ },
+ {
+  "file": "perfume.jpg",
+  "category": "perfume",
+  "code": "3700559603116",
+  "brand": "Maison Francis Kurkdjian",
+  "product": "Baccarat Rouge 540",
+  "source": "https://images.openbeautyfacts.org/images/products/370/055/960/3116/front_en.3.full.jpg",
+  "bytes": 441150
+ },
+ {
+  "file": "shower-gel.jpg",
+  "category": "shower-gel",
+  "code": "3574661701288",
+  "brand": "Le Petit Marseillais",
+  "product": "Gel Douche Peche nectarine",
+  "source": "https://images.openbeautyfacts.org/images/products/357/466/170/1288/front_fr.10.full.jpg",
+  "bytes": 145922
+ },
+ {
+  "file": "lipstick.jpg",
+  "category": "lipstick",
+  "code": "0800897003968",
+  "brand": "Nyx",
+  "product": "NYX Professional Makeup Lingerie XXL 05 Stripd Down Lippenstift",
+  "source": "https://images.openbeautyfacts.org/images/products/080/089/700/3968/front_en.5.full.jpg",
+  "bytes": 26118
+ },
+ {
+  "file": "deodorant.jpg",
+  "category": "deodorant",
+  "code": "3600551145914",
+  "brand": "Narta",
+  "product": "5 protection",
+  "source": "https://images.openbeautyfacts.org/images/products/360/055/114/5914/front_en.8.full.jpg",
+  "bytes": 1715231
+ },
+ {
+  "file": "toothpaste.jpg",
+  "category": "toothpaste",
+  "code": "6221048407796",
+  "brand": "Signal",
+  "product": "Signal",
+  "source": "https://images.openbeautyfacts.org/images/products/622/104/840/7796/front_fr.6.full.jpg",
+  "bytes": 273657
+ }
+]

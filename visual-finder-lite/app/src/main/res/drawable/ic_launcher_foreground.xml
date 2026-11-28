@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- magnifier ring -->
+    <path android:strokeColor="#C2A15A" android:strokeWidth="5" android:fillColor="#00000000"
+        android:pathData="M48,32a16,16 0,1 1,0 32a16,16 0,1 1,0 -32z"/>
+    <!-- handle -->
+    <path android:strokeColor="#C2A15A" android:strokeWidth="7" android:strokeLineCap="round"
+        android:pathData="M60,60 L73,73"/>
+    <!-- lipstick/bottle silhouette inside lens -->
+    <path android:fillColor="#FBF7F0" android:pathData="M44,41h8v4h-8z"/>
+    <path android:fillColor="#FBF7F0" android:pathData="M42,46h12v12h-12z"/>
+    <!-- sparkle -->
+    <path android:fillColor="#E9DCBC" android:pathData="M71,30 L73,36 L79,38 L73,40 L71,46 L69,40 L63,38 L69,36z"/>
+</vector>

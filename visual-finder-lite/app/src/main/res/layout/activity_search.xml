@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="52dp"
+        android:orientation="horizontal" android:layoutDirection="rtl"
+        android:background="@color/white" android:elevation="2dp">
+        <Button android:id="@+id/navBack" style="@style/NavBtn" android:text="@string/nav_back" />
+        <Button android:id="@+id/navReload" style="@style/NavBtn" android:text="@string/nav_reload" />
+        <Button android:id="@+id/navBrowser" style="@style/NavBtn" android:text="@string/nav_browser" />
+        <Button android:id="@+id/navHome" style="@style/NavBtn" android:text="@string/nav_home"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/pageProgress"
+        style="@android:style/Widget.Material.ProgressBar.Horizontal"
+        android:layout_width="match_parent" android:layout_height="3dp"
+        android:max="100" android:progressTint="@color/burgundy"
+        android:progressBackgroundTint="@color/ivory_dark" />
+
+    <TextView
+        android:id="@+id/banner"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_margin="6dp" android:background="@drawable/banner_bg"
+        android:padding="10dp" android:textColor="@color/charcoal" android:textSize="14sp"
+        android:textDirection="rtl" android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <WebView
+            android:id="@+id/web"
+            android:layout_width="match_parent" android:layout_height="match_parent" />
+        <LinearLayout
+            android:id="@+id/errorBox"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:background="@color/ivory" android:gravity="center"
+            android:orientation="vertical" android:padding="24dp" android:visibility="gone">
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center" android:text="@string/page_error"
+                android:textColor="@color/error" android:textSize="16sp" />
+            <Button
+                android:id="@+id/btnErrorRetry" style="@style/Btn.Primary"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:text="@string/btn_retry" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>
