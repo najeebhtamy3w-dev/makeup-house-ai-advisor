@@ -163,6 +163,7 @@ class UiRobolectricTest {
                 assertFalse(web.settings.allowFileAccess)
                 assertFalse(web.settings.allowContentAccess)
                 assertEquals("رجوع", a.findViewById<Button>(R.id.navBack).text.toString())
+                assertEquals("إنستغرام", a.findViewById<Button>(R.id.navInstagram).text.toString())
                 shot(a.findViewById<View>(R.id.root).rootView, "05_search_toolbar")
             }
         }
@@ -188,6 +189,68 @@ class UiRobolectricTest {
                 got = null
                 assertTrue(chrome.onShowFileChooser(web, cb, params))
                 assertNull(got)
+            }
+        }
+    }
+
+    @Test fun instagramIntents_preferInstalledApp_elseBrowser() {
+        val url = "https://www.instagram.com/explore/tags/nyx/"
+        val noApp = SearchActivity.instagramIntents(app, url)
+        assertEquals(1, noApp.size); assertNull(noApp[0].`package`)
+        assertEquals(url, noApp[0].dataString)
+        shadowOf(app.packageManager).installPackage(android.content.pm.PackageInfo().apply { packageName = "com.instagram.android" })
+        val withApp = SearchActivity.instagramIntents(app, url)
+        assertEquals(listOf("com.instagram.android", null), withApp.map { it.`package` })
+        assertTrue(withApp.all { it.hasCategory(android.content.Intent.CATEGORY_BROWSABLE) })
+    }
+
+    @Test fun instagramButton_withoutResults_explainsWhatToDo() {
+        ActivityScenario.launch<SearchActivity>(SearchActivity.manual(app, Uri.parse("content://x/y.jpg"))).use { sc ->
+            sc.onActivity { a ->
+                val b = a.findViewById<Button>(R.id.navInstagram)
+                assertEquals("إنستغرام", b.text.toString())
+                b.performClick(); idle()
+                val d = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog() as android.app.AlertDialog
+                assertTrue(d.isShowing)
+                val msg = d.findViewById<TextView>(R.id.igSource)
+                assertEquals(View.VISIBLE, msg.visibility)
+                assertTrue(msg.text.contains("ابحث بالصورة أولًا"))
+                // typing a name still allows searching; button shows the live hashtag
+                d.findViewById<android.widget.EditText>(R.id.igQuery).setText("Essence Lash Princess")
+                assertEquals("#essencelashprincess", d.findViewById<Button>(R.id.igByTag).text.toString())
+                d.findViewById<Button>(R.id.igByTag).performClick(); idle()
+                val started = shadowOf(a).nextStartedActivity
+                assertEquals("https://www.instagram.com/explore/tags/essencelashprincess/", started.dataString)
+                val clip = app.getSystemService(android.content.ClipboardManager::class.java).primaryClip!!
+                assertEquals("#essencelashprincess", clip.getItemAt(0).text.toString())
+            }
+        }
+    }
+
+    /** LIVE (-Pvfl.live=true): real photo -> real Yandex upload -> results screen -> Instagram dialog with real suggestions. */
+    @Test fun instagramDialog_live_realSuggestions_screenshot() {
+        org.junit.Assume.assumeTrue(System.getProperty("vfl.live") == "true")
+        val img = File(System.getProperty("vfl.images"), "mascara.jpg")
+        val ua = "Mozilla/5.0 (Linux; Android 16; SM-S908E Build/BP2A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/140.0.0.0 Mobile Safari/537.36"
+        val noCookies = object : com.makeuphouse.visualfinderlite.yandex.YandexUploader.CookieJar {
+            override fun get(url: String): String? = null; override fun put(url: String, setCookie: String) {}
+        }
+        val up = com.makeuphouse.visualfinderlite.yandex.YandexUploader(ua, noCookies).upload(img)
+        val url = com.makeuphouse.visualfinderlite.yandex.YandexContract.similarUrl(up)
+        ActivityScenario.launch<SearchActivity>(SearchActivity.results(app, url)).use { sc ->
+            lateinit var d: android.app.AlertDialog
+            sc.onActivity { a -> a.findViewById<Button>(R.id.navInstagram).performClick(); idle()
+                d = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog() as android.app.AlertDialog }
+            waitFor { d.findViewById<View>(R.id.igLoading).visibility == View.GONE }
+            sc.onActivity { _ ->
+                idle()
+                val q = d.findViewById<android.widget.EditText>(R.id.igQuery).text.toString()
+                assertTrue("got '$q'", q.contains("essence") || q.contains("lash princess"))
+                assertTrue(d.findViewById<android.widget.LinearLayout>(R.id.igChips).childCount >= 1)
+                assertEquals("#essencelashprincess", d.findViewById<Button>(R.id.igByTag).text.toString())
+                val w = d.window!!.decorView
+                shot(w, "07_instagram_dialog_live")
+                File(outDir, "07_instagram_dialog_live.txt").writeText("query=$q\nhashtag=" + d.findViewById<Button>(R.id.igByTag).text)
             }
         }
     }

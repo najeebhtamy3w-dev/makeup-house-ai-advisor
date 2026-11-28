@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:layoutDirection="rtl"
+    android:paddingStart="22dp" android:paddingEnd="22dp" android:paddingTop="8dp">
+
+    <LinearLayout
+        android:id="@+id/igLoading"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingBottom="8dp">
+        <ProgressBar android:layout_width="22dp" android:layout_height="22dp" android:indeterminateTint="@color/burgundy" />
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="10dp" android:text="@string/ig_detecting"
+            android:textColor="@color/charcoal_soft" android:textSize="14sp" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/igQuery"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="@string/ig_hint" android:inputType="text" android:imeOptions="actionSearch"
+        android:textDirection="locale" android:maxLines="1" android:textSize="17sp"
+        android:importantForAutofill="no" />
+
+    <TextView
+        android:id="@+id/igSource"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textColor="@color/charcoal_soft" android:textSize="12sp" android:visibility="gone" />
+
+    <!-- suggestion chips, wrapped two per row (filled in code) -->
+    <LinearLayout
+        android:id="@+id/igChips"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" android:orientation="vertical" />
+
+    <Button
+        android:id="@+id/igByName" style="@style/Btn.Primary"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="14dp" android:text="@string/ig_search_name" />
+    <Button
+        android:id="@+id/igByTag" style="@style/Btn.Gold"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" android:textDirection="ltr" />
+
+    <TextView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" android:text="@string/ig_tip"
+        android:textColor="@color/charcoal_soft" android:textSize="12sp" />
+</LinearLayout>

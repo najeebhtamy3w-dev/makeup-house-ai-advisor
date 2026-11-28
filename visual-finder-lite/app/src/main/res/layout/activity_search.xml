@@ -11,6 +11,8 @@
         <Button android:id="@+id/navBack" style="@style/NavBtn" android:text="@string/nav_back" />
         <Button android:id="@+id/navReload" style="@style/NavBtn" android:text="@string/nav_reload" />
         <Button android:id="@+id/navBrowser" style="@style/NavBtn" android:text="@string/nav_browser" />
+        <Button android:id="@+id/navInstagram" style="@style/NavBtn" android:text="@string/nav_instagram"
+            android:textStyle="bold" />
         <Button android:id="@+id/navHome" style="@style/NavBtn" android:text="@string/nav_home"
             android:textStyle="bold" />
     </LinearLayout>

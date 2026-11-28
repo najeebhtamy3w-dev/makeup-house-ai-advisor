@@ -22,8 +22,8 @@ android {
         applicationId = "com.makeuphouse.visualfinderlite"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -71,7 +71,7 @@ android {
 
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 
-base.archivesName.set("MAKEUP-HOUSE-VISUAL-FINDER-LITE-1.0.0")
+base.archivesName.set("MAKEUP-HOUSE-VISUAL-FINDER-LITE-${android.defaultConfig.versionName}")
 
 dependencies {
     implementation("androidx.activity:activity-ktx:1.11.0")

@@ -67,6 +67,25 @@ class LiveYandexIntegrationTest {
         File(out, "live_benchmark.json").writeText(arr.toString(1))
     }
 
+    /** Full production chain: photo -> upload -> similar page -> product name for Instagram. */
+    @Test fun instagramName_fromLiveResults_forAllImages() {
+        val arr = JSONArray(); var hits = 0
+        for (img in images) {
+            val up = YandexUploader(ua, jar).upload(img)
+            val similar = com.makeuphouse.visualfinderlite.insta.NameSuggester.similarUrlOf(YandexContract.similarUrl(up))!!
+            val g = com.makeuphouse.visualfinderlite.insta.NameSuggester.fetchGuess(similar, ua, jar.get(similar))
+            val expected = InstagramFeatureTest.EXPECTED[img.nameWithoutExtension].orEmpty()
+            val ok = g != null && expected.any { g.phrase.contains(it) }
+            if (ok) hits++
+            arr.put(JSONObject().put("image", img.name).put("phrase", g?.phrase).put("support", g?.support).put("total", g?.total)
+                .put("suggestions", JSONArray(g?.suggestions.orEmpty())).put("expected_any_of", JSONArray(expected)).put("correct", ok)
+                .put("hashtag", g?.let { com.makeuphouse.visualfinderlite.insta.InstagramLinks.hashtag(it.phrase) }))
+            Thread.sleep(1500)
+        }
+        File(out, "live_instagram_names.json").writeText(arr.toString(1))
+        assertTrue("at least 11/12 correct, got $hits", hits >= 11)
+    }
+
     @Test fun fallbackEndpoint_isUsedWhenPrimaryBreaks() {
         val up = YandexUploader(ua, jar, primaryUrl = "https://yandex.com/images-apphost/this-endpoint-does-not-exist")
             .upload(images.first())
