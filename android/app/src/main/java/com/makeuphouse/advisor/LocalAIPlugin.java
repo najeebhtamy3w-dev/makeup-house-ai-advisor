@@ -31,6 +31,9 @@ public class LocalAIPlugin extends Plugin {
     private JSONObject manifest, visionManifest;
     private PersistentModelStore persistentStore;
     private volatile ResumableAssetDownload assetDownload;
+    private volatile InputStream importSource;
+    private volatile long importBytes=0, importTotal=0;
+    private volatile String importingAsset="";
     private final AtomicBoolean pickerPending=new AtomicBoolean(false);
     private volatile long downloadBytes=0, downloadTotal=0, downloadStarted=0;
     private volatile String downloadingAsset="";
@@ -109,10 +112,10 @@ public class LocalAIPlugin extends Plugin {
             out.put("diagnostics",metrics);
         }
         JSObject storage=new JSObject();
-        if(manifest!=null){JSONObject st=persistentStore.status(manifest.getString("id"));st.put("runtime_bytes",model.length());st.put("access_mode","INTERNAL_RUNTIME_COPY");st.put("runtime_path",model.getAbsolutePath());storage.put("model",st);}
-        if(visionManifest!=null){JSONObject st=persistentStore.status(visionManifest.getString("id"));st.put("runtime_bytes",runtimeFile("vision").length());st.put("access_mode","INTERNAL_RUNTIME_COPY");st.put("runtime_path",runtimeFile("vision").getAbsolutePath());storage.put("vision",st);}
-        out.put("storage",storage);if(storage.has("model"))out.put("downloaded",Math.max(partial.length(),Math.max("model".equals(downloadingAsset)?downloadBytes:0,storage.getJSONObject("model").optLong("partial_bytes",0))));if(visionAsset!=null&&storage.has("vision")){JSONObject vs=visionAsset.status();vs.put("downloaded",Math.max(vs.optLong("downloaded",0),Math.max("vision".equals(downloadingAsset)?downloadBytes:0,storage.getJSONObject("vision").optLong("partial_bytes",0))));out.put("vision_projector",vs);}out.put("downloading_asset",downloadingAsset);out.put("download_bytes",downloadBytes);out.put("download_total",downloadTotal);out.put("download_bytes_per_second",downloadStarted==0?0:downloadBytes*1000/Math.max(1,System.currentTimeMillis()-downloadStarted));
-        out.put("background_download","PAUSES_SAFELY_ON_ACTIVITY_PAUSE;foreground_service_not_implemented");
+        if(manifest!=null){JSONObject st=persistentStore.status(manifest.getString("id"));st.put("runtime_bytes",model.length());st.put("access_mode",getContext().getSharedPreferences("local-ai",0).getString("model.access_mode","INTERNAL_RUNTIME_COPY"));st.put("import_source_uri",getContext().getSharedPreferences("local-ai",0).getString("model.import_source_uri",null));st.put("source_required_for_future_inference",!model.isFile());st.put("runtime_path",model.getAbsolutePath());storage.put("model",st);}
+        if(visionManifest!=null){JSONObject st=persistentStore.status(visionManifest.getString("id"));st.put("runtime_bytes",runtimeFile("vision").length());st.put("access_mode",getContext().getSharedPreferences("local-ai",0).getString("vision.access_mode","INTERNAL_RUNTIME_COPY"));st.put("import_source_uri",getContext().getSharedPreferences("local-ai",0).getString("vision.import_source_uri",null));st.put("source_required_for_future_inference",!runtimeFile("vision").isFile());st.put("runtime_path",runtimeFile("vision").getAbsolutePath());storage.put("vision",st);}
+        out.put("storage",storage);if(storage.has("model"))out.put("downloaded",Math.max(partial.length(),Math.max("model".equals(downloadingAsset)?downloadBytes:0,storage.getJSONObject("model").optLong("partial_bytes",0))));if(visionAsset!=null&&storage.has("vision")){JSONObject vs=visionAsset.status();vs.put("downloaded",Math.max(vs.optLong("downloaded",0),Math.max("vision".equals(downloadingAsset)?downloadBytes:0,storage.getJSONObject("vision").optLong("partial_bytes",0))));out.put("vision_projector",vs);}out.put("importing_asset",importingAsset);out.put("import_bytes",importBytes);out.put("import_total",importTotal);out.put("downloading_asset",downloadingAsset);out.put("download_bytes",downloadBytes);out.put("download_total",downloadTotal);out.put("download_bytes_per_second",downloadStarted==0?0:downloadBytes*1000/Math.max(1,System.currentTimeMillis()-downloadStarted));
+        out.put("background_download","FOREGROUND_DATA_SYNC_DURING_DOWNLOAD;destroy_pauses_and_preserves_partial");out.put("download_foreground_service_running",ModelDownloadService.running());
         return out;
     }
     @PluginMethod public void status(PluginCall c){boolean diagnostics=c.getBoolean("diagnostics",false);authorized(c,diagnostics,()->{try{c.resolve(statusObject(diagnostics));}catch(Exception e){c.reject("STATUS_FAILED");}});}
@@ -132,6 +135,7 @@ public class LocalAIPlugin extends Plugin {
         android.app.ActivityManager am=(android.app.ActivityManager)getContext().getSystemService(android.content.Context.ACTIVITY_SERVICE);
         if(am!=null){android.app.ActivityManager.MemoryInfo memory=new android.app.ActivityManager.MemoryInfo();am.getMemoryInfo(memory);long required=(vision?1536L:2304L)*1024*1024;if(memory.lowMemory||memory.availMem<required)throw new IOException(vision?"INSUFFICIENT_RAM_VISION":"INSUFFICIENT_RAM_MODEL");}
     }
+    private void closeImportSource(){InputStream input=importSource;if(input!=null)try{input.close();}catch(IOException ignored){}}
     private void requireRuntime() throws IOException {if(runtimeError!=null)throw new IOException(runtimeError);}
     private void requireActive() throws Exception {requireRuntime();if(!model.isFile())throw new IOException(persistentStore.tree(manifest.getString("id"))!=null?"MODEL_RECONNECT_OR_RESTORE_REQUIRED":"MODEL_MISSING");if(!getContext().getSharedPreferences("local-ai",0).getBoolean("active",false))throw new IOException("MODEL_NOT_ACTIVE");}
     private void recover(String asset) throws Exception {
@@ -150,17 +154,21 @@ public class LocalAIPlugin extends Plugin {
         File metadata=new File(directory,id+".download.properties");
         ResumableAssetDownload worker=new ResumableAssetDownload(new ResumableAssetDownload.DownloadSpec(m.getString("url"),m.getLong("size"),m.getString("sha256")));assetDownload=worker;
         downloadingAsset=asset;downloadStarted=System.currentTimeMillis();downloadTotal=m.getLong("size");
-        try(PersistentModelStore.DownloadTarget target=persistentStore.openDownload(id,m,cancelDownload)){
+        try{
+            if(!foreground)throw new IOException("BACKGROUND_DOWNLOAD_START");
+            ModelDownloadService.begin(getContext(),()->{cancelDownload.set(true);worker.cancel();});
+            try(PersistentModelStore.DownloadTarget target=persistentStore.openDownload(id,m,cancelDownload)){
             persistentStore.restoreDownloadMetadata(id,metadata,m);
             // fstatvfs measures this actual provider descriptor, never /proc or a guessed volume.
             try{android.system.StructStatVfs fs=android.system.Os.fstatvfs(target.descriptor.getFileDescriptor());long free=Math.multiplyExact(fs.f_bavail,fs.f_frsize);if(free<m.getLong("size")-target.partialFile.length())throw new IOException("INSUFFICIENT_STORAGE");}catch(android.system.ErrnoException|ArithmeticException unknown){/* Provider capacity unavailable; streaming errors remain explicit. */}
             worker.download(target.partialFile,metadata,cancelDownload,(state,bytes,total)->{
-                phase=state;downloadBytes=bytes;downloadTotal=total;
+                phase=state;downloadBytes=bytes;downloadTotal=total;ModelDownloadService.progress(bytes,total);
                 if("checkpoint".equals(state)){try{persistentStore.syncDownloadMetadata(id,metadata,m);}catch(Exception failure){throw new RuntimeException("PERSISTENT_METADATA_SYNC_FAILED",failure);}}
                 JSObject event=new JSObject();event.put("bytes",bytes);event.put("total",total);event.put("asset",asset);notifyListeners("downloadProgress",event);
             });
             persistentStore.syncDownloadMetadata(id,metadata,m);
-        }finally{assetDownload=null;try{if(metadata.isFile())persistentStore.syncDownloadMetadata(id,metadata,m);}catch(Exception failure){lastOperationError="PERSISTENT_METADATA_SYNC_FAILED";}}
+            }
+        }finally{ModelDownloadService.end(getContext());assetDownload=null;try{if(metadata.isFile())persistentStore.syncDownloadMetadata(id,metadata,m);}catch(Exception failure){lastOperationError="PERSISTENT_METADATA_SYNC_FAILED";}}
         persistentStore.completeDownload(id,m,cancelDownload);recover(asset);return statusObject();
     }
     @PluginMethod public void install(PluginCall c){run(c,true,()->installPersistent("model"));}
@@ -181,12 +189,27 @@ public class LocalAIPlugin extends Plugin {
         File oldPartial="model".equals(asset)?partial:new File(directory,"vision-projector.part");if(oldPartial.isFile()){if(oldPartial.length()==m.getLong("size"))persistentStore.copyToPermanent(m.getString("id"),oldPartial,m,cancelDownload);else persistentStore.copyPartialToPermanent(m.getString("id"),oldPartial,m,cancelDownload);}return statusObject();});}
     @PluginMethod public void importAsset(PluginCall c){authorized(c,true,()->{if(busy.get()||!pickerPending.compareAndSet(false,true)){c.reject("BUSY");return;}Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT);intent.addCategory(Intent.CATEGORY_OPENABLE);intent.setType("*/*");intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivityForResult(c,intent,"assetSelected");});}
     @ActivityCallback private void assetSelected(PluginCall c,ActivityResult result){pickerPending.set(false);if(c==null)return;Intent data=result.getData();if(result.getResultCode()!=android.app.Activity.RESULT_OK||data==null||data.getData()==null){c.reject("STORAGE_SELECTION_CANCELLED");return;}final Uri uri=data.getData();
-        run(c,true,()->{cancelDownload.set(false);String asset=c.getString("asset","model");JSONObject m=spec(asset);if(persistentStore.tree(m.getString("id"))==null)throw new IOException("STORAGE_FOLDER_REQUIRED");File temp=new File(directory,"import-"+UUID.randomUUID()+".gguf");
-            try{long count=0;try(InputStream in=getContext().getContentResolver().openInputStream(uri);FileOutputStream out=new FileOutputStream(temp)){if(in==null)throw new IOException("IMPORT_OPEN_FAILED");byte[] buffer=new byte[65536];int n;while((n=in.read(buffer))!=-1){if(cancelDownload.get())throw new IOException("CANCELLED");count+=n;if(count>m.getLong("size"))throw new IOException("MODEL_SIZE_MISMATCH");out.write(buffer,0,n);}out.getFD().sync();}
-                if(count<m.getLong("size")){persistentStore.copyPartialToPermanent(m.getString("id"),temp,m,cancelDownload);JSObject part=statusObject();part.put("partial_imported",true);part.put("partial_bytes",count);return part;}persistentStore.copyToPermanent(m.getString("id"),temp,m,cancelDownload);recover(asset);return statusObject();
-            }finally{if(temp.exists())temp.delete();}
+        run(c,true,()->{
+            cancelDownload.set(false);String asset=c.getString("asset","model");JSONObject m=spec(asset);File target=runtimeFile(asset);phase="importing";
+            // Local file import is independent of folders, download history and network access.
+            try(InputStream input=getContext().getContentResolver().openInputStream(uri)){
+                if(input==null)throw new IOException("IMPORT_OPEN_FAILED");importSource=input;
+                VerifiedAssetImport.importTo(input,target,new ResumableAssetDownload.DownloadSpec(m.getString("url"),m.getLong("size"),m.getString("sha256")),cancelDownload,(bytes,total)->{
+                    importBytes=bytes;importTotal=total;importingAsset=asset;JSObject event=new JSObject();event.put("bytes",bytes);event.put("total",total);event.put("phase","importing");event.put("asset",asset);notifyListeners("downloadProgress",event);
+                },()->{if(nativeReady)nativeUnload();loaded=false;visionLoaded=false;});
+            }finally{importSource=null;}
+            getContext().getSharedPreferences("local-ai",0).edit().putString(asset+".import_source_uri",uri.toString()).putString(asset+".access_mode","INTERNAL_IMPORT").apply();
+            if("model".equals(asset)){
+                verifiedLength=model.length();verifiedModified=model.lastModified();verifiedHash=m.getString("sha256");
+                requireRuntime();requireMemory(false);phase="loading";nativeLoad(model.getAbsolutePath());loaded=true;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",true).apply();
+            }else{
+                visionAsset.verify(cancelDownload);
+                if(model.isFile()&&getContext().getSharedPreferences("local-ai",0).getBoolean("active",false)){requireRuntime();verify(model);requireMemory(false);nativeLoad(model.getAbsolutePath());loaded=true;requireMemory(true);nativeLoadVision(target.getAbsolutePath());visionLoaded=true;}
+            }
+            JSObject result=statusObject();result.put("import_mode","INTERNAL_IMPORT");result.put("source_preserved",true);result.put("source_required_for_future_inference",false);result.put("imported_asset",asset);return result;
         });
     }
+
     @PluginMethod public void activate(PluginCall c){run(c,true,()->{requireRuntime();cancelDownload.set(false);if(!model.isFile())recover("model");verify(model);phase="loading";loaded=false;visionLoaded=false;requireMemory(false);nativeLoad(model.getAbsolutePath());loaded=true;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",true).apply();return statusObject();});}
     @PluginMethod public void deactivate(PluginCall c){run(c,true,()->{if(nativeReady)nativeUnload();loaded=false;visionLoaded=false;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",false).apply();return statusObject();});}
     @PluginMethod public void remove(PluginCall c){run(c,true,()->{if(nativeReady)nativeUnload();loaded=false;visionLoaded=false;getContext().getSharedPreferences("local-ai",0).edit().putBoolean("active",false).apply();if(model.exists()&&!model.delete())throw new IOException("REMOVE_FAILED");/* Partial and permanent originals are retained. */return statusObject();});}
@@ -240,7 +263,7 @@ public class LocalAIPlugin extends Plugin {
         String text=new String(nativeDescribeImage(image,question,192),StandardCharsets.UTF_8);double[] m=nativeVisionMetrics();
         JSObject out=new JSObject();out.put("text",text);out.put("vision",true);out.put("validated",false);out.put("test","UNVALIDATED_VISUAL_OBSERVATION_NOT_SCIENTIFIC_ADVICE");out.put("model_id",manifest.getString("id"));out.put("model_version",manifest.getString("version"));out.put("projector_sha256",visionAsset.status().getString("verified_sha256"));out.put("projector_load_ms",m[0]);out.put("image_prefill_ms",m[1]);out.put("first_token_ms",m[2]);out.put("generation_ms",m[3]);out.put("input_tokens",(int)m[4]);out.put("image_tokens",(int)m[5]);out.put("output_tokens",(int)m[6]);out.put("finish_reason",finishReason((int)m[7]));out.put("warning","ملاحظة بصرية غير متحققة؛ قد يخطئ النموذج. لا تثبت الهوية أو INCI أو الأصالة أو السلامة أو التوفر.");return out;
     });}
-    @PluginMethod public void cancel(PluginCall c){authorized(c,managerOperation,()->{generationCancelled.set(true);if(runtimeError==null)nativeCancel();cancelDownload.set(true);if(assetDownload!=null)assetDownload.cancel();if(visionAsset!=null)visionAsset.cancel();HttpURLConnection con=downloadConnection;if(con!=null)con.disconnect();c.resolve();});}
+    @PluginMethod public void cancel(PluginCall c){authorized(c,managerOperation,()->{generationCancelled.set(true);closeImportSource();if(runtimeError==null)nativeCancel();cancelDownload.set(true);if(assetDownload!=null)assetDownload.cancel();if(visionAsset!=null)visionAsset.cancel();HttpURLConnection con=downloadConnection;if(con!=null)con.disconnect();c.resolve();});}
     @PluginMethod public void reset(PluginCall c){run(c,false,()->{requireRuntime();nativeReset();return new JSObject();});}
     @PluginMethod public void test(PluginCall c){run(c,true,()->{
         requireRuntime();cancelDownload.set(false);verify(model);boolean wasActive=getContext().getSharedPreferences("local-ai",0).getBoolean("active",false);
@@ -250,8 +273,8 @@ public class LocalAIPlugin extends Plugin {
         if(!wasActive){nativeUnload();loaded=false;visionLoaded=false;}return out;
     });}
     public void onProgress(int tokens){JSObject p=new JSObject();p.put("tokens",tokens);notifyListeners("generationProgress",p);}
-    @Override protected void handleOnPause(){foreground=false;if(runtimeError!=null)return;nativeCancel();cancelDownload.set(true);if(assetDownload!=null)assetDownload.cancel();if(visionAsset!=null)visionAsset.cancel();executor.execute(()->{nativeUnload();loaded=false;visionLoaded=false;});}
+    @Override protected void handleOnPause(){foreground=false;closeImportSource();if(assetDownload!=null&&ModelDownloadService.running())return;cancelDownload.set(true);if(assetDownload!=null)assetDownload.cancel();if(visionAsset!=null)visionAsset.cancel();if(nativeReady){nativeCancel();executor.execute(()->{nativeUnload();loaded=false;visionLoaded=false;});}}
     @Override protected void handleOnResume(){foreground=true;}
-    @Override protected void handleOnDestroy(){if(assetDownload!=null)assetDownload.cancel();if(runtimeError==null){nativeCancel();cancelDownload.set(true);if(visionAsset!=null)visionAsset.cancel();executor.execute(()->{nativeUnload();loaded=false;visionLoaded=false;});}grants.clear();denied.clear();}
+    @Override protected void handleOnDestroy(){closeImportSource();cancelDownload.set(true);if(assetDownload!=null)assetDownload.cancel();ModelDownloadService.end(getContext());if(visionAsset!=null)visionAsset.cancel();if(nativeReady){nativeCancel();executor.execute(()->{nativeUnload();loaded=false;visionLoaded=false;});}grants.clear();denied.clear();}
     public static void trimMemory(){if(nativeReady){nativeCancel();executor.execute(()->{nativeUnload();loaded=false;visionLoaded=false;});}}
 }

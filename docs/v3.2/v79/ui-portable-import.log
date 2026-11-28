@@ -1,0 +1,20 @@
+✔ new model download chooses folder and confirms location before native install (11.069903ms)
+✔ cancelled or missing folder prevents any install call (11.14777ms)
+✔ saved folder is explicitly confirmed and declining it opens picker before download (9.739655ms)
+✔ reused verified model discovered by selection skips network install and requests activation (4.055798ms)
+✔ vision download and local import/export/reconnect preserve their selected asset identity (6.921341ms)
+✔ manager-only model storage interface never starts native operation for staff (2.425205ms)
+✔ mobile storage bridge forwards only token and validated asset, never arbitrary paths (202.892985ms)
+✔ an existing private runtime never substitutes for a verified permanent original (3.910264ms)
+✔ revoked/read-only folder is selected again and never silently used for download (15.433132ms)
+✔ consultation bridge preserves installation/root failure and never invokes disabled model (145.991946ms)
+✔ declining runtime removal clears pending message and invokes no destructive call (6.38867ms)
+✔ offline USB import opens local picker directly without choosing folder or starting download (6.864734ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2095.897857

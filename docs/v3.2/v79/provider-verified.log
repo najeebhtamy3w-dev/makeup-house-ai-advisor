@@ -1,0 +1,59 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------< com.makeuphouse.tests:persistent-provider-contract >---------
+[INFO] Building persistent-provider-contract 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ persistent-provider-contract ---
+[INFO] skip non existing resourceDirectory /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ persistent-provider-contract ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ persistent-provider-contract ---
+[INFO] skip non existing resourceDirectory /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ persistent-provider-contract ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 1 source file with javac [debug target 17] to target/test-classes
+[WARNING] system modules path not set in conjunction with -source 17
+[INFO] /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java: /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java uses or overrides a deprecated API.
+[INFO] /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- antrun:3.1.0:run (aar-runtime) @ persistent-provider-contract ---
+[INFO] Executing tasks
+[INFO]     [unzip] Expanding: /home/agent/.m2/repository/androidx/test/monitor/1.7.2/monitor-1.7.2.aar into /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/aar-monitor
+[INFO]     [unzip] Expanding: /home/agent/.m2/repository/androidx/test/espresso/espresso-idling-resource/3.6.1/espresso-idling-resource-3.6.1.aar into /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/aar-idling
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ persistent-provider-contract ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.makeuphouse.advisor.PersistentModelStoreProviderTest
+DEBUG: Shadow provider: org.robolectric.Shadows
+DEBUG: Manifest file location: null
+INFO: Found org.robolectric:android-all-instrumented:15-robolectric-12650502-i7 in local maven repository
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.incompleteSameNameIsNeverPromoted: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.cancelledRestoreLeavesRuntimeAndOriginalBytesUnchanged: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.readOnlyExistingOriginalRestoresAndWriteOperationsRemainBlocked: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.wrongSameSizeFileCannotReplaceRuntimeOrBecomeVerified: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.revokedGrantIsNotReportedAsMissingAsset: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.arbitraryExternalSidecarCannotOverridePinnedManifest: sdk=35
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.645 s -- in com.makeuphouse.advisor.PersistentModelStoreProviderTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.213 s
+[INFO] Finished at: 2026-11-28T11:49:01+03:00
+[INFO] ------------------------------------------------------------------------

@@ -1,0 +1,13 @@
+Note: /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/android/app/src/main/java/com/makeuphouse/advisor/ResumableAssetDownload.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+PASS read-only local source imports without a folder grant or any resolvable network source
+PASS SHA corruption cannot replace a valid existing target
+PASS short input retains prior asset and does not invoke installer
+PASS oversized input is rejected before bytes beyond the declared size are written
+PASS matching hash for non-GGUF bytes still rejects the asset
+PASS USB disconnection after partial reads preserves existing target and caller source ownership
+PASS cancellation during streaming preserves target without invoking installer
+PASS pre-cancelled import does not read the external source
+PASS failure while releasing native runtime leaves prior bytes untouched
+NETWORK_REQUESTS=0
+PASSED 9 real offline import checks (NOT ANDROID/SAF FIELD ACCEPTANCE)

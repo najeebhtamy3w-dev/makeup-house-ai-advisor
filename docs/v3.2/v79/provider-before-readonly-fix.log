@@ -1,0 +1,186 @@
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=38897 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=38897
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------< com.makeuphouse.tests:persistent-provider-contract >---------
+[INFO] Building persistent-provider-contract 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ persistent-provider-contract ---
+[INFO] skip non existing resourceDirectory /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ persistent-provider-contract ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ persistent-provider-contract ---
+[INFO] skip non existing resourceDirectory /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ persistent-provider-contract ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 1 source file with javac [debug target 17] to target/test-classes
+[WARNING] system modules path not set in conjunction with -source 17
+[INFO] /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java: /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java uses or overrides a deprecated API.
+[INFO] /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- antrun:3.1.0:run (aar-runtime) @ persistent-provider-contract ---
+[INFO] Executing tasks
+[INFO]     [unzip] Expanding: /home/agent/.m2/repository/androidx/test/monitor/1.7.2/monitor-1.7.2.aar into /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/aar-monitor
+[INFO]     [unzip] Expanding: /home/agent/.m2/repository/androidx/test/espresso/espresso-idling-resource/3.6.1/espresso-idling-resource-3.6.1.aar into /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/aar-idling
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ persistent-provider-contract ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=38897 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=38897
+[INFO] Running com.makeuphouse.advisor.PersistentModelStoreProviderTest
+DEBUG: Shadow provider: org.robolectric.Shadows
+DEBUG: Manifest file location: null
+INFO: Found org.robolectric:android-all-instrumented:15-robolectric-12650502-i7 in local maven repository
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.incompleteSameNameIsNeverPromoted: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.cancelledRestoreLeavesRuntimeAndOriginalBytesUnchanged: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.readOnlyExistingOriginalRestoresAndWriteOperationsRemainBlocked: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.wrongSameSizeFileCannotReplaceRuntimeOrBecomeVerified: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.revokedGrantIsNotReportedAsMissingAsset: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.arbitraryExternalSidecarCannotOverridePinnedManifest: sdk=35
+[ERROR] Tests run: 8, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 5.554 s <<< FAILURE! -- in com.makeuphouse.advisor.PersistentModelStoreProviderTest
+[ERROR] com.makeuphouse.advisor.PersistentModelStoreProviderTest.modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime -- Time elapsed: 0.117 s <<< ERROR!
+java.lang.reflect.InaccessibleObjectException: Unable to make field private int java.io.FileDescriptor.fd accessible: module java.base does not "opens java.io" to unnamed module @40da6254
+	at org.robolectric.interceptors.AndroidInterceptors$FileDescriptorInterceptor.moveField(AndroidInterceptors.java:73)
+	at org.robolectric.interceptors.AndroidInterceptors$FileDescriptorInterceptor.release(AndroidInterceptors.java:113)
+	at libcore.io.IoBridge.closeAndSignalBlockedThreads(IoBridge.java:304)
+	at libcore.io.IoUtils.close(IoUtils.java:180)
+	at libcore.io.IoUtils.closeQuietly(IoUtils.java:214)
+	at android.os.ParcelFileDescriptor.closeInternal(ParcelFileDescriptor.java:380)
+	at android.os.ParcelFileDescriptor.closeWithStatus(ParcelFileDescriptor.java:877)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java:843)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor$ParcelFileDescriptorReflector$$Reflector40.close(Unknown Source)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor.close(ShadowParcelFileDescriptor.java:265)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java:838)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor$ParcelFileDescriptorReflector$$Reflector40.close(Unknown Source)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor.close(ShadowParcelFileDescriptor.java:265)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java)
+	at android.os.ParcelFileDescriptor$AutoCloseInputStream.close(ParcelFileDescriptor.java:1049)
+	at java.base/java.io.FileDescriptor.closeAll(FileDescriptor.java:352)
+	at java.base/java.io.FileInputStream.close(FileInputStream.java:524)
+	at android.os.ParcelFileDescriptor$AutoCloseInputStream.close(ParcelFileDescriptor.java:1047)
+	at com.makeuphouse.advisor.PersistentModelStore.discover(PersistentModelStore.java:159)
+	at com.makeuphouse.advisor.PersistentModelStore.restoreToRuntime(PersistentModelStore.java:271)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.restore(PersistentModelStoreProviderTest.java:53)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.lambda$modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime$3(PersistentModelStoreProviderTest.java:77)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.fails(PersistentModelStoreProviderTest.java:55)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime(PersistentModelStoreProviderTest.java:77)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:502)
+	at org.robolectric.internal.SandboxTestRunner$2.lambda$evaluate$2(SandboxTestRunner.java:285)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:104)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+[ERROR] com.makeuphouse.advisor.PersistentModelStoreProviderTest.readOnlyExistingOriginalRestoresAndWriteOperationsRemainBlocked -- Time elapsed: 0.030 s <<< ERROR!
+java.io.IOException: STORAGE_RECONNECT_REQUIRED
+	at com.makeuphouse.advisor.PersistentModelStore.bind(PersistentModelStore.java:50)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.readOnlyExistingOriginalRestoresAndWriteOperationsRemainBlocked(PersistentModelStoreProviderTest.java:67)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:502)
+	at org.robolectric.internal.SandboxTestRunner$2.lambda$evaluate$2(SandboxTestRunner.java:285)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:104)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+[ERROR] com.makeuphouse.advisor.PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory -- Time elapsed: 0.040 s <<< ERROR!
+java.lang.reflect.InaccessibleObjectException: Unable to make field private int java.io.FileDescriptor.fd accessible: module java.base does not "opens java.io" to unnamed module @40da6254
+	at org.robolectric.interceptors.AndroidInterceptors$FileDescriptorInterceptor.moveField(AndroidInterceptors.java:73)
+	at org.robolectric.interceptors.AndroidInterceptors$FileDescriptorInterceptor.release(AndroidInterceptors.java:113)
+	at libcore.io.IoBridge.closeAndSignalBlockedThreads(IoBridge.java:304)
+	at libcore.io.IoUtils.close(IoUtils.java:180)
+	at libcore.io.IoUtils.closeQuietly(IoUtils.java:214)
+	at android.os.ParcelFileDescriptor.closeInternal(ParcelFileDescriptor.java:380)
+	at android.os.ParcelFileDescriptor.closeWithStatus(ParcelFileDescriptor.java:877)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java:843)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor$ParcelFileDescriptorReflector$$Reflector40.close(Unknown Source)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor.close(ShadowParcelFileDescriptor.java:265)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java:838)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor$ParcelFileDescriptorReflector$$Reflector40.close(Unknown Source)
+	at org.robolectric.shadows.ShadowParcelFileDescriptor.close(ShadowParcelFileDescriptor.java:265)
+	at android.os.ParcelFileDescriptor.close(ParcelFileDescriptor.java)
+	at android.os.ParcelFileDescriptor$AutoCloseInputStream.close(ParcelFileDescriptor.java:1049)
+	at java.base/java.io.FileDescriptor.closeAll(FileDescriptor.java:352)
+	at java.base/java.io.FileInputStream.close(FileInputStream.java:524)
+	at android.os.ParcelFileDescriptor$AutoCloseInputStream.close(ParcelFileDescriptor.java:1047)
+	at com.makeuphouse.advisor.PersistentModelStore.discover(PersistentModelStore.java:159)
+	at com.makeuphouse.advisor.PersistentModelStore.restoreToRuntime(PersistentModelStore.java:271)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.restore(PersistentModelStoreProviderTest.java:53)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory(PersistentModelStoreProviderTest.java:63)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:502)
+	at org.robolectric.internal.SandboxTestRunner$2.lambda$evaluate$2(SandboxTestRunner.java:285)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:104)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Errors: 
+[ERROR]   PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory:63->restore:53 » InaccessibleObject Unable to make field private int java.io.FileDescriptor.fd accessible: module java.base does not "opens java.io" to unnamed module @40da6254
+[ERROR]   PersistentModelStoreProviderTest.modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime:77->fails:55->lambda$modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime$3:77->restore:53 » InaccessibleObject Unable to make field private int java.io.FileDescriptor.fd accessible: module java.base does not "opens java.io" to unnamed module @40da6254
+[ERROR]   PersistentModelStoreProviderTest.readOnlyExistingOriginalRestoresAndWriteOperationsRemainBlocked:67 » IO STORAGE_RECONNECT_REQUIRED
+[INFO] 
+[ERROR] Tests run: 8, Failures: 0, Errors: 3, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  8.464 s
+[INFO] Finished at: 2026-11-28T11:46:33+03:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.2:test (default-test) on project persistent-provider-contract: 
+[ERROR] 
+[ERROR] See /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

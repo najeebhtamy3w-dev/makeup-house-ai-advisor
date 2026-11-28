@@ -37,7 +37,7 @@ export const localAI = {
     const storageAction=['selectStorage','reconnectStorage','importAsset','exportAsset','recoverAsset'].includes(action);
     const payload={token,...(storageAction?{asset:options.asset??'model'}:{})};
     const out = await (native[action] as (o: { token: string;asset?:'model'|'vision' }) => Promise<any>)(payload);
-    if (['activate', 'deactivate', 'remove', 'install'].includes(action)) {
+    if (['activate', 'deactivate', 'remove', 'install','importAsset'].includes(action)) {
       const r = await fetch('/api/local-ai/config', { method: 'POST', headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' }, body: JSON.stringify({ model_id: 'qwen35-2b-q4km', desired_active: Boolean(out?.active) }) });
       if (!r.ok) throw new Error('تعذر حفظ إعداد النموذج؛ راجعي حالة التشغيل');
     }
@@ -137,7 +137,7 @@ export const localAI = {
 declare global { interface Window { MHLocalAI?: typeof localAI } }
 window.MHLocalAI = localAI;
 if (Capacitor.isNativePlatform()) {
-  native.addListener('downloadProgress', d => window.dispatchEvent(new CustomEvent('mh-ai-progress', { detail: `تم تنزيل ${(d.bytes / 1e6).toFixed(0)} من ${(d.total / 1e6).toFixed(0)} MB${d.total>0?' ('+Math.min(100,100*d.bytes/d.total).toFixed(1)+'%)':''} — المتبقي ${(Math.max(0,d.total-d.bytes)/1e6).toFixed(0)} MB${Number.isFinite(d.bytes_per_second)?' — '+(d.bytes_per_second/1e6).toFixed(2)+' MB/s':''}` }))).catch(() => {});
+  native.addListener('downloadProgress', d => window.dispatchEvent(new CustomEvent('mh-ai-progress', { detail: `${d.phase === 'importing' ? 'تم استيراد محليًا' : 'تم تنزيل'} ${(d.bytes / 1e6).toFixed(0)} من ${(d.total / 1e6).toFixed(0)} MB${d.total>0?' ('+Math.min(100,100*d.bytes/d.total).toFixed(1)+'%)':''} — المتبقي ${(Math.max(0,d.total-d.bytes)/1e6).toFixed(0)} MB${Number.isFinite(d.bytes_per_second)?' — '+(d.bytes_per_second/1e6).toFixed(2)+' MB/s':''}` }))).catch(() => {});
   // No raw token is sent to the screen: output is buffered until the worker validates it.
   native.addListener('generationProgress', d => window.dispatchEvent(new CustomEvent('mh-ai-progress', { detail: `جارٍ التوليد والتحقق — ${d.tokens} رمز` }))).catch(() => {});
 }

@@ -1,0 +1,72 @@
+{
+  "evidence_level": "HOST_ANDROID_SIMULATION_NOT_DEVICE_ACCEPTANCE",
+  "robolectric_version": "4.14.1",
+  "simulated_android_sdk": 35,
+  "compiled_production_class": "android/app/src/main/java/com/makeuphouse/advisor/PersistentModelStore.java",
+  "source_sha256": "63e9de0b045292ea8f93db60a95c39d1306361dcf1dbfa1edb06ea09ce760e59",
+  "test_source_sha256": "e93b0cbde527ad24cb5f73b34da4868e7015621de263aacc0d75a3440cb57287",
+  "command": "mvn -o -B -ntp -f tests/android-provider/pom.xml test",
+  "exit_status": 0,
+  "tests": 8,
+  "pass": 8,
+  "fail": 0,
+  "skip": 0,
+  "cases": [
+    {
+      "name": "incompleteSameNameIsNeverPromoted",
+      "status": "PASS"
+    },
+    {
+      "name": "modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime",
+      "status": "PASS"
+    },
+    {
+      "name": "cancelledRestoreLeavesRuntimeAndOriginalBytesUnchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "readOnlyExistingOriginalRestoresAndWriteOperationsRemainBlocked",
+      "status": "PASS"
+    },
+    {
+      "name": "independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory",
+      "status": "PASS"
+    },
+    {
+      "name": "wrongSameSizeFileCannotReplaceRuntimeOrBecomeVerified",
+      "status": "PASS"
+    },
+    {
+      "name": "revokedGrantIsNotReportedAsMissingAsset",
+      "status": "PASS"
+    },
+    {
+      "name": "arbitraryExternalSidecarCannotOverridePinnedManifest",
+      "status": "PASS"
+    }
+  ],
+  "synthetic_fixture": {
+    "bytes": 131072,
+    "id": "fixture-pinned-model",
+    "no_actual_model_inference": true,
+    "independent_original_and_same_size_decoy": true
+  },
+  "harness_boundaries": [
+    "Android framework/ContentResolver grants simulated by Robolectric",
+    "Resolver legacy shadow dispatch forwarded to actual DocumentsProvider modern Bundle dispatch",
+    "Unimplemented Robolectric Linux.rename boundary mapped to real Host Files.move ATOMIC_MOVE+REPLACE_EXISTING"
+  ],
+  "before_fix": {
+    "product_defect": "read-only persisted grant rejected by bind requiring write",
+    "reproduced_in": "provider-before-readonly-fix.txt",
+    "unrelated_harness_errors_in_same_before_run": 2,
+    "harness_errors": "Java21 reflective FileDescriptor access; resolved test-JVM --add-opens java.base/java.io=ALL-UNNAMED"
+  },
+  "not_tested": [
+    "Samsung SM-S908E",
+    "physical USB/SD provider",
+    "actual Android OS rename implementation",
+    "process death or uninstall lifecycle",
+    "actual language-model loading or quality"
+  ]
+}

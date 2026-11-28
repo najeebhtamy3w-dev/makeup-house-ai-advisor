@@ -25,6 +25,12 @@
 
         </activity>
 
+        <!-- Owns only a user-started resumable transfer; never starts work at boot or on restart. -->
+        <service
+            android:name=".ModelDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -40,6 +46,10 @@
 
     <!-- INTERNET: only for optional Open Beauty Facts lookups; every local operation works offline -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- Optional drawer visibility on Android13+; denial does not prevent foreground-service startup. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- CAMERA: product photos and barcode scanning (asked at first use) -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />

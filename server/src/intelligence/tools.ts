@@ -8,7 +8,25 @@ import { classifyIngredients, inciList } from '../enrichment/identity.ts';
 import { parseNeed, norm } from '../advisor.ts';
 import { retrieveKnowledgeGraph } from './knowledge-links.ts';
 import { checkValidBatches } from './inventory.ts';
-import type { ConsultationPlan,ConsultationMemory,ToolObservation,SafeToolCall,ProductFact,EvidenceFact } from './contracts.ts';
+import type { ConsultationPlan,ConsultationMemory,ToolObservation,SafeToolCall,ProductFact,EvidenceFact,UserContextFact } from './contracts.ts';
+
+export interface ContextFactScope {id:string;storedMemory:ConsultationMemory;}
+const contextSource=(text:string)=>text.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[بريد محذوف]').replace(/(?:\+?\d[\s()-]*){7,}/g,'[رقم محذوف]').replace(/[\p{Script=Arabic}]+(?:_[\p{Script=Arabic}]+)+/gu,'[معرف شخصي محذوف]').replace(/(?:اسم(?:ها|ه|ي)|اسم العميلة|اسم الزبونة)\s*[:：]?\s+\S+(?:\s+\S+)?/g,'[اسم محذوف]').slice(0,500);
+function contextFacts(scope:ContextFactScope,original:string):UserContextFact[]{
+ if(!/^[a-f0-9]{24}$/.test(scope.id))throw new Error('invalid_context_scope');
+ const facts:UserContextFact[]=[];
+ const add=(key:string,text:string,origin:UserContextFact['context_origin'])=>facts.push({id:'ctx_'+scope.id+'_'+key,text,source_ids:[],review_level:'user_reported_not_scientific',topic:'user_context',kind:'user_context',authority:'user_context',context_origin:origin});
+ // The authenticated current turn is original input, never a model-extracted assertion.
+ add('current','ذكرت في الرسالة الحالية: '+contextSource(original),'current_user_turn');
+ const userTurns=(scope.storedMemory.recent_turns??[]).filter(t=>t.role==='user').slice(-2);
+ userTurns.forEach((t,index)=>add('turn_'+index,'ذكرت في رسالة سابقة: '+contextSource(t.text),'stored_user_turn'));
+ const labels:Record<string,string>={skin:'البشرة',hair:'الشعر',concerns:'الاهتمامات',ingredients:'المكونات المذكورة',constraints:'الشروط',dry:'جافة',oily:'دهنية',combination:'مختلطة',sensitive:'حساسة',normal:'عادية',colored:'مصبوغ',curly:'مجعد',damaged:'متضرر',oil:'الدهون',dryness:'الجفاف',sensitivity:'الحساسية',acne:'الحبوب',pigmentation:'التصبغ',dandruff:'القشرة',hair_loss:'تساقط الشعر',breakage:'التكسر',sun:'الشمس',hydration:'الترطيب',irritation:'التهيج',unknown:'غير معروف',fragrance_free:'بلا عطر',lightweight:'قوام خفيف',non_comedogenic:'غير مسبب لانسداد المسام',sulfate_free:'بلا سلفات',alcohol_free:'بلا كحول',oil_free:'بلا زيوت',for_sensitive:'للبشرة الحساسة',beginner:'للمبتدئ',minimal:'روتين مختصر',local_only:'المحلي فقط',no_essential_oil:'بلا زيوت عطرية'};
+ for(const field of ['skin','hair','concerns','ingredients','constraints'] as const){
+  const values=scope.storedMemory[field];if(!values.length)continue;
+  add('memory_'+field,'ورد في السياق المحفوظ غير المتحقق: '+labels[field]+' — '+contextSource(values.map(v=>labels[v]??v).join('، ')),'stored_memory');
+ }
+ return facts;
+}
 
 export function independentNeed(plan:ConsultationPlan,original:string):Need {
  const labels:Record<string,string>={dry:'جافة',oily:'دهنية',combination:'مختلطة',sensitive:'حساسة',fragrance_free:'بدون عطر',sulfate_free:'بدون سلفات',no_essential_oil:'بدون زيوت عطرية'};
@@ -77,7 +95,7 @@ function searchProducts(db:DB,q:string,plan:ConsultationPlan,original:string,glo
  const sql=global?`SELECT id FROM global_products WHERE review_status='reviewed' AND (${where}) ORDER BY id LIMIT 12`:`SELECT products.id FROM products WHERE products.record_status='active' AND products.verification='verified' AND (${where}) ORDER BY products.id LIMIT 12`;
  return (db.prepare(sql).all(...args) as {id:number}[]).map(r=>readProduct(db,global?-r.id:r.id,plan,original)).filter((p):p is ProductFact=>Boolean(p)).slice(0,5);
 }
-export function executeTool(db:DB,call:SafeToolCall,plan:ConsultationPlan,memory:ConsultationMemory,original:string):ToolObservation {
+export function executeTool(db:DB,call:SafeToolCall,plan:ConsultationPlan,memory:ConsultationMemory,original:string,contextScope?:ContextFactScope):ToolObservation {
  const start=performance.now();let facts:EvidenceFact[]=[],products:ProductFact[]=[],notes:string[]=[],status:ToolObservation['status']='ok';
  const query=call.query.trim();
  if(call.name==='get_system_capabilities'){
@@ -94,7 +112,11 @@ export function executeTool(db:DB,call:SafeToolCall,plan:ConsultationPlan,memory
   products=call.product_ids.map(id=>readProduct(db,id,plan,original)).filter((p):p is ProductFact=>!!p);
   notes=products.map(p=>JSON.stringify(getStoredProductImages(db,p.id)));
  }
- else if(call.name==='retrieve_conversation_context')notes=[JSON.stringify(memory)];
+ else if(call.name==='retrieve_conversation_context'){
+  // Only the orchestrator supplies an authenticated, run-scoped snapshot from before plan merging.
+  facts=contextScope?contextFacts(contextScope,original):[];
+  notes=[JSON.stringify(contextScope?.storedMemory??memory),'User context is reported testimony, never evidence for efficacy, safety, products or availability.'];
+ }
  else if(['retrieve_scientific_evidence','analyze_ingredient_compatibility'].includes(call.name)){
   const g=retrieveKnowledgeGraph(db,{query:query||plan.queries.join(' '),limit:8});
   facts=g.claims.map((c:any)=>({id:c.id,text:c.text_ar,source_ids:c.sources.map((s:any)=>s.id),review_level:c.review_level,topic:c.topic_id,kind:c.kind}));

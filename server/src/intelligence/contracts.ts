@@ -25,13 +25,16 @@ export const Decision = z.object({
  routine:z.array(z.object({period:z.enum(['morning','evening','both','hair']),step:z.enum(['cleanse','moisturize','protect','condition','active']),product_id:z.number().int().refine(n=>n!==0).nullable(),claim_ids:z.array(z.string().max(100)).min(1).max(4)}).strict()).max(6).default([]),
  clarification:z.string().max(300).nullable().default(null),
  inference_notes:z.array(z.object({premise_ids:z.array(z.string().max(100)).min(1).max(3),relation:z.enum(['complement','conflict','uncertain']),summary:z.string().min(4).max(350)}).strict()).max(3).default([]),
- response_segments:z.array(z.object({text:z.string().min(2).max(700),claim_ids:z.array(z.string().max(100)).max(6),kind:z.enum(['explanation','inference','clarification','capability','limitation'])}).strict()).max(6).default([]),
+ response_segments:z.array(z.object({text:z.string().min(2).max(700),claim_ids:z.array(z.string().max(100)).max(6),kind:z.enum(['explanation','inference','clarification','capability','limitation','context'])}).strict()).max(6).default([]),
  next_tools:z.array(ToolCall).max(2).default([]),
 }).strict();
 export type ConsultationPlan=z.infer<typeof Plan>;
 export type ConsultationDecision=z.infer<typeof Decision>;
 export type SafeToolCall=z.infer<typeof ToolCall>;
-export interface EvidenceFact {id:string;text:string;source_ids:string[];review_level:string;topic:string;kind:string;}
+export interface EvidenceFact {id:string;text:string;source_ids:string[];review_level:string;topic:string;kind:string;authority?:'user_context';context_origin?:'current_user_turn'|'stored_user_turn'|'stored_memory';}
+/** User testimony/saved preferences have provenance, never scientific authority. */
+export interface UserContextFact extends EvidenceFact {kind:'user_context';topic:'user_context';review_level:'user_reported_not_scientific';authority:'user_context';source_ids:[];context_origin:'current_user_turn'|'stored_user_turn'|'stored_memory';}
+export const isUserContextFact=(fact:EvidenceFact):boolean=>fact.authority==='user_context'||fact.kind==='user_context'||fact.topic==='user_context'||fact.review_level==='user_reported_not_scientific';
 export interface ProductFact {id:number;name:string;brand:string;product_type:string;ingredients:string;verification:string;availability:'yes'|'no'|'unknown';suitability:string;reasons:string[];precautions:string[];scope:'local'|'global';primary_image_id?:number|null;}
 export interface ToolObservation {name:string;query:string;product_ids:number[];status:'ok'|'empty'|'unsupported'|'error';facts:EvidenceFact[];products:ProductFact[];notes:string[];ms:number;}
 export interface ConsultationMemory {skin:string[];hair:string[];concerns:string[];ingredients:string[];constraints:string[];product_refs:{id:number;name:string}[];protected_referrals:string[];last_intent:string;pending_question?:string|null;recent_turns?:{role:'user'|'assistant';text:string}[];}

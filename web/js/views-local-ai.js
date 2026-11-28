@@ -1,6 +1,10 @@
 import { api, getToken } from './api.js';
 import { h, fill } from './util.js';
 const messages = {
+  IMPORT_CANCELLED:'توقف الاستيراد؛ الأصل ونسخة التشغيل السابقة محفوظان.',
+  IMPORT_SIZE_MISMATCH:'الملف المحلي غير مكتمل أو غير مطابق. لم تُستبدل النسخة السابقة.',
+  BACKGROUND_DOWNLOAD_START:'افتح شاشة التطبيق لبدء التنزيل؛ يمكنه الاستمرار لاحقًا بخدمة التنزيل.',
+  STORAGE_WRITE_PERMISSION_REQUIRED:'المجلد للقراءة فقط؛ يمكن استعادة ملفات منه، وللتنزيل اختر مجلدًا قابلًا للكتابة.',
   DOWNLOAD_CANCELLED: 'توقف التنزيل مع الاحتفاظ بالجزء المحفوظ وبيانات الاستئناف.',
   DOWNLOAD_UNEXPECTED_EOF: 'انقطع الملف قبل اكتماله. احتُفظ بالجزء المنزّل؛ اضغط استئناف عند عودة الاتصال.',
   DOWNLOAD_SIZE_MISMATCH: 'الحجم النهائي غير مطابق للمصدر الموثوق. احتُفظ بالملف للمراجعة ولم يُفعّل.',
@@ -68,28 +72,30 @@ export async function localAISettings(root) {
         const bytes = asset === 'vision' ? state.vision_projector?.size : state.manifest?.size;
         if (!confirm('مجلد الحفظ: ' + folderLabel(storage) + '\nحجم الملف: ' + mb(bytes) + '\nستُحفظ الأوزان في المجلد المختار. قد تلزم نسخة تشغيل داخلية ومساحة إضافية مساوية لحجم الملف.\nقد تترتب تكلفة بيانات على التنزيل. متابعة؟')) { fill(note, 'لم يبدأ التنزيل.'); return; }
       }
-      if (['importAsset','exportAsset'].includes(action)) {
+      if (action === 'exportAsset') {
         const state = await window.MHLocalAI.diagnostics(getToken()), storage = storageFor(state, asset);
         if (!treeOf(storage) || !hasAccess(storage)) await call('selectStorage', asset);
       }
-      if (action === 'remove' && !confirm('إزالة نسخة التشغيل الداخلية فقط؟ تبقى النسخة الدائمة في المجلد الذي اخترته. تأكد أولًا من حفظ نسخة دائمة إذا كان الملف القديم داخل التطبيق فقط.')) { fill(note, 'أُلغيت إزالة نسخة التشغيل؛ لم تُحذف الملفات.'); return; }
+      if (action === 'remove' && !confirm('إزالة نسخة التشغيل الداخلية فقط؟ لن يُحذف الأصل الخارجي. تأكد من الاحتفاظ بالأصل في الهاتف أو الفلاشة قبل الإزالة.')) { fill(note, 'أُلغيت إزالة نسخة التشغيل؛ لم تُحذف الملفات.'); return; }
       if (action === 'removeVision' && !confirm('إزالة نسخة تشغيل ملحق الرؤية الداخلية فقط؟ لا تُحذف النسخة الدائمة من المجلد المختار.')) { fill(note, 'أُلغيت إزالة نسخة التشغيل؛ لم تُحذف الملفات.'); return; }
+      if(action==='importAsset'&&!confirm('سيتم اختيار ملف محلي ونسخه إلى مساحة تشغيل داخلية مستقلة دون تنزيل أو تغيير الأصل. بعد اكتمال الاستيراد يمكنك فصل USB. متابعة؟')){fill(note,'لم يبدأ الاستيراد.');return;}
       const result = await call(action, ['selectStorage','reconnectStorage','importAsset','exportAsset','recoverAsset'].includes(action) ? asset : undefined);
-      fill(note, action === 'test' ? `اختبار استدلال فعلي: ${result.generated_bytes} بايت مولّدة خلال ${result.ms} ms. لا يُعرض نص الاختبار كاستشارة.` : result?.reused_existing ? 'تم العثور على النموذج محفوظًا مسبقًا. يمكنك تفعيله دون إعادة التنزيل.' : action === 'cancel' ? 'أُرسل طلب إيقاف العملية مع الاحتفاظ بالأجزاء القابلة للاستعادة.' : 'تمت العملية.');
+      fill(note, action === 'test' ? `اختبار استدلال فعلي: ${result.generated_bytes} بايت مولّدة خلال ${result.ms} ms. لا يُعرض نص الاختبار كاستشارة.` : result?.import_mode==='INTERNAL_IMPORT' ? 'اكتمل الاستيراد المحلي والتحقق. الأصل محفوظ، ونسخة التشغيل مستقلة عن الفلاشة والإنترنت.' : result?.reused_existing ? 'تم العثور على النموذج محفوظًا مسبقًا. يمكنك تفعيله دون إعادة التنزيل.' : action === 'cancel' ? 'أُرسل طلب إيقاف العملية مع الاحتفاظ بالأجزاء القابلة للاستعادة.' : 'تمت العملية.');
     } catch (e) { fill(note, messages[e.message] || 'تعذرت العملية: ' + e.message); }
     finally { running = false; await draw(); }
   };
   const storageCard = (state, asset, title) => {
     const storage = storageFor(state, asset), item = asset === 'vision' ? state.vision_projector : state;
     return h('section', { class: 'card', 'data-asset': asset }, h('h4', {}, title),
-      h('p', { class: 'tiny' }, 'مكان الحفظ الدائم: ', h('bdi', { dir: 'auto' }, folderLabel(storage))),
+      h('p',{class:'tiny'},storage.access_mode==='INTERNAL_IMPORT'?'استيراد داخلي مستقل: لا يلزم اتصال USB بعد اكتماله. المصدر الأصلي لم يُعدّل.':'التنزيلات تحفظ الأصل في المجلد المختار؛ التشغيل يستخدم نسخة داخلية متحققة.'),
+      h('p', { class: 'tiny' }, 'مجلد التنزيل الدائم: ', h('bdi', { dir: 'auto' }, folderLabel(storage))),
       h('p', { class: 'tiny' }, 'صلاحية المجلد: ' + (permissionLabels[storage.permission] || storage.permission || (treeOf(storage) ? 'تحتاج تحققًا من النظام' : 'لم يُربط'))),
       h('p', { class: 'tiny' }, 'النسخة الدائمة: ' + (storage.permanent_verified ? 'تحققت سابقًا؛ يُعاد التحقق عند الاستخدام' : storageLabels[storage.permanent_status || storage.state] || storage.permanent_status || storage.state || 'لم يُثبت التحقق بعد')),
       h('p', { class: 'tiny' }, 'نسخة التشغيل الداخلية: ' + (item?.installed ? 'موجودة — ' + mb(storage.runtime_bytes || (asset === 'vision' ? item.size : state.manifest?.size)) : 'غير موجودة')),
-      h('p', { class: 'tiny' }, 'طريقة التشغيل: نسخة داخلية مشتقة محليًا من الملف الدائم؛ لا تعني قراءة مباشرة من SAF. قد تتطلب مساحة إضافية بحجم الملف.'),
+      h('p', { class: 'tiny' }, storage.access_mode==='INTERNAL_IMPORT'?'طريقة التشغيل: نسخة داخلية مستقلة من الملف المحلي؛ لا تحتاج USB أو الإنترنت بعد نجاح الاستيراد.':'طريقة التشغيل: نسخة داخلية مشتقة محليًا من الملف الدائم؛ لا تعني قراءة مباشرة من SAF. قد تتطلب مساحة إضافية بحجم الملف.'),
       h('div', { class: 'row' }, [
         ['selectStorage', 'اختيار / تغيير مجلد الحفظ'], ['reconnectStorage', 'ربط مجلد النماذج المحفوظة سابقًا'],
-        ['importAsset', asset === 'vision' ? 'استيراد ملحق الرؤية من الهاتف' : 'استيراد GGUF من الهاتف'],
+        ['importAsset', asset === 'vision' ? 'استيراد ملحق الرؤية من الهاتف أو USB' : 'استيراد وتفعيل GGUF من الهاتف أو USB'],
         ['exportAsset', 'حفظ نسخة دائمة من الملف الموجود'], ['recoverAsset', 'استعادة من المجلد دون تنزيل'],
       ].map(([action, label]) => h('button', { class: 'btn sm out', 'data-action': action, 'data-asset': asset, onclick: () => invoke(action, asset) }, label))));
   };

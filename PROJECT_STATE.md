@@ -1,3 +1,7 @@
+# Active V7.9 checkpoint
+
+SSOT: `docs/v3.2/v79/state.json` supersedes earlier next-actions. Preserve verified V7.6/V7.8 work. New offline internal import, read-only SAF correction, FGS service, context provenance and Debug packaging fixes are additive. Source targets dev.8/code13; no new APK accepted yet. Prior run46030179459 assembled Android but packaging failed; no APK preserved. Gate02 FAIL and Gate05 PARTIAL retained. Physical Samsung/USB/airplane/reinstall acceptance remains NOT TESTED. Never uninstall owner app or delete weights.
+
 # Active V7.6 checkpoint
 
 SSOT docs/v3.2/v76/state.json supersedes older next-actions. Dev8/code13 source introduces actual SAF original storage + verifiedinternal runtime copy and robustshared downloader. FullAndroidbuild and newstableDebugcache identity validation pending. Do not uninstall ownerapp or delete oldweights. Current modelneedsinstallation onSamsung, so fieldnoinference is not modelquality evidence. Prior HostGate02FAIL retained.

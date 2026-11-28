@@ -1,0 +1,108 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------< com.makeuphouse.tests:persistent-provider-contract >---------
+[INFO] Building persistent-provider-contract 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ persistent-provider-contract ---
+[INFO] skip non existing resourceDirectory /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ persistent-provider-contract ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 1 source file with javac [debug target 17] to target/classes
+[WARNING] system modules path not set in conjunction with -source 17
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ persistent-provider-contract ---
+[INFO] skip non existing resourceDirectory /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ persistent-provider-contract ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug target 17] to target/test-classes
+[WARNING] system modules path not set in conjunction with -source 17
+[INFO] /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java: /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java uses or overrides a deprecated API.
+[INFO] /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/src/test/java/com/makeuphouse/advisor/PersistentModelStoreProviderTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- antrun:3.1.0:run (aar-runtime) @ persistent-provider-contract ---
+[INFO] Executing tasks
+[INFO]     [unzip] Expanding: /home/agent/.m2/repository/androidx/test/monitor/1.7.2/monitor-1.7.2.aar into /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/aar-monitor
+[INFO]     [unzip] Expanding: /home/agent/.m2/repository/androidx/test/espresso/espresso-idling-resource/3.6.1/espresso-idling-resource-3.6.1.aar into /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/aar-idling
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ persistent-provider-contract ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.makeuphouse.advisor.PersistentModelStoreProviderTest
+DEBUG: Shadow provider: org.robolectric.Shadows
+DEBUG: Manifest file location: null
+INFO: Found org.robolectric:android-all-instrumented:15-robolectric-12650502-i7 in local maven repository
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.incompleteSameNameIsNeverPromoted: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.modificationBetweenDiscoveryAndCopyRejectsTemporaryFileAndPreservesRuntime: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.cancelledRestoreLeavesRuntimeAndOriginalBytesUnchanged: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.readOnlyExistingOriginalRestoresAndWriteOperationsRemainBlocked: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.wrongSameSizeFileCannotReplaceRuntimeOrBecomeVerified: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.revokedGrantIsNotReportedAsMissingAsset: sdk=35
+com.makeuphouse.advisor.PersistentModelStoreProviderTest.arbitraryExternalSidecarCannotOverridePinnedManifest: sdk=35
+[ERROR] Tests run: 8, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 6.461 s <<< FAILURE! -- in com.makeuphouse.advisor.PersistentModelStoreProviderTest
+[ERROR] com.makeuphouse.advisor.PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory -- Time elapsed: 0.070 s <<< FAILURE!
+array lengths differed, expected.length=131072 actual.length=3; arrays first differed at element [0]; expected:<71> but was:<9>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:78)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:28)
+	at org.junit.Assert.internalArrayEquals(Assert.java:534)
+	at org.junit.Assert.assertArrayEquals(Assert.java:343)
+	at org.junit.Assert.assertArrayEquals(Assert.java:354)
+	at com.makeuphouse.advisor.PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory(PersistentModelStoreProviderTest.java:63)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:502)
+	at org.robolectric.internal.SandboxTestRunner$2.lambda$evaluate$2(SandboxTestRunner.java:285)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:104)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.lang.AssertionError: expected:<71> but was:<9>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at org.junit.internal.ExactComparisonCriteria.assertElementsEqual(ExactComparisonCriteria.java:8)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:76)
+	... 21 more
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   PersistentModelStoreProviderTest.independentOfflineOriginalWithDifferentNameNeedsNoDownloadHistory:63 array lengths differed, expected.length=131072 actual.length=3; arrays first differed at element [0]; expected:<71> but was:<9>
+[INFO] 
+[ERROR] Tests run: 8, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14.519 s
+[INFO] Finished at: 2026-11-28T11:48:00+03:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.2:test (default-test) on project persistent-provider-contract: There are test failures.
+[ERROR] 
+[ERROR] See /workspace/scratch/94abed0b16f7/makeup-house-ai-advisor/tests/android-provider/target/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

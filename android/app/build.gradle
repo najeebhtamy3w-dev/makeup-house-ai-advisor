@@ -29,6 +29,16 @@ android {
     def ksProps = new Properties()
     if (ksPropsFile.exists()) { ksPropsFile.withInputStream { ksProps.load(it) } }
     signingConfigs {
+        debug {
+            // Engineering cache and APK verification must use this same explicit key.
+            // Standard Android debug credentials; never production signing settings.
+            if (System.getenv('TASK_DEBUG_KEYSTORE')) {
+                storeFile file(System.getenv('TASK_DEBUG_KEYSTORE'))
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
         if (ksProps['storeFile']) {
             release {
                 storeFile file(ksProps['storeFile'])
@@ -41,6 +51,7 @@ android {
     buildTypes {
         debug {
             // Isolated engineering install; never replaces owner-signed production data.
+            signingConfig signingConfigs.debug
             applicationIdSuffix ".engineering"
             versionNameSuffix "-test"
         }

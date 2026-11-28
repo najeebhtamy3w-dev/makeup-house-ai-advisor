@@ -28,7 +28,7 @@ test('new model download chooses folder and confirms location before native inst
  const h=harness();await h.context.show(h.root);await h.button('install').props.onclick();
  assert.deepEqual(h.calls.map(x=>x.action),['selectStorage','install']);assert.deepEqual(JSON.parse(JSON.stringify(h.calls[0].data)),{asset:'model'});
  assert.ok(h.confirmations.some(x=>x.includes('Chosen model')&&x.includes('1281 MB')));
- assert.match(text(h.root),/مكان الحفظ الدائم.*Chosen model/);
+ assert.match(text(h.root),/مجلد التنزيل الدائم.*Chosen model/);
 });
 test('cancelled or missing folder prevents any install call',async()=>{
  for(const option of [{cancelPicker:true},{noFolder:true}]){const h=harness(option);await h.context.show(h.root);await h.button('install').props.onclick();assert.deepEqual(h.calls.map(x=>x.action),['selectStorage']);assert.match(text(h.root),option.cancelPicker?/لم يبدأ تنزيل جديد/:/اختر مجلد الحفظ/);}
@@ -88,4 +88,9 @@ test('consultation bridge preserves installation/root failure and never invokes 
 
 test('declining runtime removal clears pending message and invokes no destructive call',async()=>{
  for(const action of ['remove','removeVision']){const h=harness({confirm:()=>false});await h.context.show(h.root);await h.button(action).props.onclick();assert.equal(h.calls.length,0);assert.match(text(h.root),/أُلغيت إزالة نسخة التشغيل/);assert.doesNotMatch(text(h.root),/جارٍ التنفيذ/);}
+});
+
+
+test('offline USB import opens local picker directly without choosing folder or starting download',async()=>{
+ for(const asset of ['model','vision']){const h=harness();await h.context.show(h.root);await h.button('importAsset',asset).props.onclick();assert.deepEqual(h.calls.map(x=>x.action),['importAsset']);assert.equal(h.calls[0].data.asset,asset);assert.ok(h.confirmations.some(x=>x.includes('فصل USB')));}
 });

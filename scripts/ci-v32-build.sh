@@ -35,15 +35,37 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 # A cache miss with a pin is an error, never permission to rotate engineering identity.
 TASK_DEBUG_KEYSTORE="$HOME/.android/debug.keystore"
 TASK_DEBUG_PIN="$REPO_ROOT/android/engineering-debug-certificate.sha256"
-if [[ -f "$TASK_DEBUG_PIN" && ! -f "$TASK_DEBUG_KEYSTORE" ]]; then
-  echo 'ENGINEERING_DEBUG_KEY_MISSING: restore the cached key; do not rotate the pinned identity.'
-  exit 1
-fi
-export TASK_DEBUG_KEYSTORE TASK_DEBUG_PIN
+TASK_DEBUG_PREFLIGHT_FILE="$OUTPUT/logs/debug-identity-preflight.json"
+export TASK_DEBUG_KEYSTORE TASK_DEBUG_PIN TASK_DEBUG_PREFLIGHT_FILE
+# Gradle's implicit debug-keystore location can differ from the cached path. Create
+# the isolated engineering identity explicitly, then pass this exact file to Gradle.
+python3 - <<'DEBUG_IDENTITY'
+from pathlib import Path
+import hashlib,json,os,re,subprocess
+key=Path(os.environ['TASK_DEBUG_KEYSTORE']);pin=Path(os.environ['TASK_DEBUG_PIN'])
+expected=pin.read_text().strip().lower() if pin.is_file() else None
+if expected is not None:
+ if not re.fullmatch(r'[0-9a-f]{64}',expected):raise SystemExit('INVALID_ENGINEERING_DEBUG_CERTIFICATE_PIN')
+ if not key.is_file():raise SystemExit('ENGINEERING_DEBUG_KEY_MISSING: pinned identity must be restored, not regenerated')
+existed=key.is_file()
+if key.is_symlink():raise SystemExit('ENGINEERING_DEBUG_KEY_PATH_INVALID')
+key.parent.mkdir(parents=True,exist_ok=True)
+if not existed:
+ # Standard Android DEBUG credentials only; never the owner's production identity.
+ subprocess.run([os.environ['JAVA_HOME']+'/bin/keytool','-genkeypair','-keystore',str(key),'-storetype','JKS','-alias','androiddebugkey','-storepass','android','-keypass','android','-keyalg','RSA','-keysize','2048','-validity','10000','-dname','CN=Android Debug,O=Android,C=US','-noprompt'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+key.chmod(0o600)
+cert=subprocess.check_output([os.environ['JAVA_HOME']+'/bin/keytool','-exportcert','-alias','androiddebugkey','-storepass','android','-keystore',str(key)],stderr=subprocess.DEVNULL)
+actual=hashlib.sha256(cert).hexdigest()
+if expected is not None and actual!=expected:raise SystemExit('ENGINEERING_DEBUG_CERTIFICATE_PIN_MISMATCH')
+state={'certificate_sha256':actual,'expected_certificate_pin':expected,'key_preexisted':existed,'generated_new_engineering_key':not existed,'path_source':'explicit TASK_DEBUG_KEYSTORE used by Gradle signingConfigs.debug','production_key_used':False}
+Path(os.environ['TASK_DEBUG_PREFLIGHT_FILE']).write_text(json.dumps(state,indent=2)+'\n')
+print('Engineering debug certificate verified before Gradle: '+actual)
+DEBUG_IDENTITY
 node --version; npm --version; java -version
 npm ci
 npm test 2>&1 | tee "$OUTPUT/logs/tests.log"
 bash scripts/test-resumable-download.sh 2>&1 | tee "$OUTPUT/logs/resumable-download-tests.log"
+bash scripts/test-offline-import.sh 2>&1 | tee "$OUTPUT/logs/offline-import-tests.log"
 python3 -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee "$OUTPUT/logs/ocr-integrity-tests.log"
 npm run typecheck 2>&1 | tee "$OUTPUT/logs/typecheck.log"
 npm run android:sync 2>&1 | tee "$OUTPUT/logs/android-sync.log"
@@ -60,6 +82,18 @@ export MH_LLAMA_SOURCE_DIR="$TASK_TEMP/llama"
 # Invoke the repository wrapper: it pins Gradle8.14.3. No insecure TLS/proxy workarounds.
 (cd android && bash ./gradlew --no-daemon --max-workers=2 --console=plain :app:assembleDebug) 2>&1 | tee "$OUTPUT/logs/android-build.log"
 export OUTPUT REPO_ROOT
+# Preserve the actual assembled Debug APK if a later package/signature assertion fails.
+# Only a fully checked artifact is copied to the normal delivery filename below.
+python3 - <<'UNVERIFIED_APK'
+from pathlib import Path
+import hashlib,json,os,shutil
+root=Path(os.environ['REPO_ROOT']);out=Path(os.environ['OUTPUT'])/'unverified';out.mkdir(exist_ok=True)
+source=root/'android/app/build/outputs/apk/debug/app-debug.apk'
+if source.is_file():
+ target=out/'UNVERIFIED_NOT_FOR_INSTALLATION_app-debug.apk';shutil.copy2(source,target)
+ state={'status':'UNVERIFIED_NOT_FOR_INSTALLATION','reason':'Gradle assembled this file; independent APK checks have not yet completed','source_commit':os.environ.get('GITHUB_SHA'),'bytes':target.stat().st_size,'sha256':hashlib.file_digest(target.open('rb'),'sha256').hexdigest()}
+ (out/'UNVERIFIED_APK.json').write_text(json.dumps(state,indent=2)+'\n')
+UNVERIFIED_APK
 python3 - <<'PY'
 from pathlib import Path
 import os,subprocess,json,hashlib,zipfile,shutil,datetime,re
@@ -80,13 +114,15 @@ key=Path(os.environ['TASK_DEBUG_KEYSTORE']);assert key.is_file(),'ENGINEERING_DE
 key.chmod(0o600)
 cert=subprocess.check_output([os.environ['JAVA_HOME']+'/bin/keytool','-exportcert','-alias','androiddebugkey','-storepass','android','-keystore',str(key)],stderr=subprocess.DEVNULL)
 key_certificate=hashlib.sha256(cert).hexdigest()
+preflight=json.loads(Path(os.environ['TASK_DEBUG_PREFLIGHT_FILE']).read_text())
+assert key_certificate==preflight['certificate_sha256'],'ENGINEERING_DEBUG_KEY_CHANGED_DURING_BUILD'
 pin_path=Path(os.environ['TASK_DEBUG_PIN']);expected_pin=pin_path.read_text().strip().lower() if pin_path.is_file() else None
 if expected_pin:
  assert re.fullmatch(r'[0-9a-f]{64}',expected_pin),'INVALID_ENGINEERING_DEBUG_CERTIFICATE_PIN'
  assert key_certificate==expected_pin,'ENGINEERING_DEBUG_CERTIFICATE_PIN_MISMATCH'
 cache_hit=os.environ.get('MH_DEBUG_KEY_CACHE_HIT')=='true'
 dev7_certificate='da9d4d6b4bdafec013c5b2963204b31dbfff7b016df648e13d03dd77c1272261'
-signing={'certificate_sha256':key_certificate,'cache_restored':cache_hit,'expected_certificate_pin':expected_pin,'dev7_certificate_sha256':dev7_certificate,'certificate_matches_dev7':key_certificate==dev7_certificate,'dev7_private_key_recovered':key_certificate==dev7_certificate,'identity_state':'PINNED_CACHE_RESTORED' if cache_hit and expected_pin else 'CACHE_RESTORED_UNPINNED' if cache_hit else 'BOOTSTRAP_UNPINNED','update_compatibility':'NOT_PROVEN: certificate match alone does not prove data/model migration','two_independent_runs_verified':False,'cache_limit':'Cache can expire or be evicted. Preserve a secure external backup before claiming permanent key retention; a committed public pin makes subsequent cache loss fail closed.'}
+signing={'certificate_sha256':key_certificate,'preflight':preflight,'cache_restored':cache_hit,'expected_certificate_pin':expected_pin,'dev7_certificate_sha256':dev7_certificate,'certificate_matches_dev7':key_certificate==dev7_certificate,'dev7_private_key_recovered':key_certificate==dev7_certificate,'identity_state':'PINNED_CACHE_RESTORED' if cache_hit and expected_pin else 'CACHE_RESTORED_UNPINNED' if cache_hit else 'BOOTSTRAP_UNPINNED','update_compatibility':'NOT_PROVEN: certificate match alone does not prove data/model migration','two_independent_runs_verified':False,'cache_limit':'Cache can expire or be evicted. Preserve a secure external backup before claiming permanent key retention; a committed public pin makes subsequent cache loss fail closed.'}
 (out/'ENGINEERING_DEBUG_CERTIFICATE.sha256').write_text(key_certificate+'\n')
 (out/'DEBUG_SIGNING_STATUS.json').write_text(json.dumps(signing,indent=2)+'\n')
 if os.environ.get('GITHUB_OUTPUT'):
@@ -157,3 +193,5 @@ with (out/'SHA256SUMS.txt').open('a') as checks:checks.write(manifest['source_zi
 ''')
 print(json.dumps({k:{'file':v['file'],'sha256':v['sha256']} for k,v in results.items()},indent=2))
 PY
+# Verified delivery succeeded: remove only the redundant, explicitly unverified copy.
+rm -f "$OUTPUT/unverified/UNVERIFIED_NOT_FOR_INSTALLATION_app-debug.apk" "$OUTPUT/unverified/UNVERIFIED_APK.json"

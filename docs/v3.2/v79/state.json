@@ -1,0 +1,34 @@
+{
+  "directive": "V7.9",
+  "base_remote_commit": "4577ea280e91dcf821586290c406935daf769d92",
+  "branch": "work-v32-unified-scientific-core",
+  "completed": [
+    "Verified offline internal import without bound folder/download history; original untouched; independent runtime copy",
+    "Read-only SAF folder binding corrected; write remains forbidden",
+    "Foreground dataSync download service and owner-bound pause",
+    "Context user authority separated from scientific evidence",
+    "Explicit debug keystore path/bootstrap; fail closed after certificate pin"
+  ],
+  "tests": {
+    "offline_import_host": "9 PASS; NETWORK_REQUESTS=0",
+    "android_provider_robolectric_sdk35": "8 PASS; host rename adapter documented",
+    "ui_import": "12 PASS",
+    "context_authority": "15 PASS",
+    "regression": "339/339 PASS",
+    "typecheck": "PASS",
+    "debug_key_fixtures": "8 PASS",
+    "mobile_build": "PASS"
+  },
+  "build": {
+    "previous_run": 46030179459,
+    "result": "Gradle assembleDebug succeeded; post-package ENGINEERING_DEBUG_KEY_MISSING; no APK artifact retained",
+    "next": "Build dev.8/code13 from this source checkpoint"
+  },
+  "gates": {
+    "Gate02": "FAIL; no new model quality evidence",
+    "Gate05": "PARTIAL; Samsung USB detach/reinstall/airplane inference NOT TESTED"
+  },
+  "owner_data": "No uninstall, deletion, or original model modification performed",
+  "next": "Recover CI artifacts and exact certificate; do not claim dev7 compatible update unless certificate matches",
+  "production_signing": "DEFERRED"
+}

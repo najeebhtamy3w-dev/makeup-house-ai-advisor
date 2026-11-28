@@ -47,7 +47,7 @@ public final class PersistentModelStore {
     public synchronized void bind(String id, Uri uri) throws Exception {
         asset(id);
         if (uri == null || !"content".equals(uri.getScheme()) || !DocumentsContract.isTreeUri(uri)) throw new IOException("PERSISTENT_TREE_URI");
-        if (!permission(uri, true)) throw new IOException("STORAGE_RECONNECT_REQUIRED");
+        if (!permission(uri, false)) throw new IOException("STORAGE_RECONNECT_REQUIRED");
         Uri root = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
         try (Cursor c = resolver.query(root, new String[]{DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
             if (c == null || !c.moveToFirst() || !DocumentsContract.Document.MIME_TYPE_DIR.equals(c.getString(0))) throw new IOException("PERSISTENT_FOLDER_MISSING");
@@ -63,7 +63,8 @@ public final class PersistentModelStore {
     }
     private Uri requireTree(String id, boolean write) throws Exception {
         Uri value = tree(id); if (value == null) throw new IOException("STORAGE_FOLDER_REQUIRED");
-        if (!permission(value, write)) throw new IOException("STORAGE_RECONNECT_REQUIRED"); return value;
+        if (!permission(value, false)) throw new IOException("STORAGE_RECONNECT_REQUIRED");
+        if (write && !permission(value, true)) throw new IOException("STORAGE_WRITE_PERMISSION_REQUIRED"); return value;
     }
     /** Lightweight status does not rehash gigabytes on the UI thread or claim current integrity. */
     public JSONObject status(String id) throws Exception {
