@@ -2,8 +2,8 @@
   "app": "SMART STOCK — الجرد الذكي",
   "applicationId": "com.smartstock",
   "debugApplicationId": "com.smartstock.debug",
-  "versionName": "1.2.0",
-  "versionCode": 10200,
+  "versionName": "1.3.0",
+  "versionCode": 10300,
   "minSdk": 26,
   "targetSdk": 35,
   "date": "2026-11-25",
@@ -14,9 +14,9 @@
       "releaseApkUnsigned": true
     },
     "TEST_PASSED": {
-      "automatedTests": "60/60",
+      "automatedTests": "66/66",
       "suites": {
-        "core": 30,
+        "core": 36,
         "data_pdf_merge_add": 22,
         "ui_flows": 8
       }
@@ -34,7 +34,7 @@
   ],
   "notes": [
     "SMART_STOCK_SAMPLE_PRINT*.pdf are raster renders of the app's PDF drawing code (vector PdfDocument runs only on device)",
-    "SMART_STOCK_V1.2.0_RELEASE.apk not delivered: release is unsigned until owner key exists"
+    "SMART_STOCK_V1.3.0_RELEASE.apk not delivered: release is unsigned until owner key exists"
   ],
   "files": {
     "SMART_STOCK_BUILD_GUIDE.md": {
@@ -50,50 +50,50 @@
       "bytes": 10261
     },
     "SMART_STOCK_SAMPLE_OUTPUT_WITH_ADDED.xlsx": {
-      "sha256": "b2a6cd68f21b8e84a8d0c01a7d810b762bcf56ae7a3be7f2cb27e2bf09fc647b",
-      "bytes": 10406
+      "sha256": "151a771c67d72dae255ffa599dd203972e9570269e0b232e34b0d1064937035a",
+      "bytes": 10414
     },
     "SMART_STOCK_SAMPLE_PRINT.pdf": {
-      "sha256": "85469fb73700d435406c38ff8eea07757fb095b2ea9d7f51a86e540b4c68c846",
-      "bytes": 260702
+      "sha256": "07884c3828718ed3d9228bbadf489ce0ad9ea32ead41fbad38e9221b4523b119",
+      "bytes": 232480
     },
     "SMART_STOCK_SAMPLE_PRINT_10K_EXCERPT.pdf": {
-      "sha256": "e281047ea316703705f347581108b4bb40821dc16e71d46542b227befacfa325",
-      "bytes": 690436
+      "sha256": "0345833b581864979f929d3d79a78e55e5e78e3155c236034ff2105afd70d222",
+      "bytes": 774556
     },
     "SMART_STOCK_SAMPLE_PRINT_MERGED.pdf": {
-      "sha256": "b533d394522824dc141ea0cb8e9c7e5dae682995f627a68dbc5368a88e2e651a",
-      "bytes": 684786
+      "sha256": "6c553d8ee942c5565b64ca62e1d9be71f98fd4a93d0cf970b2adfe55599b5d73",
+      "bytes": 537611
     },
     "SMART_STOCK_SIGNING_GUIDE.md": {
       "sha256": "f0b5431984131258ca6587cd8cc526e0f461aa7778c9bdac479f15b46ac7eef6",
       "bytes": 1735
     },
     "SMART_STOCK_TEST_REPORT.md": {
-      "sha256": "230fe7eb25c13bfab9231d2438c2163fcf4501693f084f4bd32bc78b1f8ae701",
-      "bytes": 14114
+      "sha256": "10174cbf3e98deec3f082bd0078b49238846576df0709c5b3a1459ab2f5c3829",
+      "bytes": 15725
     },
     "SMART_STOCK_USER_GUIDE_AR.pdf": {
-      "sha256": "40a155f18f6923d5296769205ec316c5230066ca6db8138dc9ffc8a6a312fba5",
-      "bytes": 87060
+      "sha256": "9fdd2c54a182c9dad79efae25071d5340601e5e4f0f572c0e3fab26d5c2965b3",
+      "bytes": 91734
     },
-    "SMART_STOCK_V1.2.0_DEBUG.apk": {
-      "sha256": "63721dba36f5ec5dfb2137f5b3d832f81526c1cde3a3a62e34b000705af53aa0",
-      "bytes": 5834489
+    "SMART_STOCK_V1.3.0_DEBUG.apk": {
+      "sha256": "908512e4135faeb358698b1c7d8bef19df39d7bedc069636c050487314aafca0",
+      "bytes": 16382456
     },
-    "SMART_STOCK_V1.2.0_RELEASE_UNSIGNED.apk": {
-      "sha256": "e8f6182145b85d10597a4336268a65512cfb38f7c02a5ef13a39342c9a3cd8fa",
-      "bytes": 4683025
+    "SMART_STOCK_V1.3.0_RELEASE_UNSIGNED.apk": {
+      "sha256": "9ded81a7129bc53658370371bcab5707a38c40bff7d6c6b8c442c6e8252c269f",
+      "bytes": 14989987
     },
-    "SMART_STOCK_V1.2.0_SOURCE_FINAL.zip": {
-      "sha256": "bbdc64cfceb2dc6f57d6ec9a7b99376af366fb7517a837e9f29c064efa201ac4",
-      "bytes": 482760
+    "SMART_STOCK_V1.3.0_SOURCE_FINAL.zip": {
+      "sha256": "74bb8114b1f233bf5a6bb02efab97c6d3bf482284ada8df08db4ec8d7db094c2",
+      "bytes": 495656
     }
   },
   "changes_1_0_1": [
     "Fix: import failed on workbooks whose XML parts start with a byte-order mark (device error 'Unexpected token @1:2')"
   ],
-  "databaseVersion": 3,
+  "databaseVersion": 4,
   "changes_1_1_0": [
     "Multi-phone merged printing: merge several exported Excel files into one report with one grand total and a per-file totals page",
     "Database v1->v2 in-place migration (no data loss)"
@@ -101,5 +101,12 @@
   "changes_1_2_0": [
     "Add items not present in the Excel file from the count screen (form in Excel column order, labelled with the file's headers); exported as new rows after the last item",
     "Database v2->v3 in-place migration (items.added)"
+  ],
+  "changes_1_3_0": [
+    "Date/expiry column read from Excel, shown, and typed for added items (exported as real Excel date)",
+    "Barcode scanner replaced: Google ML Kit bundled model (offline) on CameraX with zoom, tap-to-focus, torch, double-read confirmation",
+    "Print layout A4 portrait without date column",
+    "Database v3->v4 migration (items.expiry)",
+    "APK limited to ARM ABIs"
   ]
 }

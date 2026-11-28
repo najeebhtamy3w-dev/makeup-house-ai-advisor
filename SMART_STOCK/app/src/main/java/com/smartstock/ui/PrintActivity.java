@@ -62,7 +62,7 @@ public class PrintActivity extends BaseActivity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         savePdf = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/pdf"), this::saveTo);
-        content = scaffold("الطباعة — A4 أفقي", true);
+        content = scaffold("الطباعة — A4 عمودي", true);
         long sid = getIntent().getLongExtra(EXTRA_SESSION, activeSessionId());
         Bg.db(this, () -> new Object[]{repo.session(sid), repo.groups(sid)}, r -> {
             session = (Models.Session) r[0];
@@ -115,7 +115,7 @@ public class PrintActivity extends BaseActivity {
         sub.setText("إظهار مجموع كل صفحة");
         sub.setChecked(true);
         box.addView(sub);
-        box.addView(Ui.text(this, "الأعمدة المطبوعة: اسم الصنف • العبوة / حبة • الباركود • الكمية • التكلفة • إجمالي تكلفة الصف. لا تُطبع المجموعة والوحدة وتاريخ الانتهاء والملاحظات (تبقى في ملف Excel).", 12, R.color.text_muted, false), Ui.matchWrap(this, 8));
+        box.addView(Ui.text(this, "الأعمدة المطبوعة: اسم الصنف • العبوة / حبة • الباركود • الكمية • التكلفة • إجمالي تكلفة الصف. لا تُطبع المجموعة والوحدة والتاريخ والملاحظات (تبقى في ملف Excel). الورق: A4 عمودي.", 12, R.color.text_muted, false), Ui.matchWrap(this, 8));
         content.addView(c);
         content.addView(Ui.button(this, "إنشاء التقرير ومعاينته", Ui.Style.PRIMARY, R.drawable.ic_print, v -> {
             ReportPdf.Options o = new ReportPdf.Options();
@@ -209,7 +209,7 @@ public class PrintActivity extends BaseActivity {
         PrintManager pm = (PrintManager) getSystemService(PRINT_SERVICE);
         String job = "SMART STOCK — " + session.name;
         PrintAttributes attrs = new PrintAttributes.Builder()
-                .setMediaSize(PrintAttributes.MediaSize.ISO_A4.asLandscape())
+                .setMediaSize(PrintAttributes.MediaSize.ISO_A4.asPortrait())
                 .setColorMode(PrintAttributes.COLOR_MODE_MONOCHROME)
                 .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
                 .build();

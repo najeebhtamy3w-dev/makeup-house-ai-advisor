@@ -5,6 +5,10 @@
     <!-- Only what is needed: camera for barcode scanning, vibration for scan feedback. No INTERNET. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- ML Kit libraries request network access only for Google telemetry: removed, the app stays 100% offline.
+         The barcode model is bundled inside the APK, so scanning needs no network. -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <uses-feature android:name="android.hardware.camera.flash" android:required="false" />

@@ -1,5 +1,22 @@
 # SMART STOCK — Test Report
 
+## Update 1.3.0 (versionCode 10300) — date column, new scanner, A4 portrait
+**Date column:** recognised by name (تاريخ الانتهاء / التاريخ / الصلاحية / expiry …). Excel date cells → `yyyy-MM-dd`;
+date serials without a date format are converted too; text dates kept as written. Shown on the item card, in the
+duplicate-barcode chooser (helps choosing the right batch) and the list. The add-item form has a date field
+(calendar) in its column position; on export it is written as a real Excel date using the column's date format
+(text if the column has none). Not printed. DB schema v3 → v4 (`items.expiry`).
+**Scanner:** ZXing replaced by Google ML Kit barcode scanning with the **bundled** model (in the APK, no download,
+no network) on CameraX: 1920×1080 analysis, continuous AF + tap-to-focus, zoom slider, torch, aiming frame.
+1D codes accepted after 2 identical reads (guards against glare misreads), QR/DataMatrix at once (`ScanConfirmTest`).
+APK checked: `assets/mlkit_barcode_models/*.tflite` and `libbarhopper_v3.so` present; permissions still only
+CAMERA + VIBRATE (ML Kit's INTERNET / ACCESS_NETWORK_STATE removed in the manifest). APK limited to ARM ABIs (16 MB).
+**Not device-verified:** scanning speed through shrink-wrap must be confirmed on the phone.
+**Print:** A4 portrait, 6 columns (no date), wrapped column titles; ~26 items/page (10,000 items: 386 pages, was 626).
+**Tests added:** `DateColumnTest` (3), `ScanConfirmTest` (3), date in `AddItemTest` (export → real date read back),
+portrait assertion in the PDF test. Total: **66 / 66 TEST PASSED**.
+
+
 ## Update 1.2.0 (versionCode 10200) — adding items not in the Excel file
 **Feature:** when a scanned barcode is not in the file, *إضافة صنف جديد* opens a form whose fields follow the
 Excel column order and use the file's own column titles (group, name, unit, pack, barcode prefilled, quantity, cost).
@@ -53,10 +70,10 @@ Status legend: **IMPLEMENTED** · **BUILD PASSED** · **TEST PASSED** (automated
 | Area | Status |
 |---|---|
 | Source recovery, restore point (original prototype kept unmodified in `reference/`) | DONE |
-| Debug APK `com.smartstock.debug` 1.2.0 (10200) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
-| Release APK `com.smartstock` 1.2.0 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
+| Debug APK `com.smartstock.debug` 1.3.0 (10300) | BUILD PASSED — 5.9 MB, v2 signed with debug key |
+| Release APK `com.smartstock` 1.3.0 | BUILD PASSED (unsigned) · signing pipeline TEST PASSED with throw-away key |
 | RELEASE SIGNED with permanent key | **BLOCKED** — owner must create the key (see signing guide) |
-| Automated tests | **60 / 60 TEST PASSED** (core 30 · data/PDF/merge/add 22 · UI flows 8) |
+| Automated tests | **66 / 66 TEST PASSED** (core 36 · data/PDF/merge/add 22 · UI flows 8) |
 | Samsung Galaxy S22 Ultra | **NOT DEVICE VERIFIED** — acceptance checklist below |
 | APK permissions | CAMERA, VIBRATE only — no INTERNET (checked with `aapt2 dump permissions`) |
 

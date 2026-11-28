@@ -36,6 +36,8 @@ public final class XlsxPackage implements AutoCloseable {
     List<String> sharedStrings;
     /** cellXfs index -> zero-padding width (>0 when number format is "000…0"), else 0. */
     int[] zeroPad;
+    /** cellXfs index -> number format is a date/time format. */
+    boolean[] dateStyle;
 
     public XlsxPackage(File file, ParserFactory pf) throws IOException {
         try {
@@ -245,6 +247,8 @@ public final class XlsxPackage implements AutoCloseable {
                 } else if (ev == XmlPullParser.END_TAG && "cellXfs".equals(p.getName())) inCellXfs = false;
             }
         }
+        dateStyle = new boolean[xfs.size()];
+        for (int i = 0; i < xfs.size(); i++) dateStyle[i] = isDateFormat(xfs.get(i), fmts.get(xfs.get(i)));
         zeroPad = new int[xfs.size()];
         for (int i = 0; i < xfs.size(); i++) {
             String code = fmts.get(xfs.get(i));
@@ -252,6 +256,16 @@ public final class XlsxPackage implements AutoCloseable {
         }
         return zeroPad;
     }
+
+    /** Built-in date ids (14–22, 27–36, 45–47, 50–58) or a custom code using d/m/y (outside quotes/brackets). */
+    static boolean isDateFormat(int id, String code) {
+        if ((id >= 14 && id <= 22) || (id >= 27 && id <= 36) || (id >= 45 && id <= 47) || (id >= 50 && id <= 58)) return true;
+        if (code == null) return false;
+        String c = code.replaceAll("\"[^\"]*\"", "").replaceAll("\\[[^\\]]*\\]", "").toLowerCase(java.util.Locale.ROOT);
+        return c.matches(".*[dmy].*") && !c.contains("general");
+    }
+
+    public boolean[] dateStyles() throws Exception { zeroPad(); return dateStyle; }
 
     @Override public void close() {
         try { zip.close(); } catch (IOException ignored) {}

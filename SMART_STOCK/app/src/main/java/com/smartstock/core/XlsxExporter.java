@@ -58,9 +58,17 @@ public final class XlsxExporter {
         public List<NewRow> appended = new ArrayList<>();
         /** Highest sheet row number holding an imported item. */
         public int lastItemRow;
+        /** cellXfs index -> is a date format (from the source workbook styles). */
+        public boolean[] dateStyles = new boolean[0];
     }
 
-    /** A new row: zero-based column -> value (String = text cell, BigDecimal = number, null = blank). */
+    /** A date for a new row; written as an Excel date when the column's cell style is a date format. */
+    public static final class DateValue {
+        public final String text;
+        public DateValue(String text) { this.text = text == null ? "" : text; }
+    }
+
+    /** A new row: zero-based column -> value (String = text, BigDecimal = number, DateValue = date, null = blank). */
     public static final class NewRow {
         public long key;
         public final Map<Integer, Object> cells = new java.util.TreeMap<>();
@@ -255,15 +263,24 @@ public final class XlsxExporter {
         return parts;
     }
 
+    /** Remembers the latest cell style seen per column in item rows (empty cells of the last row don't lose it). */
     static void captureTemplate(String body, Map<Integer, String> template) throws IOException {
-        template.clear();
         for (Object o : splitRow(body)) if (o instanceof CellChunk && ((CellChunk) o).style != null) template.put(((CellChunk) o).col, ((CellChunk) o).style);
     }
 
-    static void putNewCells(List<Object> parts, int rowNum, String prefix, NewRow nr, Map<Integer, String> template, Set<String> removedShared, Stats stats) {
+    static void putNewCells(List<Object> parts, int rowNum, String prefix, NewRow nr, Map<Integer, String> template, Set<String> removedShared, Stats stats, boolean[] dateStyles) {
         for (Map.Entry<Integer, Object> e : nr.cells.entrySet()) {
             Object v = e.getValue();
             String style = template.get(e.getKey());
+            if (v instanceof DateValue) {
+                String t = ((DateValue) v).text.trim();
+                if (t.isEmpty()) continue;
+                BigDecimal serial = XlsxImporter.dateToSerial(t);
+                int si = -1;
+                try { si = style == null ? -1 : Integer.parseInt(style); } catch (NumberFormatException ignored) {}
+                if (serial != null && si >= 0 && si < dateStyles.length && dateStyles[si]) v = serial;   // real Excel date
+                else v = t;                                                                              // text as typed
+            }
             if (v instanceof BigDecimal) setCell(parts, e.getKey(), rowNum, prefix, Num.plain((BigDecimal) v), null, style, removedShared, stats);
             else if (v instanceof String && !((String) v).isEmpty()) setCell(parts, e.getKey(), rowNum, prefix, null, (String) v, style, removedShared, stats);
         }
@@ -274,7 +291,7 @@ public final class XlsxExporter {
         NewRow nr = spec.appended.get(next[0]++);
         List<Object> parts = splitRow(body);
         String prefix = XmlTokens.prefix(rowTag);
-        putNewCells(parts, rowNum, prefix, nr, template, removedShared, stats);
+        putNewCells(parts, rowNum, prefix, nr, template, removedShared, stats, spec.dateStyles);
         stats.rowsAppended++;
         stats.appendedRows.put(nr.key, rowNum);
         String start = rowTag.replaceAll("\\s+spans=\"[^\"]*\"", "");
@@ -288,7 +305,7 @@ public final class XlsxExporter {
     static String newRow(int rowNum, String prefix, Spec spec, int[] next, Map<Integer, String> template, Stats stats) {
         NewRow nr = spec.appended.get(next[0]++);
         List<Object> parts = new ArrayList<>();
-        putNewCells(parts, rowNum, prefix, nr, template, new HashSet<>(), stats);
+        putNewCells(parts, rowNum, prefix, nr, template, new HashSet<>(), stats, spec.dateStyles);
         stats.rowsAppended++;
         stats.appendedRows.put(nr.key, rowNum);
         StringBuilder sb = new StringBuilder("<").append(prefix).append("row r=\"").append(rowNum).append("\">");

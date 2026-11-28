@@ -208,7 +208,7 @@ public class ItemsActivity extends BaseActivity {
         void bind(Models.Item i) {
             it = i;
             name.setText(i.added ? "＋ " + i.name + " (مُضاف)" : i.name);
-            sub.setText((i.barcode.isEmpty() ? "بدون باركود" : i.barcode) + "  •  " + (i.pack.isEmpty() ? "—" : i.pack) + (i.group.isEmpty() ? "" : "  •  " + i.group));
+            sub.setText((i.barcode.isEmpty() ? "بدون باركود" : i.barcode) + "  •  " + (i.pack.isEmpty() ? "—" : i.pack) + (i.group.isEmpty() ? "" : "  •  " + i.group) + (i.expiry.isEmpty() ? "" : "  •  " + i.expiry));
             int st = i.state();
             stripe.setBackgroundColor(Ui.color(ItemsActivity.this, st == 0 ? R.color.divider : st == 1 ? R.color.gold : R.color.success));
             qty.setText(st == 0 ? "لم يُجرد" : Num.qty(i.qty));

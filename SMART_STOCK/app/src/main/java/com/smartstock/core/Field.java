@@ -9,6 +9,7 @@ public enum Field {
     BARCODE("الباركود", true),
     QTY("الكمية", true),
     COST("التكلفة", true),
+    EXPIRY("تاريخ الانتهاء", false),
     TOTAL("إجمالي تكلفة الصف", false);
 
     public final String label;

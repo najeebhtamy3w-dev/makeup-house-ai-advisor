@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Vector A4-landscape PDF (Android PdfDocument), Arabic RTL table. Rows are never split across pages,
+ * Vector A4-portrait PDF (Android PdfDocument), Arabic RTL table. Rows are never split across pages,
  * headers repeat on every page, long names wrap, barcodes are never cut (font shrinks to fit).
  * Two streaming passes over the database (measure, then draw) keep memory constant for 50,000 items.
  */
@@ -63,12 +63,12 @@ public final class ReportPdf {
     public static final class Result { public File file; public int pages, rows; public BigDecimal sumQty, sumValue; }
 
     // A4 landscape in PostScript points
-    static final int PW = 842, PH = 595, M = 28;
-    static final float BODY = 9f, HEAD = 9.5f, PAD = 2.5f, MIN_ROW = 16f;
+    static final int PW = 595, PH = 842, M = 28;   // A4 PORTRAIT (points)
+    static final float BODY = 8.5f, HEAD = 8.5f, PAD = 2.5f, MIN_ROW = 15f;
     // column widths from right to left: م, اسم الصنف, العبوة/حبة, الباركود, الكمية, التكلفة, إجمالي تكلفة الصف
-    static final float[] W = {30, 292, 78, 128, 70, 86, 102};
+    static final float[] W = {24, 185, 62, 100, 46, 58, 64};   // = 539 pt (A4 portrait width minus margins); no date column
     static final String[] H = {"م", "اسم الصنف", "العبوة / حبة", "الباركود", "الكمية", "التكلفة", "إجمالي تكلفة الصف"};
-    static final float TOP_BLOCK = 54f, FOOT = 26f, SUBTOTAL_H = 20f;
+    static final float TOP_BLOCK = 64f, FOOT = 26f, SUBTOTAL_H = 20f;
 
     private final Typeface regular, bold;
     private final TextPaint body, bodyBold, small, title, big;
@@ -124,7 +124,7 @@ public final class ReportPdf {
         int total = o.scope == Scope.SUMMARY_ONLY ? 0 : scoped.items;
 
         // ---- pass 1: measure row heights and paginate (no row split across pages)
-        final float tableTop = M + TOP_BLOCK, headerH = 22f;
+        final float tableTop = M + TOP_BLOCK, headerH = headerHeight();
         final float bottom = PH - M - FOOT - (o.pageSubtotals ? SUBTOTAL_H : 0);
         final List<Integer> pageStarts = new ArrayList<>();
         final float[] heights = new float[total];
@@ -241,12 +241,18 @@ public final class ReportPdf {
         String info = (s.shop == null || s.shop.isEmpty() ? "" : "المحل: " + s.shop + "   |   ") + "تاريخ الجرد: " + s.countDate + "   |   نطاق الكشف: " + scope
                 + (o.currency == null || o.currency.isEmpty() ? "" : "   |   العملة: " + o.currency);
         text(c, info, small, M, M + 22, w, Layout.Alignment.ALIGN_NORMAL);
-        text(c, "SMART STOCK — الجرد الذكي", small, M, M + 4, 200, Layout.Alignment.ALIGN_OPPOSITE);
         c.drawLine(M, M + TOP_BLOCK - 8, right, M + TOP_BLOCK - 8, frame);
     }
 
+    /** Header height fits the tallest (possibly wrapped) column title. */
+    float headerHeight() {
+        float h = 0;
+        for (int k = 0; k < W.length; k++) h = Math.max(h, layout(H[k], bodyBold, W[k] - 2 * PAD, Layout.Alignment.ALIGN_CENTER).getHeight());
+        return Math.max(22f, h + 6);
+    }
+
     float tableHeader(Canvas c, float top) {
-        float h = 22f;
+        float h = headerHeight();
         float x = PW - M;
         c.drawRect(M, top, PW - M, top + h, fill);
         for (int k = 0; k < W.length; k++) {
@@ -400,7 +406,7 @@ public final class ReportPdf {
         float w = PW - 2 * M, y = M;
         String cur = o.currency == null || o.currency.isEmpty() ? "" : " " + o.currency;
         y += text(c, "تفاصيل الملفات المدمجة — " + s.name, title, M, y, w, Layout.Alignment.ALIGN_NORMAL) + 12;
-        float[] cw = {34, 300, 110, 110, 110, 122};
+        float[] cw = {24, 175, 70, 70, 90, 110};     // = 539 pt
         String[] hd = {"م", "الملف / الجوال", "عدد الأصناف", "أصناف بكمية", "إجمالي الكميات", "إجمالي القيمة"};
         float h = 24;
         float x = PW - M;

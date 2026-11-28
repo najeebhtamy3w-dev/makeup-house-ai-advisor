@@ -35,7 +35,7 @@ public final class NewItemDialog {
 
     public interface Done { void ok(Models.SaveResult r); }
 
-    static final Field[] FIELDS = {Field.GROUP, Field.NAME, Field.UNIT, Field.PACK, Field.BARCODE, Field.QTY, Field.COST};
+    static final Field[] FIELDS = {Field.GROUP, Field.NAME, Field.UNIT, Field.PACK, Field.BARCODE, Field.QTY, Field.COST, Field.EXPIRY};
 
     /** Fields present in the file, sorted by their column position. */
     static List<Field> ordered(Models.Session s) {
@@ -70,12 +70,14 @@ public final class NewItemDialog {
                     case PACK: value = existing.pack; break;
                     case BARCODE: value = existing.barcode; break;
                     case COST: value = existing.cost == null ? "" : Num.plain(existing.cost); break;
+                    case EXPIRY: value = existing.expiry; break;
                     default: break;
                 }
             } else if (f == Field.BARCODE) value = barcode;
             TextInputLayout t = Ui.field(a, label(s, f) + (req ? " *" : ""), value, f == Field.QTY || f == Field.COST);
             if (f == Field.QTY && !s.allowDecimal) { Ui.edit(t).setInputType(InputType.TYPE_CLASS_NUMBER); Ui.singleLineRtl(Ui.edit(t)); }
             if (f == Field.BARCODE) { Ui.edit(t).setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS); Ui.singleLineRtl(Ui.edit(t)); }
+            if (f == Field.EXPIRY) datePicker(a, Ui.edit(t));
             box.addView(t, Ui.matchWrap(a, 8));
             fields.put(f, t);
         }
@@ -102,6 +104,7 @@ public final class NewItemDialog {
             n.group = txt(fields.get(Field.GROUP)); n.name = txt(fields.get(Field.NAME)); n.unit = txt(fields.get(Field.UNIT));
             n.pack = txt(fields.get(Field.PACK)); n.barcode = txt(fields.get(Field.BARCODE));
             n.cost = val(fields.get(Field.COST));
+            n.expiry = txt(fields.get(Field.EXPIRY));
             n.qty = edit ? existing.qty : val(fields.get(Field.QTY));
             if (n.name.isEmpty()) { Ui.edit(fields.get(Field.NAME)).setError("اسم الصنف مطلوب"); return; }
             if (!edit) {
@@ -128,6 +131,19 @@ public final class NewItemDialog {
             }, e -> { d.dismiss(); Ui.error(a, e); });
         }));
         d.show();
+    }
+
+    /** Tap = calendar (yyyy-MM-dd); long press = clear. */
+    static void datePicker(Activity a, EditText e) {
+        e.setFocusable(false);
+        e.setHint("اضغط لاختيار التاريخ");
+        e.setOnClickListener(v -> {
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            try { c.setTime(new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(e.getText().toString())); } catch (Exception ignored) {}
+            new android.app.DatePickerDialog(a, (dp, y, m, d) -> e.setText(String.format(java.util.Locale.US, "%04d-%02d-%02d", y, m + 1, d)),
+                    c.get(java.util.Calendar.YEAR), c.get(java.util.Calendar.MONTH), c.get(java.util.Calendar.DAY_OF_MONTH)).show();
+        });
+        e.setOnLongClickListener(v -> { e.setText(""); return true; });
     }
 
     static String txt(TextInputLayout t) { return t == null ? "" : Ui.edit(t).getText().toString().trim(); }

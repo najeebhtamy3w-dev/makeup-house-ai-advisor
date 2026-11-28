@@ -22,6 +22,7 @@ public final class ColumnMatcher {
         SYN.put(Field.BARCODE, new String[]{"الباركود", "باركود", "barcode", "bar code", "رمز الباركود", "كود الباركود", "ean"});
         SYN.put(Field.QTY, new String[]{"الكميه", "كميه", "العدد", "عدد", "الكميه الفعليه", "qty", "quantity", "count"});
         SYN.put(Field.COST, new String[]{"التكلفه", "تكلفه الصنف", "تكلفه", "سعر التكلفه", "تكلفه الوحده", "cost", "unit cost"});
+        SYN.put(Field.EXPIRY, new String[]{"تاريخ الانتهاء", "تاريخ انتهاء", "الانتهاء", "تاريخ الصلاحيه", "انتهاء الصلاحيه", "الصلاحيه", "التاريخ", "تاريخ", "expiry", "expiry date", "exp", "exp date", "date"});
         SYN.put(Field.TOTAL, new String[]{"اجمالي تكلفه الصف", "اجمالي التكلفه", "اجمالي تكلفه الصنف", "الاجمالي", "اجمالي", "اجمالي القيمه", "total", "total cost"});
     }
 
@@ -57,6 +58,7 @@ public final class ColumnMatcher {
             case QTY: return h.contains("كميه") && !h.contains("اجمالي");
             case COST: return h.contains("تكلفه") && !h.contains("اجمالي");
             case TOTAL: return h.contains("اجمالي") && !h.contains("كميه");
+            case EXPIRY: return h.contains("تاريخ") || h.contains("انتهاء") || h.contains("صلاحيه") || h.contains("expir");
             default: return false;
         }
     }

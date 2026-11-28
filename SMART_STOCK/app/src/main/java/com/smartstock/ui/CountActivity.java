@@ -286,7 +286,8 @@ public class CountActivity extends BaseActivity {
         for (int i = 0; i < list.size(); i++) {
             Models.Item it = list.get(i);
             rows[i] = it.name + "\n" + (it.group.isEmpty() ? "" : it.group + " • ") + "العبوة: " + (it.pack.isEmpty() ? "—" : it.pack)
-                    + " • التكلفة: " + Num.money(it.cost) + " • صف Excel " + it.rowNum + (it.counted ? " • الكمية: " + Num.qty(it.qty) : "");
+                    + " • التكلفة: " + Num.money(it.cost) + (it.expiry.isEmpty() ? "" : " • التاريخ: " + it.expiry)
+                    + (it.added ? " • مُضاف" : " • صف Excel " + it.rowNum) + (it.counted ? " • الكمية: " + Num.qty(it.qty) : "");
         }
         new MaterialAlertDialogBuilder(this).setTitle(title)
                 .setItems(rows, (d, w) -> show(list.get(w)))
@@ -310,6 +311,8 @@ public class CountActivity extends BaseActivity {
         itemBox.addView(Ui.kv(this, "الوحدة", dash(it.unit), false));
         itemBox.addView(Ui.kv(this, "العبوة / حبة", dash(it.pack), false));
         itemBox.addView(Ui.kv(this, "الباركود", dash(it.barcode), false));
+        if (session.colMap.has(com.smartstock.core.Field.EXPIRY) || !it.expiry.isEmpty())
+            itemBox.addView(Ui.kv(this, NewItemDialog.label(session, com.smartstock.core.Field.EXPIRY), dash(it.expiry), false));
         itemBox.addView(Ui.kv(this, "التكلفة", it.cost == null ? "غير صالحة" : Num.money(it.cost) + cur(), false));
         itemBox.addView(Ui.kv(this, "الكمية المحفوظة سابقًا", Num.qty(it.qty), true));
         itemBox.addView(Ui.kv(this, "إجمالي تكلفة الصنف الحالي", it.cost == null ? "—" : Num.money(it.total()) + cur(), false));

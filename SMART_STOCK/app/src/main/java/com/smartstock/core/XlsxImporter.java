@@ -47,6 +47,7 @@ public final class XlsxImporter {
         public boolean costFromFormula;
         public String qtyIssue;
         public BigDecimal fileQty;       // quantity found in file (informational)
+        public String expiry = "";       // date column: "yyyy-MM-dd" for real dates, otherwise the text as written
     }
 
     public static final class Result {
@@ -129,7 +130,8 @@ public final class XlsxImporter {
         Result r = new Result();
         r.sheetName = sheet.name; r.sheetPath = sheet.path; r.headerRow = headerRow; r.map = new ColumnMap(map); r.headers = headers;
         final int cG = map.getOr(Field.GROUP, -1), cN = map.get(Field.NAME), cU = map.getOr(Field.UNIT, -1),
-                cP = map.getOr(Field.PACK, -1), cB = map.get(Field.BARCODE), cQ = map.get(Field.QTY), cC = map.get(Field.COST);
+                cP = map.getOr(Field.PACK, -1), cB = map.get(Field.BARCODE), cQ = map.get(Field.QTY), cC = map.get(Field.COST),
+                cE = map.getOr(Field.EXPIRY, -1);
         final int[] pendingEmpty = {0};
         final int[] lastItemRow = {0}, skippedSince = {0};
         final int[] maxCol = {headers.size() - 1};
@@ -137,6 +139,7 @@ public final class XlsxImporter {
         try {
             List<String> ss = pkg.sharedStrings();
             int[] pad = pkg.zeroPad();
+            final boolean[] dates = pkg.dateStyles();
             readRows(pkg, sheet.path, ss, pad, maxCol, Integer.MAX_VALUE, (rowNum, cells) -> {
                 if (progress != null) {
                     if (++count[0] % 500 == 0) progress.onRows(count[0]);
@@ -170,6 +173,7 @@ public final class XlsxImporter {
                 row.barcode = barcode;
                 if (b != null && b.number && digits(barcode) > 15) r.longNumericBarcodes++;
                 row.group = txt(cells, cG); row.unit = txt(cells, cU); row.pack = txt(cells, cP);
+                row.expiry = dateText(cells.get(cE), dates);
                 // cost
                 if (c == null || c.isBlank()) {
                     row.costIssue = c != null && c.noCachedValue ? "تكلفة ناتجة عن معادلة دون قيمة محسوبة" : "التكلفة فارغة";
@@ -222,6 +226,35 @@ public final class XlsxImporter {
     }
 
     // ------------------------------------------------------------------ helpers
+
+    /** Excel serial day (1900 system) -> yyyy-MM-dd. */
+    public static String serialToDate(BigDecimal serial) {
+        long days = serial.setScale(0, java.math.RoundingMode.FLOOR).longValue();
+        return java.time.LocalDate.of(1899, 12, 30).plusDays(days).toString();
+    }
+
+    public static BigDecimal dateToSerial(String iso) {
+        try {
+            java.time.LocalDate d = java.time.LocalDate.parse(iso.trim());
+            return BigDecimal.valueOf(java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.of(1899, 12, 30), d));
+        } catch (Exception e) { return null; }
+    }
+
+    /** Date cell -> text. Numbers in a date format (or plausible serials 1950–2100) become yyyy-MM-dd. */
+    static String dateText(Cell c, boolean[] dates) {
+        if (c == null || c.error) return "";
+        String t = c.text.trim();
+        if (t.isEmpty()) return "";
+        if (c.number) {
+            BigDecimal v = Num.parseCell(t);
+            if (v == null) return t;
+            boolean styled = c.style >= 0 && c.style < dates.length && dates[c.style];
+            boolean plausible = v.compareTo(BigDecimal.valueOf(18264)) >= 0 && v.compareTo(BigDecimal.valueOf(73051)) <= 0;
+            return styled || plausible ? serialToDate(v) : v.toPlainString();
+        }
+        if (t.matches("\\d{4}-\\d{2}-\\d{2}T.*")) return t.substring(0, 10);   // t="d" ISO cells
+        return t;
+    }
 
     static boolean isZero(Cell x) {
         if (!x.number) return false;
