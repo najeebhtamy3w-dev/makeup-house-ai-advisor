@@ -19,8 +19,6 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -33,8 +31,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
-import com.makeuphouse.visualfinderlite.insta.InstagramLinks
-import com.makeuphouse.visualfinderlite.insta.NameSuggester
 import com.makeuphouse.visualfinderlite.web.ImageDownloader
 import com.makeuphouse.visualfinderlite.web.ImageSniffer
 import com.makeuphouse.visualfinderlite.yandex.YandexContract
@@ -103,7 +99,6 @@ class SearchActivity : ComponentActivity() {
         findViewById<Button>(R.id.btnErrorRetry).setOnClickListener { reload() }
         findViewById<Button>(R.id.navBrowser).setOnClickListener { openExternal(web.url ?: startUrl()) }
         findViewById<Button>(R.id.navHome).setOnClickListener { finish() }
-        findViewById<Button>(R.id.navInstagram).setOnClickListener { showInstagramDialog() }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() = goBack()
         })
@@ -112,7 +107,7 @@ class SearchActivity : ComponentActivity() {
         if (manual) {
             pendingImage = if (savedInstanceState?.getBoolean(KEY_CONSUMED) == true) null
                 else IntentCompat.getParcelableExtra(intent, EXTRA_IMAGE, Uri::class.java)
-            showBanner(getString(R.string.hint_manual))
+            showBanner(intent.getStringExtra(EXTRA_HINT) ?: getString(R.string.hint_manual))
         } else showBanner(getString(R.string.hint_results))
 
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) web.loadUrl(startUrl())
@@ -220,85 +215,6 @@ class SearchActivity : ComponentActivity() {
         }
     }
 
-    // ---------- Instagram: image -> product name -> Instagram search ----------
-
-    private fun showInstagramDialog() {
-        val similar = NameSuggester.similarUrlOf(web.url) ?: NameSuggester.similarUrlOf(startUrl())
-        val view = layoutInflater.inflate(R.layout.dialog_instagram, null)
-        val query = view.findViewById<EditText>(R.id.igQuery)
-        val loading = view.findViewById<View>(R.id.igLoading)
-        val source = view.findViewById<TextView>(R.id.igSource)
-        val chips = view.findViewById<LinearLayout>(R.id.igChips)
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.ig_title).setView(view)
-            .setNegativeButton(R.string.dl_cancel, null)
-            .create()
-        val byName = view.findViewById<Button>(R.id.igByName)
-        val byTag = view.findViewById<Button>(R.id.igByTag)
-        fun refreshTag() {
-            val tag = InstagramLinks.hashtag(query.text.toString())
-            byTag.text = getString(R.string.ig_search_tag, tag.ifEmpty { "…" })
-        }
-        byName.setOnClickListener { if (launchInstagram(query.text.toString(), hashtag = false)) dialog.dismiss() }
-        byTag.setOnClickListener { if (launchInstagram(query.text.toString(), hashtag = true)) dialog.dismiss() }
-        refreshTag()
-        query.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) = refreshTag()
-        })
-        dialog.show()
-
-        if (similar == null) { loading.visibility = View.GONE; source.text = getString(R.string.ig_need_results); source.visibility = View.VISIBLE; return }
-        val cookie = runCatching { android.webkit.CookieManager.getInstance().getCookie(similar) }.getOrNull()
-        lifecycleScope.launch {
-            val guess = withContext(Dispatchers.IO) { runCatching { NameSuggester.fetchGuess(similar, ua, cookie) }.getOrNull() }
-            if (!dialog.isShowing) return@launch
-            loading.visibility = View.GONE
-            source.visibility = View.VISIBLE
-            if (guess == null) { source.text = getString(R.string.ig_not_found); return@launch }
-            if (query.text.isNullOrBlank()) { query.setText(guess.phrase); query.setSelection(query.text.length) }
-            source.text = getString(R.string.ig_from_results, guess.support, guess.total)
-            guess.suggestions.chunked(2).forEach { pair ->
-                val row = LinearLayout(this@SearchActivity).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                        .apply { bottomMargin = (6 * resources.displayMetrics.density).toInt() }
-                }
-                pair.forEach { s -> row.addView(chip(s) { query.setText(s); query.setSelection(s.length) }) }
-                chips.addView(row)
-            }
-        }
-    }
-
-    private fun chip(text: String, onClick: () -> Unit) = TextView(this).apply {
-        this.text = text; textSize = 14f; setTextColor(getColor(R.color.charcoal))
-        background = getDrawable(R.drawable.chip_bg)
-        val p = (12 * resources.displayMetrics.density).toInt(); setPadding(p, p / 2, p, p / 2)
-        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = p / 2 }
-        maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END; textDirection = View.TEXT_DIRECTION_LTR
-        minHeight = (40 * resources.displayMetrics.density).toInt(); gravity = android.view.Gravity.CENTER
-        setOnClickListener { onClick() }
-    }
-
-    /** Opens Instagram (app if installed, else browser) with ONLY the text query. Returns false if nothing to search. */
-    private fun launchInstagram(text: String, hashtag: Boolean): Boolean {
-        val url = if (hashtag) InstagramLinks.tagUrl(text) else InstagramLinks.keywordUrl(text)
-        if (url == null) { Toast.makeText(this, R.string.ig_empty, Toast.LENGTH_SHORT).show(); return false }
-        val copy = if (hashtag) "#" + InstagramLinks.hashtag(text) else text.trim()
-        runCatching {
-            getSystemService(android.content.ClipboardManager::class.java)
-                .setPrimaryClip(android.content.ClipData.newPlainText("instagram", copy))
-        }
-        Toast.makeText(this, getString(R.string.ig_copied, copy), Toast.LENGTH_LONG).show()
-        for (intent in instagramIntents(this, url)) {
-            try { startActivity(intent); return true } catch (_: ActivityNotFoundException) { }
-        }
-        Toast.makeText(this, R.string.ig_open_failed, Toast.LENGTH_SHORT).show()
-        return true
-    }
-
     // ---------- Navigation ----------
 
     private fun handleSpecialScheme(url: String): Boolean {
@@ -374,25 +290,22 @@ class SearchActivity : ComponentActivity() {
     }
 
     companion object {
-        /** Instagram app first (if installed), then any browser. */
-        fun instagramIntents(c: Context, url: String): List<Intent> {
-            val base = Intent(Intent.ACTION_VIEW, Uri.parse(url)).addCategory(Intent.CATEGORY_BROWSABLE)
-            val installed = runCatching { c.packageManager.getPackageInfo(InstagramLinks.PACKAGE, 0) }.isSuccess
-            return if (installed) listOf(Intent(base).setPackage(InstagramLinks.PACKAGE), base) else listOf(base)
-        }
-
         private const val EXTRA_MODE = "mode"
         private const val EXTRA_URL = "url"
         private const val EXTRA_IMAGE = "image"
         private const val MODE_RESULTS = "results"
         private const val MODE_MANUAL = "manual"
         private const val KEY_CONSUMED = "consumed"
+        private const val EXTRA_HINT = "hint"
 
         fun results(c: Context, url: String) = Intent(c, SearchActivity::class.java)
             .putExtra(EXTRA_MODE, MODE_RESULTS).putExtra(EXTRA_URL, url)
 
-        fun manual(c: Context, image: Uri) = Intent(c, SearchActivity::class.java)
-            .putExtra(EXTRA_MODE, MODE_MANUAL).putExtra(EXTRA_IMAGE, image)
+        /** Opens [url] (Yandex or Google Images) and auto-attaches [image] the first time the page asks for a file. */
+        fun manual(c: Context, image: Uri, url: String = YandexContract.HOME_URL, hint: String? = null) =
+            Intent(c, SearchActivity::class.java)
+            .putExtra(EXTRA_MODE, MODE_MANUAL).putExtra(EXTRA_IMAGE, image).putExtra(EXTRA_URL, url)
+            .apply { if (hint != null) putExtra(EXTRA_HINT, hint) }
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 }

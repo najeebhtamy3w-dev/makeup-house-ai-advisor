@@ -37,6 +37,7 @@ class MainViewModel(app: Application, private val saved: SavedStateHandle) : And
     sealed class Event {
         data class OpenResults(val url: String) : Event()
         data class OpenManual(val imageUri: Uri) : Event()
+        data class OpenLens(val imageUri: Uri) : Event()
         data class Toast(val resId: Int) : Event()
     }
 
@@ -138,6 +139,13 @@ class MainViewModel(app: Application, private val saved: SavedStateHandle) : And
     fun manualFallback() {
         val path = _state.value.imagePath ?: return
         events.trySend(Event.OpenManual(store.uriFor(File(path))))
+    }
+
+    /** Google Lens hand-off (no upload by this app: Google app / Google page does it on the user's tap). */
+    fun lens() {
+        val path = _state.value.imagePath ?: return
+        if (!Network.isOnline(getApplication())) { _state.tryEmitError(Error.NO_INTERNET, fallback = false); return }
+        events.trySend(Event.OpenLens(store.uriFor(File(path))))
     }
 
     fun dismissError() { _state.value = _state.value.copy(error = null) }

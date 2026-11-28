@@ -39,6 +39,14 @@ class UiRobolectricTest {
     private val app: Application = ApplicationProvider.getApplicationContext()
     private val outDir = File(System.getProperty("vfl.out") ?: "build/vfl-evidence", "screens").apply { mkdirs() }
 
+    /** FileProvider caches its path strategy statically; Robolectric uses a new data dir per test in one JVM. */
+    @org.junit.Before fun resetFileProviderCache() {
+        runCatching {
+            val f = androidx.core.content.FileProvider::class.java.getDeclaredField("sCache"); f.isAccessible = true
+            (f.get(null) as MutableMap<*, *>).clear()
+        }
+    }
+
     private fun shot(v: View, name: String) {
         val b = Bitmap.createBitmap(v.width.coerceAtLeast(1), v.height.coerceAtLeast(1), Bitmap.Config.ARGB_8888)
         v.draw(Canvas(b)); File(outDir, "$name.png").outputStream().use { b.compress(Bitmap.CompressFormat.PNG, 100, it) }
@@ -163,7 +171,6 @@ class UiRobolectricTest {
                 assertFalse(web.settings.allowFileAccess)
                 assertFalse(web.settings.allowContentAccess)
                 assertEquals("رجوع", a.findViewById<Button>(R.id.navBack).text.toString())
-                assertEquals("إنستغرام", a.findViewById<Button>(R.id.navInstagram).text.toString())
                 shot(a.findViewById<View>(R.id.root).rootView, "05_search_toolbar")
             }
         }
@@ -193,64 +200,87 @@ class UiRobolectricTest {
         }
     }
 
-    @Test fun instagramIntents_preferInstalledApp_elseBrowser() {
-        val url = "https://www.instagram.com/explore/tags/nyx/"
-        val noApp = SearchActivity.instagramIntents(app, url)
-        assertEquals(1, noApp.size); assertNull(noApp[0].`package`)
-        assertEquals(url, noApp[0].dataString)
-        shadowOf(app.packageManager).installPackage(android.content.pm.PackageInfo().apply { packageName = "com.instagram.android" })
-        val withApp = SearchActivity.instagramIntents(app, url)
-        assertEquals(listOf("com.instagram.android", null), withApp.map { it.`package` })
-        assertTrue(withApp.all { it.hasCategory(android.content.Intent.CATEGORY_BROWSABLE) })
+    /** Robolectric's default network has no INTERNET capability; give the simulated phone a working connection. */
+    private fun online() {
+        val cm = app.getSystemService(ConnectivityManager::class.java)
+        val caps = org.robolectric.shadows.ShadowNetworkCapabilities.newInstance()
+        shadowOf(caps).addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        shadowOf(cm).setNetworkCapabilities(cm.activeNetwork, caps)
     }
 
-    @Test fun instagramButton_withoutResults_explainsWhatToDo() {
-        ActivityScenario.launch<SearchActivity>(SearchActivity.manual(app, Uri.parse("content://x/y.jpg"))).use { sc ->
+    private fun withImage(sc: ActivityScenario<MainActivity>): MainViewModel {
+        lateinit var vm: MainViewModel
+        sc.onActivity { a -> vm = ViewModelProvider(a)[MainViewModel::class.java]; vm.onPicked(sampleImage("lens.jpg")) }
+        waitFor { vm.state.value.imagePath != null }
+        return vm
+    }
+
+    @Test fun lensButton_withGoogleApp_sharesPhotoToLens() {
+        shadowOf(app.packageManager).installPackage(android.content.pm.PackageInfo().apply { packageName = "com.google.android.googlequicksearchbox" })
+        online()
+        ActivityScenario.launch(MainActivity::class.java).use { sc ->
+            val vm = withImage(sc)
             sc.onActivity { a ->
-                val b = a.findViewById<Button>(R.id.navInstagram)
-                assertEquals("إنستغرام", b.text.toString())
+                idle()
+                val b = a.findViewById<Button>(R.id.btnLens)
+                assertEquals(View.VISIBLE, b.visibility)
+                assertEquals("بحث في Google Lens (يشمل إنستغرام)", b.text.toString())
+                shot(a.findViewById<View>(R.id.root).rootView, "08_main_with_lens_button")
                 b.performClick(); idle()
-                val d = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog() as android.app.AlertDialog
-                assertTrue(d.isShowing)
-                val msg = d.findViewById<TextView>(R.id.igSource)
-                assertEquals(View.VISIBLE, msg.visibility)
-                assertTrue(msg.text.contains("ابحث بالصورة أولًا"))
-                // typing a name still allows searching; button shows the live hashtag
-                d.findViewById<android.widget.EditText>(R.id.igQuery).setText("Essence Lash Princess")
-                assertEquals("#essencelashprincess", d.findViewById<Button>(R.id.igByTag).text.toString())
-                d.findViewById<Button>(R.id.igByTag).performClick(); idle()
-                val started = shadowOf(a).nextStartedActivity
-                assertEquals("https://www.instagram.com/explore/tags/essencelashprincess/", started.dataString)
+                val i = shadowOf(a).nextStartedActivity
+                assertEquals(android.content.Intent.ACTION_SEND, i.action)
+                assertEquals("com.google.android.googlequicksearchbox", i.`package`)
+                assertEquals("image/jpeg", i.type)
+                val stream = androidx.core.content.IntentCompat.getParcelableExtra(i, android.content.Intent.EXTRA_STREAM, Uri::class.java)!!
+                assertEquals("content", stream.scheme)
+                assertTrue(stream.toString().endsWith(File(vm.state.value.imagePath!!).name))
+                assertTrue(i.flags and android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION != 0)
                 val clip = app.getSystemService(android.content.ClipboardManager::class.java).primaryClip!!
-                assertEquals("#essencelashprincess", clip.getItemAt(0).text.toString())
+                assertEquals("instagram", clip.getItemAt(0).text.toString())
             }
         }
     }
 
-    /** LIVE (-Pvfl.live=true): real photo -> real Yandex upload -> results screen -> Instagram dialog with real suggestions. */
-    @Test fun instagramDialog_live_realSuggestions_screenshot() {
-        org.junit.Assume.assumeTrue(System.getProperty("vfl.live") == "true")
-        val img = File(System.getProperty("vfl.images"), "mascara.jpg")
-        val ua = "Mozilla/5.0 (Linux; Android 16; SM-S908E Build/BP2A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/140.0.0.0 Mobile Safari/537.36"
-        val noCookies = object : com.makeuphouse.visualfinderlite.yandex.YandexUploader.CookieJar {
-            override fun get(url: String): String? = null; override fun put(url: String, setCookie: String) {}
-        }
-        val up = com.makeuphouse.visualfinderlite.yandex.YandexUploader(ua, noCookies).upload(img)
-        val url = com.makeuphouse.visualfinderlite.yandex.YandexContract.similarUrl(up)
-        ActivityScenario.launch<SearchActivity>(SearchActivity.results(app, url)).use { sc ->
-            lateinit var d: android.app.AlertDialog
-            sc.onActivity { a -> a.findViewById<Button>(R.id.navInstagram).performClick(); idle()
-                d = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog() as android.app.AlertDialog }
-            waitFor { d.findViewById<View>(R.id.igLoading).visibility == View.GONE }
-            sc.onActivity { _ ->
+    @Test fun lensButton_withoutGoogleApp_opensGoogleImagesWithAutoAttach() {
+        online()
+        ActivityScenario.launch(MainActivity::class.java).use { sc ->
+            withImage(sc)
+            sc.onActivity { a ->
                 idle()
-                val q = d.findViewById<android.widget.EditText>(R.id.igQuery).text.toString()
-                assertTrue("got '$q'", q.contains("essence") || q.contains("lash princess"))
-                assertTrue(d.findViewById<android.widget.LinearLayout>(R.id.igChips).childCount >= 1)
-                assertEquals("#essencelashprincess", d.findViewById<Button>(R.id.igByTag).text.toString())
-                val w = d.window!!.decorView
-                shot(w, "07_instagram_dialog_live")
-                File(outDir, "07_instagram_dialog_live.txt").writeText("query=$q\nhashtag=" + d.findViewById<Button>(R.id.igByTag).text)
+                a.findViewById<Button>(R.id.btnLens).performClick(); idle()
+                val i = shadowOf(a).nextStartedActivity
+                assertEquals(SearchActivity::class.java.name, i.component!!.className)
+                assertEquals("https://images.google.com/", i.getStringExtra("url"))
+                assertTrue(i.getStringExtra("hint")!!.contains("instagram"))
+                ActivityScenario.launch<SearchActivity>(i).use { s2 ->
+                    s2.onActivity { sa ->
+                        val web = sa.findViewById<WebView>(R.id.web)
+                        assertEquals("https://images.google.com/", shadowOf(web).lastLoadedUrl)
+                        assertEquals(View.VISIBLE, sa.findViewById<View>(R.id.banner).visibility)
+                        var got: Array<Uri>? = null
+                        val params = object : WebChromeClient.FileChooserParams() {
+                            override fun getMode() = MODE_OPEN; override fun getAcceptTypes() = arrayOf("image/*")
+                            override fun isCaptureEnabled() = false; override fun getTitle() = null
+                            override fun getFilenameHint() = null; override fun createIntent() = android.content.Intent(android.content.Intent.ACTION_GET_CONTENT).setType("image/*")
+                        }
+                        assertTrue(shadowOf(web).webChromeClient!!.onShowFileChooser(web, { got = it }, params))
+                        assertEquals("content", got!!.single().scheme)
+                        shot(sa.findViewById<View>(R.id.root).rootView, "09_lens_web_fallback")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test fun lensButton_offline_showsError() {
+        val cm = app.getSystemService(ConnectivityManager::class.java)
+        ActivityScenario.launch(MainActivity::class.java).use { sc ->
+            val vm = withImage(sc)
+            shadowOf(cm).setDefaultNetworkActive(false); shadowOf(cm).setActiveNetworkInfo(null)
+            sc.onActivity { a ->
+                a.findViewById<Button>(R.id.btnLens).performClick(); idle()
+                assertEquals(MainViewModel.Error.NO_INTERNET, vm.state.value.error)
+                assertNull(shadowOf(a).nextStartedActivity)
             }
         }
     }

@@ -31,10 +31,9 @@
     <string name="nav_back">رجوع</string>
     <string name="nav_reload">تحديث</string>
     <string name="nav_browser">المتصفح</string>
-    <string name="nav_instagram">إنستغرام</string>
-    <string name="nav_home">الرئيسية</string>
+        <string name="nav_home">الرئيسية</string>
     <string name="hint_manual">اضغط زر الكاميرا في صفحة Yandex وستُرفق صورتك تلقائيًا.</string>
-    <string name="hint_results">اختر صورة ثم اضغط زر التنزيل ↓ أو اضغط مطوّلًا لحفظها. للبحث عن المنتج في إنستغرام اضغط «إنستغرام».</string>
+    <string name="hint_results">اختر صورة ثم اضغط زر التنزيل ↓ أو اضغط مطوّلًا لحفظها.</string>
     <string name="page_error">تعذّر تحميل صفحة Yandex. تحقّق من الاتصال ثم اضغط «إعادة تحميل».</string>
     <string name="captcha_hint">طلبت Yandex التحقق (CAPTCHA). أكمله في الصفحة ثم تابع.</string>
 
@@ -52,17 +51,8 @@
     <string name="dl_unsupported">هذا النوع من الروابط لا يمكن حفظه داخل التطبيق. استخدم «فتح في المتصفح».</string>
     <string name="usage_note">تنبيه: ظهور الصورة في نتائج البحث لا يعني إذنًا باستخدامها تجاريًا.</string>
 
-    <!-- Instagram -->
-    <string name="ig_title">البحث في إنستغرام</string>
-    <string name="ig_detecting">جارٍ التعرّف على اسم المنتج من نتائج Yandex…</string>
-    <string name="ig_hint">اسم المنتج (مثال: essence lash princess)</string>
-    <string name="ig_from_results">اقتُرح من %1$d نتيجة من أصل %2$d — عدّله إن لزم.</string>
-    <string name="ig_not_found">لم نتمكن من استخراج الاسم تلقائيًا. اكتب اسم المنتج أو الماركة.</string>
-    <string name="ig_need_results">ابحث بالصورة أولًا حتى تظهر النتائج، ثم اضغط «إنستغرام».</string>
-    <string name="ig_search_name">بحث بالاسم</string>
-    <string name="ig_search_tag">#%1$s</string>
-    <string name="ig_empty">اكتب اسم المنتج أولًا.</string>
-    <string name="ig_copied">نُسخ «%1$s» — إن لم تظهر النتائج الصقه في بحث إنستغرام.</string>
-    <string name="ig_tip">«بحث بالاسم» يعرض المنشورات والحسابات، و«#» يعرض منشورات الهاشتاق. يُرسل لإنستغرام النص فقط وليس صورتك.</string>
-    <string name="ig_open_failed">تعذّر فتح إنستغرام أو المتصفح.</string>
+    <!-- Google Lens (Instagram) -->
+    <string name="btn_lens">بحث في Google Lens (يشمل إنستغرام)</string>
+    <string name="lens_app_hint">في Google Lens اكتب «instagram» في «أضف إلى بحثك» لعرض منشورات إنستغرام (نُسخت الكلمة).</string>
+    <string name="lens_web_hint">اضغط أيقونة الكاميرا في Google وستُرفق صورتك تلقائيًا. ثم اكتب «instagram» في «أضف إلى بحثك» لعرض منشورات إنستغرام.</string>
 </resources>

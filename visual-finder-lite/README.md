@@ -1,6 +1,6 @@
-# MAKEUP HOUSE — Visual Finder Lite 1.1.0
+# MAKEUP HOUSE — Visual Finder Lite 1.2.0
 
-تطبيق Android خفيف (عربي، RTL): **صوّر المنتج ← ابحث ← صور Yandex المشابهة ← نزّل الصورة**، ثم **ابحث عن المنتج في إنستغرام** باسمه المستخرج تلقائيًا.
+تطبيق Android خفيف (عربي، RTL): **صوّر المنتج ← ابحث ← صور Yandex المشابهة ← نزّل الصورة**، ثم **ابحث في Google Lens** (يشمل منشورات إنستغرام) بنفس الصورة.
 
 ```
 تصوير/اختيار ──► تجهيز (≤1600px، إزالة EXIF) ──► رفع إلى Yandex ──► cbir_id
@@ -22,10 +22,7 @@
 | `web/ImageDownloader.kt` | تنزيل إلى MediaStore مع فحص magic bytes |
 | `web/ImageSniffer.kt` | كشف صيغة الصورة الحقيقية وتوليد الأسماء |
 | `util/Network.kt` | فحص الاتصال |
-| `insta/ResultTitles.kt` | استخراج عناوين النتائج من صفحة Yandex (كل صيغ الترميز) |
-| `insta/ProductNameGuesser.kt` | تخمين «الماركة + خط المنتج» من تكرار الكلمات عبر العناوين |
-| `insta/NameSuggester.kt` | جلب صفحة Similar للصورة الحالية وتشغيل التخمين |
-| `insta/InstagramLinks.kt` | روابط إنستغرام (بحث بالكلمات / هاشتاق) |
+| `lens/GoogleLens.kt` | تسليم الصورة إلى Google Lens (مشاركة لتطبيق Google، أو Google Images مع إرفاق تلقائي) |
 
 **الأذونات:** `INTERNET`، `ACCESS_NETWORK_STATE` فقط.
 **المكتبات:** activity-ktx، core-ktx، coroutines فقط.
@@ -36,7 +33,7 @@
 
 ```bash
 echo "sdk.dir=/path/to/android-sdk" > local.properties
-./gradlew assembleDebug        # → app/build/outputs/apk/debug/MAKEUP-HOUSE-VISUAL-FINDER-LITE-1.1.0-debug.apk
+./gradlew assembleDebug        # → app/build/outputs/apk/debug/MAKEUP-HOUSE-VISUAL-FINDER-LITE-1.2.0-debug.apk
 ./gradlew testDebugUnitTest lintDebug
 ```
 

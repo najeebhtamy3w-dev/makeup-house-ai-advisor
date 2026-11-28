@@ -85,24 +85,11 @@
 - إذا ظهر CAPTCHA (رابط `/showcaptcha`) يعرض التطبيق تنبيهًا عربيًا ويترك المستخدم يكمله طبيعيًا. ملفات تعريف الارتباط (cookies) مشتركة بين الـWebView وعملية الرفع، فالتحقق يسري على الرفع التالي.
 - لا يلزم تسجيل دخول للبحث أو التنزيل.
 
-## 8. استخراج اسم المنتج لإنستغرام (1.1.0)
+## 8. هل يعطي Yandex نتائج من إنستغرام؟ (قياس 1.2.0)
 
-- `cbirTags` الخاصة بـYandex عامة جدًا ولا تذكر الماركة (مثال: «shampoo»، «creme»)، فلم تُستخدم.
-- عناوين الصور المشابهة تذكر الماركة والمنتج في أغلبها، بلغات متعددة، فاعتُمد عليها.
+| التبويب | منتجات بها نتيجة من instagram.com | مجموع الروابط |
+|---|---|---|
+| Similar | 0/12 | 0 |
+| Sites (المواقع التي تحتوي الصورة) | 0/12 | 0 |
 
-**نتائج حية بكود التطبيق: 12/12.**
-
-| الفئة | العلامة | الاسم | دعم | الهاشتاق | صحيح |
-|---|---|---|---|---|---|
-| لوشن | Johnson’s | johnson baby | 28/38 | #johnsonbaby | ✅ |
-| كريم | Mixa | mixa intensif | 21/38 | #mixaintensif | ✅ |
-| مزيل عرق | Narta | narta homme | 29/39 | #nartahomme | ✅ |
-| بلسم | Herbal Essences | herbal essences | 31/36 | #herbalessences | ✅ |
-| أحمر شفاه | NYX | nyx professional makeup | 34/38 | #nyxprofessionalmakeup | ✅ |
-| ماسكارا | Essence | essence lash princess false | 36/39 | #essencelashprincess | ✅ |
-| عطر | MFK | baccarat rouge 540 | 25/36 | #baccaratrouge540 | ✅ |
-| سيروم | Essence | essence hello good stuff | 28/32 | #essencehellogood | ✅ |
-| شامبو | Cadum | cadum shampooing | 17/38 | #cadumshampooing | ✅ |
-| جل استحمام | Le Petit Marseillais | petit marseillais | 37/40 | #petitmarseillais | ✅ |
-| واقي شمس | Avène | eau thermale avene | 32/38 | #eauthermaleavene | ✅ |
-| معجون أسنان | Signal | signal toothpaste | 28/40 | #signaltoothpaste | ✅ |
+**الخلاصة:** Yandex لا يصلح لإيجاد منشورات إنستغرام، فاعتُمد Google Lens لهذا الغرض (انظر FINAL_RELEASE_REPORT 1.2.0). البيانات في `evidence/live/instagram_probe_yandex.json`.

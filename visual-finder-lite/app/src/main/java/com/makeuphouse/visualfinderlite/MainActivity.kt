@@ -21,6 +21,7 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.makeuphouse.visualfinderlite.lens.GoogleLens
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var progress: View
     private lateinit var progressText: TextView
     private lateinit var btnSearch: Button
+    private lateinit var btnLens: Button
     private lateinit var btnCapture: Button
     private lateinit var btnGallery: Button
     private lateinit var errorBox: View
@@ -65,6 +67,7 @@ class MainActivity : ComponentActivity() {
         progress = findViewById(R.id.progress)
         progressText = findViewById(R.id.progressText)
         btnSearch = findViewById(R.id.btnSearch)
+        btnLens = findViewById(R.id.btnLens)
         btnCapture = findViewById(R.id.btnCapture)
         btnGallery = findViewById(R.id.btnGallery)
         errorBox = findViewById(R.id.errorBox)
@@ -74,6 +77,7 @@ class MainActivity : ComponentActivity() {
         btnCapture.setOnClickListener { capture() }
         btnGallery.setOnClickListener { pick() }
         btnSearch.setOnClickListener { vm.search() }
+        btnLens.setOnClickListener { vm.lens() }
         findViewById<Button>(R.id.btnRetry).setOnClickListener { retry() }
         btnManual.setOnClickListener { vm.manualFallback() }
 
@@ -116,13 +120,14 @@ class MainActivity : ComponentActivity() {
         preview.visibility = if (has) View.VISIBLE else View.GONE
         previewEmpty.visibility = if (has) View.GONE else View.VISIBLE
         btnSearch.visibility = if (has) View.VISIBLE else View.GONE
+        btnLens.visibility = btnSearch.visibility
         btnCapture.setText(if (has) R.string.btn_recapture else R.string.btn_capture)
         btnGallery.setText(if (has) R.string.btn_other_image else R.string.btn_gallery)
 
         val busy = s.busy != null
         progress.visibility = if (busy) View.VISIBLE else View.GONE
         progressText.setText(if (s.busy == MainViewModel.Busy.UPLOADING) R.string.status_uploading else R.string.status_preparing)
-        btnSearch.isEnabled = !busy; btnCapture.isEnabled = !busy; btnGallery.isEnabled = !busy
+        btnSearch.isEnabled = !busy; btnLens.isEnabled = !busy; btnCapture.isEnabled = !busy; btnGallery.isEnabled = !busy
 
         errorBox.visibility = if (s.error != null) View.VISIBLE else View.GONE
         s.error?.let {
@@ -140,10 +145,26 @@ class MainActivity : ComponentActivity() {
             if (s.error == MainViewModel.Error.DECODE || s.error == MainViewModel.Error.NO_CAMERA) View.GONE else View.VISIBLE
     }
 
+    private fun openLens(image: android.net.Uri) {
+        runCatching {
+            getSystemService(android.content.ClipboardManager::class.java)
+                .setPrimaryClip(android.content.ClipData.newPlainText("lens", GoogleLens.INSTAGRAM_QUERY))
+        }
+        if (GoogleLens.isGoogleAppInstalled(this)) {
+            try {
+                startActivity(GoogleLens.shareIntent(image))
+                Toast.makeText(this, R.string.lens_app_hint, Toast.LENGTH_LONG).show()
+                return
+            } catch (_: ActivityNotFoundException) { /* fall through to the web */ }
+        }
+        startActivity(SearchActivity.manual(this, image, GoogleLens.WEB_URL, getString(R.string.lens_web_hint)))
+    }
+
     private fun handle(e: MainViewModel.Event) {
         when (e) {
             is MainViewModel.Event.OpenResults -> startActivity(SearchActivity.results(this, e.url))
             is MainViewModel.Event.OpenManual -> startActivity(SearchActivity.manual(this, e.imageUri))
+            is MainViewModel.Event.OpenLens -> openLens(e.imageUri)
             is MainViewModel.Event.Toast -> Toast.makeText(this, e.resId, Toast.LENGTH_SHORT).show()
         }
     }

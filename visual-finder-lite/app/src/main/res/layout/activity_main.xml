@@ -70,6 +70,13 @@
             android:drawableStart="@android:drawable/ic_menu_search"
             android:visibility="gone" />
 
+        <Button
+            android:id="@+id/btnLens" style="@style/Btn.Outline"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:minHeight="52dp"
+            android:text="@string/btn_lens" android:textSize="15sp"
+            android:visibility="gone" />
+
         <!-- Error box -->
         <LinearLayout
             android:id="@+id/errorBox"

@@ -1,0 +1,110 @@
+[
+ {
+  "cat": "cream",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCJ2Hod",
+  "bytes": 5677,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "shampoo",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCICG1Z",
+  "bytes": 5677,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "serum",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCMuVtf",
+  "bytes": 5683,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "sunscreen",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCKGc8f",
+  "bytes": 5683,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "mascara",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCNKZ7Z",
+  "bytes": 5682,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "hair-conditioner",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCIuM1Z",
+  "bytes": 5682,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "body-lotion",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCPmd_c",
+  "bytes": 5685,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "perfume",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCLSJ2Y",
+  "bytes": 5683,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "shower-gel",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCIuA_e",
+  "bytes": 5683,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "lipstick",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCMyH6Z",
+  "bytes": 5677,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "deodorant",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCNaI8e",
+  "bytes": 5682,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ },
+ {
+  "cat": "toothpaste",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fvsrid%3DCJCeyf",
+  "bytes": 5679,
+  "consent": false,
+  "ig_posts": 0,
+  "ig_mentions": 0,
+  "examples": []
+ }
+]
